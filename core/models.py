@@ -19,6 +19,7 @@ class User(AbstractUser):
 # ==========================================================
 # ۲. دسته‌بندی
 # ==========================================================
+
 class Category(models.Model):
     TYPE_CHOICES = [('attraction', 'Attraction'), ('article', 'Article')]
     
@@ -38,6 +39,7 @@ class Category(models.Model):
 # ==========================================================
 # ۳. تگ
 # ==========================================================
+
 class Tag(models.Model):
     TYPE_CHOICES = [('attraction', 'Attraction'), ('article', 'Article'), ('both', 'Both')]
     
@@ -55,6 +57,7 @@ class Tag(models.Model):
 # ==========================================================
 # ۴. جاذبه (بدون PointField)
 # ==========================================================
+
 class Place(models.Model):
     name = models.CharField(max_length=200)
     slug = models.CharField(max_length=220, unique=True)
@@ -87,6 +90,7 @@ class Place(models.Model):
 # ==========================================================
 # ۵. ارتباط جاذبه و تگ
 # ==========================================================
+
 class PlaceTag(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
