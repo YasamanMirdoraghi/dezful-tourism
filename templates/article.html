@@ -1,0 +1,224 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="مقاله گردشگری سفر به دزفول">
+  <title>مقاله | سفر به دزفول</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body id="articlePage">
+  <div class="article-reading-progress"><span></span></div>
+
+  <header class="navbar" id="navbar">
+    <div class="logo"><i class="fas fa-map-signs"></i> سفر به <span>دزفول</span></div>
+    <nav class="nav-links" id="navLinks">
+      <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i></button>
+      <a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
+      <a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+      <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+      <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+      <a href="{% url 'articles' %}" class="active"><i class="fas fa-newspaper"></i> مقالات</a>
+    </nav>
+    <div class="auth-buttons">
+      <a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+      <a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+      <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
+    </div>
+  </header>
+
+  <!-- همان Magazine Slider پروژه؛ داده‌ها از data/articles.js می‌آیند -->
+  <section class="section-magazine-slider article-magazine-slider" id="magazineSlider">
+    <div class="container">
+      <div class="slider-header">
+        <div class="slider-title"><i class="fas fa-book-open"></i> مجله <span class="highlight">سفر به دزفول</span>
+        </div>
+        <a href="articles.html" class="view-all-btn">همه مقالات <i class="fas fa-arrow-left"></i></a>
+      </div>
+      <div class="slider-container-mag" id="sliderContainerMag">
+        <div class="slides-track-mag" id="slidesTrackMag"></div>
+      </div>
+      <div class="slider-footer-mag">
+        <div class="slide-list-horizontal-mag" id="slideListHorizontalMag"></div>
+      </div>
+    </div>
+  </section>
+
+  <main class="article-main">
+    <div class="container">
+      <nav class="article-breadcrumb" aria-label="مسیر صفحه">
+        <a href="index.html">خانه</a><i class="fas fa-chevron-left"></i><a href="articles.html">مقالات</a><i
+          class="fas fa-chevron-left"></i><span data-article-category></span>
+      </nav>
+
+      <section class="article-header-card">
+        <div class="article-header-copy">
+          <span class="article-category-pill"><i class="fas fa-compass"></i><span data-article-category></span></span>
+          <h1 data-article-title></h1>
+          <p data-article-excerpt></p>
+          <div class="article-meta-row">
+            <div class="article-author-chip"><span class="article-author-avatar"><i
+                  class="fas fa-user"></i></span><span><small>نویسنده</small><strong
+                  data-article-author></strong></span></div>
+            <div class="article-meta-chip"><i class="far fa-calendar"></i><span><small>انتشار</small><strong
+                  data-article-date></strong></span></div>
+            <div class="article-meta-chip"><i class="far fa-clock"></i><span><small>زمان مطالعه</small><strong
+                  data-article-duration></strong></span></div>
+            <div class="article-meta-chip"><i class="far fa-eye"></i><span><small>بازدید</small><strong
+                  data-article-views></strong></span></div>
+          </div>
+        </div>
+        <div class="article-cover-wrap"><img data-article-cover src="" alt="">
+          <div class="article-cover-glow"></div>
+        </div>
+      </section>
+
+      <div class="article-layout">
+        <article class="article-content-card">
+          <div class="article-share-bar">
+            <span><i class="fas fa-share-nodes"></i> اشتراک‌گذاری</span>
+            <div><button data-share="telegram" aria-label="تلگرام"><i class="fab fa-telegram-plane"></i></button><button
+                data-share="whatsapp" aria-label="واتساپ"><i class="fab fa-whatsapp"></i></button><button
+                data-share="copy" aria-label="کپی لینک"><i class="fas fa-link"></i></button></div>
+          </div>
+          <div class="article-body" data-article-body></div>
+          <div class="article-end-note"><i class="fas fa-location-dot"></i>
+            <div><strong>آماده‌ی کشف دزفول شدی؟</strong><span>حالا می‌تونی با برنامه‌ریز سفر، مسیر خودت رو بسازی.</span>
+            </div><a href="plan.html">ساخت برنامه سفر <i class="fas fa-arrow-left"></i></a>
+          </div>
+        </article>
+
+        <aside class="article-sidebar">
+          <div class="article-sidebar-card article-toc-card">
+            <div class="sidebar-card-title"><span><i class="fas fa-list-ul"></i> در این مقاله</span><em>فهرست</em></div>
+            <nav data-article-toc></nav>
+          </div>
+          <div class="article-sidebar-card article-stats-card">
+            <div class="mini-stat"><span><i class="far fa-clock"></i></span>
+              <div><strong data-article-duration></strong><small>زمان مطالعه</small></div>
+            </div>
+            <div class="mini-stat"><span><i class="far fa-eye"></i></span>
+              <div><strong data-article-views></strong><small>بازدید</small></div>
+            </div>
+            <div class="mini-stat"><span><i class="fas fa-bookmark"></i></span>
+              <div><strong>گردشگری</strong><small>موضوع مقاله</small></div>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </div>
+  </main>
+
+  <section class="article-related-section">
+    <div class="container">
+      <div class="article-section-heading">
+        <div><span>پیشنهاد سردبیر</span>
+          <h2>مقالات مرتبط</h2>
+        </div><a href="articles.html">مشاهده همه <i class="fas fa-arrow-left"></i></a>
+      </div>
+      <div class="article-related-slider">
+        <button class="article-related-nav article-related-prev" type="button" aria-label="مقالات قبلی"
+          data-related-prev><i class="fas fa-arrow-right"></i></button>
+        <div class="article-related-viewport">
+          <div class="article-related-track" data-related-track></div>
+        </div>
+        <button class="article-related-nav article-related-next" type="button" aria-label="مقالات بعدی"
+          data-related-next><i class="fas fa-arrow-left"></i></button>
+      </div>
+      <div class="article-related-dots" data-related-dots></div>
+    </div>
+  </section>
+
+  <section class="article-comments-section">
+    <div class="container article-comments-wrap">
+      <div class="article-section-heading">
+        <div><span>صدای مسافران</span>
+          <h2>نظر کاربران درباره این مقاله</h2>
+        </div>
+        <div class="comment-rating"><strong>۴.۸</strong><span>★★★★★</span><small>امتیاز کاربران</small></div>
+      </div>
+      <div class="comments-grid">
+        <form class="comment-form-card" data-comment-form>
+          <div class="form-icon"><i class="far fa-comment-dots"></i></div>
+          <h3>تجربه‌ات را با ما به اشتراک بگذار</h3>
+          <p>نظر تو می‌تواند به مسافر بعدی برای انتخاب بهتر کمک کند.</p>
+          <textarea name="comment" rows="5" placeholder="نظرت درباره این مقاله چیست؟"></textarea><button
+            type="submit">ثبت نظر <i class="fas fa-paper-plane"></i></button>
+        </form>
+        <div class="comments-list" data-comments-list>
+          <article class="comment-item">
+            <div class="comment-avatar">م</div>
+            <div>
+              <div class="comment-head"><strong>مریم</strong><span>۲ روز پیش</span></div>
+              <p>ساختار مقاله خیلی مرتب و کاربردی بود؛ مخصوصاً بخش نکات قبل از سفر.</p>
+              <div class="comment-actions"><span>♡ ۱۲</span><button>پاسخ</button></div>
+            </div>
+          </article>
+          <article class="comment-item">
+            <div class="comment-avatar">ع</div>
+            <div>
+              <div class="comment-head"><strong>علی</strong><span>۵ روز پیش</span></div>
+              <p>عکس‌ها و اطلاعات خلاصه باعث شد سریع بفهمم چه چیزی برای سفر لازم دارم.</p>
+              <div class="comment-actions"><span>♡ ۸</span><button>پاسخ</button></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================== -->
+  <!-- ===== فوتر ===== -->
+  <!-- ========================================================== -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4><i class="fas fa-map-signs" style="color:var(--brick-orange);"></i> سفر به دزفول</h4>
+          <p>سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول.</p>
+          <div class="social">
+            <a href="#"><i class="fab fa-telegram"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+            <a href="#"><i class="fab fa-youtube"></i></a>
+            <a href="#"><i class="fab fa-linkedin"></i></a>
+          </div>
+        </div>
+        <div>
+          <h4>دسترسی سریع</h4>
+          <a href="plan.html">برنامه‌ریز سفر</a>
+          <a href="attraction.html">جاذبه‌های گردشگری</a>
+          <a href="map.html">نقشه تعاملی</a>
+          <a href="articles.html">مقالات</a>
+        </div>
+        <div>
+          <h4>اطلاعات مفید</h4>
+          <a href="#">بهترین زمان سفر</a>
+          <a href="#">راهنمای مسیرها</a>
+          <a href="#">تماس با ما</a>
+          <a href="#">درباره‌ی پروژه</a>
+        </div>
+      </div>
+      <div class="footer-copy">
+        <i class="fas fa-copyright"></i> ۱۴۰۴ - پروژه‌ی کارشناسی - دانشگاه صنعتی جندی شاپور دزفول
+      </div>
+    </div>
+  </footer>
+
+  <button class="scroll-top" id="scrollTop">
+    <i class="fas fa-chevron-up"></i>
+  </button>
+
+  <!-- لینک اسکریپت اصلی پروژه -->
+  <script src="{% static 'js/articles.js' %}"></script>
+  <script src="{% static 'js/script.js' %}"></script>
+</body>
+
+</html>

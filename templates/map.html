@@ -1,0 +1,903 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>نقشه گردشگری دزفول | سفر به دزفول</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+
+<style>
+/* ==========================================================
+   نقشه تمام‌صفحه سبک بزنیم‌بیرون - نسخه‌ی سفارشی‌سازی‌شده
+========================================================== */
+body.page-map { padding: 0 !important; overflow: hidden; }
+.page-map .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); }
+
+.map-wrapper {
+    position: fixed; inset: 0; z-index: 1;
+}
+#tourismMap {
+    position: absolute; inset: 0;
+}
+
+/* ---------- سایدبار کشویی ---------- */
+.map-sidebar {
+    position: absolute;
+    top: 80px; right: 20px;
+    width: 400px; max-height: calc(100vh - 110px);
+    background: #fff;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.18);
+    z-index: 900;
+    display: flex; flex-direction: column;
+    overflow: hidden;
+    transition: transform .4s cubic-bezier(.4,0,.2,1), opacity .3s;
+}
+.map-sidebar.collapsed { transform: translateX(calc(100% + 30px)); }
+
+.sidebar-head {
+    padding: 18px 20px 14px;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    color: #fff;
+    position: relative;
+}
+.sidebar-head h2 {
+    font-size: 17px; font-weight: 900; margin: 0 0 4px;
+    display: flex; align-items: center; gap: 8px;
+}
+.sidebar-head p { font-size: 12px; opacity: .85; margin: 0; }
+.sidebar-head .close-sb {
+    position: absolute; top: 12px; left: 12px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,.2); border: none; color: #fff;
+    cursor: pointer; font-size: 14px; transition: .2s;
+}
+.sidebar-head .close-sb:hover { background: rgba(255,255,255,.35); transform: rotate(90deg); }
+
+/* جستجوی شناور */
+.smart-search {
+    position: relative; padding: 14px 16px;
+    border-bottom: 1px solid #f1ece3;
+}
+.smart-search input {
+    width: 100%; padding: 12px 42px 12px 14px;
+    border-radius: 14px; border: 2px solid rgba(17,139,113,.12);
+    background: rgba(17,139,113,.04); font-family: inherit;
+    font-size: 13px; color: var(--brown-text); outline: none;
+    transition: .25s;
+}
+.smart-search input:focus {
+    border-color: var(--primary-green); background: #fff;
+    box-shadow: 0 0 0 4px rgba(17,139,113,.08);
+}
+.smart-search i.fa-search {
+    position: absolute; top: 28px; right: 30px;
+    color: var(--primary-green); font-size: 14px;
+}
+.search-suggestions {
+    position: absolute; top: 100%; left: 16px; right: 16px;
+    background: #fff; border-radius: 14px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.15);
+    max-height: 280px; overflow-y: auto;
+    z-index: 100; display: none;
+    margin-top: 4px;
+}
+.search-suggestions.open { display: block; }
+.sug-item {
+    padding: 10px 14px; cursor: pointer;
+    border-bottom: 1px solid #f5f1ea;
+    display: flex; align-items: center; gap: 10px;
+    transition: .15s;
+}
+.sug-item:hover { background: rgba(17,139,113,.06); }
+.sug-item:last-child { border-bottom: none; }
+.sug-item i {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: rgba(17,139,113,.1); color: var(--primary-green);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; flex: 0 0 30px;
+}
+.sug-item .sug-name { font-weight: 700; font-size: 13px; color: var(--brown-text); }
+.sug-item .sug-cat { font-size: 11px; color: var(--brown-light); }
+
+/* فیلترهای سریع */
+.quick-filters {
+    padding: 12px 16px; border-bottom: 1px solid #f1ece3;
+}
+.qf-title {
+    font-size: 11px; font-weight: 800;
+    color: var(--brown-light); margin-bottom: 8px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.qf-clear { font-size: 11px; color: var(--brick-orange); cursor: pointer; }
+.qf-chips {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    max-height: 120px; overflow-y: auto;
+}
+.qf-chip {
+    display: inline-flex; align-items: center; gap: 5px;
+    padding: 6px 12px; border-radius: 20px;
+    background: #f5f1ea; border: 1px solid transparent;
+    font-size: 11px; font-weight: 700; cursor: pointer;
+    color: var(--brown-text); transition: .2s;
+    font-family: inherit;
+}
+.qf-chip:hover { border-color: var(--primary-green); transform: translateY(-1px); }
+.qf-chip.active {
+    background: var(--primary-green); color: #fff;
+    border-color: var(--primary-green);
+}
+.qf-chip .chip-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px;
+}
+.qf-chip .chip-num {
+    font-size: 9px; background: rgba(0,0,0,.1);
+    border-radius: 10px; padding: 1px 6px;
+}
+.qf-chip.active .chip-num { background: rgba(255,255,255,.25); }
+
+/* گزینه‌های اضافی */
+.extra-toggles {
+    padding: 10px 16px; border-bottom: 1px solid #f1ece3;
+    display: flex; gap: 8px;
+}
+.et-btn {
+    flex: 1; padding: 8px 6px;
+    background: rgba(17,139,113,.05); border: 1px solid transparent;
+    border-radius: 10px; cursor: pointer; font-family: inherit;
+    font-size: 11px; font-weight: 700; color: var(--brown-light);
+    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    transition: .2s;
+}
+.et-btn i { font-size: 14px; }
+.et-btn.active { background: rgba(17,139,113,.12); color: var(--primary-green); border-color: var(--primary-green); }
+
+/* لیست جاذبه‌ها */
+.map-list {
+    flex: 1; overflow-y: auto;
+    padding: 10px 14px 16px;
+    display: flex; flex-direction: column; gap: 8px;
+}
+.map-list::-webkit-scrollbar { width: 5px; }
+.map-list::-webkit-scrollbar-thumb { background: rgba(17,139,113,.3); border-radius: 10px; }
+
+.map-item {
+    display: flex; gap: 10px; background: #fff;
+    border: 2px solid #f1ece3; border-radius: 14px;
+    padding: 8px; cursor: pointer; transition: .2s;
+}
+.map-item:hover { border-color: rgba(17,139,113,.4); transform: translateX(-2px); }
+.map-item.active { border-color: var(--primary-green); box-shadow: 0 6px 18px rgba(17,139,113,.15); }
+.map-item img {
+    width: 64px; height: 64px; border-radius: 10px;
+    object-fit: cover; flex: 0 0 64px; background: #eee;
+}
+.mi-body { flex: 1; min-width: 0; }
+.mi-top { display: flex; justify-content: space-between; gap: 6px; }
+.mi-top h4 { font-size: 13px; font-weight: 800; color: var(--brown-text); margin: 0 0 2px; }
+.mi-cost {
+    font-size: 9px; font-weight: 800; white-space: nowrap;
+    background: rgba(255,80,80,.08); color: var(--brick-orange);
+    border-radius: 20px; padding: 2px 7px;
+}
+.mi-cost.free { background: rgba(17,139,113,.08); color: var(--primary-green); }
+.mi-body > p {
+    font-size: 10.5px; color: var(--brown-light);
+    line-height: 1.6; margin: 0 0 4px;
+    display: -webkit-box; -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical; overflow: hidden;
+}
+.mi-meta {
+    display: flex; gap: 8px; font-size: 10px;
+    font-weight: 700; color: var(--brown-light);
+}
+
+.result-count {
+    padding: 8px 16px; font-size: 11px;
+    font-weight: 700; color: var(--primary-green);
+    border-bottom: 1px solid #f1ece3;
+    display: flex; justify-content: space-between;
+}
+
+/* دکمه toggle سایدبار */
+.sb-toggle {
+    position: absolute; top: 90px; right: 20px;
+    width: 48px; height: 48px; border-radius: 50%;
+    background: #fff; color: var(--primary-green);
+    border: none; box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    cursor: pointer; z-index: 900;
+    display: none; align-items: center; justify-content: center;
+    font-size: 18px; transition: .2s;
+}
+.sb-toggle:hover { transform: scale(1.08); }
+.sb-toggle.show { display: flex; }
+
+/* ---------- کنترل‌های شناور روی نقشه ---------- */
+.map-controls {
+    position: absolute; left: 20px; bottom: 30px;
+    z-index: 800;
+    display: flex; flex-direction: column; gap: 8px;
+}
+.mc-btn {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: #fff; color: var(--brown-text);
+    border: none; box-shadow: 0 6px 20px rgba(0,0,0,.15);
+    cursor: pointer; font-size: 16px;
+    display: flex; align-items: center; justify-content: center;
+    transition: .2s;
+}
+.mc-btn:hover { color: var(--primary-green); transform: scale(1.06); }
+.mc-btn.active { background: var(--primary-green); color: #fff; }
+.mc-btn.locate { color: var(--brick-orange); }
+
+/* لایه‌های نقشه */
+.layer-switcher {
+    position: absolute; left: 20px; top: 90px;
+    z-index: 800; background: #fff;
+    border-radius: 14px; padding: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.15);
+    display: none; flex-direction: column; gap: 4px;
+}
+.layer-switcher.open { display: flex; }
+.layer-switcher button {
+    background: transparent; border: none; cursor: pointer;
+    padding: 8px 14px; border-radius: 8px; font-family: inherit;
+    font-size: 12px; font-weight: 700; color: var(--brown-text);
+    display: flex; align-items: center; gap: 8px;
+    transition: .15s;
+}
+.layer-switcher button:hover { background: rgba(17,139,113,.08); }
+.layer-switcher button.active { background: var(--primary-green); color: #fff; }
+.layer-switcher button i { font-size: 14px; }
+
+/* راهنما */
+.map-legend {
+    position: absolute; bottom: 30px; right: 20px;
+    z-index: 800; background: rgba(255,255,255,.96);
+    backdrop-filter: blur(8px); border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    font-size: 11px; max-width: 200px;
+    transition: .3s;
+}
+.map-legend.collapsed {
+    padding: 8px 14px; max-width: 100px;
+}
+.map-legend.collapsed .legend-body { display: none; }
+.legend-title {
+    font-weight: 800; color: var(--brown-text);
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 6px; cursor: pointer;
+}
+.legend-title i.lc { color: var(--brick-orange); }
+.legend-title .toggle-leg {
+    background: none; border: none; color: var(--brown-light);
+    cursor: pointer; font-size: 11px; padding: 2px 6px;
+}
+.legend-body { margin-top: 8px; }
+.legend-item {
+    display: flex; align-items: center; gap: 8px;
+    margin: 5px 0; color: var(--brown-text); font-weight: 600;
+}
+.legend-dot {
+    width: 11px; height: 11px; border-radius: 50%;
+    flex: 0 0 11px;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 2px 4px rgba(0,0,0,.15);
+}
+
+/* مارکرها */
+.pin-wrap { background: transparent; border: none; }
+.pin {
+    width: 36px; height: 36px;
+    border: 3px solid #fff; border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 5px 14px rgba(0,0,0,.35);
+    display: flex; align-items: center; justify-content: center;
+    transition: transform .2s;
+}
+.pin:hover { transform: rotate(-45deg) scale(1.15); }
+.pin span {
+    transform: rotate(45deg); color: #fff;
+    font-size: 14px;
+}
+
+/* پاپ‌آپ غنی */
+.leaflet-popup-content-wrapper {
+    border-radius: 16px; padding: 0 !important;
+    box-shadow: 0 15px 50px rgba(0,0,0,.22);
+    overflow: hidden;
+}
+.leaflet-popup-content {
+    margin: 0 !important; width: 280px !important;
+    font-family: 'Vazirmatn', sans-serif;
+}
+.leaflet-popup-tip { background: #fff; }
+.map-pop { background: #fff; direction: rtl; }
+.map-pop-img {
+    position: relative; height: 140px;
+    background: linear-gradient(135deg, #dff0ea, #cfe6dd);
+}
+.map-pop-img img { width: 100%; height: 100%; object-fit: cover; }
+.map-pop-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,.95); color: var(--primary-green);
+    border-radius: 20px; padding: 4px 12px;
+    font-size: 10px; font-weight: 800;
+}
+.map-pop-fav {
+    position: absolute; top: 10px; left: 10px;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: rgba(255,255,255,.95); border: none;
+    color: var(--brown-light); font-size: 14px;
+    cursor: pointer; transition: .2s;
+    display: flex; align-items: center; justify-content: center;
+}
+.map-pop-fav:hover, .map-pop-fav.active { color: #e04444; }
+.map-pop-body { padding: 14px 16px 16px; }
+.map-pop-body h4 { font-size: 16px; font-weight: 900; color: var(--brown-text); margin: 0 0 6px; }
+.map-pop-loc {
+    font-size: 11px; color: var(--brown-light);
+    display: flex; align-items: center; gap: 5px;
+    margin-bottom: 8px;
+}
+.map-pop-loc i { color: var(--brick-orange); }
+.map-pop-body p {
+    font-size: 11.5px; color: var(--brown-light);
+    line-height: 1.8; margin: 0 0 10px;
+}
+.map-pop-meta {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    font-size: 10.5px; font-weight: 700; color: var(--brown-light);
+    padding: 10px 0; border-top: 1px dashed rgba(17,139,113,.15);
+    border-bottom: 1px dashed rgba(17,139,113,.15);
+}
+.map-pop-actions {
+    display: flex; gap: 6px; margin-top: 10px;
+}
+.pop-action {
+    flex: 1; padding: 8px;
+    border-radius: 10px; border: none; cursor: pointer;
+    font-family: inherit; font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; gap: 5px;
+    transition: .2s;
+}
+.pop-action.primary { background: var(--primary-green); color: #fff; }
+.pop-action.primary:hover { background: var(--primary-green-dark); }
+.pop-action.outline {
+    background: transparent; color: var(--primary-green);
+    border: 1.5px solid var(--primary-green);
+}
+.pop-action.outline:hover { background: rgba(17,139,113,.08); }
+
+/* کلاسترها */
+.marker-cluster-small { background-color: rgba(17,139,113,.25); }
+.marker-cluster-small div { background-color: rgba(17,139,113,.9); color: #fff; font-family: 'Vazirmatn'; font-weight: 800; }
+.marker-cluster-medium { background-color: rgba(244,166,42,.25); }
+.marker-cluster-medium div { background-color: rgba(244,166,42,.9); color: #fff; font-family: 'Vazirmatn'; font-weight: 800; }
+.marker-cluster-large { background-color: rgba(255,80,80,.25); }
+.marker-cluster-large div { background-color: rgba(255,80,80,.9); color: #fff; font-family: 'Vazirmatn'; font-weight: 800; }
+
+/* Toast اطلاع */
+.toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: var(--brown-text); color: #fff;
+    padding: 12px 24px; border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    font-size: 13px; font-weight: 700; z-index: 2000;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; transition: all .3s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast i { color: var(--primary-green); font-size: 16px; }
+
+/* ریسپانسیو */
+@media (max-width: 768px) {
+    .map-sidebar { width: calc(100% - 40px); max-height: 55vh; top: 80px; right: 20px; }
+    .map-sidebar.collapsed { transform: translateY(calc(100% + 20px)); }
+    .sb-toggle { top: 80px; }
+    .map-legend { bottom: 20px; right: 10px; max-width: 160px; font-size: 10px; }
+    .map-controls { left: 10px; bottom: 20px; }
+    .mc-btn { width: 40px; height: 40px; }
+    .layer-switcher { left: 10px; top: 80px; }
+}
+</style>
+</head>
+<body class="page-map">
+<div class="overlay" id="menuOverlay"></div>
+
+<header class="navbar" id="navbar">
+    <div class="logo"><i class="fas fa-map-signs"></i> سفر به <span>دزفول</span></div>
+    <nav class="nav-links" id="navLinks">
+        <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i></button>
+        <a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
+        <a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+        <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+        <a href="{% url 'map' %}" class="active"><i class="fas fa-map"></i> نقشه گردشگری</a>
+        <a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+    </nav>
+    <div class="auth-buttons">
+        <a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+        <a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+        <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
+    </div>
+</header>
+
+<div class="map-wrapper">
+    <div id="tourismMap"></div>
+
+    <!-- دکمه toggle سایدبار -->
+    <button class="sb-toggle" id="sbToggle" title="نمایش پنل"><i class="fas fa-list"></i></button>
+
+    <!-- سایدبار -->
+    <aside class="map-sidebar" id="mapSidebar">
+        <div class="sidebar-head">
+            <button class="close-sb" id="closeSb" title="بستن"><i class="fas fa-times"></i></button>
+            <h2><i class="fas fa-map-marked-alt"></i> نقشه گردشگری دزفول</h2>
+            <p>جستجو، فیلتر و کشف جاذبه‌های شهر</p>
+        </div>
+
+        <div class="smart-search">
+            <i class="fas fa-search"></i>
+            <input type="text" id="mapSearch" placeholder="نام جاذبه، دسته یا توضیح...">
+            <div class="search-suggestions" id="searchSug"></div>
+        </div>
+
+        <div class="quick-filters">
+            <div class="qf-title">
+                <span><i class="fas fa-filter"></i> فیلتر سریع</span>
+                <span class="qf-clear" id="qfClear">پاک کردن</span>
+            </div>
+            <div class="qf-chips" id="qfChips"></div>
+        </div>
+
+        <div class="extra-toggles">
+            <button class="et-btn" id="freeOnly" data-active="false">
+                <i class="fas fa-gift"></i><span>فقط رایگان</span>
+            </button>
+            <button class="et-btn" id="childOnly" data-active="false">
+                <i class="fas fa-child"></i><span>خانوادگی</span>
+            </button>
+            <button class="et-btn" id="favsOnly" data-active="false">
+                <i class="fas fa-heart"></i><span>علاقه‌مندی‌ها</span>
+            </button>
+        </div>
+
+        <div class="result-count" id="resultCount"></div>
+        <div class="map-list" id="mapList"></div>
+    </aside>
+
+    <!-- کنترل‌های شناور -->
+    <div class="map-controls">
+        <button class="mc-btn locate" id="locateBtn" title="موقعیت من"><i class="fas fa-location-crosshairs"></i></button>
+        <button class="mc-btn" id="layerBtn" title="لایه نقشه"><i class="fas fa-layer-group"></i></button>
+        <button class="mc-btn" id="fitBtn" title="نمایش همه"><i class="fas fa-expand"></i></button>
+    </div>
+
+    <!-- لایه‌های نقشه -->
+    <div class="layer-switcher" id="layerSwitcher">
+        <button data-layer="street" class="active"><i class="fas fa-road"></i> خیابان</button>
+        <button data-layer="sat"><i class="fas fa-satellite"></i> ماهواره</button>
+        <button data-layer="terrain"><i class="fas fa-mountain"></i> زمین</button>
+        <button data-layer="dark"><i class="fas fa-moon"></i> شب</button>
+    </div>
+
+    <!-- راهنما -->
+    <div class="map-legend" id="mapLegend">
+        <div class="legend-title">
+            <span><i class="fas fa-palette lc"></i> راهنما</span>
+            <button class="toggle-leg" id="toggleLeg"><i class="fas fa-minus"></i></button>
+        </div>
+        <div class="legend-body" id="legendBody"></div>
+    </div>
+</div>
+
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+
+<script>
+(function () {
+    'use strict';
+    if (typeof L === 'undefined') return;
+
+    const $ = id => document.getElementById(id);
+    const faNum = s => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]).replace('.', '٫');
+    const fmtCost = c => c === 0 ? 'رایگان' : faNum(c.toLocaleString()) + ' تومان';
+
+    // ---------- علاقه‌مندی‌های کاربر (localStorage) ----------
+    const favKey = 'dezful_tourism_favs';
+    let favs = new Set(JSON.parse(localStorage.getItem(favKey) || '[]'));
+    const saveFavs = () => localStorage.setItem(favKey, JSON.stringify([...favs]));
+
+    // ---------- Toast ----------
+    const toast = $('toast');
+    function showToast(msg) {
+        $('toastMsg').textContent = msg;
+        toast.classList.add('show');
+        setTimeout(() => toast.classList.remove('show'), 2200);
+    }
+
+    // ---------- متادیتای دسته‌ها ----------
+    const CAT_META = {
+        'تاریخ‌گردی':      { color: '#c45a3c', icon: 'fa-landmark' },
+        'طبیعت‌گردی':      { color: '#2a9d8f', icon: 'fa-tree' },
+        'گردشگری تفریحی': { color: '#f4a62a', icon: 'fa-umbrella-beach' },
+        'گردشگری مذهبی':  { color: '#7a4a9f', icon: 'fa-mosque' },
+        'گردشگری ورزشی':  { color: '#4a7a9f', icon: 'fa-biking' },
+        'شهرگردی':         { color: '#8b7355', icon: 'fa-city' }
+    };
+
+    // ---------- داده‌ی جاذبه‌ها ----------
+    const MAP_PLACES = [
+        { id:1, name:'پل قدیم دزفول', cat:'تاریخ‌گردی', sub:'اثر تاریخی', cost:0, duration:90, rating:4.8, child:true, lat:32.3811, lng:48.4032, image:"{% static 'img/pl-e-ghadim.jpg' %}", desc:'کهن‌ترین پل جهان با قدمت ساسانی، نماد معماری باستانی ایران' },
+        { id:2, name:'آبشار شوی', cat:'طبیعت‌گردی', sub:'تنگه', cost:0, duration:120, rating:4.7, child:false, lat:32.7867, lng:48.7133, image:"{% static 'img/abshear-shooy.jpg' %}", desc:'بلندترین آبشار فصلی خوزستان با ارتفاع ۸۵ متر' },
+        { id:3, name:'بازار کهنه دزفول', cat:'گردشگری تفریحی', sub:'سایر', cost:50000, duration:60, rating:4.5, child:true, lat:32.3795, lng:48.4048, image:"{% static 'img/bazar-kohneh.jpg' %}", desc:'بازار سنتی با معماری اصیل و غرفه‌های صنایع دستی' },
+        { id:4, name:'خانه تیزنو', cat:'تاریخ‌گردی', sub:'خانه موزه', cost:0, duration:45, rating:4.2, child:true, lat:32.3842, lng:48.4061, image:"{% static 'img/khaneh-tizno.jpg' %}", desc:'خانه‌ی تاریخی با معماری قاجاری در بافت قدیم دزفول' },
+        { id:5, name:'دره کول خرسان', cat:'طبیعت‌گردی', sub:'ماجراجویانه', cost:0, duration:150, rating:4.3, child:false, lat:32.6950, lng:48.6420, image:"{% static 'img/darreh-kool.jpg' %}", desc:'منطقه‌ای بکر و هیجان‌انگیز برای طبیعت‌گردی' },
+        { id:6, name:'پارک ساحلی دولت', cat:'گردشگری تفریحی', sub:'تفریحات دریایی', cost:20000, duration:90, rating:4.0, child:true, lat:32.3760, lng:48.3965, image:"{% static 'img/park-dolat.jpg' %}", desc:'تفرجگاه در حاشیه رودخانه دز با امکانات تفریحی' },
+        { id:7, name:'مسجد جامع دزفول', cat:'گردشگری مذهبی', sub:'مسجد', cost:0, duration:60, rating:4.6, child:true, lat:32.3830, lng:48.4055, image:"{% static 'img/masjed-jameh.jpg' %}", desc:'اولین و قدیمی‌ترین مسجد دزفول با معماری ساسانی' },
+        { id:8, name:'دانشگاه جندی شاپور', cat:'تاریخ‌گردی', sub:'کاخ', cost:0, duration:45, rating:4.4, child:true, lat:32.2850, lng:48.5260, image:"{% static 'img/jondishapour.jpg' %}", desc:'یادگار تمدن کهن؛ نماد علمی و تاریخی شهرستان دزفول' },
+        { id:9, name:'رودخانه دز', cat:'طبیعت‌گردی', sub:'دریاچه و تالاب', cost:0, duration:60, rating:4.1, child:true, lat:32.3660, lng:48.3890, image:"{% static 'img/roodkhaneh-dez.jpg' %}", desc:'رودخانه‌ای زیبا که از دل دزفول می‌گذرد' },
+        { id:10, name:'تفرجگاه علی‌کله', cat:'گردشگری تفریحی', sub:'تفریحات دریایی', cost:30000, duration:90, rating:3.9, child:true, lat:32.3910, lng:48.3820, image:"{% static 'img/alikaleh.jpg' %}", desc:'فضای سبز و تفریحی در حاشیه رودخانه دز' },
+        { id:11, name:'آسیاب‌های آبی دزفول', cat:'تاریخ‌گردی', sub:'اثر تاریخی', cost:0, duration:30, rating:4.3, child:true, lat:32.3788, lng:48.4005, image:"{% static 'img/asiyab-haye-abi.jpg' %}", desc:'آسیاب‌های تاریخی در حاشیه رودخانه دز' },
+        { id:12, name:'دژ محمدعلی‌خان', cat:'تاریخ‌گردی', sub:'قلعه', cost:0, duration:45, rating:4.0, child:true, lat:32.3990, lng:48.4120, image:"{% static 'img/dezh-mohammad.jpg' %}", desc:'دژ تاریخی با چشم‌انداز زیبا از شهر دزفول' },
+        { id:13, name:'موزه دزفول', cat:'تاریخ‌گردی', sub:'خانه موزه', cost:30000, duration:60, rating:4.2, child:true, lat:32.3825, lng:48.4020, image:"{% static 'img/moze-dezfool.jpg' %}", desc:'موزه مردم‌شناسی با اشیاء تاریخی ارزشمند' },
+        { id:14, name:'پارک جنگلی دزفول', cat:'گردشگری تفریحی', sub:'سایر', cost:10000, duration:120, rating:3.8, child:true, lat:32.3520, lng:48.4480, image:"{% static 'img/park-jangali.jpg' %}", desc:'فضای سبز و تفریحی با امکانات ورزشی' },
+        { id:15, name:'شهربازی دزفول', cat:'گردشگری تفریحی', sub:'شهربازی', cost:150000, duration:120, rating:4.1, child:true, lat:32.3650, lng:48.4350, image:"{% static 'img/slide3.jpg' %}", desc:'مجموعه‌ای از بازی‌های مهیج برای خانواده‌ها' },
+        { id:16, name:'بوستان شهر دزفول', cat:'شهرگردی', sub:'پارک و بوستان', cost:0, duration:60, rating:3.9, child:true, lat:32.3800, lng:48.4150, image:"{% static 'img/slide2.jpg' %}", desc:'فضای سبز شهری در مرکز شهر' },
+        { id:17, name:'پیست دوچرخه‌سواری', cat:'گردشگری ورزشی', sub:'دوچرخه سواری', cost:0, duration:90, rating:4.0, child:true, lat:32.3580, lng:48.4620, image:"{% static 'img/slide1.webp' %}", desc:'مسیر استاندارد دوچرخه‌سواری' }
+    ];
+
+    // ---------- وضعیت فیلترها ----------
+    let activeCats = new Set();
+    let freeOnly = false, childOnly = false, favsOnly = false;
+    let query = '';
+
+    // ---------- ساخت نقشه ----------
+    const map = L.map('tourismMap', { zoomControl: false });
+    L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+    // لایه‌های مختلف
+    const layers = {
+        street: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution:'&copy; OSM &copy; CARTO', maxZoom:19 }),
+        sat:    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution:'&copy; Esri', maxZoom:19 }),
+        terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution:'&copy; OpenTopoMap', maxZoom:17 }),
+        dark:   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution:'&copy; CARTO', maxZoom:19 })
+    };
+    layers.street.addTo(map);
+    map.setView([32.38, 48.42], 12);
+
+    const cluster = L.markerClusterGroup({ maxClusterRadius: 45, showCoverageOnHover: false });
+    map.addLayer(cluster);
+
+    // ==========================================================
+    // 🔥 کنترلر مسیریاب (اینجا اضافه کن)
+    // ==========================================================
+    L.Routing.control({
+        waypoints: [
+            L.latLng(32.3833, 48.4000), // مرکز دزفول - نقطه شروع
+            L.latLng(32.4067, 48.4228)  // پارک خانواده دزفول - نقطه پایان
+        ],
+        routeWhileDragging: true,
+        router: L.Routing.osrmv1({
+            serviceUrl: 'https://routing.openstreetmap.de/routed-car/route/v1'
+        }),
+        showAlternatives: true,
+        altLineOptions: {
+            styles: [
+                { color: 'blue', opacity: 0.6, weight: 4 },
+                { color: 'red', opacity: 0.4, weight: 3 }
+            ]
+        }
+    }).addTo(map);
+
+    // ---------- مارکرها ----------
+    function pinIcon(p) {
+        const meta = CAT_META[p.cat] || { color: '#118b71', icon: 'fa-map-marker-alt' };
+        return L.divIcon({
+            className: 'pin-wrap',
+            html: `<div class="pin" style="background:${meta.color}"><span><i class="fas ${meta.icon}"></i></span></div>`,
+            iconSize: [36, 44], iconAnchor: [18, 40], popupAnchor: [0, -38]
+        });
+    }
+
+    function popupHtml(p) {
+        const meta = CAT_META[p.cat] || {};
+        const isFav = favs.has(p.id);
+        return `
+        <div class="map-pop">
+            <div class="map-pop-img">
+                <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
+                <span class="map-pop-badge">${p.cat}</span>
+                <button class="map-pop-fav ${isFav ? 'active' : ''}" data-id="${p.id}">
+                    <i class="fa${isFav ? 's' : 'r'} fa-heart"></i>
+                </button>
+            </div>
+            <div class="map-pop-body">
+                <h4>${p.name}</h4>
+                <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول • ${p.sub}</div>
+                <p>${p.desc}</p>
+                <div class="map-pop-meta">
+                    <span>💰 ${fmtCost(p.cost)}</span>
+                    <span>⏱️ ${faNum(p.duration)} دقیقه</span>
+                    <span>⭐ ${faNum(p.rating)}</span>
+                </div>
+                <div class="map-pop-actions">
+                    <button class="pop-action primary" data-act="route" data-lat="${p.lat}" data-lng="${p.lng}" data-name="${p.name}">
+                        <i class="fas fa-route"></i> مسیر یاب
+                    </button>
+                    <button class="pop-action outline" data-act="plan" data-id="${p.id}">
+                        <i class="fas fa-calendar-plus"></i> افزودن به برنامه
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }
+
+    const markers = new Map();
+    MAP_PLACES.forEach(p => {
+        const m = L.marker([p.lat, p.lng], { icon: pinIcon(p) });
+        m.bindPopup(popupHtml(p), { maxWidth: 300 });
+        m.on('click', () => highlightItem(p.id, false));
+        m.on('popupopen', e => {
+            const pop = e.popup.getElement();
+            pop.querySelectorAll('.map-pop-fav').forEach(btn => {
+                btn.addEventListener('click', ev => {
+                    ev.stopPropagation();
+                    toggleFav(+btn.dataset.id, btn);
+                });
+            });
+            pop.querySelectorAll('[data-act="route"]').forEach(btn => {
+                btn.addEventListener('click', ev => {
+                    ev.stopPropagation();
+                    const url = `https://www.google.com/maps/dir/${btn.dataset.lat},${btn.dataset.lng}`;
+                    window.open(url, '_blank');
+                });
+            });
+            pop.querySelectorAll('[data-act="plan"]').forEach(btn => {
+                btn.addEventListener('click', ev => {
+                    ev.stopPropagation();
+                    const id = +btn.dataset.id;
+                    const p = MAP_PLACES.find(x => x.id === id);
+                    showToast(`«${p.name}» به لیست سفر شما افزوده شد`);
+                });
+            });
+        });
+        markers.set(p.id, m);
+    });
+
+    function toggleFav(id, btn) {
+        if (favs.has(id)) {
+            favs.delete(id);
+            btn.classList.remove('active');
+            btn.innerHTML = '<i class="far fa-heart"></i>';
+            showToast('از علاقه‌مندی‌ها حذف شد');
+        } else {
+            favs.add(id);
+            btn.classList.add('active');
+            btn.innerHTML = '<i class="fas fa-heart"></i>';
+            showToast('به علاقه‌مندی‌ها اضافه شد');
+        }
+        saveFavs();
+        if (favsOnly) applyFilters();
+    }
+
+    // ---------- لیست ----------
+    function renderList(places) {
+        const list = $('mapList');
+        if (!places.length) {
+            list.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--brown-light);"><i class="fas fa-search" style="font-size:28px; opacity:.3; display:block; margin-bottom:10px;"></i><p style="margin:0;">جاذبه‌ای با این فیلترها پیدا نشد</p></div>';
+            return;
+        }
+        list.innerHTML = places.map(p => {
+            const meta = CAT_META[p.cat] || {};
+            return `
+            <div class="map-item" data-id="${p.id}">
+                <img src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+                <div class="mi-body">
+                    <div class="mi-top">
+                        <h4>${p.name}</h4>
+                        <span class="mi-cost ${p.cost === 0 ? 'free' : ''}">${fmtCost(p.cost)}</span>
+                    </div>
+                    <p>${p.desc}</p>
+                    <div class="mi-meta">
+                        <span style="color:${meta.color}"><i class="fas ${meta.icon}"></i> ${p.cat}</span>
+                        <span><i class="fas fa-star" style="color:#f4a62a"></i> ${faNum(p.rating)}</span>
+                        ${favs.has(p.id) ? '<span><i class="fas fa-heart" style="color:#e04444"></i></span>' : ''}
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
+        list.querySelectorAll('.map-item').forEach(el => {
+            el.addEventListener('click', () => {
+                const p = MAP_PLACES.find(x => x.id === +el.dataset.id);
+                if (p) highlightItem(p.id, true);
+            });
+        });
+    }
+
+    function highlightItem(id, fly) {
+        document.querySelectorAll('.map-item').forEach(el =>
+            el.classList.toggle('active', +el.dataset.id === id));
+        const el = document.querySelector(`.map-item[data-id="${id}"]`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        const m = markers.get(id);
+        if (!m) return;
+        if (fly) map.flyTo(m.getLatLng(), Math.max(map.getZoom(), 14), { duration: .8 });
+        setTimeout(() => cluster.zoomToShowLayer(m, () => m.openPopup()), fly ? 850 : 0);
+    }
+
+    // ---------- اعمال فیلترها ----------
+    function applyFilters() {
+        const q = query.trim();
+        const visible = MAP_PLACES.filter(p =>
+            (activeCats.size === 0 || activeCats.has(p.cat)) &&
+            (!freeOnly || p.cost === 0) &&
+            (!childOnly || p.child) &&
+            (!favsOnly || favs.has(p.id)) &&
+            (!q || p.name.includes(q) || p.desc.includes(q) || p.sub.includes(q) || p.cat.includes(q))
+        );
+        cluster.clearLayers();
+        visible.forEach(p => { const m = markers.get(p.id); if (m) cluster.addLayer(m); });
+        renderList(visible);
+        $('resultCount').innerHTML = `
+            <span><i class="fas fa-map-marker-alt"></i> ${faNum(visible.length)} جاذبه از ${faNum(MAP_PLACES.length)}</span>
+            <span>${faNum(visible.filter(p=>p.cost===0).length)} رایگان</span>`;
+    }
+
+    // ---------- چیپ‌های دسته‌بندی ----------
+    function buildChips() {
+        $('qfChips').innerHTML = Object.entries(CAT_META).map(([cat, meta]) => {
+            const count = MAP_PLACES.filter(p => p.cat === cat).length;
+            return `<button class="qf-chip" data-cat="${cat}">
+                <span class="chip-dot" style="background:${meta.color}"></span>${cat}
+                <span class="chip-num">${faNum(count)}</span>
+            </button>`;
+        }).join('');
+        $('qfChips').querySelectorAll('.qf-chip').forEach(ch => ch.addEventListener('click', () => {
+            const c = ch.dataset.cat;
+            activeCats.has(c) ? activeCats.delete(c) : activeCats.add(c);
+            ch.classList.toggle('active');
+            applyFilters();
+        }));
+    }
+
+    // ---------- راهنما ----------
+    function buildLegend() {
+        $('legendBody').innerHTML = Object.entries(CAT_META).map(([cat, m]) =>
+            `<div class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${cat}</div>`).join('');
+    }
+
+    // ---------- جستجوی هوشمند با پیشنهاد ----------
+    const sugBox = $('searchSug');
+    let searchT;
+    $('mapSearch').addEventListener('input', e => {
+        clearTimeout(searchT);
+        const q = e.target.value.trim();
+        query = q;
+        if (!q) { sugBox.classList.remove('open'); applyFilters(); return; }
+        const matches = MAP_PLACES.filter(p =>
+            p.name.includes(q) || p.desc.includes(q) || p.cat.includes(q) || p.sub.includes(q)
+        ).slice(0, 6);
+        if (!matches.length) {
+            sugBox.innerHTML = '<div style="padding:14px; text-align:center; color:var(--brown-light); font-size:12px;">نتیجه‌ای یافت نشد</div>';
+        } else {
+            sugBox.innerHTML = matches.map(p => {
+                const meta = CAT_META[p.cat] || {};
+                return `<div class="sug-item" data-id="${p.id}">
+                    <i class="fas ${meta.icon}" style="color:${meta.color}"></i>
+                    <div>
+                        <div class="sug-name">${p.name}</div>
+                        <div class="sug-cat">${p.cat}</div>
+                    </div>
+                </div>`;
+            }).join('');
+            sugBox.querySelectorAll('.sug-item').forEach(el => el.addEventListener('click', () => {
+                const p = MAP_PLACES.find(x => x.id === +el.dataset.id);
+                if (p) { highlightItem(p.id, true); sugBox.classList.remove('open'); }
+            }));
+        }
+        sugBox.classList.add('open');
+        applyFilters();
+    });
+    $('mapSearch').addEventListener('blur', () => setTimeout(() => sugBox.classList.remove('open'), 200));
+
+    // ---------- دکمه‌های toggle ----------
+    function toggleExtra(btnId, flagName) {
+        const btn = $(btnId);
+        const active = btn.dataset.active === 'true';
+        btn.dataset.active = active ? 'false' : 'true';
+        btn.classList.toggle('active', !active);
+        return !active;
+    }
+    $('freeOnly').addEventListener('click', () => { freeOnly = toggleExtra('freeOnly'); applyFilters(); });
+    $('childOnly').addEventListener('click', () => { childOnly = toggleExtra('childOnly'); applyFilters(); });
+    $('favsOnly').addEventListener('click', () => { favsOnly = toggleExtra('favsOnly'); applyFilters(); });
+
+    // ---------- toggle سایدبار ----------
+    $('closeSb').addEventListener('click', () => {
+        $('mapSidebar').classList.add('collapsed');
+        $('sbToggle').classList.add('show');
+        setTimeout(() => map.invalidateSize(), 400);
+    });
+    $('sbToggle').addEventListener('click', () => {
+        $('mapSidebar').classList.remove('collapsed');
+        $('sbToggle').classList.remove('show');
+        setTimeout(() => map.invalidateSize(), 400);
+    });
+
+    // ---------- پاک کردن فیلترها ----------
+    $('qfClear').addEventListener('click', () => {
+        activeCats.clear();
+        $('qfChips').querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
+        applyFilters();
+    });
+
+    // ---------- لایه‌های نقشه ----------
+    let currentLayer = 'street';
+    $('layerBtn').addEventListener('click', () => $('layerSwitcher').classList.toggle('open'));
+    $('layerSwitcher').querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+        const layer = btn.dataset.layer;
+        if (layer === currentLayer) return;
+        map.removeLayer(layers[currentLayer]);
+        layers[layer].addTo(map);
+        currentLayer = layer;
+        $('layerSwitcher').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.layer === layer));
+        $('layerSwitcher').classList.remove('open');
+    }));
+    document.addEventListener('click', e => {
+        if (!e.target.closest('#layerBtn') && !e.target.closest('#layerSwitcher')) {
+            $('layerSwitcher').classList.remove('open');
+        }
+    });
+
+    // ---------- موقعیت من (GPS) ----------
+    $('locateBtn').addEventListener('click', () => {
+        if (!navigator.geolocation) { showToast('مرورگر شما از موقعیت‌یابی پشتیبانی نمی‌کند'); return; }
+        showToast('در حال دریافت موقعیت...');
+        navigator.geolocation.getCurrentPosition(pos => {
+            const { latitude, longitude } = pos.coords;
+            L.marker([latitude, longitude], {
+                icon: L.divIcon({
+                    className: 'pin-wrap',
+                    html: '<div class="pin" style="background:#2196f3"><span><i class="fas fa-user"></i></span></div>',
+                    iconSize: [36, 44], iconAnchor: [18, 40]
+                })
+            }).addTo(map).bindPopup('<div style="font-family:Vazirmatn; padding:6px; text-align:center;"><b>📍 موقعیت شما</b></div>').openPopup();
+            map.flyTo([latitude, longitude], 14, { duration: .8 });
+            showToast('موقعیت شما یافت شد');
+        }, () => showToast('دسترسی به موقعیت رد شد'));
+    });
+
+    // ---------- نمایش همه جاذبه‌ها ----------
+    $('fitBtn').addEventListener('click', () => {
+        map.fitBounds(L.latLngBounds(MAP_PLACES.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 13 });
+    });
+
+    // ---------- toggle راهنما ----------
+    $('toggleLeg').addEventListener('click', () => {
+        $('mapLegend').classList.toggle('collapsed');
+        $('toggleLeg').innerHTML = $('mapLegend').classList.contains('collapsed')
+            ? '<i class="fas fa-plus"></i>' : '<i class="fas fa-minus"></i>';
+    });
+
+    // ---------- اجرای اولیه ----------
+    buildChips();
+    buildLegend();
+    applyFilters();
+    setTimeout(() => map.invalidateSize(), 300);
+})();
+</script>
+<script src="{% static 'js/script.js' %}"></script>
+</body>
+</html>

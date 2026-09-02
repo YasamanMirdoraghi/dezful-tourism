@@ -1,0 +1,899 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>جاذبه‌های گردشگری دزفول</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+	<style>
+		/* ===== استایل‌های اختصاصی صفحه جاذبه‌ها ===== */
+		.attractions-main {
+			padding: 60px 0 80px;
+			background: var(--cream-bg);
+		}
+
+		.attractions-layout {
+			display: flex;
+			gap: 30px;
+			align-items: flex-start;
+		}
+
+		/* ===== سایدبار فیلتر (آکاردئونی) ===== */
+		.filter-sidebar {
+			flex: 0 0 280px;
+			background: #fff;
+			padding: 24px;
+			border-radius: var(--radius-sm);
+			box-shadow: var(--shadow-sm);
+			position: sticky;
+			top: 100px;
+			border: 1px solid rgba(17, 139, 113, 0.06);
+			max-height: 80vh;
+			overflow-y: auto;
+		}
+
+		.filter-sidebar::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.filter-sidebar::-webkit-scrollbar-track {
+			background: #f1f3f5;
+			border-radius: 10px;
+		}
+
+		.filter-sidebar::-webkit-scrollbar-thumb {
+			background: var(--primary-green);
+			border-radius: 10px;
+		}
+
+		.filter-sidebar-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 16px;
+			border-bottom: 2px solid var(--cream-bg);
+			padding-bottom: 12px;
+		}
+
+		.filter-sidebar h3 {
+			font-size: 1.2rem;
+			font-weight: 900;
+			color: var(--brown-text);
+			margin: 0;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.filter-sidebar h3 i {
+			color: var(--primary-green);
+		}
+
+		.clear-all-btn {
+			color: var(--brick-orange);
+			border: none;
+			padding: 5px 12px;
+			border-radius: 20px;
+			font-size: 0.75rem;
+			font-weight: 700;
+			cursor: pointer;
+			transition: var(--transition);
+			font-family: inherit;
+		}
+
+		.clear-all-btn:hover {
+			background: var(--brick-orange);
+			color: #fff;
+		}
+
+		.clear-all-btn.d-none {
+			display: none !important;
+		}
+
+		.sidebar-search {
+			position: relative;
+			margin-bottom: 20px;
+		}
+
+		.sidebar-search input {
+			width: 100%;
+			padding: 10px 15px 10px 40px;
+			border: 1px solid #e1e1e1;
+			border-radius: 30px;
+			font-family: inherit;
+			outline: none;
+			background: var(--cream-bg);
+			transition: var(--transition);
+		}
+
+		.sidebar-search input:focus {
+			border-color: var(--primary-green);
+		}
+
+		.sidebar-search i {
+			position: absolute;
+			left: 15px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #999;
+		}
+
+		/* استایل آکاردئون */
+		details.filter-group {
+			margin-bottom: 8px;
+			border: 1px solid rgba(17, 139, 113, 0.08);
+			border-radius: 12px;
+			overflow: hidden;
+			background: #fbfaf7;
+		}
+
+		summary.filter-group-title {
+			font-weight: 800;
+			color: var(--brown-text);
+			font-size: 0.95rem;
+			cursor: pointer;
+			list-style: none;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 14px 16px;
+			transition: 0.2s;
+			background: #fff;
+			border-bottom: 1px solid transparent;
+		}
+
+		summary.filter-group-title:hover {
+			background: rgba(17, 139, 113, 0.04);
+		}
+
+		details[open] summary.filter-group-title {
+			border-bottom-color: rgba(17, 139, 113, 0.1);
+			background: rgba(17, 139, 113, 0.04);
+			color: var(--primary-green);
+		}
+
+		summary.filter-group-title::after {
+			content: '\f078';
+			font-family: "Font Awesome 6 Free";
+			font-weight: 900;
+			font-size: 0.8rem;
+			transition: transform 0.3s ease;
+			color: var(--brown-light);
+		}
+
+		details[open] summary.filter-group-title::after {
+			transform: rotate(180deg);
+			color: var(--primary-green);
+		}
+
+		summary.filter-group-title::-webkit-details-marker {
+			display: none;
+		}
+
+		.filter-sub-group {
+			padding: 8px 16px 14px;
+		}
+
+		.filter-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 6px 0;
+			cursor: pointer;
+			transition: var(--transition);
+			color: var(--brown-light);
+			font-size: 0.9rem;
+			border-radius: 8px;
+		}
+
+		.filter-item:hover {
+			color: var(--primary-green);
+			background: rgba(17, 139, 113, 0.03);
+			padding-right: 10px;
+		}
+
+		.filter-item input[type="checkbox"] {
+			width: 16px;
+			height: 16px;
+			accent-color: var(--primary-green);
+			cursor: pointer;
+		}
+
+		.filter-item .count {
+			margin-right: auto;
+			font-size: 0.75rem;
+			background: var(--cream-bg);
+			padding: 2px 10px;
+			border-radius: 20px;
+			color: var(--brown-light);
+			font-weight: 700;
+		}
+
+		.attractions-grid-section {
+			flex: 1;
+		}
+
+		.attractions-grid-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+		}
+
+		.attractions-grid-header h2 {
+			font-size: 1.5rem;
+			font-weight: 900;
+			color: var(--brown-text);
+		}
+
+		#resultCount {
+			background: var(--primary-green);
+			color: #fff;
+			padding: 4px 16px;
+			border-radius: 30px;
+			font-size: 0.9rem;
+		}
+
+		.attractions-grid {
+			display: grid;
+			grid-template-columns: repeat(4, 1fr);
+			gap: 20px;
+		}
+
+		.attraction-card {
+			background: #fff;
+			border-radius: var(--radius-sm);
+			overflow: hidden;
+			box-shadow: var(--shadow-sm);
+			transition: var(--transition);
+			border: 1px solid rgba(17, 139, 113, 0.04);
+		}
+
+		.attraction-card:hover {
+			transform: translateY(-8px);
+			box-shadow: var(--shadow-md);
+		}
+
+		.attraction-img {
+			height: 180px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.attraction-img img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			transition: transform 0.5s ease;
+		}
+
+		.attraction-card:hover .attraction-img img {
+			transform: scale(1.05);
+		}
+
+		.attraction-img .badge {
+			position: absolute;
+			top: 12px;
+			right: 12px;
+			background: rgba(255, 255, 255, 0.9);
+			padding: 2px 12px;
+			border-radius: 20px;
+			font-size: 0.75rem;
+			font-weight: 700;
+			color: var(--primary-green);
+		}
+
+		.attraction-body {
+			padding: 16px 18px 20px;
+		}
+
+		.attraction-body h4 {
+			font-weight: 900;
+			font-size: 1rem;
+			color: var(--brown-text);
+			margin-bottom: 4px;
+		}
+
+		.attraction-body p {
+			font-size: 0.85rem;
+			color: var(--brown-light);
+			line-height: 1.6;
+			margin-bottom: 10px;
+		}
+
+		.attraction-body .meta {
+			display: flex;
+			gap: 12px;
+			font-size: 0.75rem;
+			color: var(--brown-light);
+		}
+
+		.attraction-body .meta i {
+			color: var(--primary-green);
+		}
+
+		.pagination {
+			display: flex;
+			justify-content: center;
+			gap: 8px;
+			margin-top: 40px;
+		}
+
+		.pagination button {
+			width: 40px;
+			height: 40px;
+			border-radius: 10px;
+			border: 1px solid rgba(17, 139, 113, 0.1);
+			background: #fff;
+			color: var(--brown-text);
+			font-weight: 700;
+			cursor: pointer;
+			transition: var(--transition);
+		}
+
+		.pagination button:hover:not(:disabled),
+		.pagination button.active {
+			background: var(--primary-green);
+			color: #fff;
+			border-color: var(--primary-green);
+		}
+
+		.pagination button:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+
+		.section-magazine-slider {
+			min-height: 450px !important;
+		}
+
+		.slider-container-mag {
+			height: 350px !important;
+		}
+
+		.slide-image-mag {
+			width: 380px !important;
+			height: 260px !important;
+		}
+
+		.slide-content-mag .slide-title-mag {
+			font-size: 2rem !important;
+		}
+
+		.no-results {
+			grid-column: 1 / -1;
+			text-align: center;
+			padding: 40px;
+			background: #fff;
+			border-radius: var(--radius-sm);
+			box-shadow: var(--shadow-sm);
+		}
+
+		.no-results i {
+			font-size: 3rem;
+			color: var(--brown-light);
+			margin-bottom: 16px;
+			opacity: 0.5;
+		}
+
+		.no-results h4 {
+			font-size: 1.1rem;
+			color: var(--brown-text);
+			margin-bottom: 8px;
+		}
+
+		.no-results p {
+			color: var(--brown-light);
+			font-size: 0.9rem;
+		}
+
+		@media (max-width: 1200px) {
+			.attractions-grid {
+				grid-template-columns: repeat(3, 1fr);
+			}
+
+			.filter-sidebar {
+				flex: 0 0 240px;
+			}
+		}
+
+		@media (max-width: 992px) {
+			.attractions-layout {
+				flex-direction: column-reverse;
+			}
+
+			.filter-sidebar {
+				flex: 0 0 auto;
+				width: 100%;
+				position: relative;
+				top: 0;
+				margin-bottom: 20px;
+			}
+
+			.attractions-grid {
+				grid-template-columns: repeat(3, 1fr);
+			}
+
+			.slide-image-mag {
+				width: 100% !important;
+				height: 200px !important;
+			}
+		}
+
+		@media (max-width: 768px) {
+			.attractions-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+		}
+
+		@media (max-width: 480px) {
+			.attractions-grid {
+				grid-template-columns: 1fr;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<header class="navbar" id="navbar">
+		<div class="logo">
+			<i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
+		</div>
+		<nav class="nav-links" id="navLinks">
+			<button class="close-menu-btn" id="closeMenuBtn">
+				<i class="fas fa-times"></i>
+			</button>
+			<a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
+			<a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+			<a href="{% url 'attraction' %}" class="active"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+			<a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+			<a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+		</nav>
+		<div class="auth-buttons">
+			<a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+			<a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			<button class="hamburger" id="hamburgerBtn" aria-label="منو">
+				<i class="fas fa-bars"></i>
+			</button>
+		</div>
+	</header>
+
+	<!-- اسلایدر مجله - داینامیک از دیتابیس -->
+	<section class="section-magazine-slider" id="magazineSlider"
+		style="background-image: url('{% static 'img/slide1.webp' %}'); background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 0.8s ease;">
+		<div class="container">
+			<div class="slider-header">
+				<span class="slider-title">
+					<i class="fas fa-newspaper"></i>
+					مجله <span class="highlight">جاذبه‌های</span> دزفول
+				</span>
+				<!-- <a href="{% url 'attraction' %}" class="view-all-btn">
+					مشاهده همه <i class="fas fa-arrow-left"></i>
+				</a> -->
+			</div>
+			<div class="slider-container-mag" id="sliderContainerMag">
+				<div class="slides-track-mag" id="slidesTrackMag">
+					{% for place in places|slice:":6" %}
+					<div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+						{% if forloop.counter0 == 0 %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide1.webp' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/slide1.webp' %}" alt="{{ place.name }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% elif forloop.counter0 == 1 %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide2.jpg' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/slide2.jpg' %}" alt="{{ place.name }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% elif forloop.counter0 == 2 %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide3.jpg' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/slide3.jpg' %}" alt="{{ place.name }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% elif forloop.counter0 == 3 %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide4.jpg' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/slide4.jpg' %}" alt="{{ place.name }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% elif forloop.counter0 == 4 %}
+						<div class="slide-bg-blur"
+							style="background-image: url('{% static 'img/asiyab-haye-abi.jpg' %}');"></div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ place.name }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% else %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/pl-e-ghadim.jpg' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/pl-e-ghadim.jpg' %}" alt="{{ place.name }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% endif %}
+
+						<div class="slide-content-mag">
+							<span class="slide-badge-mag">{{ place.category.name|default:'جاذبه' }}</span>
+							<h2 class="slide-title-mag">{{ place.name }}</h2>
+							<p class="slide-desc-mag">
+								{% if place.short_description %}
+								{{ place.short_description }}
+								{% else %}
+								مطالعه این جاذبه را به شما پیشنهاد می‌کنیم.
+								{% endif %}
+							</p>
+							<a href="{% url 'attraction' %}" class="slide-link-mag">
+								مشاهده جزئیات
+							</a>
+						</div>
+					</div>
+					{% empty %}
+					<div class="slide-mag active">
+						<div class="slide-content-mag">
+							<span class="slide-badge-mag">جاذبه</span>
+							<h2 class="slide-title-mag">جاذبه‌ای یافت نشد</h2>
+							<p class="slide-desc-mag">به زودی جاذبه‌های جدید اضافه می‌شوند.</p>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+
+			<div class="slider-footer-mag">
+				<div class="slide-list-horizontal-mag" id="slideListHorizontalMag">
+					{% for place in places|slice:":6" %}
+					<div class="list-item-h-mag {% if forloop.first %}active-item-h-mag{% endif %}"
+						data-index="{{ forloop.counter0 }}">
+						<div class="list-item-h-top-mag">
+							<span class="list-item-h-title-mag">{{ place.name|truncatechars:25 }}</span>
+						</div>
+						<div class="list-item-h-progress-mag">
+							<div class="progress-fill-h-mag" id="progress-h-mag-{{ forloop.counter0 }}"
+								style="width: 0%;"></div>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="attractions-main">
+		<div class="container">
+			<div class="attractions-layout">
+
+				<aside class="filter-sidebar" id="filterSidebar">
+					<div class="filter-sidebar-header">
+						<h3><i class="fas fa-sliders-h"></i> فیلترها</h3>
+						<button class="clear-all-btn d-none" id="clearAllBtn">
+							حذف فیلترها
+						</button>
+					</div>
+
+					<div class="sidebar-search">
+						<input type="text" id="searchInput" placeholder="جستجو در جاذبه‌ها ...">
+						<i class="fas fa-search"></i>
+					</div>
+
+					<!-- فیلترهای آکاردئونی - فقط زیرمجموعه‌ها -->
+					<div id="treeFilters">
+						{% for cat in categories %}
+						<details class="filter-group" {% if forloop.first %}open{% endif %}>
+							<summary class="filter-group-title">
+								{{ cat.name }}
+							</summary>
+							<div class="filter-sub-group">
+								{% for child in cat.children.all %}
+								<label class="filter-item">
+									<input type="checkbox" data-filter="subcategory" value="{{ child.name }}">
+									{{ child.name }}
+									<span class="count">{{ child.places.count }}</span>
+								</label>
+								{% empty %}
+								<!-- اگر زیرمجموعه ندارد، خود دسته اصلی را نشان بده -->
+								<label class="filter-item">
+									<input type="checkbox" data-filter="category" value="{{ cat.name }}">
+									{{ cat.name }}
+									<span class="count">{{ cat.places.count }}</span>
+								</label>
+								{% endfor %}
+							</div>
+						</details>
+						{% endfor %}
+					</div>
+
+					<details class="filter-group" open>
+						<summary class="filter-group-title">هزینه ورودی</summary>
+						<div class="filter-sub-group">
+							<label class="filter-item">
+								<input type="checkbox" data-filter="cost" value="free"> رایگان
+								<span class="count" id="freeCount"></span>
+							</label>
+							<label class="filter-item">
+								<input type="checkbox" data-filter="cost" value="paid"> دارای هزینه
+								<span class="count" id="paidCount"></span>
+							</label>
+						</div>
+					</details>
+
+				</aside>
+
+				<div class="attractions-grid-section">
+					<div class="attractions-grid-header">
+						<h2>جاذبه‌های گردشگری دزفول</h2>
+						<span id="resultCount"></span>
+					</div>
+
+					<div class="attractions-grid" id="attractionsGrid">
+						<!-- کارت‌ها توسط جاوااسکریپت ساخته می‌شوند -->
+					</div>
+
+					<div class="pagination" id="paginationContainer"></div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+
+	<footer class="footer">
+		<div class="container">
+			<div class="footer-grid">
+				<div>
+					<h4><i class="fas fa-map-signs" style="color:var(--brick-orange);"></i> سفر به دزفول</h4>
+					<p>سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول.</p>
+					<div class="social">
+						<a href="#"><i class="fab fa-telegram"></i></a>
+						<a href="#"><i class="fab fa-instagram"></i></a>
+						<a href="#"><i class="fab fa-youtube"></i></a>
+						<a href="#"><i class="fab fa-linkedin"></i></a>
+					</div>
+				</div>
+				<div>
+					<h4>دسترسی سریع</h4>
+					<a href="{% url 'plan' %}">برنامه‌ریز سفر</a>
+					<a href="{% url 'attraction' %}">جاذبه‌های گردشگری</a>
+					<a href="{% url 'map' %}">نقشه تعاملی</a>
+					<a href="{% url 'articles' %}">مقالات</a>
+				</div>
+				<div>
+					<h4>اطلاعات مفید</h4>
+					<a href="#">بهترین زمان سفر</a>
+					<a href="#">راهنمای مسیرها</a>
+					<a href="#">تماس با ما</a>
+					<a href="#">درباره‌ی پروژه</a>
+				</div>
+			</div>
+			<div class="footer-copy">
+				<i class="fas fa-copyright"></i> ۱۴۰۴ - پروژه‌ی کارشناسی - دانشگاه صنعتی جندی شاپور دزفول
+			</div>
+		</div>
+	</footer>
+
+	<button class="scroll-top" id="scrollTop">
+		<i class="fas fa-chevron-up"></i>
+	</button>
+
+	<script src="{% static 'js/script.js' %}"></script>
+
+	<script>
+		(function () {
+			'use strict';
+
+			// داده‌های جاذبه‌ها از دیتابیس
+			const placesData = {{ places_json| safe}};
+
+		const gridContainer = document.getElementById('attractionsGrid');
+		const resultCount = document.getElementById('resultCount');
+		const paginationContainer = document.getElementById('paginationContainer');
+		const clearAllBtn = document.getElementById('clearAllBtn');
+		const searchInput = document.getElementById('searchInput');
+		const filterCheckboxes = document.querySelectorAll('#filterSidebar input[type="checkbox"]');
+
+		let currentPage = 1;
+		const itemsPerPage = 12;
+
+		// تبدیل عدد به فارسی
+		const faNum = s => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+		// به‌روزرسانی تعداد رایگان و پولی
+		function updateCostCounts() {
+			const freeCount = placesData.filter(p => p.cost === 0).length;
+			const paidCount = placesData.filter(p => p.cost > 0).length;
+			document.getElementById('freeCount').textContent = faNum(freeCount);
+			document.getElementById('paidCount').textContent = faNum(paidCount);
+		}
+
+		// ساخت کارت جاذبه
+		function createCard(place) {
+			const card = document.createElement('div');
+			card.className = 'attraction-card';
+			card.dataset.category = place.category;
+			card.dataset.parentCategory = place.parent_category;
+			card.dataset.cost = place.cost;
+
+			const costText = place.cost === 0 ? 'رایگان' : faNum(place.cost.toLocaleString()) + ' تومان';
+			const imageUrl = place.image || '/static/img/asiyab-haye-abi.jpg';
+
+			card.innerHTML = `
+					<div class="attraction-img">
+						<img src="${imageUrl}" alt="${place.name}" onerror="this.src='/static/img/asiyab-haye-abi.jpg';">
+						<span class="badge">${place.category}</span>
+					</div>
+					<div class="attraction-body">
+						<h4>${place.name}</h4>
+						<p>${place.short_description}</p>
+						<div class="meta">
+							<span><i class="fas fa-wallet"></i> ${costText}</span>
+						</div>
+					</div>
+				`;
+			return card;
+		}
+
+		// اعمال فیلترها
+		function getFilteredPlaces() {
+			const searchTerm = searchInput.value.trim().toLowerCase();
+			const selectedCategories = [...document.querySelectorAll('[data-filter="category"]:checked')].map(c => c.value);
+			const selectedSubCategories = [...document.querySelectorAll('[data-filter="subcategory"]:checked')].map(c => c.value);
+			const selectedCosts = [...document.querySelectorAll('[data-filter="cost"]:checked')].map(c => c.value);
+
+			return placesData.filter(place => {
+				// فیلتر جستجو
+				if (searchTerm && !place.name.toLowerCase().includes(searchTerm) && !place.short_description.toLowerCase().includes(searchTerm)) {
+					return false;
+				}
+
+				// فیلتر دسته‌بندی اصلی (اگر چک شده باشد)
+				if (selectedCategories.length > 0 && !selectedCategories.includes(place.parent_category)) {
+					return false;
+				}
+
+				// فیلتر زیرمجموعه (اگر چک شده باشد)
+				if (selectedSubCategories.length > 0 && !selectedSubCategories.includes(place.category)) {
+					return false;
+				}
+
+				// فیلتر هزینه
+				if (selectedCosts.length > 0) {
+					const isFree = place.cost === 0;
+					const passFree = selectedCosts.includes('free');
+					const passPaid = selectedCosts.includes('paid');
+
+					if (passFree && passPaid) {
+						// هر دو انتخاب شده
+					} else if (passFree && !isFree) {
+						return false;
+					} else if (passPaid && isFree) {
+						return false;
+					}
+				}
+
+				return true;
+			});
+		}
+
+		// رندر گرید
+		function renderGrid() {
+			const filtered = getFilteredPlaces();
+			const totalItems = filtered.length;
+			const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+			if (totalItems === 0) {
+				gridContainer.innerHTML = `
+						<div class="no-results">
+							<i class="fas fa-search"></i>
+							<h4>جاذبه‌ای یافت نشد</h4>
+							<p>فیلترها یا عبارت جستجو را تغییر دهید.</p>
+						</div>
+					`;
+				resultCount.textContent = `۰ جاذبه`;
+				paginationContainer.innerHTML = '';
+				return;
+			}
+
+			if (currentPage > totalPages) currentPage = totalPages;
+
+			const startIndex = (currentPage - 1) * itemsPerPage;
+			const endIndex = startIndex + itemsPerPage;
+			const pagePlaces = filtered.slice(startIndex, endIndex);
+
+			gridContainer.innerHTML = '';
+			pagePlaces.forEach(place => {
+				gridContainer.appendChild(createCard(place));
+			});
+
+			resultCount.textContent = `${faNum(totalItems)} جاذبه`;
+			updatePagination(totalPages);
+
+			// مدیریت دکمه حذف فیلترها
+			const searchActive = searchInput.value.trim() !== '';
+			const checkboxActive = document.querySelectorAll('#filterSidebar input[type="checkbox"]:checked').length > 0;
+
+			if (searchActive || checkboxActive) {
+				clearAllBtn.classList.remove('d-none');
+			} else {
+				clearAllBtn.classList.add('d-none');
+			}
+		}
+
+		// صفحه‌بندی
+		function updatePagination(totalPages) {
+			paginationContainer.innerHTML = '';
+			if (totalPages <= 1) return;
+
+			const prevBtn = document.createElement('button');
+			prevBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+			prevBtn.disabled = currentPage === 1;
+			prevBtn.addEventListener('click', () => {
+				if (currentPage > 1) { currentPage--; renderGrid(); }
+			});
+			paginationContainer.appendChild(prevBtn);
+
+			for (let i = 1; i <= totalPages; i++) {
+				const pageBtn = document.createElement('button');
+				pageBtn.textContent = faNum(i);
+				if (i === currentPage) pageBtn.classList.add('active');
+				pageBtn.addEventListener('click', () => {
+					if (currentPage !== i) { currentPage = i; renderGrid(); }
+				});
+				paginationContainer.appendChild(pageBtn);
+			}
+
+			const nextBtn = document.createElement('button');
+			nextBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+			nextBtn.disabled = currentPage === totalPages;
+			nextBtn.addEventListener('click', () => {
+				if (currentPage < totalPages) { currentPage++; renderGrid(); }
+			});
+			paginationContainer.appendChild(nextBtn);
+		}
+
+		// رویدادها
+		filterCheckboxes.forEach(cb => {
+			cb.addEventListener('change', () => {
+				currentPage = 1;
+				renderGrid();
+			});
+		});
+
+		let searchTimeout;
+		searchInput.addEventListener('input', () => {
+			clearTimeout(searchTimeout);
+			searchTimeout = setTimeout(() => {
+				currentPage = 1;
+				renderGrid();
+			}, 300);
+		});
+
+		clearAllBtn.addEventListener('click', () => {
+			filterCheckboxes.forEach(cb => cb.checked = false);
+			searchInput.value = '';
+			currentPage = 1;
+			renderGrid();
+		});
+
+		// بارگذاری اولیه
+		updateCostCounts();
+		renderGrid();
+			
+		})();
+	</script>
+</body>
+
+</html>

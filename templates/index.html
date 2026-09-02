@@ -1,0 +1,452 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>سفر به دزفول</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+
+	<!-- ===== اوورلی ===== -->
+	<div class="overlay" id="menuOverlay"></div>
+
+	<!-- ===== هدر ===== -->
+	<header class="navbar" id="navbar">
+		<div class="logo">
+			<i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
+		</div>
+
+		<nav class="nav-links" id="navLinks">
+			<button class="close-menu-btn" id="closeMenuBtn">
+				<i class="fas fa-times"></i>
+			</button>
+			<a href="{% url 'home' %}" class="active"><i class="fas fa-home"></i> خانه</a>
+			<a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+			<a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+			<a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+			<a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+			<div class="auth-mobile">
+				<a href="#" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+				<a href="#" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			</div>
+		</nav>
+
+		<div class="auth-buttons">
+			<a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+			<a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			<button class="hamburger" id="hamburgerBtn" aria-label="منو">
+				<i class="fas fa-bars"></i>
+			</button>
+		</div>
+	</header>
+
+	<!-- ===== هیرو سکشن ===== -->
+	<section class="hero">
+		<div class="hero-shapes">
+			<div class="shape shape-1"></div>
+			<div class="shape shape-2"></div>
+			<div class="shape shape-3"></div>
+			<div class="shape shape-4"></div>
+			<div class="dot-particle"></div>
+			<div class="dot-particle"></div>
+			<div class="dot-particle"></div>
+			<div class="dot-particle"></div>
+		</div>
+
+		<div class="hero-content">
+			<div class="hero-text">
+				<h1>
+					سفرت رو <span>خودت بچین</span><br>
+					بی‌برنامه نرو
+				</h1>
+
+				<div class="mini-form">
+					<div class="form-row">
+						<div class="field">
+							<label><i class="fas fa-map-pin"></i> مقصد</label>
+							<input type="text" placeholder="دزفول" value="دزفول">
+						</div>
+						<div class="field">
+							<label><i class="fas fa-calendar-alt"></i> تاریخ</label>
+							<input type="text" placeholder="۱۴۰۴/۰۲/۱۵" value="۱۴۰۴/۰۲/۱۵">
+						</div>
+						<div class="field">
+							<label><i class="fas fa-user"></i> نفرات</label>
+							<select>
+								<option>۱ نفر</option>
+								<option selected>۲ نفر</option>
+								<option>۳ نفر</option>
+								<option>۴ نفر</option>
+								<option>۵+ نفر</option>
+							</select>
+						</div>
+						<div class="field" style="flex: 0 0 44px;">
+							<button class="btn-search">
+								<i class="fas fa-search"></i>
+							</button>
+						</div>
+					</div>
+				</div>
+
+				<div class="assistant-box">
+					<div class="mascot">
+						<img src="{% static 'img/chatbot.webp' %}" alt="دستیار هوشمند">
+					</div>
+					<div class="text">
+						<p>
+							با <span class="highlight">دستیار هوشمند</span> ما،
+							مقصد و سلیقه‌ات رو بگو تا بهترین برنامه‌ی سفر رو برات بچینیم.
+						</p>
+					</div>
+					<button class="btn-chat">
+						<i class="fas fa-comment-dots"></i> شروع گفتگو
+					</button>
+				</div>
+			</div>
+
+			<div class="hero-slider">
+				<div class="slider-container" id="sliderContainer">
+					<div class="slider-slide active">
+						<img src="{% static 'img/slide1.webp' %}" alt="آبشار شوی">
+						<div class="slide-content">
+							<span class="slide-tag">طبیعی</span>
+							<h3>آبشار شوی</h3>
+							<p>بلندترین آبشار فصلی خوزستان</p>
+							<a href="#" class="btn-slide"><i class="fas fa-arrow-left"></i> مشاهده</a>
+						</div>
+					</div>
+					<div class="slider-slide">
+						<img src="{% static 'img/slide2.jpg' %}" alt="بازار کهنه دزفول">
+						<div class="slide-content">
+							<span class="slide-tag">تاریخی</span>
+							<h3>بازار کهنه دزفول</h3>
+							<p>بازار سنتی با معماری اصیل</p>
+							<a href="#" class="btn-slide"><i class="fas fa-arrow-left"></i> مشاهده</a>
+						</div>
+					</div>
+					<div class="slider-slide">
+						<img src="{% static 'img/slide3.jpg' %}" alt="دانشگاه جندی شاپور">
+						<div class="slide-content">
+							<span class="slide-tag">تاریخی</span>
+							<h3>دانشگاه جندی شاپور</h3>
+							<p>نماد علمی و تاریخی دزفول</p>
+							<a href="#" class="btn-slide"><i class="fas fa-arrow-left"></i> مشاهده</a>
+						</div>
+					</div>
+					<div class="slider-slide">
+						<img src="{% static 'img/slide4.jpg' %}" alt="پل قدیم دزفول">
+						<div class="slide-content">
+							<span class="slide-tag">تاریخی</span>
+							<h3>پل قدیم دزفول</h3>
+							<p>کهن‌ترین پل جهان با قدمت ساسانی</p>
+							<a href="#" class="btn-slide"><i class="fas fa-arrow-left"></i> مشاهده</a>
+						</div>
+					</div>
+
+					<button class="slider-btn prev" id="prevBtn"><i class="fas fa-chevron-right"></i></button>
+					<button class="slider-btn next" id="nextBtn"><i class="fas fa-chevron-left"></i></button>
+
+					<div class="slider-dots" id="sliderDots">
+						<button class="dot-nav active" data-index="0"></button>
+						<button class="dot-nav" data-index="1"></button>
+						<button class="dot-nav" data-index="2"></button>
+						<button class="dot-nav" data-index="3"></button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ===== بخش خدمات و مزایا ===== -->
+	<section class="section-services" id="services">
+		<div class="container">
+			<div class="section-header">
+				<h2> همراه هوشمند شما در سفر به دزفول</h2>
+				<p>پیدا کردن بهترین جاذبه‌ها، برنامه‌ریزی هوشمند و تجربه‌ای بی‌نظیر از سفر</p>
+			</div>
+
+			<div class="services-grid">
+				<div class="service-card">
+					<div class="service-icon">
+						<i class="fas fa-robot"></i>
+					</div>
+					<h3>دستیار هوشمند</h3>
+					<p>با کمک هوش مصنوعی، برنامه سفر اختصاصی دریافت کنید و در طول سفر همراه مطمئن داشته باشید.</p>
+				</div>
+
+				<div class="service-card">
+					<div class="service-icon">
+						<i class="fas fa-landmark"></i>
+					</div>
+					<h3>جاذبه‌های گردشگری</h3>
+					<p>جاذبه‌های دیدنی و تفریحات متنوع دزفول را کشف کنید و لحظات خاصی بسازید.</p>
+				</div>
+
+				<div class="service-card">
+					<div class="service-icon">
+						<i class="fas fa-calendar-check"></i>
+					</div>
+					<h3>برنامه‌ریز هوشمند</h3>
+					<p>بهترین برنامه‌ی سفر را متناسب با سلیقه، بودجه و زمان خود دریافت کنید.</p>
+				</div>
+			</div>
+
+			<div class="services-stats">
+				<div class="stat-item">
+					<span class="stat-number" data-target="{{ places_count }}">0</span>
+					<span class="stat-label">جاذبه گردشگری</span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-number" data-target="{{ users_count }}">0</span>
+					<span class="stat-label">مسافر </span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-number" data-target="{{ plans_count }}">0</span>
+					<span class="stat-label">پلن سفر آماده</span>
+				</div>
+				<div class="stat-item">
+					<span class="stat-number" data-target="{{ avg_rating }}">0</span>
+					<span class="stat-label">از ۵ امتیاز</span>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ===== اسلایدر ۱: پلن‌های پیشنهادی ===== -->
+	<section class="section-card-slider" id="plansSlider">
+		<div class="container">
+			<div class="card-slider-header">
+				<div class="header-title">
+					<h2> <span class="title-line"></span> پلن‌های پیشنهادی</h2>
+					<a href="#" class="view-all">مشاهده همه <i class="fas fa-arrow-left"></i></a>
+				</div>
+				<div class="slider-nav">
+					<button class="card-slider-btn prev" id="plansPrev"><i class="fas fa-chevron-right"></i></button>
+					<button class="card-slider-btn next" id="plansNext"><i class="fas fa-chevron-left"></i></button>
+				</div>
+			</div>
+
+			<div class="card-slider-wrapper">
+				<div class="card-slider-track" id="plansTrack">
+					{% for plan in plans %}
+					<div class="card-slide">
+						<div class="card-slide-image" style="background: #118b71;">
+							<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ plan.name }}"
+								style="width:100%; height:100%; object-fit:cover;">
+							<span class="card-badge">{{ plan.badge }}</span>
+						</div>
+						<div class="card-slide-body">
+							<h4>{{ plan.name }}</h4>
+							<p>{{ plan.description|truncatewords:15 }}</p>
+							<a href="#" class="card-link">مشاهده <i class="fas fa-arrow-left"></i></a>
+						</div>
+					</div>
+					{% empty %}
+					<div class="card-slide">
+						<div class="card-slide-body">
+							<h4>هیچ پلنی یافت نشد</h4>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- ===== اسلایدر ۲: جاذبه‌های گردشگری ===== -->
+	<section class="section-card-slider" id="attractionsSlider">
+		<div class="container">
+			<div class="card-slider-header">
+				<div class="header-title">
+					<h2> <span class="title-line"></span> جاذبه‌های گردشگری</h2>
+					<a href="#" class="view-all">مشاهده همه <i class="fas fa-arrow-left"></i></a>
+				</div>
+				<div class="slider-nav">
+					<button class="card-slider-btn prev" id="attractionsPrev"><i
+							class="fas fa-chevron-right"></i></button>
+					<button class="card-slider-btn next" id="attractionsNext"><i
+							class="fas fa-chevron-left"></i></button>
+				</div>
+			</div>
+
+			<div class="card-slider-wrapper">
+				<div class="card-slider-track" id="attractionsTrack">
+					{% for place in featured_places %}
+					<div class="card-slide">
+						<div class="card-slide-image" style="background: #118b71;">
+							<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ place.name }}"
+								style="width:100%; height:100%; object-fit:cover;">
+							<span class="card-badge">{{ place.category.name }}</span>
+						</div>
+						<div class="card-slide-body">
+							<h4>{{ place.name }}</h4>
+							<p>{{ place.short_description|truncatewords:10 }}</p>
+							<a href="#" class="card-link">مشاهده <i class="fas fa-arrow-left"></i></a>
+						</div>
+					</div>
+					{% empty %}
+					<div class="card-slide">
+						<div class="card-slide-body">
+							<h4>هیچ جاذبه‌ای یافت نشد</h4>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</section>
+
+<!-- ===== اسلایدر ۳: مجله گردشگری ===== -->
+<section class="section-magazine-slider" id="magazineSlider" style="background-image: url('{% static 'img/slide1.webp' %}'); background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 0.8s ease;">
+	<div class="container">
+
+		<div class="slider-header">
+			<span class="slider-title">
+				<i class="fas fa-newspaper"></i>
+				مجله <span class="highlight">گردشگری</span>
+			</span>
+			<a href="{% url 'articles' %}" class="view-all-btn">
+				مشاهده همه مقالات <i class="fas fa-arrow-left"></i>
+			</a>
+		</div>
+
+		<div class="slider-container-mag" id="sliderContainerMag">
+			<div class="slides-track-mag" id="slidesTrackMag">
+				{% for article in featured_articles|slice:":6" %}
+				<div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+					{% if forloop.counter0 == 0 %}
+					<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide1.webp' %}');"></div>
+					<div class="slide-image-mag">
+						<img src="{% static 'img/slide1.webp' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
+					</div>
+					{% elif forloop.counter0 == 1 %}
+					<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide2.jpg' %}');"></div>
+					<div class="slide-image-mag">
+						<img src="{% static 'img/slide2.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
+					</div>
+					{% elif forloop.counter0 == 2 %}
+					<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide3.jpg' %}');"></div>
+					<div class="slide-image-mag">
+						<img src="{% static 'img/slide3.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
+					</div>
+					{% elif forloop.counter0 == 3 %}
+					<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide4.jpg' %}');"></div>
+					<div class="slide-image-mag">
+						<img src="{% static 'img/slide4.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
+					</div>
+					{% elif forloop.counter0 == 4 %}
+					<div class="slide-bg-blur" style="background-image: url('{% static 'img/asiyab-haye-abi.jpg' %}');"></div>
+					<div class="slide-image-mag">
+						<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
+					</div>
+					{% else %}
+					<div class="slide-bg-blur" style="background-image: url('{% static 'img/pl-e-ghadim.jpg' %}');"></div>
+					<div class="slide-image-mag">
+						<img src="{% static 'img/pl-e-ghadim.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
+					</div>
+					{% endif %}
+
+					<div class="slide-content-mag">
+						<span class="slide-badge-mag">{{ article.category.name|default:'گردشگری' }}</span>
+						<h2 class="slide-title-mag">{{ article.title }}</h2>
+						<p class="slide-desc-mag">
+							{% if article.excerpt %}
+							{{ article.excerpt|truncatewords:20 }}
+							{% else %}
+							مطالعه این مقاله را به شما پیشنهاد می‌کنیم.
+							{% endif %}
+						</p>
+						<a href="{% url 'article_detail' article.slug %}" class="slide-link-mag">
+							ادامه مطلب …
+						</a>
+					</div>
+				</div>
+				{% empty %}
+				<div class="slide-mag active">
+					<div class="slide-content-mag">
+						<span class="slide-badge-mag">مجله</span>
+						<h2 class="slide-title-mag">هیچ مقاله‌ای یافت نشد</h2>
+						<p class="slide-desc-mag">به زودی مقالات جدید اضافه می‌شوند.</p>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+
+		<div class="slider-footer-mag">
+			<div class="slide-list-horizontal-mag" id="slideListHorizontalMag">
+				{% for article in featured_articles|slice:":6" %}
+				<div class="list-item-h-mag {% if forloop.first %}active-item-h-mag{% endif %}" data-index="{{ forloop.counter0 }}">
+					<div class="list-item-h-top-mag">
+						<span class="list-item-h-title-mag">{{ article.title|truncatechars:25 }}</span>
+					</div>
+					<div class="list-item-h-progress-mag">
+						<div class="progress-fill-h-mag" id="progress-h-mag-{{ forloop.counter0 }}" style="width: 0%;"></div>
+					</div>
+				</div>
+				{% endfor %}
+			</div>
+		</div>
+
+	</div>
+</section>
+	<!-- ===== بخش CTA ===== -->
+	<section class="section-cta">
+		<div class="container">
+			<h2> آماده‌ی سفر به دزفولی؟</h2>
+			<p>همین حالا برنامه‌ی سفرت رو بساز و از جاذبه‌های شگفت‌انگیز دزفول لذت ببر</p>
+			<a href="{% url 'plan' %}" class="btn-cta"><i class="fas fa-magic"></i> شروع کن</a>
+		</div>
+	</section>
+
+	<!-- ===== فوتر ===== -->
+	<footer class="footer">
+		<div class="container">
+			<div class="footer-grid">
+				<div>
+					<h4><i class="fas fa-map-signs" style="color:var(--brick-orange);"></i> سفر به دزفول</h4>
+					<p>سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول، با الگوریتم مبتنی بر نیاز مسافر.</p>
+					<div class="social">
+						<a href="#"><i class="fab fa-telegram"></i></a>
+						<a href="#"><i class="fab fa-instagram"></i></a>
+						<a href="#"><i class="fab fa-youtube"></i></a>
+						<a href="#"><i class="fab fa-linkedin"></i></a>
+					</div>
+				</div>
+				<div>
+					<h4>دسترسی سریع</h4>
+					<a href="{% url 'plan' %}">برنامه‌ریز سفر</a>
+					<a href="{% url 'attraction' %}">جاذبه‌های گردشگری</a>
+					<a href="{% url 'map' %}">نقشه تعاملی</a>
+					<a href="{% url 'articles' %}">مقالات</a>
+				</div>
+				<div>
+					<h4>اطلاعات مفید</h4>
+					<a href="#">بهترین زمان سفر</a>
+					<a href="#">راهنمای مسیرها</a>
+					<a href="#">تماس با ما</a>
+					<a href="#">درباره‌ی پروژه</a>
+				</div>
+			</div>
+			<div class="footer-copy">
+				<i class="fas fa-copyright"></i> ۱۴۰۴ - پروژه‌ی کارشناسی - دانشگاه صنعتی جندی شاپور دزفول
+			</div>
+		</div>
+	</footer>
+
+	<button class="scroll-top" id="scrollTop">
+		<i class="fas fa-chevron-up"></i>
+	</button>
+
+	<script src="{% static 'js/script.js' %}"></script>
+</body>
+
+</html>

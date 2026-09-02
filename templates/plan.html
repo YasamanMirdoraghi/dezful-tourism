@@ -1,0 +1,330 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>برنامه‌ریز هوشمند سفر به دزفول</title>
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+
+<body class="page-plan">
+
+	<nav class="navbar" id="navbar">
+		<div class="logo">
+			<i class="fas fa-mountain"></i>
+			سفر به <span>دزفول</span>
+		</div>
+
+		<ul class="nav-links" id="navLinks">
+			<button class="close-menu-btn" id="closeMenuBtn" aria-label="بستن منو">
+				<i class="fas fa-times"></i>
+			</button>
+			<a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
+			<a href="{% url 'plan' %}" class="active"><i class="fas fa-route"></i> برنامه‌ریز</a>
+			<a href="{% url 'attraction' %}"><i class="fas fa-map-marker-alt"></i> جاذبه‌ها</a>
+			<a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+			<a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+			<div class="auth-mobile">
+				<a href="#" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+				<a href="#" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			</div>
+		</ul>
+
+		<div class="auth-buttons">
+			<a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+			<a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+		</div>
+
+		<button class="hamburger" id="hamburgerBtn" aria-label="منو">
+			<i class="fas fa-bars"></i>
+		</button>
+	</nav>
+	<div class="overlay" id="menuOverlay"></div>
+
+	<!-- ===== برنامه‌ریز ===== -->
+	<section class="plan-section">
+		<div class="container">
+			<div class="plan-header">
+				<h1><i class="fas fa-route"></i> برنامه‌ریز هوشمند سفر به دزفول</h1>
+				<p>با چند کلیک ساده، برنامه سفر اختصاصی خودت رو بساز</p>
+			</div>
+
+			<div class="wizard" id="planWizard">
+
+				<!-- ===== نشانگرهای مرحله ===== -->
+				<div class="step-indicators">
+					<div class="step-item active" data-step="1"><span class="step-dot"></span></div>
+					<span class="step-line"></span>
+					<div class="step-item" data-step="2"><span class="step-dot"></span></div>
+					<span class="step-line"></span>
+					<div class="step-item" data-step="3"><span class="step-dot"></span></div>
+					<span class="step-line"></span>
+					<div class="step-item" data-step="4"><span class="step-dot"></span></div>
+				</div>
+
+				<div class="wizard-top">
+					<h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن</h2>
+				</div>
+
+				<!-- مرحله ۱: تقویم -->
+				<div class="wz-step active" data-step="1">
+					<div class="cal-card">
+						<div class="cal-header">
+							<button class="cal-nav" id="calPrev" aria-label="ماه قبل"><i class="fas fa-chevron-right"></i></button>
+							<h3 id="calTitle">فروردین ۱۴۰۵</h3>
+							<button class="cal-nav next" id="calNext" aria-label="ماه بعد"><i class="fas fa-chevron-left"></i></button>
+						</div>
+						<div class="cal-weekdays">
+							<span>شنبه</span><span>یکشنبه</span><span>دوشنبه</span>
+							<span>سه‌شنبه</span><span>چهارشنبه</span><span>پنجشنبه</span><span>جمعه</span>
+						</div>
+						<div class="cal-grid" id="calGrid"></div>
+					</div>
+
+					<div class="date-boxes">
+						<div class="date-box">
+							<div class="db-icon green"><i class="fas fa-calendar-day"></i></div>
+							<div>
+								<span class="db-label">شروع سفر</span>
+								<span class="db-value" id="dbStart">هنوز انتخاب نشده</span>
+							</div>
+						</div>
+						<div class="date-box">
+							<div class="db-icon orange"><i class="fas fa-calendar-check"></i></div>
+							<div>
+								<span class="db-label">پایان سفر</span>
+								<span class="db-value" id="dbEnd">هنوز انتخاب نشده</span>
+							</div>
+						</div>
+					</div>
+					<div class="wz-hint" id="dateHint"></div>
+				</div>
+
+				<!-- مرحله ۲: علاقه‌مندی‌ها -->
+				<div class="wz-step" data-step="2">
+					<div class="interest-top">
+						<div>
+							<h3>دسته‌های مورد علاقه‌ات را انتخاب کن</h3>
+							<p>هر چندتا که دوست داری — می‌تونی چند مورد انتخاب کنی</p>
+						</div>
+						<span class="interest-count" id="interestCount">۰ از ۹</span>
+					</div>
+					<a class="clear-link" id="clearInterests">پاک کردن انتخاب‌ها</a>
+
+					<div class="interest-grid">
+						<button type="button" class="interest-card" data-value="تاریخ‌گردی" data-maps="تاریخی">
+							<span class="ic-check"><i class="fas fa-check"></i></span>
+							<span class="ic-emoji">🏛️</span><span class="ic-label">تاریخ‌گردی</span>
+						</button>
+						<button type="button" class="interest-card" data-value="طبیعت‌گردی" data-maps="طبیعی">
+							<span class="ic-check"><i class="fas fa-check"></i></span>
+							<span class="ic-emoji">🏞️</span><span class="ic-label">طبیعت‌گردی</span>
+						</button>
+						<button type="button" class="interest-card" data-value="گردشگری تفریحی" data-maps="تفریحی">
+							<span class="ic-check"><i class="fas fa-check"></i></span>
+							<span class="ic-emoji">🎡</span><span class="ic-label">گردشگری تفریحی</span>
+						</button>
+						<button type="button" class="interest-card" data-value="خانوادگی">
+							<span class="ic-check"><i class="fas fa-check"></i></span>
+							<span class="ic-emoji">👨‍👩‍👧‍👦</span><span class="ic-label">خانوادگی</span>
+						</button>
+						<button type="button" class="interest-card" data-value="فرهنگی">
+							<span class="ic-check"><i class="fas fa-check"></i></span>
+							<span class="ic-emoji">🎭</span><span class="ic-label">فرهنگی</span>
+						</button>
+						<button type="button" class="interest-card" data-value="گردشگری مذهبی">
+							<span class="ic-check"><i class="fas fa-check"></i></span>
+							<span class="ic-emoji">🕌</span><span class="ic-label">گردشگری مذهبی</span>
+						</button>
+						<button type="button" class="interest-card" data-value="از کجا بخریم؟">
+							<span class="ic-check"><i class="fas fa-check"></i></span>
+							<span class="ic-emoji">🛍️</span><span class="ic-label">از کجا بخریم؟</span>
+						</button>
+						<button type="button" class="interest-card" data-value="گردشگری ورزشی">
+							<span class="ic-check"><i class="fas fa-check"></i></span>
+							<span class="ic-emoji">🧗</span><span class="ic-label">گردشگری ورزشی</span>
+						</button>
+						<button type="button" class="interest-card" data-value="کنار رودخانه">
+							<span class="ic-check"><i class="fas fa-check"></i></span>
+							<span class="ic-emoji">🌊</span><span class="ic-label">کنار رودخانه</span>
+						</button>
+					</div>
+					<div class="wz-hint" id="wzHint"></div>
+				</div>
+
+				<!-- مرحله ۳: جزئیات -->
+				<div class="wz-step" data-step="3">
+					<div class="form-group">
+						<label><i class="fas fa-users"></i> تعداد مسافران</label>
+						<select id="travelersCount" class="budget-select">
+							<option value="1">۱ نفر</option>
+							<option value="2" selected>۲ نفر</option>
+							<option value="3">۳ نفر</option>
+							<option value="4">۴ نفر</option>
+							<option value="5+">۵+ نفر</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label><i class="fas fa-wallet"></i> بودجه تقریبی (تومان)</label>
+						<select id="budgetRange" class="budget-select">
+							<option value="0-2000000">تا ۲,۰۰۰,۰۰۰</option>
+							<option value="2000000-3000000">۲,۰۰۰,۰۰۰ تا ۳,۰۰,۰۰۰</option>
+							<option value="3000000-5000000" selected>۳,۰۰۰,۰۰۰ تا ۵,۰۰۰,۰۰</option>
+							<option value="5000000-7000000">۵,۰۰۰,۰۰۰ تا ۷,۰۰۰,۰۰</option>
+							<option value="7000000-10000000">۷,۰۰۰,۰۰۰ تا ۱۰,۰۰۰,۰۰۰</option>
+							<option value="10000000-15000000">۱۰,۰۰۰,۰۰۰ تا ۱۵,۰۰۰,۰۰۰</option>
+							<option value="15000000-99999999">بیش از ۱۵,۰۰۰,۰۰۰</option>
+						</select>
+					</div>
+
+					<div class="form-group">
+						<label><i class="fas fa-child"></i> آیا کودک همراه دارید؟</label>
+						<div class="radio-group">
+							<label><input type="radio" name="hasChild" value="false" checked> خیر</label>
+							<label><input type="radio" name="hasChild" value="true"> بله</label>
+						</div>
+					</div>
+
+					<div id="tripDaysInfo"></div>
+				</div>
+
+				<!-- مرحله ۴: خلاصه -->
+				<div class="wz-step" data-step="4">
+					<div class="review-card">
+						<h3 class="rv-title">خلاصه سفر شما</h3>
+						<p class="rv-sub">قبل از ساخت برنامه، یک‌بار انتخاب‌هات رو ببین</p>
+
+						<div class="rv-row">
+							<div class="rv-icon blue"><i class="fas fa-map-marker-alt"></i></div>
+							<div><span class="rv-label">مقصد</span><span class="rv-value">دزفول</span></div>
+						</div>
+
+						<div class="rv-row">
+							<div class="rv-icon pink"><i class="fas fa-calendar-alt"></i></div>
+							<div>
+								<span class="rv-label">تاریخ سفر</span>
+								<div class="rv-dates">
+									<span class="rv-date" id="rvStart">-</span>
+									<span>تا</span>
+									<span class="rv-date" id="rvEnd">-</span>
+									<span class="rv-daychip" id="rvDays">-</span>
+								</div>
+							</div>
+						</div>
+
+						<div class="rv-row">
+							<div class="rv-icon yellow"><i class="fas fa-heart"></i></div>
+							<div>
+								<span class="rv-label">علاقه‌مندی‌ها</span>
+								<span class="rv-value"><span id="rvIntCount">-</span> مورد</span>
+								<div class="rv-chips" id="rvChips" style="margin-top: 8px;"></div>
+							</div>
+						</div>
+
+						<div class="rv-row">
+							<div class="rv-icon green"><i class="fas fa-info-circle"></i></div>
+							<div><span class="rv-label">جزئیات</span><span class="rv-value" id="rvDetails">-</span></div>
+						</div>
+					</div>
+					<div class="review-note">اگر همه‌چیز درست است، «ساخت برنامه» را بزن تا برنامه سفر ساخته شود.</div>
+				</div>
+
+				<div class="wizard-actions">
+					<button type="button" class="wz-prev" id="wizPrev" style="visibility: hidden;">
+						<i class="fas fa-arrow-right"></i> مرحله قبل
+					</button>
+					<button type="button" class="wz-next" id="wizNext">مرحله بعد <i class="fas fa-arrow-left"></i></button>
+				</div>
+			</div>
+
+			<!-- ===== نتایج ===== -->
+			<div class="planner-result" id="resultSection">
+				<div class="planner-layout">
+					<div class="planner-sidebar">
+						<div class="planner-hero">
+							<button class="ph-save" title="ذخیره سفر"><i class="far fa-bookmark"></i></button>
+							<button class="ph-edit" id="editPlanBtn"><i class="fas fa-edit"></i> ویرایش برنامه</button>
+							<div class="ph-title">
+								<img src="{% static 'img/slide4.jpg' %}" alt="" class="ph-thumb">
+								<div>
+									<h3>دزفول</h3>
+									<span id="phSub">سفر به دزفول</span>
+								</div>
+							</div>
+						</div>
+						<div class="planner-tabs" id="plannerTabs"></div>
+						<div class="planner-days" id="plannerDays"></div>
+					</div>
+
+					<div class="planner-map-wrap">
+						<div id="resultMap"></div>
+						<div class="map-day-chips" id="mapDayChips"></div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<!-- منوی گزینه‌ها -->
+	<div class="more-menu" id="moreMenu">
+		<button data-act="route"><i class="fas fa-map-marked-alt"></i> مسیریابی با نشان</button>
+		<button data-act="replace"><i class="fas fa-sync-alt"></i> جایگزین کردن جاذبه</button>
+		<button data-act="remove" class="danger"><i class="fas fa-trash-alt"></i> حذف جاذبه از برنامه سفر</button>
+	</div>
+
+	<!-- دکمه شناور بازگشت به خانه -->
+	<a href="{% url 'home' %}" class="float-home" title="بازگشت به خانه">
+		<i class="fas fa-home"></i>
+	</a>
+
+	<!-- ===== فوتر ===== -->
+	<footer class="footer">
+		<div class="container">
+			<div class="footer-grid">
+				<div>
+					<div class="logo" style="color:#fff; animation:none;">
+						<i class="fas fa-mountain"></i>
+						سفر به <span>دزفول</span>
+					</div>
+					<p style="margin-top:12px; font-size:14px; line-height:1.8;">
+						سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول، با الگوریتم مبتنی بر نیاز مسافر.
+					</p>
+					<div class="social">
+						<a href="#"><i class="fab fa-instagram"></i></a>
+						<a href="#"><i class="fab fa-telegram"></i></a>
+						<a href="#"><i class="fab fa-twitter"></i></a>
+						<a href="#"><i class="fab fa-youtube"></i></a>
+					</div>
+				</div>
+				<div>
+					<h4>دسترسی سریع</h4>
+					<a href="{% url 'plan' %}">برنامه‌ریز سفر</a>
+					<a href="{% url 'attraction' %}">جاذبه‌های گردشگری</a>
+					<a href="{% url 'map' %}">نقشه تعاملی</a>
+					<a href="{% url 'articles' %}">مقالات</a>
+				</div>
+				<div>
+					<h4>اطلاعات مفید</h4>
+					<a href="#">بهترین زمان سفر</a>
+					<a href="#">راهنمای مسیرها</a>
+					<a href="#">تماس با ما</a>
+					<a href="#">درباره‌ی پروژه</a>
+				</div>
+			</div>
+			<div class="footer-copy">۱۴۰۴ - پروژه‌ی کارشناسی - دانشگاه صنعتی جندی شاپور دزفول</div>
+		</div>
+	</footer>
+
+	<button class="scroll-top" id="scrollTop" aria-label="اسکرول به بالا"><i class="fas fa-chevron-up"></i></button>
+
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script src="{% static 'js/script.js' %}"></script>
+</body>
+
+</html>

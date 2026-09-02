@@ -1,0 +1,1101 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>مقالات گردشگری دزفول | سفر به دزفول</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+
+	<style>
+		/* ===== استایل‌های اختصاصی صفحه مقالات ===== */
+		.articles-main {
+			padding: 60px 0 80px;
+			background: var(--cream-bg);
+		}
+
+		.articles-layout {
+			display: flex;
+			gap: 30px;
+			align-items: flex-start;
+		}
+
+		/* ===== سایدبار فیلتر (آکاردئونی) ===== */
+		.filter-sidebar {
+			flex: 0 0 290px;
+			background: #fff;
+			padding: 24px;
+			border-radius: var(--radius-sm);
+			box-shadow: var(--shadow-sm);
+			position: sticky;
+			top: 100px;
+			border: 1px solid rgba(17, 139, 113, 0.06);
+			max-height: 80vh;
+			overflow-y: auto;
+		}
+
+		.filter-sidebar::-webkit-scrollbar {
+			width: 6px;
+		}
+
+		.filter-sidebar::-webkit-scrollbar-track {
+			background: #f1f3f5;
+			border-radius: 10px;
+		}
+
+		.filter-sidebar::-webkit-scrollbar-thumb {
+			background: var(--primary-green);
+			border-radius: 10px;
+		}
+
+		.filter-sidebar-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 16px;
+			border-bottom: 2px solid var(--cream-bg);
+			padding-bottom: 12px;
+		}
+
+		.filter-sidebar h3 {
+			font-size: 1.2rem;
+			font-weight: 900;
+			color: var(--brown-text);
+			margin: 0;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.filter-sidebar h3 i {
+			color: var(--primary-green);
+		}
+
+		/* ===== دکمه حذف فیلترها (پیش‌فرض مخفی است) ===== */
+		.clear-all-btn {
+			color: var(--brick-orange);
+			border: none;
+			padding: 5px 12px;
+			border-radius: 20px;
+			font-size: 0.75rem;
+			font-weight: 700;
+			cursor: pointer;
+			transition: var(--transition);
+			font-family: inherit;
+		}
+
+		.clear-all-btn:hover {
+			background: var(--brick-orange);
+			color: #fff;
+		}
+
+		.clear-all-btn.d-none {
+			display: none !important;
+		}
+
+		.sidebar-search {
+			position: relative;
+			margin-bottom: 20px;
+		}
+
+		.sidebar-search input {
+			width: 100%;
+			padding: 10px 15px 10px 40px;
+			border: 1px solid #e1e1e1;
+			border-radius: 30px;
+			font-family: inherit;
+			outline: none;
+			background: var(--cream-bg);
+			transition: var(--transition);
+		}
+
+		.sidebar-search input:focus {
+			border-color: var(--primary-green);
+			background: #fff;
+		}
+
+		.sidebar-search i {
+			position: absolute;
+			left: 15px;
+			top: 50%;
+			transform: translateY(-50%);
+			color: #999;
+		}
+
+		details.filter-group {
+			margin-bottom: 12px;
+			border-bottom: 1px solid #eee;
+			padding-bottom: 8px;
+		}
+
+		summary.filter-group-title {
+			font-weight: 700;
+			color: var(--brown-text);
+			font-size: 0.95rem;
+			cursor: pointer;
+			list-style: none;
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			padding: 10px 0;
+			transition: 0.2s;
+		}
+
+		summary.filter-group-title::after {
+			content: '\f078';
+			font-family: "Font Awesome 6 Free";
+			font-weight: 900;
+			font-size: 0.8rem;
+			transition: transform 0.3s ease;
+			color: var(--brown-light);
+		}
+
+		details[open] summary.filter-group-title::after {
+			transform: rotate(180deg);
+		}
+
+		summary.filter-group-title::-webkit-details-marker {
+			display: none;
+		}
+
+		.filter-sub-group {
+			padding-right: 12px;
+			margin-top: 6px;
+		}
+
+		.filter-item {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			padding: 4px 0;
+			cursor: pointer;
+			transition: var(--transition);
+			color: var(--brown-light);
+			font-size: 0.9rem;
+		}
+
+		.filter-item:hover {
+			color: var(--primary-green);
+		}
+
+		.filter-item input[type="checkbox"],
+		.filter-item input[type="radio"] {
+			width: 16px;
+			height: 16px;
+			accent-color: var(--primary-green);
+			cursor: pointer;
+		}
+
+		.filter-item .count {
+			margin-right: auto;
+			font-size: 0.75rem;
+			background: var(--cream-bg);
+			padding: 0 8px;
+			border-radius: 20px;
+			color: var(--brown-light);
+			font-weight: 700;
+		}
+
+		/* ===== گرید مقالات ===== */
+		.articles-grid-section {
+			flex: 1;
+		}
+
+		.articles-grid-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 24px;
+			flex-wrap: wrap;
+			gap: 12px;
+		}
+
+		.articles-grid-header h2 {
+			font-size: 1.5rem;
+			font-weight: 900;
+			color: var(--brown-text);
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+
+		.articles-grid-header h2 i {
+			color: var(--brick-orange);
+		}
+
+		#resultCount {
+			background: var(--primary-green);
+			color: #fff;
+			padding: 4px 16px;
+			border-radius: 30px;
+			font-size: 0.9rem;
+			font-weight: 700;
+		}
+
+		.articles-grid {
+			display: grid;
+			grid-template-columns: repeat(3, 1fr);
+			gap: 20px;
+		}
+
+		/* ===== کارت مقاله ===== */
+		.article-card {
+			background: #fff;
+			border-radius: var(--radius-sm);
+			overflow: hidden;
+			box-shadow: var(--shadow-sm);
+			transition: var(--transition);
+			border: 1px solid rgba(17, 139, 113, 0.04);
+			display: flex;
+			flex-direction: column;
+			text-align: right;
+			direction: rtl;
+		}
+
+		.article-card:hover {
+			transform: translateY(-8px);
+			box-shadow: var(--shadow-md);
+		}
+
+		.article-img {
+			height: 180px;
+			position: relative;
+			overflow: hidden;
+		}
+
+		.article-img img {
+			width: 100%;
+			height: 100%;
+			object-fit: cover;
+			transition: transform 0.5s ease;
+		}
+
+		.article-card:hover .article-img img {
+			transform: scale(1.05);
+		}
+
+		.article-img .badge {
+			position: absolute;
+			top: 12px;
+			right: 12px;
+			background: rgba(255, 255, 255, 0.95);
+			padding: 3px 14px;
+			border-radius: 20px;
+			font-size: 0.75rem;
+			font-weight: 700;
+			color: var(--primary-green);
+			backdrop-filter: blur(4px);
+		}
+
+		.article-img .featured-badge {
+			position: absolute;
+			top: 12px;
+			left: 12px;
+			background: var(--brick-orange);
+			color: #fff;
+			padding: 3px 12px;
+			border-radius: 20px;
+			font-size: 0.7rem;
+			font-weight: 800;
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+
+		.article-body {
+			padding: 16px 18px 20px;
+			display: flex;
+			flex-direction: column;
+			flex: 1;
+			text-align: right;
+			direction: rtl;
+		}
+
+		.article-body h4 {
+			font-weight: 900;
+			font-size: 1.05rem;
+			color: var(--brown-text);
+			margin-bottom: 8px;
+			line-height: 1.5;
+			text-align: right;
+		}
+
+		.article-body p {
+			font-size: 0.85rem;
+			color: var(--brown-light);
+			line-height: 1.7;
+			margin-bottom: 14px;
+			flex: 1;
+			text-align: right;
+		}
+
+		.article-author {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			padding-bottom: 12px;
+			margin-bottom: 12px;
+			border-bottom: 1px dashed rgba(17, 139, 113, 0.15);
+			text-align: right;
+			direction: rtl;
+		}
+
+		.article-author .avatar {
+			width: 32px;
+			height: 32px;
+			border-radius: 50%;
+			background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+			color: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 0.8rem;
+			font-weight: 800;
+			flex-shrink: 0;
+		}
+
+		.article-author .author-info {
+			flex: 1;
+			min-width: 0;
+		}
+
+		.article-author .author-name {
+			font-size: 0.85rem;
+			font-weight: 700;
+			color: var(--brown-text);
+			display: block;
+		}
+
+		.article-author .author-date {
+			font-size: 0.75rem;
+			color: var(--brown-light);
+		}
+
+		.article-body .meta {
+			display: flex;
+			gap: 14px;
+			font-size: 0.75rem;
+			color: var(--brown-light);
+			flex-wrap: wrap;
+			text-align: right;
+			direction: rtl;
+		}
+
+		.article-body .meta span {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+		}
+
+		.article-body .meta i {
+			color: var(--primary-green);
+		}
+
+		.read-more-link {
+			display: inline-flex;
+			align-items: center;
+			gap: 6px;
+			color: var(--brick-orange);
+			font-weight: 700;
+			font-size: 0.85rem;
+			text-decoration: none;
+			margin-top: 12px;
+			transition: var(--transition);
+			align-self: flex-end;
+			text-align: right;
+		}
+
+		.read-more-link:hover {
+			gap: 12px;
+			color: #e04444;
+		}
+
+		/* ===== صفحه‌بندی ===== */
+		.pagination {
+			display: flex;
+			justify-content: center;
+			gap: 8px;
+			margin-top: 40px;
+		}
+
+		.pagination button {
+			width: 40px;
+			height: 40px;
+			border-radius: 10px;
+			border: 1px solid rgba(17, 139, 113, 0.1);
+			background: #fff;
+			color: var(--brown-text);
+			font-weight: 700;
+			cursor: pointer;
+			transition: var(--transition);
+			font-family: inherit;
+		}
+
+		.pagination button:hover:not(:disabled),
+		.pagination button.active {
+			background: var(--primary-green);
+			color: #fff;
+			border-color: var(--primary-green);
+		}
+
+		.pagination button:disabled {
+			opacity: 0.4;
+			cursor: not-allowed;
+		}
+
+		.section-magazine-slider {
+			min-height: 450px !important;
+		}
+
+		.slider-container-mag {
+			height: 350px !important;
+		}
+
+		.slide-image-mag {
+			width: 380px !important;
+			height: 260px !important;
+		}
+
+		.slide-content-mag .slide-title-mag {
+			font-size: 2rem !important;
+		}
+
+		.no-results {
+			grid-column: 1 / -1;
+			text-align: center;
+			padding: 60px 20px;
+			background: #fff;
+			border-radius: var(--radius-sm);
+			box-shadow: var(--shadow-sm);
+		}
+
+		.no-results i {
+			font-size: 3rem;
+			color: var(--brown-light);
+			margin-bottom: 16px;
+			opacity: 0.5;
+		}
+
+		.no-results h4 {
+			font-size: 1.1rem;
+			color: var(--brown-text);
+			margin-bottom: 8px;
+		}
+
+		.no-results p {
+			color: var(--brown-light);
+			font-size: 0.9rem;
+		}
+
+		@media (max-width: 1200px) {
+			.articles-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+
+			.filter-sidebar {
+				flex: 0 0 250px;
+			}
+		}
+
+		@media (max-width: 992px) {
+			.articles-layout {
+				flex-direction: column-reverse;
+			}
+
+			.filter-sidebar {
+				flex: 0 0 auto;
+				width: 100%;
+				position: relative;
+				top: 0;
+				margin-bottom: 20px;
+				max-height: none;
+			}
+
+			.articles-grid {
+				grid-template-columns: repeat(2, 1fr);
+			}
+
+			.slide-image-mag {
+				width: 100% !important;
+				height: 200px !important;
+			}
+		}
+
+		@media (max-width: 576px) {
+			.articles-grid {
+				grid-template-columns: 1fr;
+			}
+
+			.articles-grid-header h2 {
+				font-size: 1.2rem;
+			}
+		}
+	</style>
+</head>
+
+<body>
+
+	<header class="navbar" id="navbar">
+		<div class="logo">
+			<i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
+		</div>
+		<nav class="nav-links" id="navLinks">
+			<button class="close-menu-btn" id="closeMenuBtn">
+				<i class="fas fa-times"></i>
+			</button>
+			<a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
+			<a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+			<a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+			<a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+			<a href="{% url 'articles' %}" class="active"><i class="fas fa-newspaper"></i> مقالات</a>
+		</nav>
+		<div class="auth-buttons">
+			<a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+			<a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			<button class="hamburger" id="hamburgerBtn" aria-label="منو">
+				<i class="fas fa-bars"></i>
+			</button>
+		</div>
+	</header>
+
+	<section class="section-magazine-slider" id="magazineSlider">
+		<div class="container">
+			<div class="slider-header">
+				<span class="slider-title">
+					<i class="fas fa-newspaper"></i>
+					مجله <span class="highlight">مقالات</span> دزفول
+				</span>
+				<!-- <a href="{% url 'articles' %}" class="view-all-btn">
+					مشاهده همه <i class="fas fa-arrow-left"></i>
+				</a> -->
+			</div>
+			<div class="slider-container-mag" id="sliderContainerMag">
+				<div class="slides-track-mag" id="slidesTrackMag">
+					{% for article in articles|slice:":6" %}
+					<div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+						<!-- عکس بر اساس شماره اسلاید -->
+						{% if forloop.counter0 == 0 %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide1.webp' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/slide1.webp' %}" alt="{{ article.title }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% elif forloop.counter0 == 1 %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide2.jpg' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/slide2.jpg' %}" alt="{{ article.title }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% elif forloop.counter0 == 2 %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide3.jpg' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/slide3.jpg' %}" alt="{{ article.title }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% elif forloop.counter0 == 3 %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide4.jpg' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/slide4.jpg' %}" alt="{{ article.title }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% elif forloop.counter0 == 4 %}
+						<div class="slide-bg-blur"
+							style="background-image: url('{% static 'img/asiyab-haye-abi.jpg' %}');"></div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ article.title }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% else %}
+						<div class="slide-bg-blur" style="background-image: url('{% static 'img/pl-e-ghadim.jpg' %}');">
+						</div>
+						<div class="slide-image-mag">
+							<img src="{% static 'img/pl-e-ghadim.jpg' %}" alt="{{ article.title }}"
+								style="width:100%; height:100%; object-fit:cover;">
+						</div>
+						{% endif %}
+
+						<div class="slide-content-mag">
+							<span class="slide-badge-mag">{{ article.category.name|default:'مقاله' }}</span>
+							<h2 class="slide-title-mag">{{ article.title }}</h2>
+							<p class="slide-desc-mag">
+								{% if article.excerpt %}
+								{{ article.excerpt|truncatewords:20 }}
+								{% else %}
+								مطالعه این مقاله را به شما پیشنهاد می‌کنیم.
+								{% endif %}
+							</p>
+							<a href="{% url 'article_detail' article.slug %}" class="slide-link-mag">
+								مطالعه مقاله
+							</a>
+						</div>
+					</div>
+					{% empty %}
+					<div class="slide-mag active">
+						<div class="slide-content-mag">
+							<span class="slide-badge-mag">مقاله</span>
+							<h2 class="slide-title-mag">مقاله‌ای یافت نشد</h2>
+							<p class="slide-desc-mag">به زودی مقالات جدید اضافه می‌شوند.</p>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+
+			<div class="slider-footer-mag">
+				<div class="slide-list-horizontal-mag" id="slideListHorizontalMag">
+					{% for article in articles|slice:":6" %}
+					<div class="list-item-h-mag {% if forloop.first %}active-item-h-mag{% endif %}"
+						data-index="{{ forloop.counter0 }}">
+						<div class="list-item-h-top-mag">
+							<span class="list-item-h-title-mag">{{ article.title|truncatechars:25 }}</span>
+						</div>
+						<div class="list-item-h-progress-mag">
+							<div class="progress-fill-h-mag" id="progress-h-mag-{{ forloop.counter0 }}"
+								style="width: 0%;"></div>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+		</div>
+	</section>
+
+	<section class="articles-main">
+		<div class="container">
+			<div class="articles-layout">
+
+				<aside class="filter-sidebar" id="filterSidebar">
+					<div class="filter-sidebar-header">
+						<h3><i class="fas fa-sliders-h"></i> فیلترها</h3>
+						<button class="clear-all-btn d-none" id="clearAllBtn">
+							حذف فیلترها
+						</button>
+					</div>
+
+					<div class="sidebar-search">
+						<input type="text" id="searchInput" placeholder="جستجو در مقالات ...">
+						<i class="fas fa-search"></i>
+					</div>
+
+					<details class="filter-group" open>
+						<summary class="filter-group-title">مرتب‌سازی بر اساس</summary>
+						<div class="filter-sub-group">
+							<label class="filter-item">
+								<input type="radio" name="sort-by" value="newest" checked> جدیدترین
+							</label>
+							<label class="filter-item">
+								<input type="radio" name="sort-by" value="popular"> محبوب‌ترین
+							</label>
+							<label class="filter-item">
+								<input type="radio" name="sort-by" value="views"> پربازدیدترین
+							</label>
+							<label class="filter-item">
+								<input type="radio" name="sort-by" value="shortest"> کوتاه‌ترین مطالعه
+							</label>
+						</div>
+					</details>
+					<details class="filter-group" open>
+						<summary class="filter-group-title">دسته‌بندی</summary>
+						<div class="filter-sub-group">
+							{% for cat in categories %}
+							<label class="filter-item">
+								<input type="checkbox" data-filter="category" value="{{ cat.name }}">
+								{{ cat.name }}
+								<span class="count">{{ cat.articles.count }}</span>
+							</label>
+							{% endfor %}
+						</div>
+					</details>
+
+					<details class="filter-group">
+						<summary class="filter-group-title">نویسنده</summary>
+						<div class="filter-sub-group">
+							{% for author, count in author_counts.items %}
+							<label class="filter-item">
+								<input type="checkbox" data-filter="author" value="{{ author }}">
+								{{ author }}
+								<span class="count">{{ count }}</span>
+							</label>
+							{% endfor %}
+						</div>
+					</details>
+
+					<details class="filter-group">
+						<summary class="filter-group-title">زمان مطالعه</summary>
+						<div class="filter-sub-group">
+							<label class="filter-item">
+								<input type="checkbox" data-filter="duration" value="short">
+								کوتاه (زیر ۵ دقیقه)
+								<span class="count">{{ short_count }}</span>
+							</label>
+							<label class="filter-item">
+								<input type="checkbox" data-filter="duration" value="medium">
+								متوسط (۵ تا ۱۰ دقیقه)
+								<span class="count">{{ medium_count }}</span>
+							</label>
+							<label class="filter-item">
+								<input type="checkbox" data-filter="duration" value="long">
+								بلند (بالای ۱۰ دقیقه)
+								<span class="count">{{ long_count }}</span>
+							</label>
+						</div>
+					</details>
+
+					<details class="filter-group">
+						<summary class="filter-group-title">تاریخ انتشار</summary>
+						<div class="filter-sub-group">
+							<label class="filter-item">
+								<input type="checkbox" data-filter="date" value="month">
+								این ماه
+								<span class="count">{{ month_count }}</span>
+							</label>
+							<label class="filter-item">
+								<input type="checkbox" data-filter="date" value="three-months">
+								۳ ماه اخیر
+								<span class="count">{{ three_months_count }}</span>
+							</label>
+							<label class="filter-item">
+								<input type="checkbox" data-filter="date" value="six-months">
+								۶ ماه اخیر
+								<span class="count">{{ six_months_count }}</span>
+							</label>
+							<label class="filter-item">
+								<input type="checkbox" data-filter="date" value="year">
+								یک سال اخیر
+								<span class="count">{{ year_count }}</span>
+							</label>
+						</div>
+					</details>
+
+					<details class="filter-group">
+						<summary class="filter-group-title">محبوبیت</summary>
+						<div class="filter-sub-group">
+							<label class="filter-item">
+								<input type="checkbox" data-filter="featured" value="popular">
+								پربازدید
+								<span class="count">{{ popular_count }}</span>
+							</label>
+							<label class="filter-item">
+								<input type="checkbox" data-filter="featured" value="featured">
+								ویژه
+								<span class="count">{{ featured_count }}</span>
+							</label>
+							<label class="filter-item">
+								<input type="checkbox" data-filter="featured" value="new">
+								جدید
+								<span class="count">{{ new_count }}</span>
+							</label>
+						</div>
+					</details>
+
+				</aside>
+
+				<div class="articles-grid-section">
+					<div class="articles-grid-header">
+						<h2> مقالات گردشگری دزفول</h2>
+						<div class="articles-header-actions">
+							<span id="resultCount"></span>
+						</div>
+					</div>
+
+					<div class="articles-grid" id="articlesGrid">
+						<!-- کارت‌ها توسط جاوا اسکریپت ساخته می‌شوند -->
+					</div>
+
+					<div class="pagination" id="paginationContainer"></div>
+				</div>
+
+			</div>
+		</div>
+	</section>
+
+	<footer class="footer">
+		<div class="container">
+			<div class="footer-grid">
+				<div>
+					<h4><i class="fas fa-map-signs" style="color:var(--brick-orange);"></i> سفر به دزفول</h4>
+					<p>سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول.</p>
+					<div class="social">
+						<a href="#"><i class="fab fa-telegram"></i></a>
+						<a href="#"><i class="fab fa-instagram"></i></a>
+						<a href="#"><i class="fab fa-youtube"></i></a>
+						<a href="#"><i class="fab fa-linkedin"></i></a>
+					</div>
+				</div>
+				<div>
+					<h4>دسترسی سریع</h4>
+					<a href="{% url 'plan' %}">برنامه‌ریز سفر</a>
+					<a href="{% url 'attraction' %}">جاذبه‌های گردشگری</a>
+					<a href="{% url 'map' %}">نقشه تعاملی</a>
+					<a href="{% url 'articles' %}">مقالات</a>
+				</div>
+				<div>
+					<h4>اطلاعات مفید</h4>
+					<a href="#">بهترین زمان سفر</a>
+					<a href="#">راهنمای مسیرها</a>
+					<a href="#">تماس با ما</a>
+					<a href="#">درباره‌ی پروژه</a>
+				</div>
+			</div>
+			<div class="footer-copy">
+				<i class="fas fa-copyright"></i> ۱۴۰۴ - پروژه‌ی کارشناسی - دانشگاه صنعتی جندی شاپور دزفول
+			</div>
+		</div>
+	</footer>
+
+	<button class="scroll-top" id="scrollTop">
+		<i class="fas fa-chevron-up"></i>
+	</button>
+
+	<script src="{% static 'js/articles.js' %}"></script>
+	<script src="{% static 'js/script.js' %}"></script>
+
+	<script>
+		(function () {
+			'use strict';
+
+			const articlesData = {{ articles_json| safe}};
+
+		const gridContainer = document.getElementById('articlesGrid');
+		const resultCount = document.getElementById('resultCount');
+		const paginationContainer = document.getElementById('paginationContainer');
+		const searchInput = document.getElementById('searchInput');
+		const clearAllBtn = document.getElementById('clearAllBtn');
+		const filterCheckboxes = document.querySelectorAll('#filterSidebar input[type="checkbox"]');
+		const sortRadios = document.querySelectorAll('#filterSidebar input[type="radio"]');
+
+		let currentPage = 1;
+		const itemsPerPage = 6;
+
+		const faNum = s => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]);
+
+		function getDurationClass(duration) {
+			if (duration < 5) return 'short';
+			if (duration <= 10) return 'medium';
+			return 'long';
+		}
+
+		function getInitials(name) {
+			return name.split(' ').map(w => w[0]).join('');
+		}
+
+		function createArticleCard(article) {
+			const card = document.createElement('div');
+			card.className = 'article-card';
+			card.dataset.category = article.category;
+			card.dataset.author = article.author;
+			card.dataset.duration = getDurationClass(article.duration);
+			card.dataset.date = article.dateRange;
+			card.dataset.featured = article.featured || 'normal';
+
+			let featuredBadge = '';
+			if (article.featured === 'popular') {
+				featuredBadge = `<span class="featured-badge"><i class="fas fa-fire"></i> پربازدید</span>`;
+			} else if (article.featured === 'featured') {
+				featuredBadge = `<span class="featured-badge" style="background:#f4d03f;color:#8b6914;"><i class="fas fa-star"></i> ویژه</span>`;
+			} else if (article.featured === 'new') {
+				featuredBadge = `<span class="featured-badge" style="background:var(--primary-green);"><i class="fas fa-bolt"></i> جدید</span>`;
+			}
+
+			const imageUrl = article.image || '/static/img/asiyab-haye-abi.jpg';
+
+			card.innerHTML = `
+					<div class="article-img">
+						<img src="${imageUrl}" alt="${article.title}" onerror="this.src='/static/img/asiyab-haye-abi.jpg';">
+						<span class="badge">${article.category}</span>
+						${featuredBadge}
+					</div>
+					<div class="article-body">
+						<h4>${article.title}</h4>
+						<p>${article.desc}</p>
+						<div class="article-author">
+							<div class="avatar">${getInitials(article.author)}</div>
+							<div class="author-info">
+								<span class="author-name">${article.author}</span>
+								<span class="author-date">${article.date}</span>
+							</div>
+						</div>
+						<div class="meta">
+							<span><i class="far fa-clock"></i> ${faNum(article.duration)} دقیقه مطالعه</span>
+							<span><i class="far fa-eye"></i> ${faNum(article.views)}</span>
+						</div>
+						<a href="/articles/${article.slug}/" class="read-more-link">ادامه مطلب <i class="fas fa-arrow-left"></i></a>
+					</div>
+				`;
+			return card;
+		}
+
+		function getFilteredArticles() {
+			const searchTerm = searchInput.value.trim().toLowerCase();
+			const selectedCategories = [...document.querySelectorAll('[data-filter="category"]:checked')].map(c => c.value);
+			const selectedAuthors = [...document.querySelectorAll('[data-filter="author"]:checked')].map(c => c.value);
+			const selectedDurations = [...document.querySelectorAll('[data-filter="duration"]:checked')].map(c => c.value);
+			const selectedDates = [...document.querySelectorAll('[data-filter="date"]:checked')].map(c => c.value);
+			const selectedFeatured = [...document.querySelectorAll('[data-filter="featured"]:checked')].map(c => c.value);
+
+			return articlesData.filter(article => {
+				if (searchTerm && !article.title.toLowerCase().includes(searchTerm) && !article.desc.toLowerCase().includes(searchTerm)) return false;
+				if (selectedCategories.length && !selectedCategories.includes(article.category)) return false;
+				if (selectedAuthors.length && !selectedAuthors.includes(article.author)) return false;
+				if (selectedDurations.length && !selectedDurations.includes(getDurationClass(article.duration))) return false;
+				if (selectedDates.length) {
+					const now = new Date();
+					const publishedDate = new Date(article.published_date);
+					const diffDays = Math.floor((now - publishedDate) / (1000 * 60 * 60 * 24));
+
+					let dateMatch = false;
+					selectedDates.forEach(d => {
+						if (d === 'month' && diffDays <= 30) dateMatch = true;
+						if (d === 'three-months' && diffDays <= 90) dateMatch = true;
+						if (d === 'six-months' && diffDays <= 180) dateMatch = true;
+						if (d === 'year' && diffDays <= 365) dateMatch = true;
+					});
+					if (!dateMatch) return false;
+				}
+				if (selectedFeatured.length && !selectedFeatured.includes(article.featured)) return false;
+
+				return true;
+			});
+		}
+
+		function sortArticles(articles) {
+			let sortType = 'newest';
+			sortRadios.forEach(r => { if (r.checked) sortType = r.value; });
+
+			const sorted = [...articles];
+			switch (sortType) {
+				case 'newest': return sorted.sort((a, b) => b.id - a.id);
+				case 'popular': return sorted.sort((a, b) => {
+					const order = { featured: 3, popular: 2, new: 1, normal: 0 };
+					return (order[b.featured] || 0) - (order[a.featured] || 0);
+				});
+				case 'views': return sorted.sort((a, b) => b.views - a.views);
+				case 'shortest': return sorted.sort((a, b) => a.duration - b.duration);
+				default: return sorted;
+			}
+		}
+
+		function renderGrid() {
+			const filtered = getFilteredArticles();
+			const sorted = sortArticles(filtered);
+			const totalItems = sorted.length;
+			const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+			if (totalItems === 0) {
+				gridContainer.innerHTML = `
+						<div class="no-results">
+							<i class="fas fa-search"></i>
+							<h4>مقاله‌ای یافت نشد</h4>
+							<p>فیلترها یا عبارت جستجو را تغییر دهید.</p>
+						</div>
+					`;
+				resultCount.textContent = `۰ مقاله`;
+				paginationContainer.innerHTML = '';
+				return;
+			}
+
+			if (currentPage > totalPages) currentPage = totalPages;
+
+			const startIndex = (currentPage - 1) * itemsPerPage;
+			const endIndex = startIndex + itemsPerPage;
+			const pageArticles = sorted.slice(startIndex, endIndex);
+
+			gridContainer.innerHTML = '';
+			pageArticles.forEach(article => {
+				gridContainer.appendChild(createArticleCard(article));
+			});
+
+			resultCount.textContent = `${faNum(totalItems)} مقاله`;
+			updatePagination(totalPages);
+
+			const searchActive = searchInput.value.trim() !== '';
+			const checkboxActive = document.querySelectorAll('#filterSidebar input[type="checkbox"]:checked').length > 0;
+			const sortActive = document.querySelector('input[name="sort-by"]:checked') && document.querySelector('input[name="sort-by"]:checked').value !== 'newest';
+
+			const isFilterActive = searchActive || checkboxActive || sortActive;
+
+			if (isFilterActive) {
+				clearAllBtn.classList.remove('d-none');
+			} else {
+				clearAllBtn.classList.add('d-none');
+			}
+		}
+
+		function updatePagination(totalPages) {
+			paginationContainer.innerHTML = '';
+			if (totalPages <= 1) return;
+
+			const prevBtn = document.createElement('button');
+			prevBtn.innerHTML = '<i class="fas fa-chevron-right"></i>';
+			prevBtn.disabled = currentPage === 1;
+			prevBtn.addEventListener('click', () => {
+				if (currentPage > 1) { currentPage--; renderGrid(); }
+			});
+			paginationContainer.appendChild(prevBtn);
+
+			for (let i = 1; i <= totalPages; i++) {
+				const pageBtn = document.createElement('button');
+				pageBtn.textContent = faNum(i);
+				if (i === currentPage) pageBtn.classList.add('active');
+				pageBtn.addEventListener('click', () => {
+					if (currentPage !== i) { currentPage = i; renderGrid(); }
+				});
+				paginationContainer.appendChild(pageBtn);
+			}
+
+			const nextBtn = document.createElement('button');
+			nextBtn.innerHTML = '<i class="fas fa-chevron-left"></i>';
+			nextBtn.disabled = currentPage === totalPages;
+			nextBtn.addEventListener('click', () => {
+				if (currentPage < totalPages) { currentPage++; renderGrid(); }
+			});
+			paginationContainer.appendChild(nextBtn);
+		}
+
+		filterCheckboxes.forEach(cb => {
+			cb.addEventListener('change', () => {
+				currentPage = 1;
+				renderGrid();
+			});
+		});
+
+		sortRadios.forEach(r => {
+			r.addEventListener('change', () => {
+				currentPage = 1;
+				renderGrid();
+			});
+		});
+
+		let searchTimeout;
+		searchInput.addEventListener('input', () => {
+			clearTimeout(searchTimeout);
+			searchTimeout = setTimeout(() => {
+				currentPage = 1;
+				renderGrid();
+			}, 300);
+		});
+
+		clearAllBtn.addEventListener('click', () => {
+			filterCheckboxes.forEach(cb => cb.checked = false);
+			document.querySelector('input[name="sort-by"][value="newest"]').checked = true;
+			searchInput.value = '';
+			currentPage = 1;
+			renderGrid();
+		});
+
+		renderGrid();
+
+		}) ();
+	</script>
+</body>
+
+</html>
