@@ -5,8 +5,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="مقاله گردشگری سفر به دزفول">
-  <title>مقاله | سفر به دزفول</title>
+  <meta name="description" content="{% if article %}{{ article.excerpt|truncatechars:150 }}{% endif %}">
+  <title>{% if article %}{{ article.title }} | سفر به دزفول{% endif %}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap"
@@ -27,56 +27,100 @@
       <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
       <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
       <a href="{% url 'articles' %}" class="active"><i class="fas fa-newspaper"></i> مقالات</a>
+      <div class="auth-mobile">
+        <a href="#" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+        <a href="#" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
+      </div>
     </nav>
     <div class="auth-buttons">
       <a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
       <a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
       <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
     </div>
+    <div class="overlay" id="menuOverlay"></div>
   </header>
 
-  <!-- همان Magazine Slider پروژه؛ داده‌ها از data/articles.js می‌آیند -->
-  <section class="section-magazine-slider article-magazine-slider" id="magazineSlider">
+  <!-- Magazine Slider -->
+  <section class="section-magazine-slider article-magazine-slider" id="magazineSlider"
+    style="background-image: url('{% static 'img/' %}{{ article.slug }}.jpg'); background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 0.8s ease;">
     <div class="container">
       <div class="slider-header">
         <div class="slider-title"><i class="fas fa-book-open"></i> مجله <span class="highlight">سفر به دزفول</span>
         </div>
-        <a href="articles.html" class="view-all-btn">همه مقالات <i class="fas fa-arrow-left"></i></a>
+        <a href="{% url 'articles' %}" class="view-all-btn">همه مقالات <i class="fas fa-arrow-left"></i></a>
       </div>
       <div class="slider-container-mag" id="sliderContainerMag">
-        <div class="slides-track-mag" id="slidesTrackMag"></div>
+        <div class="slides-track-mag" id="slidesTrackMag">
+          {% for item in related %}
+          <div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+            <div class="slide-image-mag">
+              <img src="{% static 'img/' %}{{ item.slug }}.jpg" alt="{{ item.title }}"
+                style="width:100%; height:100%; object-fit:cover;"
+                onerror="this.onerror=null; this.src='{% static 'img/' %}{{ item.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ item.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ item.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+            </div>
+            <div class="slide-content-mag">
+              <span class="slide-badge-mag">{{ item.category.name|default:'مقاله' }}</span>
+              <h2 class="slide-title-mag">{{ item.title }}</h2>
+              <p class="slide-desc-mag">{{ item.excerpt|truncatewords:20|default:'مطالعه این مقاله را به شما پیشنهاد می‌کنیم.' }}</p>
+              <a href="{% url 'article_detail' item.slug %}" class="slide-link-mag">مطالعه مقاله</a>
+            </div>
+          </div>
+          {% empty %}
+          <div class="slide-mag active">
+            <div class="slide-content-mag">
+              <span class="slide-badge-mag">مجله</span>
+              <h2 class="slide-title-mag">مقاله‌ای یافت نشد</h2>
+              <p class="slide-desc-mag">به زودی مقالات جدید اضافه می‌شوند.</p>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
       </div>
       <div class="slider-footer-mag">
-        <div class="slide-list-horizontal-mag" id="slideListHorizontalMag"></div>
+        <div class="slide-list-horizontal-mag" id="slideListHorizontalMag">
+          {% for item in related %}
+          <div class="list-item-h-mag {% if forloop.first %}active-item-h-mag{% endif %}"
+            data-index="{{ forloop.counter0 }}">
+            <div class="list-item-h-top-mag">
+              <span class="list-item-h-title-mag">{{ item.title|truncatechars:25 }}</span>
+            </div>
+            <div class="list-item-h-progress-mag">
+              <div class="progress-fill-h-mag" id="progress-h-mag-{{ forloop.counter0 }}" style="width: 0%;"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
       </div>
     </div>
   </section>
 
+  <!-- Article Main -->
   <main class="article-main">
     <div class="container">
       <nav class="article-breadcrumb" aria-label="مسیر صفحه">
-        <a href="index.html">خانه</a><i class="fas fa-chevron-left"></i><a href="articles.html">مقالات</a><i
-          class="fas fa-chevron-left"></i><span data-article-category></span>
+        <a href="{% url 'home' %}">خانه</a><i class="fas fa-chevron-left"></i><a
+          href="{% url 'articles' %}">مقالات</a><i
+          class="fas fa-chevron-left"></i><span>{{article.category.name|default:'مقاله' }}</span>
       </nav>
 
       <section class="article-header-card">
         <div class="article-header-copy">
-          <span class="article-category-pill"><i class="fas fa-compass"></i><span data-article-category></span></span>
-          <h1 data-article-title></h1>
-          <p data-article-excerpt></p>
+          <span class="article-category-pill"><i
+              class="fas fa-compass"></i><span>{{article.category.name|default:'مقاله' }}</span></span>
+          <h1>{{ article.title }}</h1>
+          <p>{{ article.excerpt|default:'' }}</p>
           <div class="article-meta-row">
             <div class="article-author-chip"><span class="article-author-avatar"><i
-                  class="fas fa-user"></i></span><span><small>نویسنده</small><strong
-                  data-article-author></strong></span></div>
-            <div class="article-meta-chip"><i class="far fa-calendar"></i><span><small>انتشار</small><strong
-                  data-article-date></strong></span></div>
-            <div class="article-meta-chip"><i class="far fa-clock"></i><span><small>زمان مطالعه</small><strong
-                  data-article-duration></strong></span></div>
-            <div class="article-meta-chip"><i class="far fa-eye"></i><span><small>بازدید</small><strong
-                  data-article-views></strong></span></div>
+                  class="fas fa-user"></i></span><span><small>نویسنده</small><strong>{{article.author|default:'نویسنده'}}</strong></span></div>
+            <div class="article-meta-chip"><i
+                class="far fa-calendar"></i><span><small>انتشار</small><strong>{{article.published_date_jalali|default:''}}</strong></span></div>
+            <div class="article-meta-chip"><i class="far fa-clock"></i><span><small>زمان مطالعه</small><strong>{{article.duration }} دقیقه</strong></span></div>
+            <div class="article-meta-chip"><i class="far fa-eye"></i><span><small>بازدید</small><strong>{{article.views}}</strong></span></div>
           </div>
         </div>
-        <div class="article-cover-wrap"><img data-article-cover src="" alt="">
+        <div class="article-cover-wrap">
+          <img src="{% static 'img/' %}{{ article.slug }}.jpg" alt="{{ article.title }}"
+            onerror="this.onerror=null; this.src='{% static 'img/' %}{{ article.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ article.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ article.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
           <div class="article-cover-glow"></div>
         </div>
       </section>
@@ -85,31 +129,57 @@
         <article class="article-content-card">
           <div class="article-share-bar">
             <span><i class="fas fa-share-nodes"></i> اشتراک‌گذاری</span>
-            <div><button data-share="telegram" aria-label="تلگرام"><i class="fab fa-telegram-plane"></i></button><button
-                data-share="whatsapp" aria-label="واتساپ"><i class="fab fa-whatsapp"></i></button><button
-                data-share="copy" aria-label="کپی لینک"><i class="fas fa-link"></i></button></div>
+            <div>
+              <button data-share="telegram" aria-label="تلگرام"><i class="fab fa-telegram-plane"></i></button>
+              <button data-share="whatsapp" aria-label="واتساپ"><i class="fab fa-whatsapp"></i></button>
+              <button data-share="copy" aria-label="کپی لینک"><i class="fas fa-link"></i></button>
+            </div>
           </div>
-          <div class="article-body" data-article-body></div>
+          <div class="article-body">
+            {% for block in article_blocks %}
+            {% if block.block_type == 'heading' %}
+            <h2 class="article-heading" id="{{ block.block_id|default:block.id }}">{{ block.text }}</h2>
+            {% elif block.block_type == 'paragraph' %}
+            <p class="article-paragraph">{{ block.text }}</p>
+            {% elif block.block_type == 'quote' %}
+            <blockquote class="article-quote"><i class="fas fa-quote-right"></i><span>{{ block.text }}</span>
+            </blockquote>
+            {% elif block.block_type == 'image' %}
+            <figure class="article-figure">
+              <img src="{% static 'img/' %}{{ block.src }}" alt="{{ block.alt|default:article.title }}">
+              <figcaption>{{ block.caption|default:'' }}</figcaption>
+            </figure>
+            {% elif block.block_type == 'lead' %}
+            <p class="article-lead">{{ block.text }}</p>
+            {% endif %}
+            {% empty %}
+            <p class="article-paragraph">{{ article.excerpt|default:'محتوای مقاله در حال تکمیل است.' }}</p>
+            {% endfor %}
+          </div>
           <div class="article-end-note"><i class="fas fa-location-dot"></i>
             <div><strong>آماده‌ی کشف دزفول شدی؟</strong><span>حالا می‌تونی با برنامه‌ریز سفر، مسیر خودت رو بسازی.</span>
-            </div><a href="plan.html">ساخت برنامه سفر <i class="fas fa-arrow-left"></i></a>
+            </div><a href="{% url 'plan' %}">ساخت برنامه سفر <i class="fas fa-arrow-left"></i></a>
           </div>
         </article>
 
         <aside class="article-sidebar">
           <div class="article-sidebar-card article-toc-card">
             <div class="sidebar-card-title"><span><i class="fas fa-list-ul"></i> در این مقاله</span><em>فهرست</em></div>
-            <nav data-article-toc></nav>
+            <nav>
+              {% for heading in headings %}
+              <a href="#{{ heading.block_id|default:heading.id }}"><span>{{ forloop.counter }}</span>{{heading.text}}</a>
+              {% endfor %}
+            </nav>
           </div>
           <div class="article-sidebar-card article-stats-card">
             <div class="mini-stat"><span><i class="far fa-clock"></i></span>
-              <div><strong data-article-duration></strong><small>زمان مطالعه</small></div>
+              <div><strong>{{ article.duration }} دقیقه</strong><small>زمان مطالعه</small></div>
             </div>
             <div class="mini-stat"><span><i class="far fa-eye"></i></span>
-              <div><strong data-article-views></strong><small>بازدید</small></div>
+              <div><strong>{{ article.views }}</strong><small>بازدید</small></div>
             </div>
             <div class="mini-stat"><span><i class="fas fa-bookmark"></i></span>
-              <div><strong>گردشگری</strong><small>موضوع مقاله</small></div>
+              <div><strong>{{ article.category.name|default:'گردشگری' }}</strong><small>موضوع مقاله</small></div>
             </div>
           </div>
         </aside>
@@ -117,18 +187,42 @@
     </div>
   </main>
 
+  <!-- Related Articles -->
   <section class="article-related-section">
     <div class="container">
       <div class="article-section-heading">
         <div><span>پیشنهاد سردبیر</span>
           <h2>مقالات مرتبط</h2>
-        </div><a href="articles.html">مشاهده همه <i class="fas fa-arrow-left"></i></a>
+        </div><a href="{% url 'articles' %}">مشاهده همه <i class="fas fa-arrow-left"></i></a>
       </div>
       <div class="article-related-slider">
         <button class="article-related-nav article-related-prev" type="button" aria-label="مقالات قبلی"
           data-related-prev><i class="fas fa-arrow-right"></i></button>
         <div class="article-related-viewport">
-          <div class="article-related-track" data-related-track></div>
+          <div class="article-related-track" data-related-track>
+            {% for item in related %}
+            <a class="article-related-card" href="{% url 'article_detail' item.slug %}">
+              <div class="article-related-image">
+                <img src="{% static 'img/' %}{{ item.slug }}.jpg" alt="{{ item.title }}"
+                  onerror="this.onerror=null; this.src='{% static 'img/' %}{{ item.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ item.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ item.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+                <span>{{ item.category.name|default:'مقاله' }}</span>
+                <em>{{ forloop.counter }}</em>
+              </div>
+              <div class="article-related-body">
+                <h3>{{ item.title }}</h3>
+                <div class="article-related-meta"><span><i class="far fa-clock"></i> {{ item.duration }}
+                    دقیقه</span><span><i class="far fa-eye"></i> {{ item.views }}</span></div>
+                <div class="article-related-read">خواندن مقاله <i class="fas fa-arrow-left"></i></div>
+              </div>
+            </a>
+            {% empty %}
+            <div class="article-related-card">
+              <div class="article-related-body">
+                <h3>مقاله مرتبطی یافت نشد</h3>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
         </div>
         <button class="article-related-nav article-related-next" type="button" aria-label="مقالات بعدی"
           data-related-next><i class="fas fa-arrow-left"></i></button>
@@ -137,47 +231,54 @@
     </div>
   </section>
 
+  <!-- Comments -->
   <section class="article-comments-section">
     <div class="container article-comments-wrap">
       <div class="article-section-heading">
         <div><span>صدای مسافران</span>
           <h2>نظر کاربران درباره این مقاله</h2>
         </div>
-        <div class="comment-rating"><strong>۴.۸</strong><span>★★★★★</span><small>امتیاز کاربران</small></div>
+        <div class="comment-rating">
+          <strong>{{ avg_rating }}</strong>
+          <span>★★★★★</span>
+          <small>امتیاز کاربران</small>
+        </div>
       </div>
       <div class="comments-grid">
-        <form class="comment-form-card" data-comment-form>
+        <form class="comment-form-card" method="POST" action="{% url 'submit_review' article.slug %}">
+          {% csrf_token %}
           <div class="form-icon"><i class="far fa-comment-dots"></i></div>
           <h3>تجربه‌ات را با ما به اشتراک بگذار</h3>
           <p>نظر تو می‌تواند به مسافر بعدی برای انتخاب بهتر کمک کند.</p>
-          <textarea name="comment" rows="5" placeholder="نظرت درباره این مقاله چیست؟"></textarea><button
-            type="submit">ثبت نظر <i class="fas fa-paper-plane"></i></button>
+          <textarea name="comment" rows="5" placeholder="نظرت درباره این مقاله چیست؟"></textarea>
+          <button type="submit">ثبت نظر <i class="fas fa-paper-plane"></i></button>
         </form>
-        <div class="comments-list" data-comments-list>
+        <div class="comments-list">
+          {% for review in reviews %}
           <article class="comment-item">
-            <div class="comment-avatar">م</div>
+            <div class="comment-avatar">{{ review.user.username|first|upper }}</div>
             <div>
-              <div class="comment-head"><strong>مریم</strong><span>۲ روز پیش</span></div>
-              <p>ساختار مقاله خیلی مرتب و کاربردی بود؛ مخصوصاً بخش نکات قبل از سفر.</p>
-              <div class="comment-actions"><span>♡ ۱۲</span><button>پاسخ</button></div>
+              <div class="comment-head">
+                <strong>{{ review.user.username }}</strong>
+                <span>{{ review.created_at|timesince }} پیش</span>
+              </div>
+              <p>{{ review.comment }}</p>
+              <div class="comment-actions">
+                <span>♡ {{ review.likes_count }}</span>
+                <button>پاسخ</button>
+              </div>
             </div>
           </article>
-          <article class="comment-item">
-            <div class="comment-avatar">ع</div>
-            <div>
-              <div class="comment-head"><strong>علی</strong><span>۵ روز پیش</span></div>
-              <p>عکس‌ها و اطلاعات خلاصه باعث شد سریع بفهمم چه چیزی برای سفر لازم دارم.</p>
-              <div class="comment-actions"><span>♡ ۸</span><button>پاسخ</button></div>
-            </div>
-          </article>
+          {% empty %}
+          <div class="no-comments">
+            <p>هنوز نظری برای این مقاله ثبت نشده است.</p>
+          </div>
+          {% endfor %}
         </div>
       </div>
     </div>
   </section>
-
-  <!-- ========================================================== -->
-  <!-- ===== فوتر ===== -->
-  <!-- ========================================================== -->
+  <!-- Footer -->
   <footer class="footer">
     <div class="container">
       <div class="footer-grid">
@@ -193,10 +294,10 @@
         </div>
         <div>
           <h4>دسترسی سریع</h4>
-          <a href="plan.html">برنامه‌ریز سفر</a>
-          <a href="attraction.html">جاذبه‌های گردشگری</a>
-          <a href="map.html">نقشه تعاملی</a>
-          <a href="articles.html">مقالات</a>
+          <a href="{% url 'plan' %}">برنامه‌ریز سفر</a>
+          <a href="{% url 'attraction' %}">جاذبه‌های گردشگری</a>
+          <a href="{% url 'map' %}">نقشه تعاملی</a>
+          <a href="{% url 'articles' %}">مقالات</a>
         </div>
         <div>
           <h4>اطلاعات مفید</h4>
@@ -212,13 +313,197 @@
     </div>
   </footer>
 
-  <button class="scroll-top" id="scrollTop">
-    <i class="fas fa-chevron-up"></i>
-  </button>
+  <button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
 
-  <!-- لینک اسکریپت اصلی پروژه -->
-  <script src="{% static 'js/articles.js' %}"></script>
   <script src="{% static 'js/script.js' %}"></script>
+
+  <script>
+    // ==========================================================
+    // نوار پیشرفت مطالعه مقاله
+    // ==========================================================
+    (function () {
+      var progressBar = document.querySelector('.article-reading-progress span');
+
+      function updateProgress() {
+        var doc = document.documentElement;
+        var scrollable = doc.scrollHeight - window.innerHeight;
+        var percent = scrollable > 0 ? Math.min(100, Math.max(0, window.scrollY / scrollable * 100)) : 0;
+        if (progressBar) progressBar.style.width = percent + '%';
+      }
+
+      window.addEventListener('scroll', updateProgress, { passive: true });
+      window.addEventListener('resize', updateProgress);
+      updateProgress();
+    })();
+
+    // ==========================================================
+    // فهرست مطالب کناری (TOC) - هایلایت بخش فعال
+    // ==========================================================
+    (function () {
+      var tocLinks = document.querySelectorAll('.article-toc-card nav a');
+      var headings = document.querySelectorAll('.article-heading');
+
+      if (!tocLinks.length || !headings.length) return;
+
+      function updateActiveTOC() {
+        var current = headings[0];
+        for (var i = 0; i < headings.length; i++) {
+          if (headings[i].getBoundingClientRect().top <= 150) {
+            current = headings[i];
+          }
+        }
+
+        tocLinks.forEach(function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + current.id);
+        });
+      }
+
+      // اسکرول نرم به بخش‌ها
+      tocLinks.forEach(function (link) {
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          var targetId = this.getAttribute('href').substring(1);
+          var target = document.getElementById(targetId);
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
+
+      window.addEventListener('scroll', updateActiveTOC, { passive: true });
+      updateActiveTOC();
+    })();
+
+    // ==========================================================
+    // اسلایدر مجله
+    // ==========================================================
+    (function () {
+      var track = document.getElementById('slidesTrackMag');
+      var listContainer = document.getElementById('slideListHorizontalMag');
+      var sliderSection = document.getElementById('magazineSlider');
+
+      if (!track || !listContainer || !sliderSection) return;
+
+      var slides = track.querySelectorAll('.slide-mag');
+      var listItems = listContainer.querySelectorAll('.list-item-h-mag');
+      var total = slides.length;
+      var currentIndex = 0;
+      var autoSlideInterval, progressInterval;
+
+      function goToSlide(index) {
+        if (index < 0) index = total - 1;
+        if (index >= total) index = 0;
+        currentIndex = index;
+
+        track.style.transform = 'translateX(-' + (index * 100) + '%)';
+
+        slides.forEach(function (slide, i) {
+          slide.classList.toggle('active', i === index);
+        });
+
+        listItems.forEach(function (item, i) {
+          item.classList.toggle('active-item-h-mag', i === index);
+        });
+
+        // تغییر پس‌زمینه
+        var img = slides[index].querySelector('.slide-image-mag img');
+        if (img && sliderSection) {
+          sliderSection.style.backgroundImage = 'url(' + img.src + ')';
+        }
+
+        resetProgress();
+        startProgress();
+      }
+
+      function resetProgress() {
+        if (progressInterval) clearInterval(progressInterval);
+        listItems.forEach(function (item) {
+          var fill = item.querySelector('.progress-fill-h-mag');
+          if (fill) fill.style.width = '0%';
+        });
+      }
+
+      function startProgress() {
+        var fill = document.getElementById('progress-h-mag-' + currentIndex);
+        if (!fill) return;
+
+        var width = 0;
+        progressInterval = setInterval(function () {
+          width += 0.6;
+          if (width >= 100) {
+            width = 100;
+            fill.style.width = '100%';
+            clearInterval(progressInterval);
+            goToSlide((currentIndex + 1) % total);
+          } else {
+            fill.style.width = width + '%';
+          }
+        }, 40);
+      }
+
+      function resetAutoSlide() {
+        if (autoSlideInterval) clearInterval(autoSlideInterval);
+        autoSlideInterval = setInterval(function () {
+          goToSlide((currentIndex + 1) % total);
+        }, 6500);
+      }
+
+      // کلیک روی آیتم‌های لیست
+      listItems.forEach(function (item) {
+        item.addEventListener('click', function () {
+          var idx = parseInt(this.dataset.index, 10);
+          if (idx !== currentIndex) {
+            goToSlide(idx);
+            resetAutoSlide();
+          }
+        });
+      });
+
+      goToSlide(0);
+      resetAutoSlide();
+    })();
+
+    // ==========================================================
+    // منوی همبرگری
+    // ==========================================================
+    (function () {
+      var hamburger = document.getElementById('hamburgerBtn');
+      var navLinks = document.getElementById('navLinks');
+      var overlay = document.getElementById('menuOverlay');
+      var closeBtn = document.getElementById('closeMenuBtn');
+
+      function toggleMenu() {
+        var isOpen = navLinks.classList.toggle('active');
+        overlay.classList.toggle('active', isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+      }
+
+      if (hamburger) hamburger.addEventListener('click', toggleMenu);
+      if (closeBtn) closeBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        if (navLinks.classList.contains('active')) toggleMenu();
+      });
+      if (overlay) overlay.addEventListener('click', function () {
+        if (navLinks.classList.contains('active')) toggleMenu();
+      });
+    })();
+
+    // ==========================================================
+    // دکمه اسکرول به بالا
+    // ==========================================================
+    (function () {
+      var scrollBtn = document.getElementById('scrollTop');
+      if (!scrollBtn) return;
+
+      window.addEventListener('scroll', function () {
+        scrollBtn.classList.toggle('visible', window.scrollY > 400);
+      });
+
+      scrollBtn.addEventListener('click', function () {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    })();
+  </script>
 </body>
 
 </html>

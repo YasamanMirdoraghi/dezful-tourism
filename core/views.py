@@ -1,5 +1,5 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Place, Category, Article, Plan, Route, ArticleBlock
+from .models import Place, Category, Article, Plan, Route, ArticleBlock,ArticleRelated
 import json
 from django.db.models import Count
 from django.db.models import Avg
@@ -140,15 +140,61 @@ def articles_page(request):
 # ==========================================================
 # صفحه جزئیات مقاله
 # ==========================================================
+from django.shortcuts import render, get_object_or_404
+from .models import Place, Category, Article, Plan, Route, Review, User, ArticleBlock, ArticleRelated
+import json
+from django.db.models import Count, Avg
+from datetime import datetime, timedelta
+
+# ==========================================================
+# صفحه جزئیات مقاله (داینامیک با بلوک‌ها)
+# ==========================================================
 def article_detail_page(request, slug):
     article = get_object_or_404(Article, slug=slug, is_published=True)
-    related = Article.objects.filter(category=article.category).exclude(id=article.id)[:4]
+    article_blocks = ArticleBlock.objects.filter(article=article).order_by('block_order')
+    
+    # فقط تیترها
+    headings = [block for block in article_blocks if block.block_type == 'heading']
+    
+    # شماره‌گذاری تیترها
+    for i, block in enumerate(headings, 1):
+        block.toc_number = i
+    
+    related = Article.objects.filter(category=article.category).exclude(id=article.id)[:6]
+    reviews = Review.objects.filter(article=article, is_approved=True).select_related('user')
+    avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 4.8
     
     return render(request, 'article.html', {
         'article': article,
+        'article_blocks': article_blocks,
+        'headings': headings,
         'related': related,
+        'reviews': reviews,
+        'avg_rating': round(avg_rating, 1),
     })
 
+from django.shortcuts import redirect
+from django.contrib import messages
+
+def submit_review(request, slug):
+    if request.method == 'POST':
+        article = get_object_or_404(Article, slug=slug, is_published=True)
+        comment = request.POST.get('comment')
+        rating = request.POST.get('rating', 5)
+        
+        if request.user.is_authenticated:
+            Review.objects.create(
+                user=request.user,
+                article=article,
+                rating=int(rating),
+                comment=comment,
+            )
+            messages.success(request, 'نظر شما با موفقیت ثبت شد!')
+        else:
+            messages.error(request, 'برای ثبت نظر ابتدا وارد شوید.')
+        
+        return redirect('article_detail', slug=slug)
+    
 # ==========================================================
 # صفحه برنامه‌ریز سفر
 # ==========================================================
