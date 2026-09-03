@@ -89,9 +89,9 @@
 							</select>
 						</div>
 						<div class="field" style="flex: 0 0 44px;">
-							<button class="btn-search">
+							<a href="{% url 'plan' %}" class="btn-search">
 								<i class="fas fa-search"></i>
-							</button>
+							</a>
 						</div>
 					</div>
 				</div>
@@ -106,59 +106,46 @@
 							مقصد و سلیقه‌ات رو بگو تا بهترین برنامه‌ی سفر رو برات بچینیم.
 						</p>
 					</div>
-					<button class="btn-chat">
+					<a href="{% url 'map' %}" class="btn-chat">
 						<i class="fas fa-comment-dots"></i> شروع گفتگو
-					</button>
+					</a>
 				</div>
 			</div>
-
 			<div class="hero-slider">
 				<div class="slider-container" id="sliderContainer">
+					{% for place in featured_places|slice:":4" %}
+					<div class="slider-slide {% if forloop.first %}active{% endif %}">
+						<img src="{% static 'img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}"
+							onerror="this.onerror=null; this.src='{% static 'img/' %}{{ place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+						<div class="slide-content">
+							<span class="slide-tag">{{ place.category.name|default:'جاذبه' }}</span>
+							<h3>{{ place.name }}</h3>
+							<p>{{ place.short_description|default:'برای دیدن این جاذبه دزفول آماده شوید.' }}</p>
+							<a href="{% url 'attraction' %}" class="btn-slide"><i class="fas fa-arrow-left"></i>
+								مشاهده</a>
+						</div>
+					</div>
+					{% empty %}
 					<div class="slider-slide active">
-						<img src="{% static 'img/slide1.webp' %}" alt="آبشار شوی">
+						<img src="{% static 'img/slide1.webp' %}" alt="دزفول">
 						<div class="slide-content">
-							<span class="slide-tag">طبیعی</span>
-							<h3>آبشار شوی</h3>
-							<p>بلندترین آبشار فصلی خوزستان</p>
-							<a href="#" class="btn-slide"><i class="fas fa-arrow-left"></i> مشاهده</a>
+							<span class="slide-tag">دزفول</span>
+							<h3>دزفول</h3>
+							<p>شهری با تاریخ کهن و جاذبه‌های بی‌نظیر</p>
+							<a href="{% url 'attraction' %}" class="btn-slide"><i class="fas fa-arrow-left"></i>
+								مشاهده</a>
 						</div>
 					</div>
-					<div class="slider-slide">
-						<img src="{% static 'img/slide2.jpg' %}" alt="بازار کهنه دزفول">
-						<div class="slide-content">
-							<span class="slide-tag">تاریخی</span>
-							<h3>بازار کهنه دزفول</h3>
-							<p>بازار سنتی با معماری اصیل</p>
-							<a href="#" class="btn-slide"><i class="fas fa-arrow-left"></i> مشاهده</a>
-						</div>
-					</div>
-					<div class="slider-slide">
-						<img src="{% static 'img/slide3.jpg' %}" alt="دانشگاه جندی شاپور">
-						<div class="slide-content">
-							<span class="slide-tag">تاریخی</span>
-							<h3>دانشگاه جندی شاپور</h3>
-							<p>نماد علمی و تاریخی دزفول</p>
-							<a href="#" class="btn-slide"><i class="fas fa-arrow-left"></i> مشاهده</a>
-						</div>
-					</div>
-					<div class="slider-slide">
-						<img src="{% static 'img/slide4.jpg' %}" alt="پل قدیم دزفول">
-						<div class="slide-content">
-							<span class="slide-tag">تاریخی</span>
-							<h3>پل قدیم دزفول</h3>
-							<p>کهن‌ترین پل جهان با قدمت ساسانی</p>
-							<a href="#" class="btn-slide"><i class="fas fa-arrow-left"></i> مشاهده</a>
-						</div>
-					</div>
+					{% endfor %}
 
 					<button class="slider-btn prev" id="prevBtn"><i class="fas fa-chevron-right"></i></button>
 					<button class="slider-btn next" id="nextBtn"><i class="fas fa-chevron-left"></i></button>
 
 					<div class="slider-dots" id="sliderDots">
-						<button class="dot-nav active" data-index="0"></button>
-						<button class="dot-nav" data-index="1"></button>
-						<button class="dot-nav" data-index="2"></button>
-						<button class="dot-nav" data-index="3"></button>
+						{% for place in featured_places|slice:":4" %}
+						<button class="dot-nav {% if forloop.first %}active{% endif %}"
+							data-index="{{ forloop.counter0 }}"></button>
+						{% endfor %}
 					</div>
 				</div>
 			</div>
@@ -239,8 +226,9 @@
 					{% for plan in plans %}
 					<div class="card-slide">
 						<div class="card-slide-image" style="background: #118b71;">
-							<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ plan.name }}"
-								style="width:100%; height:100%; object-fit:cover;">
+							<img src="{% static 'img/' %}{{ plan.slug }}.jpg" alt="{{ plan.name }}"
+								style="width:100%; height:100%; object-fit:cover;"
+								onerror="this.onerror=null; this.src='{% static 'img/' %}{{ plan.slug }}.png'; this.onerror=null; this.src='{% static 'img/' %}{{ plan.slug }}.jpeg'; this.onerror=null; this.src='{% static 'img/' %}{{ plan.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};">
 							<span class="card-badge">{{ plan.badge }}</span>
 						</div>
 						<div class="card-slide-body">
@@ -282,8 +270,9 @@
 					{% for place in featured_places %}
 					<div class="card-slide">
 						<div class="card-slide-image" style="background: #118b71;">
-							<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ place.name }}"
-								style="width:100%; height:100%; object-fit:cover;">
+							<img src="{% static 'img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}"
+								style="width:100%; height:100%; object-fit:cover;"
+								onerror="this.onerror=null; this.src='{% static 'img/' %}{{ place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};">
 							<span class="card-badge">{{ place.category.name }}</span>
 						</div>
 						<div class="card-slide-body">
@@ -304,100 +293,79 @@
 		</div>
 	</section>
 
-<!-- ===== اسلایدر ۳: مجله گردشگری ===== -->
-<section class="section-magazine-slider" id="magazineSlider" style="background-image: url('{% static 'img/slide1.webp' %}'); background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 0.8s ease;">
-	<div class="container">
+	<!-- ===== اسلایدر ۳: مجله گردشگری ===== -->
+	<!-- ===== اسلایدر ۳: مجله گردشگری ===== -->
+	<section class="section-magazine-slider" id="magazineSlider"
+		style="background-image: url('{% static 'img/slide1.webp' %}'); background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 0.8s ease;">
+		<div class="container">
 
-		<div class="slider-header">
-			<span class="slider-title">
-				<i class="fas fa-newspaper"></i>
-				مجله <span class="highlight">گردشگری</span>
-			</span>
-			<a href="{% url 'articles' %}" class="view-all-btn">
-				مشاهده همه مقالات <i class="fas fa-arrow-left"></i>
-			</a>
-		</div>
-
-		<div class="slider-container-mag" id="sliderContainerMag">
-			<div class="slides-track-mag" id="slidesTrackMag">
-				{% for article in featured_articles|slice:":6" %}
-				<div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
-					{% if forloop.counter0 == 0 %}
-					<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide1.webp' %}');"></div>
-					<div class="slide-image-mag">
-						<img src="{% static 'img/slide1.webp' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
-					</div>
-					{% elif forloop.counter0 == 1 %}
-					<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide2.jpg' %}');"></div>
-					<div class="slide-image-mag">
-						<img src="{% static 'img/slide2.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
-					</div>
-					{% elif forloop.counter0 == 2 %}
-					<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide3.jpg' %}');"></div>
-					<div class="slide-image-mag">
-						<img src="{% static 'img/slide3.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
-					</div>
-					{% elif forloop.counter0 == 3 %}
-					<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide4.jpg' %}');"></div>
-					<div class="slide-image-mag">
-						<img src="{% static 'img/slide4.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
-					</div>
-					{% elif forloop.counter0 == 4 %}
-					<div class="slide-bg-blur" style="background-image: url('{% static 'img/asiyab-haye-abi.jpg' %}');"></div>
-					<div class="slide-image-mag">
-						<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
-					</div>
-					{% else %}
-					<div class="slide-bg-blur" style="background-image: url('{% static 'img/pl-e-ghadim.jpg' %}');"></div>
-					<div class="slide-image-mag">
-						<img src="{% static 'img/pl-e-ghadim.jpg' %}" alt="{{ article.title }}" style="width:100%; height:100%; object-fit:cover;">
-					</div>
-					{% endif %}
-
-					<div class="slide-content-mag">
-						<span class="slide-badge-mag">{{ article.category.name|default:'گردشگری' }}</span>
-						<h2 class="slide-title-mag">{{ article.title }}</h2>
-						<p class="slide-desc-mag">
-							{% if article.excerpt %}
-							{{ article.excerpt|truncatewords:20 }}
-							{% else %}
-							مطالعه این مقاله را به شما پیشنهاد می‌کنیم.
-							{% endif %}
-						</p>
-						<a href="{% url 'article_detail' article.slug %}" class="slide-link-mag">
-							ادامه مطلب …
-						</a>
-					</div>
-				</div>
-				{% empty %}
-				<div class="slide-mag active">
-					<div class="slide-content-mag">
-						<span class="slide-badge-mag">مجله</span>
-						<h2 class="slide-title-mag">هیچ مقاله‌ای یافت نشد</h2>
-						<p class="slide-desc-mag">به زودی مقالات جدید اضافه می‌شوند.</p>
-					</div>
-				</div>
-				{% endfor %}
+			<div class="slider-header">
+				<span class="slider-title">
+					<i class="fas fa-newspaper"></i>
+					مجله <span class="highlight">گردشگری</span>
+				</span>
+				<a href="{% url 'articles' %}" class="view-all-btn">
+					مشاهده همه مقالات <i class="fas fa-arrow-left"></i>
+				</a>
 			</div>
-		</div>
 
-		<div class="slider-footer-mag">
-			<div class="slide-list-horizontal-mag" id="slideListHorizontalMag">
-				{% for article in featured_articles|slice:":6" %}
-				<div class="list-item-h-mag {% if forloop.first %}active-item-h-mag{% endif %}" data-index="{{ forloop.counter0 }}">
-					<div class="list-item-h-top-mag">
-						<span class="list-item-h-title-mag">{{ article.title|truncatechars:25 }}</span>
+			<div class="slider-container-mag" id="sliderContainerMag">
+				<div class="slides-track-mag" id="slidesTrackMag">
+					{% for article in featured_articles|slice:":6" %}
+					<div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+						<!-- عکس بر اساس slug مقاله - حذف slide-bg-blur -->
+						<div class="slide-image-mag">
+							<img src="{% static 'img/' %}{{ article.slug }}.jpg" alt="{{ article.title }}"
+								style="width:100%; height:100%; object-fit:cover;"
+								onerror="this.onerror=null; this.src='{% static 'img/' %}{{ article.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ article.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ article.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+						</div>
+
+						<div class="slide-content-mag">
+							<span class="slide-badge-mag">{{ article.category.name|default:'گردشگری' }}</span>
+							<h2 class="slide-title-mag">{{ article.title }}</h2>
+							<p class="slide-desc-mag">
+								{% if article.excerpt %}
+								{{ article.excerpt|truncatewords:20 }}
+								{% else %}
+								مطالعه این مقاله را به شما پیشنهاد می‌کنیم.
+								{% endif %}
+							</p>
+							<a href="{% url 'article_detail' article.slug %}" class="slide-link-mag">
+								ادامه مطلب …
+							</a>
+						</div>
 					</div>
-					<div class="list-item-h-progress-mag">
-						<div class="progress-fill-h-mag" id="progress-h-mag-{{ forloop.counter0 }}" style="width: 0%;"></div>
+					{% empty %}
+					<div class="slide-mag active">
+						<div class="slide-content-mag">
+							<span class="slide-badge-mag">مجله</span>
+							<h2 class="slide-title-mag">هیچ مقاله‌ای یافت نشد</h2>
+							<p class="slide-desc-mag">به زودی مقالات جدید اضافه می‌شوند.</p>
+						</div>
 					</div>
+					{% endfor %}
 				</div>
-				{% endfor %}
 			</div>
-		</div>
 
-	</div>
-</section>
+			<div class="slider-footer-mag">
+				<div class="slide-list-horizontal-mag" id="slideListHorizontalMag">
+					{% for article in featured_articles|slice:":6" %}
+					<div class="list-item-h-mag {% if forloop.first %}active-item-h-mag{% endif %}"
+						data-index="{{ forloop.counter0 }}">
+						<div class="list-item-h-top-mag">
+							<span class="list-item-h-title-mag">{{ article.title|truncatechars:25 }}</span>
+						</div>
+						<div class="list-item-h-progress-mag">
+							<div class="progress-fill-h-mag" id="progress-h-mag-{{ forloop.counter0 }}"
+								style="width: 0%;"></div>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+
+		</div>
+	</section>
 	<!-- ===== بخش CTA ===== -->
 	<section class="section-cta">
 		<div class="container">

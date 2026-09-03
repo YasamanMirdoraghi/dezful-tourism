@@ -253,8 +253,8 @@
 			border: 1px solid rgba(17, 139, 113, 0.04);
 			display: flex;
 			flex-direction: column;
-			text-align: right;
-			direction: rtl;
+			text-align: right !important;
+			direction: rtl !important;
 		}
 
 		.article-card:hover {
@@ -535,6 +535,10 @@
 				font-size: 1.2rem;
 			}
 		}
+
+		.article-card * {
+			text-align: right !important;
+		}
 	</style>
 </head>
 
@@ -562,7 +566,6 @@
 			</button>
 		</div>
 	</header>
-
 	<section class="section-magazine-slider" id="magazineSlider">
 		<div class="container">
 			<div class="slider-header">
@@ -571,57 +574,19 @@
 					مجله <span class="highlight">مقالات</span> دزفول
 				</span>
 				<!-- <a href="{% url 'articles' %}" class="view-all-btn">
-					مشاهده همه <i class="fas fa-arrow-left"></i>
-				</a> -->
+			مشاهده همه <i class="fas fa-arrow-left"></i>
+		</a> -->
 			</div>
 			<div class="slider-container-mag" id="sliderContainerMag">
 				<div class="slides-track-mag" id="slidesTrackMag">
 					{% for article in articles|slice:":6" %}
 					<div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
-						<!-- عکس بر اساس شماره اسلاید -->
-						{% if forloop.counter0 == 0 %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide1.webp' %}');">
-						</div>
+						<!-- عکس بر اساس slug مقاله - حذف slide-bg-blur -->
 						<div class="slide-image-mag">
-							<img src="{% static 'img/slide1.webp' %}" alt="{{ article.title }}"
-								style="width:100%; height:100%; object-fit:cover;">
+							<img src="{% static 'img/' %}{{ article.slug }}.jpg" alt="{{ article.title }}"
+								style="width:100%; height:100%; object-fit:cover;"
+								onerror="this.onerror=null; this.src='{% static 'img/' %}{{ article.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ article.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ article.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
 						</div>
-						{% elif forloop.counter0 == 1 %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide2.jpg' %}');">
-						</div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/slide2.jpg' %}" alt="{{ article.title }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% elif forloop.counter0 == 2 %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide3.jpg' %}');">
-						</div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/slide3.jpg' %}" alt="{{ article.title }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% elif forloop.counter0 == 3 %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide4.jpg' %}');">
-						</div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/slide4.jpg' %}" alt="{{ article.title }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% elif forloop.counter0 == 4 %}
-						<div class="slide-bg-blur"
-							style="background-image: url('{% static 'img/asiyab-haye-abi.jpg' %}');"></div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ article.title }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% else %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/pl-e-ghadim.jpg' %}');">
-						</div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/pl-e-ghadim.jpg' %}" alt="{{ article.title }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% endif %}
 
 						<div class="slide-content-mag">
 							<span class="slide-badge-mag">{{ article.category.name|default:'مقاله' }}</span>
@@ -897,6 +862,10 @@
 			card.dataset.date = article.dateRange;
 			card.dataset.featured = article.featured || 'normal';
 
+			// استایل‌های راست‌چین
+			card.style.direction = 'rtl';
+			card.style.textAlign = 'right';
+
 			let featuredBadge = '';
 			if (article.featured === 'popular') {
 				featuredBadge = `<span class="featured-badge"><i class="fas fa-fire"></i> پربازدید</span>`;
@@ -906,31 +875,34 @@
 				featuredBadge = `<span class="featured-badge" style="background:var(--primary-green);"><i class="fas fa-bolt"></i> جدید</span>`;
 			}
 
-			const imageUrl = article.image || '/static/img/asiyab-haye-abi.jpg';
+			// استفاده از slug برای پیدا کردن عکس با پسوندهای مختلف
+			const imageUrl = `/static/img/${article.slug}.jpg`;
 
 			card.innerHTML = `
-					<div class="article-img">
-						<img src="${imageUrl}" alt="${article.title}" onerror="this.src='/static/img/asiyab-haye-abi.jpg';">
-						<span class="badge">${article.category}</span>
-						${featuredBadge}
-					</div>
-					<div class="article-body">
-						<h4>${article.title}</h4>
-						<p>${article.desc}</p>
-						<div class="article-author">
-							<div class="avatar">${getInitials(article.author)}</div>
-							<div class="author-info">
-								<span class="author-name">${article.author}</span>
-								<span class="author-date">${article.date}</span>
-							</div>
-						</div>
-						<div class="meta">
-							<span><i class="far fa-clock"></i> ${faNum(article.duration)} دقیقه مطالعه</span>
-							<span><i class="far fa-eye"></i> ${faNum(article.views)}</span>
-						</div>
-						<a href="/articles/${article.slug}/" class="read-more-link">ادامه مطلب <i class="fas fa-arrow-left"></i></a>
-					</div>
-				`;
+        <div class="article-img">
+            <img src="${imageUrl}" alt="${article.title}" 
+                onerror="this.onerror=null; this.src='/static/img/${article.slug}.png'; this.onerror=function(){this.src='/static/img/${article.slug}.jpeg'; this.onerror=function(){this.src='/static/img/${article.slug}.webp'; this.onerror=function(){this.src='/static/img/asiyab-haye-abi.jpg';};};};" 
+                style="width:100%; height:100%; object-fit:cover;">
+            <span class="badge">${article.category}</span>
+            ${featuredBadge}
+        </div>
+        <div class="article-body" style="direction:rtl; text-align:right;">
+            <h4 style="text-align:right;">${article.title}</h4>
+            <p style="text-align:right;">${article.desc}</p>
+            <div class="article-author" style="direction:rtl; text-align:right;">
+                <div class="avatar">${getInitials(article.author)}</div>
+                <div class="author-info">
+                    <span class="author-name">${article.author}</span>
+                    <span class="author-date">${article.date}</span>
+                </div>
+            </div>
+            <div class="meta" style="direction:rtl; text-align:right;">
+                <span><i class="far fa-clock"></i> ${faNum(article.duration)} دقیقه مطالعه</span>
+                <span><i class="far fa-eye"></i> ${faNum(article.views)}</span>
+            </div>
+            <a href="/articles/${article.slug}/" class="read-more-link" style="align-self:flex-end;">ادامه مطلب <i class="fas fa-arrow-left"></i></a>
+        </div>
+    `;
 			return card;
 		}
 

@@ -468,6 +468,7 @@
 	</header>
 
 	<!-- اسلایدر مجله - داینامیک از دیتابیس -->
+	<!-- اسلایدر مجله - داینامیک از دیتابیس -->
 	<section class="section-magazine-slider" id="magazineSlider"
 		style="background-image: url('{% static 'img/slide1.webp' %}'); background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 0.8s ease;">
 		<div class="container">
@@ -477,56 +478,19 @@
 					مجله <span class="highlight">جاذبه‌های</span> دزفول
 				</span>
 				<!-- <a href="{% url 'attraction' %}" class="view-all-btn">
-					مشاهده همه <i class="fas fa-arrow-left"></i>
-				</a> -->
+				مشاهده همه <i class="fas fa-arrow-left"></i>
+			</a> -->
 			</div>
 			<div class="slider-container-mag" id="sliderContainerMag">
 				<div class="slides-track-mag" id="slidesTrackMag">
 					{% for place in places|slice:":6" %}
 					<div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
-						{% if forloop.counter0 == 0 %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide1.webp' %}');">
-						</div>
+						<!-- عکس بر اساس slug جاذبه - حذف slide-bg-blur -->
 						<div class="slide-image-mag">
-							<img src="{% static 'img/slide1.webp' %}" alt="{{ place.name }}"
-								style="width:100%; height:100%; object-fit:cover;">
+							<img src="{% static 'img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}"
+								style="width:100%; height:100%; object-fit:cover;"
+								onerror="this.onerror=null; this.src='{% static 'img/' %}{{ place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
 						</div>
-						{% elif forloop.counter0 == 1 %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide2.jpg' %}');">
-						</div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/slide2.jpg' %}" alt="{{ place.name }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% elif forloop.counter0 == 2 %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide3.jpg' %}');">
-						</div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/slide3.jpg' %}" alt="{{ place.name }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% elif forloop.counter0 == 3 %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/slide4.jpg' %}');">
-						</div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/slide4.jpg' %}" alt="{{ place.name }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% elif forloop.counter0 == 4 %}
-						<div class="slide-bg-blur"
-							style="background-image: url('{% static 'img/asiyab-haye-abi.jpg' %}');"></div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/asiyab-haye-abi.jpg' %}" alt="{{ place.name }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% else %}
-						<div class="slide-bg-blur" style="background-image: url('{% static 'img/pl-e-ghadim.jpg' %}');">
-						</div>
-						<div class="slide-image-mag">
-							<img src="{% static 'img/pl-e-ghadim.jpg' %}" alt="{{ place.name }}"
-								style="width:100%; height:100%; object-fit:cover;">
-						</div>
-						{% endif %}
 
 						<div class="slide-content-mag">
 							<span class="slide-badge-mag">{{ place.category.name|default:'جاذبه' }}</span>
@@ -728,21 +692,24 @@
 			card.dataset.cost = place.cost;
 
 			const costText = place.cost === 0 ? 'رایگان' : faNum(place.cost.toLocaleString()) + ' تومان';
-			const imageUrl = place.image || '/static/img/asiyab-haye-abi.jpg';
+
+			// استفاده از slug برای پیدا کردن عکس با پسوندهای مختلف
+			const imageUrl = `/static/img/${place.slug}.jpg`;
 
 			card.innerHTML = `
-					<div class="attraction-img">
-						<img src="${imageUrl}" alt="${place.name}" onerror="this.src='/static/img/asiyab-haye-abi.jpg';">
-						<span class="badge">${place.category}</span>
-					</div>
-					<div class="attraction-body">
-						<h4>${place.name}</h4>
-						<p>${place.short_description}</p>
-						<div class="meta">
-							<span><i class="fas fa-wallet"></i> ${costText}</span>
-						</div>
-					</div>
-				`;
+        <div class="attraction-img">
+            <img src="${imageUrl}" alt="${place.name}" 
+                onerror="this.onerror=null; this.src='/static/img/${place.slug}.png'; this.onerror=function(){this.src='/static/img/${place.slug}.jpeg'; this.onerror=function(){this.src='/static/img/${place.slug}.webp'; this.onerror=function(){this.src='/static/img/asiyab-haye-abi.jpg';};};};">
+            <span class="badge">${place.category}</span>
+        </div>
+        <div class="attraction-body">
+            <h4>${place.name}</h4>
+            <p>${place.short_description}</p>
+            <div class="meta">
+                <span><i class="fas fa-wallet"></i> ${costText}</span>
+            </div>
+        </div>
+    `;
 			return card;
 		}
 
@@ -891,8 +858,8 @@
 		// بارگذاری اولیه
 		updateCostCounts();
 		renderGrid();
-			
-		})();
+
+		}) ();
 	</script>
 </body>
 

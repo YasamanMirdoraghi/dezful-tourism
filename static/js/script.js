@@ -48,6 +48,9 @@ if (navbar) {
 // ==========================================================
 // بخش اسلایدر اصلی هیرو
 // ==========================================================
+// ==========================================================
+// بخش اسلایدر اصلی هیرو
+// ==========================================================
 const slides = document.querySelectorAll('.slider-slide');
 const dots = document.querySelectorAll('.dot-nav');
 const prevBtn = document.getElementById('prevBtn');
@@ -82,7 +85,6 @@ if (slides.length > 0 && dots.length > 0 && prevBtn && nextBtn && sliderContaine
 	sliderContainer.addEventListener('mouseenter', () => clearInterval(slideInterval));
 	sliderContainer.addEventListener('mouseleave', startInterval);
 }
-
 // ==========================================================
 // انیمیشن شمارنده آمار (Intersection Observer)
 // ==========================================================
@@ -189,6 +191,9 @@ initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 // ==========================================================
 // اسلایدر مجله گردشگری (با پس‌زمینه متغیر)
 // ==========================================================
+// ==========================================================
+// اسلایدر مجله گردشگری (با پس‌زمینه متغیر)
+// ==========================================================
 (function () {
 	const slidesTrack = document.getElementById('slidesTrackMag');
 	const listContainer = document.getElementById('slideListHorizontalMag');
@@ -204,15 +209,23 @@ initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 	let currentIndex = 0;
 	let autoSlideInterval, progressInterval;
 
-	// تابع تغییر پس‌زمینه سکشن - از عکس خود اسلایدر استفاده می‌کنه
+	// تابع تغییر پس‌زمینه سکشن - از عکس لود شده اسلایدر استفاده می‌کنه
+	// تابع تغییر پس‌زمینه سکشن - از عکس لود شده اسلایدر استفاده می‌کنه
+	// تابع تغییر پس‌زمینه سکشن - از عکس لود شده اسلایدر استفاده می‌کنه
 	function changeBackground(index) {
 		if (magazineSlider && slides[index]) {
-			// عکس پس‌زمینه رو از خود اسلایدر بگیر
-			const bgBlur = slides[index].querySelector('.slide-bg-blur');
-			const bgImage = bgBlur ? bgBlur.style.backgroundImage : '';
+			const img = slides[index].querySelector('.slide-image-mag img');
 
-			if (bgImage) {
-				magazineSlider.style.backgroundImage = bgImage;
+			if (img) {
+				// اگر عکس لود شده، پس‌زمینه رو ست کن
+				if (img.complete) {
+					magazineSlider.style.backgroundImage = `url('${img.src}')`;
+				} else {
+					// اگر هنوز لود نشده، منتظر باش تا لود بشه
+					img.onload = function () {
+						magazineSlider.style.backgroundImage = `url('${img.src}')`;
+					};
+				}
 			}
 		}
 	}
@@ -232,7 +245,7 @@ initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 			el.classList.toggle('active-item-h-mag', i === index);
 		});
 
-		// تغییر پس‌زمینه سکشن - از عکس خود اسلایدر
+		// تغییر پس‌زمینه سکشن - از عکس لود شده استفاده می‌کنه
 		changeBackground(index);
 
 		resetProgress();

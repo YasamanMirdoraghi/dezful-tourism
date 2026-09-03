@@ -44,9 +44,7 @@ def home(request):
 # ==========================================================
 def attraction_page(request):
     places = Place.objects.filter(is_active=True).select_related('category__parent')
-    
-    # فقط دسته‌های اصلی (بدون parent) - با prefetch برای زیرمجموعه‌ها
-    parent_categories = Category.objects.filter(type='attraction', parent__isnull=True).prefetch_related('children')
+    categories = Category.objects.filter(type='attraction', parent__isnull=True).prefetch_related('children')
     
     # ساخت لیست JSON برای جاوااسکریپت
     places_json = []
@@ -54,22 +52,22 @@ def attraction_page(request):
         places_json.append({
             'id': place.id,
             'name': place.name,
+            'slug': place.slug,
             'category': place.category.name if place.category else '',
             'parent_category': place.category.parent.name if place.category and place.category.parent else (place.category.name if place.category else ''),
             'cost': place.cost_toman,
             'short_description': place.short_description or '',
-            'image': place.main_image.url if place.main_image else '',
+            'image': f'/static/img/{place.slug}.jpg',
         })
     
     return render(request, 'attraction.html', {
         'places': places,
-        'categories': parent_categories,
+        'categories': categories,
         'places_json': json.dumps(places_json, ensure_ascii=False),
     })
 # ==========================================================
 # صفحه مقالات (لیست)
 # ==========================================================
-
 
 def articles_page(request):
     articles = Article.objects.filter(is_published=True).order_by('-created_at')
@@ -112,7 +110,7 @@ def articles_page(request):
             'slug': article.slug,
             'title': article.title,
             'desc': article.excerpt or '',
-            'image': article.main_image.url if article.main_image else '',
+            'image': f'/static/img/{article.slug}.jpg',
             'category': article.category.name if article.category else 'عمومی',
             'author': article.author or 'نویسنده',
             'date': article.published_date_jalali or '',
