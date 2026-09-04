@@ -278,7 +278,7 @@
 						<div class="card-slide-body">
 							<h4>{{ place.name }}</h4>
 							<p>{{ place.short_description|truncatewords:10 }}</p>
-							<a href="#" class="card-link">مشاهده <i class="fas fa-arrow-left"></i></a>
+							<a href="{% url 'place_detail' place.slug %}" class="card-link">مشاهده <i class="fas fa-arrow-left"></i></a>
 						</div>
 					</div>
 					{% empty %}

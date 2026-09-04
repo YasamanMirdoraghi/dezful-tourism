@@ -9,4 +9,5 @@ urlpatterns = [
     path('plan/', views.plan_page, name='plan'),
     path('map/', views.map_page, name='map'),
     path('articles/<slug:slug>/review/', views.submit_review, name='submit_review'),
+    path('place/<slug:slug>/', views.place_detail_page, name='place_detail'),
 ]

@@ -195,6 +195,21 @@ def submit_review(request, slug):
         
         return redirect('article_detail', slug=slug)
     
+
+
+def place_detail_page(request, slug):
+    place = get_object_or_404(Place, slug=slug, is_active=True)
+    related_places = Place.objects.filter(category=place.category).exclude(id=place.id)[:6]
+    reviews = Review.objects.filter(place=place, is_approved=True).select_related('user')
+    avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or place.rating_avg
+    
+    return render(request, 'place_detail.html', {
+        'place': place,
+        'related_places': related_places,
+        'reviews': reviews,
+        'avg_rating': round(avg_rating, 1),
+    })
+
 # ==========================================================
 # صفحه برنامه‌ریز سفر
 # ==========================================================
