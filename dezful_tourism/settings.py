@@ -115,3 +115,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # مدل کاربر سفارشی
 # ==========================================================
 AUTH_USER_MODEL = 'core.User'
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_REDIRECT_URL = 'home'

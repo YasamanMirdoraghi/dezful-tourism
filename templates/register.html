@@ -1,0 +1,88 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ثبت‌نام | سفر به دزفول</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="{% static 'css/style.css' %}"><link rel="stylesheet" href="{% static 'css/account.css' %}">
+</head>
+<body>
+<div class="overlay" id="menuOverlay"></div>
+<header class="navbar" id="navbar">
+  <div class="logo"><i class="fas fa-map-signs"></i> سفر به <span>دزفول</span></div>
+  <nav class="nav-links" id="navLinks">
+    <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i></button>
+    <a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
+    <a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+    <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+    <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+    <a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+    <a href="{% url 'contact' %}" class="active"><i class="fas fa-headset"></i> تماس با ما</a>
+    <div class="auth-mobile">
+      {% if user.is_authenticated %}
+      <a href="{% url 'logout' %}" class="btn-outline-mobile"><i class="fas fa-sign-out-alt"></i> خروج</a>
+      {% else %}
+      <a href="{% url 'register' %}" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+      <a href="{% url 'login' %}" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
+      {% endif %}
+    </div>
+  </nav>
+  <div class="auth-buttons">
+    {% if user.is_authenticated %}
+      <span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
+      <a href="{% url 'logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
+    {% else %}
+      <a href="{% url 'register' %}" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+      <a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+    {% endif %}
+  </div>
+  <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
+</header>
+<main class="account-page auth-page"><div class="account-orb orb-one"></div><div class="account-orb orb-two"></div><div class="container auth-container">
+{% if messages %}<div class="messages-stack">{% for message in messages %}<div class="site-message {{ message.tags }}"><i class="fas fa-exclamation-circle"></i>{{ message }}</div>{% endfor %}</div>{% endif %}
+
+<div class="auth-card register-card">
+  <div class="auth-visual"><div class="visual-badge"><i class="fas fa-route"></i></div><h1>سفر تو از <span>اینجا</span> شروع میشه</h1><p>یک حساب بساز و برنامه‌ریزی سفر در دزفول را شخصی‌تر و هوشمندتر تجربه کن.</p><div class="visual-points"><span><i class="fas fa-check"></i> ذخیره جاذبه‌های موردعلاقه</span><span><i class="fas fa-check"></i> ساخت برنامه سفر شخصی</span><span><i class="fas fa-check"></i> تجربه‌ای متناسب با سلیقه تو</span></div></div>
+  <div class="auth-form-side"><div class="form-card-head"><span>حساب کاربری</span><h2>ثبت‌نام</h2><p>اطلاعاتت را وارد کن تا حساب تو ساخته شود.</p></div>
+  <form method="post" class="smart-form">{% csrf_token %}
+    <div class="form-grid"><label><span>نام *</span><div class="input-wrap"><i class="fas fa-user"></i><input name="first_name" value="{{ request.POST.first_name|default:'' }}" required placeholder="نام"></div></label>
+    <label><span>نام خانوادگی</span><div class="input-wrap"><i class="fas fa-user"></i><input name="last_name" value="{{ request.POST.last_name|default:'' }}" placeholder="نام خانوادگی"></div></label>
+    <label><span>نام کاربری *</span><div class="input-wrap"><i class="fas fa-at"></i><input name="username" value="{{ request.POST.username|default:'' }}" required placeholder="نام کاربری"></div></label>
+    <label><span>ایمیل</span><div class="input-wrap"><i class="fas fa-envelope"></i><input type="email" name="email" value="{{ request.POST.email|default:'' }}" placeholder="ایمیل"></div></label>
+    <label><span>شماره موبایل</span><div class="input-wrap"><i class="fas fa-phone"></i><input name="phone" value="{{ request.POST.phone|default:'' }}" placeholder="اختیاری"></div></label>
+    <label><span>رمز عبور *</span><div class="input-wrap"><i class="fas fa-lock"></i><input type="password" name="password" required placeholder="حداقل ۸ کاراکتر"></div></label>
+    <label class="full-field"><span>تکرار رمز عبور *</span><div class="input-wrap"><i class="fas fa-shield-halved"></i><input type="password" name="password2" required placeholder="رمز عبور را دوباره وارد کنید"></div></label></div>
+    <button class="form-submit" type="submit"><span>ساخت حساب کاربری</span><i class="fas fa-arrow-left"></i></button>
+  </form><p class="switch-auth">قبلاً ثبت‌نام کردی؟ <a href="{% url 'login' %}">وارد شو</a></p></div>
+</div>
+</div></main>
+<footer class="footer">
+  <div class="container">
+    <div class="footer-grid">
+      <div>
+        <h4><i class="fas fa-map-signs" style="color:var(--brick-orange);"></i> سفر به دزفول</h4>
+        <p>سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول، با الگوریتم مبتنی بر نیاز مسافر.</p>
+        <div class="social">
+          <a href="#"><i class="fab fa-telegram"></i></a><a href="#"><i class="fab fa-instagram"></i></a>
+          <a href="#"><i class="fab fa-youtube"></i></a><a href="#"><i class="fab fa-linkedin"></i></a>
+        </div>
+      </div>
+      <div>
+        <h4>دسترسی سریع</h4>
+        <a href="{% url 'plan' %}">برنامه‌ریز سفر</a><a href="{% url 'attraction' %}">جاذبه‌های گردشگری</a>
+        <a href="{% url 'map' %}">نقشه تعاملی</a><a href="{% url 'articles' %}">مقالات</a>
+      </div>
+      <div>
+        <h4>اطلاعات مفید</h4>
+        <a href="#">بهترین زمان سفر</a><a href="#">راهنمای مسیرها</a>
+        <a href="{% url 'contact' %}">تماس با ما</a><a href="#">درباره‌ی پروژه</a>
+      </div>
+    </div>
+    <div class="footer-copy"><i class="fas fa-copyright"></i> ۱۴۰۴ - پروژه‌ی کارشناسی - دانشگاه صنعتی جندی شاپور دزفول</div>
+  </div>
+</footer>
+<script src="{% static 'js/script.js' %}"></script>
+</body></html>

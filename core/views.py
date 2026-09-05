@@ -210,6 +210,54 @@ def place_detail_page(request, slug):
         'avg_rating': round(avg_rating, 1),
     })
 
+from django.shortcuts import redirect
+from django.contrib import messages
+from django.core.mail import send_mail
+
+from .models import Contact, User  # ← User اضافه شد
+
+def contact_page(request):
+    if request.method == 'POST':
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        phone = request.POST.get('phone', '')
+        subject = request.POST.get('subject')
+        message = request.POST.get('message')
+        
+        Contact.objects.create(
+            name=name,
+            email=email,
+            phone=phone,
+            subject=subject,
+            message=message,
+        )
+        
+        messages.success(request, 'پیام شما با موفقیت ارسال شد!')
+        return redirect('contact')
+    
+    return render(request, 'contact.html')
+
+
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth import login
+
+def register_page(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password1 = request.POST.get('password1')
+        password2 = request.POST.get('password2')
+        
+        if password1 == password2:
+            if not User.objects.filter(username=username).exists():
+                user = User.objects.create_user(username=username, password=password1)
+                login(request, user)
+                return redirect('home')
+            else:
+                messages.error(request, 'نام کاربری قبلاً ثبت شده است!')
+        else:
+            messages.error(request, 'رمز عبورها مطابقت ندارند!')
+    
+    return render(request, 'register.html')
 # ==========================================================
 # صفحه برنامه‌ریز سفر
 # ==========================================================
