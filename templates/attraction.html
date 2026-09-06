@@ -503,9 +503,9 @@
 								مطالعه این جاذبه را به شما پیشنهاد می‌کنیم.
 								{% endif %}
 							</p>
-							<a href="{% url 'attraction' %}" class="slide-link-mag">
-								مشاهده جزئیات
-							</a>
+							<a href="{% url 'place_detail' place.slug %}" class="slide-link-mag">
+  مشاهده جزئیات
+</a>
 						</div>
 					</div>
 					{% empty %}
@@ -685,19 +685,20 @@
 		}
 
 		// ساخت کارت جاذبه
-		function createCard(place) {
-			const card = document.createElement('div');
-			card.className = 'attraction-card';
-			card.dataset.category = place.category;
-			card.dataset.parentCategory = place.parent_category;
-			card.dataset.cost = place.cost;
+		// ساخت کارت جاذبه
+function createCard(place) {
+    const card = document.createElement('div');
+    card.className = 'attraction-card';
+    card.dataset.category = place.category;
+    card.dataset.parentCategory = place.parent_category;
+    card.dataset.cost = place.cost;
 
-			const costText = place.cost === 0 ? 'رایگان' : faNum(place.cost.toLocaleString()) + ' تومان';
+    const costText = place.cost === 0 ? 'رایگان' : faNum(place.cost.toLocaleString()) + ' تومان';
 
-			// استفاده از slug برای پیدا کردن عکس با پسوندهای مختلف
-			const imageUrl = `/static/img/${place.slug}.jpg`;
+    // استفاده از slug برای پیدا کردن عکس با پسوندهای مختلف
+    const imageUrl = `/static/img/${place.slug}.jpg`;
 
-			card.innerHTML = `
+    card.innerHTML = `
         <div class="attraction-img">
             <img src="${imageUrl}" alt="${place.name}" 
                 onerror="this.onerror=null; this.src='/static/img/${place.slug}.png'; this.onerror=function(){this.src='/static/img/${place.slug}.jpeg'; this.onerror=function(){this.src='/static/img/${place.slug}.webp'; this.onerror=function(){this.src='/static/img/asiyab-haye-abi.jpg';};};};">
@@ -711,8 +712,17 @@
             </div>
         </div>
     `;
-			return card;
-		}
+
+    // قابل کلیک کردن کارت
+    card.addEventListener('click', function() {
+        window.location.href = `/place/${place.slug}/`;
+    });
+
+    // استایل نشانگر دست
+    card.style.cursor = 'pointer';
+
+    return card;
+}
 
 		// اعمال فیلترها
 		function getFilteredPlaces() {

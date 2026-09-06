@@ -1,32 +1,27 @@
-from django.shortcuts import render, get_object_or_404
-from .models import Place, Category, Article, Plan, Route, ArticleBlock,ArticleRelated
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib import messages
+from django.contrib.auth import login
+from .models import (
+    Place, Category, Article, Plan, Route, Review, User,
+    ArticleBlock, ArticleRelated, Contact
+)
 import json
-from django.db.models import Count
-from django.db.models import Avg
+from django.db.models import Count, Avg
 from datetime import datetime, timedelta
 
 # ==========================================================
 # صفحه اصلی (خانه)
 # ==========================================================
-from django.shortcuts import render
-from .models import Place, Category, Article, Plan, Route, Review, User
-from django.db.models import Avg, Count
-
 def home(request):
     featured_places = Place.objects.filter(is_active=True)
     plans = Plan.objects.filter(is_active=True)
     featured_articles = Article.objects.filter(is_published=True).order_by('-created_at')
     
     # ===== محاسبه آمار داینامیک =====
-    places_count = Place.objects.filter(is_active=True).count()  # تعداد جاذبه‌ها
-    
-    users_count = User.objects.filter(is_active=True).count()  # تعداد کاربران (مسافران)
-    
-    plans_count = Plan.objects.filter(is_active=True).count()  # تعداد پلن‌ها
-    
-    reviews_count = Review.objects.filter(is_approved=True).count()  # تعداد نظرات
-    
-    # میانگین امتیاز از نظرات
+    places_count = Place.objects.filter(is_active=True).count()
+    users_count = User.objects.filter(is_active=True).count()
+    plans_count = Plan.objects.filter(is_active=True).count()
+    reviews_count = Review.objects.filter(is_approved=True).count()
     avg_rating = Review.objects.filter(is_approved=True, rating__gt=0).aggregate(avg=Avg('rating'))['avg'] or 4.8
     
     return render(request, 'index.html', {
@@ -39,6 +34,7 @@ def home(request):
         'reviews_count': reviews_count,
         'avg_rating': round(avg_rating, 1),
     })
+
 # ==========================================================
 # صفحه جاذبه‌ها
 # ==========================================================
@@ -46,7 +42,6 @@ def attraction_page(request):
     places = Place.objects.filter(is_active=True).select_related('category__parent')
     categories = Category.objects.filter(type='attraction', parent__isnull=True).prefetch_related('children')
     
-    # ساخت لیست JSON برای جاوااسکریپت
     places_json = []
     for place in places:
         places_json.append({
@@ -65,10 +60,26 @@ def attraction_page(request):
         'categories': categories,
         'places_json': json.dumps(places_json, ensure_ascii=False),
     })
+
+# ==========================================================
+# صفحه تکی جاذبه
+# ==========================================================
+def place_detail_page(request, slug):
+    place = get_object_or_404(Place, slug=slug, is_active=True)
+    related_places = Place.objects.filter(category=place.category).exclude(id=place.id)[:6]
+    reviews = Review.objects.filter(place=place, is_approved=True).select_related('user')
+    avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or place.rating_avg
+    
+    return render(request, 'place_detail.html', {
+        'place': place,
+        'related_places': related_places,
+        'reviews': reviews,
+        'avg_rating': round(avg_rating, 1),
+    })
+
 # ==========================================================
 # صفحه مقالات (لیست)
 # ==========================================================
-
 def articles_page(request):
     articles = Article.objects.filter(is_published=True).order_by('-created_at')
     categories = Category.objects.filter(type='article')
@@ -137,26 +148,15 @@ def articles_page(request):
         'featured_count': featured_count,
         'new_count': new_count,
     })
-# ==========================================================
-# صفحه جزئیات مقاله
-# ==========================================================
-from django.shortcuts import render, get_object_or_404
-from .models import Place, Category, Article, Plan, Route, Review, User, ArticleBlock, ArticleRelated
-import json
-from django.db.models import Count, Avg
-from datetime import datetime, timedelta
 
 # ==========================================================
-# صفحه جزئیات مقاله (داینامیک با بلوک‌ها)
+# صفحه جزئیات مقاله
 # ==========================================================
 def article_detail_page(request, slug):
     article = get_object_or_404(Article, slug=slug, is_published=True)
     article_blocks = ArticleBlock.objects.filter(article=article).order_by('block_order')
     
-    # فقط تیترها
     headings = [block for block in article_blocks if block.block_type == 'heading']
-    
-    # شماره‌گذاری تیترها
     for i, block in enumerate(headings, 1):
         block.toc_number = i
     
@@ -173,9 +173,9 @@ def article_detail_page(request, slug):
         'avg_rating': round(avg_rating, 1),
     })
 
-from django.shortcuts import redirect
-from django.contrib import messages
-
+# ==========================================================
+# ثبت نظر جدید
+# ==========================================================
 def submit_review(request, slug):
     if request.method == 'POST':
         article = get_object_or_404(Article, slug=slug, is_published=True)
@@ -195,27 +195,11 @@ def submit_review(request, slug):
         
         return redirect('article_detail', slug=slug)
     
+    return redirect('article_detail', slug=slug)
 
-
-def place_detail_page(request, slug):
-    place = get_object_or_404(Place, slug=slug, is_active=True)
-    related_places = Place.objects.filter(category=place.category).exclude(id=place.id)[:6]
-    reviews = Review.objects.filter(place=place, is_approved=True).select_related('user')
-    avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or place.rating_avg
-    
-    return render(request, 'place_detail.html', {
-        'place': place,
-        'related_places': related_places,
-        'reviews': reviews,
-        'avg_rating': round(avg_rating, 1),
-    })
-
-from django.shortcuts import redirect
-from django.contrib import messages
-from django.core.mail import send_mail
-
-from .models import Contact, User  # ← User اضافه شد
-
+# ==========================================================
+# صفحه تماس با ما
+# ==========================================================
 def contact_page(request):
     if request.method == 'POST':
         name = request.POST.get('name')
@@ -237,20 +221,31 @@ def contact_page(request):
     
     return render(request, 'contact.html')
 
-
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
-
+# ==========================================================
+# ثبت‌نام کاربر
+# ==========================================================
 def register_page(request):
     if request.method == 'POST':
         username = request.POST.get('username')
-        password1 = request.POST.get('password1')
+        first_name = request.POST.get('first_name', '')
+        last_name = request.POST.get('last_name', '')
+        email = request.POST.get('email', '')
+        phone = request.POST.get('phone', '')
+        password = request.POST.get('password')
         password2 = request.POST.get('password2')
         
-        if password1 == password2:
+        if password == password2:
             if not User.objects.filter(username=username).exists():
-                user = User.objects.create_user(username=username, password=password1)
+                user = User.objects.create_user(
+                    username=username,
+                    password=password,
+                    email=email,
+                    first_name=first_name,
+                    last_name=last_name,
+                    phone=phone,
+                )
                 login(request, user)
+                messages.success(request, 'حساب کاربری شما با موفقیت ساخته شد!')
                 return redirect('home')
             else:
                 messages.error(request, 'نام کاربری قبلاً ثبت شده است!')
@@ -258,6 +253,32 @@ def register_page(request):
             messages.error(request, 'رمز عبورها مطابقت ندارند!')
     
     return render(request, 'register.html')
+
+
+from django.contrib.auth import logout as auth_logout
+
+def logout_view(request):
+    auth_logout(request)
+    return redirect('home')
+
+
+def place_detail_page(request, slug):
+    place = get_object_or_404(Place, slug=slug, is_active=True)
+    related_places = Place.objects.filter(category=place.category).exclude(id=place.id)[:6]
+    reviews = Review.objects.filter(place=place, is_approved=True).select_related('user')
+    avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or place.rating_avg
+    
+    # گالری تصاویر
+    gallery = place.gallery if place.gallery else []
+    
+    return render(request, 'place_detail.html', {
+        'place': place,
+        'related_places': related_places,
+        'reviews': reviews,
+        'avg_rating': round(avg_rating, 1),
+        'gallery': gallery,
+    })
+
 # ==========================================================
 # صفحه برنامه‌ریز سفر
 # ==========================================================

@@ -57,7 +57,6 @@ class Tag(models.Model):
 # ==========================================================
 # ۴. جاذبه (بدون PointField)
 # ==========================================================
-
 class Place(models.Model):
     name = models.CharField(max_length=200)
     slug = models.CharField(max_length=220, unique=True)
@@ -75,18 +74,17 @@ class Place(models.Model):
     main_image = models.ImageField(upload_to='attractions/', null=True, blank=True)
     gallery = models.JSONField(default=list, blank=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
+    contact_info = models.CharField(max_length=300, null=True, blank=True)  # ← اسم تغییر کرد
     rating_avg = models.FloatField(default=0)
-    visit_count = models.BigIntegerField(default=0)
+    # visit_count = models.BigIntegerField(default=0)  # ← حذف شد
     is_active = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    
     tags = models.ManyToManyField(Tag, through='PlaceTag', related_name='places')
 
     def __str__(self):
         return self.name
-
 # ==========================================================
 # ۵. ارتباط جاذبه و تگ
 # ==========================================================

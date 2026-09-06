@@ -87,34 +87,59 @@
     margin: 0 auto;
   }
   
-  /* ===== کارت اطلاعات ===== */
+  /* ===== کارت اطلاعات (عکس + اطلاعات) ===== */
   .contact-info-card {
     background: #fff;
     border-radius: 24px;
     padding: 35px;
     box-shadow: 0 10px 40px rgba(0,0,0,0.06);
     border: 1px solid rgba(17,139,113,0.08);
+    display: flex;
+    flex-direction: column;
   }
   
-  .contact-icon {
-    width: 70px;
-    height: 70px;
-    border-radius: 20px;
+  /* عکس بالای کارت اطلاعات */
+  .contact-img {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+  
+  .contact-img img {
+    width: 220px;
+    height: 220px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 10px 30px rgba(17,139,113,0.15);
+    border: 4px solid #fff;
+  }
+  
+  /* عنوان با آیکون کنارش */
+  .contact-title {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+  }
+  
+  .contact-title i {
+    width: 45px;
+    height: 45px;
+    border-radius: 12px;
     background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-size: 2rem;
-    margin-bottom: 25px;
-    box-shadow: 0 10px 25px rgba(17,139,113,0.3);
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 5px 15px rgba(17,139,113,0.25);
   }
   
-  .contact-info-card h2 {
-    font-size: 1.5rem;
+  .contact-title h2 {
+    font-size: 1.3rem;
     font-weight: 900;
     color: var(--brown-text);
-    margin-bottom: 12px;
+    margin: 0;
   }
   
   .contact-info-card p {
@@ -385,10 +410,19 @@
     {% endif %}
     
     <div class="contact-layout">
-      <!-- کارت اطلاعات -->
+      <!-- کارت اطلاعات (عکس + اطلاعات) -->
       <section class="contact-info-card">
-        <div class="contact-icon"><i class="fas fa-headset"></i></div>
-        <h2>کنار شما هستیم</h2>
+        <!-- عکس -->
+        <div class="contact-img">
+          <img src="{% static 'img/ContactUs.png' %}" alt="دستیار هوشمند">
+        </div>
+        
+        <!-- عنوان با آیکون -->
+        <div class="contact-title">
+          <i class="fas fa-headset"></i>
+          <h2>کنار شما هستیم</h2>
+        </div>
+        
         <p>تیم «سفر به دزفول» برای بهتر شدن تجربه گردشگری شما آماده شنیدن نظرات و پیشنهادهاست.</p>
         
         <div class="contact-item">

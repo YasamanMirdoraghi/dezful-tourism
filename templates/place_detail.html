@@ -1,24 +1,26 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ place.name }} | سفر به دزفول</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
-  
+
   <style>
     /* ===== استایل‌های صفحه تکی جاذبه ===== */
     .place-detail-main {
       padding: 40px 0 80px;
       background: var(--cream-bg);
     }
-    
+
     /* هدر جاذبه */
     .place-hero {
       position: relative;
@@ -28,49 +30,55 @@
       margin-bottom: 30px;
       box-shadow: var(--shadow-md);
     }
+
     .place-hero img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .place-hero-overlay {
       position: absolute;
       inset: 0;
-      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent 60%);
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.8), transparent 60%);
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       padding: 40px;
       color: #fff;
     }
+
     .place-hero-title {
       font-size: 2.5rem;
       font-weight: 900;
       margin-bottom: 10px;
     }
+
     .place-hero-meta {
       display: flex;
       gap: 15px;
       flex-wrap: wrap;
     }
+
     .place-hero-meta span {
       display: inline-flex;
       align-items: center;
       gap: 5px;
-      background: rgba(255,255,255,0.15);
+      background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(8px);
       padding: 6px 15px;
       border-radius: 30px;
       font-size: 0.85rem;
       font-weight: 700;
     }
-    
+
     /* دکمه‌های اقدام */
     .place-actions {
       display: flex;
       gap: 12px;
       margin-bottom: 30px;
     }
+
     .place-action-btn {
       display: inline-flex;
       align-items: center;
@@ -84,24 +92,28 @@
       border: none;
       cursor: pointer;
     }
+
     .place-action-btn.primary {
       background: var(--primary-green);
       color: #fff;
     }
+
     .place-action-btn.primary:hover {
       background: var(--primary-green-dark);
       transform: translateY(-2px);
     }
+
     .place-action-btn.outline {
       background: transparent;
       border: 2px solid var(--primary-green);
       color: var(--primary-green);
     }
+
     .place-action-btn.outline:hover {
       background: var(--primary-green);
       color: #fff;
     }
-    
+
     /* اطلاعات جاذبه */
     .place-info-grid {
       display: grid;
@@ -109,30 +121,34 @@
       gap: 15px;
       margin-bottom: 30px;
     }
+
     .place-info-card {
       background: #fff;
       border-radius: 20px;
       padding: 20px;
       text-align: center;
       box-shadow: var(--shadow-sm);
-      border: 1px solid rgba(17,139,113,0.06);
+      border: 1px solid rgba(17, 139, 113, 0.06);
     }
+
     .place-info-card i {
       font-size: 2rem;
       color: var(--primary-green);
       margin-bottom: 10px;
     }
+
     .place-info-card strong {
       display: block;
       font-size: 1.1rem;
       color: var(--brown-text);
       margin-bottom: 5px;
     }
+
     .place-info-card span {
       font-size: 0.8rem;
       color: var(--brown-light);
     }
-    
+
     /* محتوا و سایدبار */
     .place-detail-layout {
       display: grid;
@@ -140,13 +156,14 @@
       gap: 30px;
       align-items: start;
     }
-    
+
     .place-content {
       background: #fff;
       border-radius: 24px;
       padding: 35px;
       box-shadow: var(--shadow-sm);
     }
+
     .place-content h2 {
       font-size: 1.5rem;
       font-weight: 900;
@@ -155,6 +172,7 @@
       position: relative;
       padding-bottom: 10px;
     }
+
     .place-content h2::after {
       content: '';
       position: absolute;
@@ -165,13 +183,14 @@
       background: linear-gradient(90deg, var(--primary-green), var(--brick-orange));
       border-radius: 3px;
     }
+
     .place-content p {
       font-size: 1rem;
       line-height: 2.2;
       color: #655646;
       margin-bottom: 20px;
     }
-    
+
     /* گالری */
     .place-gallery {
       display: grid;
@@ -179,6 +198,7 @@
       gap: 15px;
       margin-top: 20px;
     }
+
     .place-gallery img {
       width: 100%;
       height: 200px;
@@ -187,11 +207,12 @@
       cursor: pointer;
       transition: var(--transition);
     }
+
     .place-gallery img:hover {
       transform: scale(1.03);
       box-shadow: var(--shadow-md);
     }
-    
+
     /* نقشه */
     .place-map-section {
       background: #fff;
@@ -200,18 +221,20 @@
       box-shadow: var(--shadow-sm);
       margin-top: 30px;
     }
+
     .place-map-section h2 {
       font-size: 1.3rem;
       font-weight: 900;
       color: var(--brown-text);
       margin-bottom: 15px;
     }
+
     #placeMap {
       height: 350px;
       border-radius: 15px;
       overflow: hidden;
     }
-    
+
     /* سایدبار */
     .place-sidebar {
       position: sticky;
@@ -220,32 +243,37 @@
       flex-direction: column;
       gap: 20px;
     }
+
     .place-sidebar-card {
       background: #fff;
       border-radius: 20px;
       padding: 22px;
       box-shadow: var(--shadow-sm);
     }
+
     .place-sidebar-card h3 {
       font-size: 1.1rem;
       font-weight: 900;
       color: var(--brown-text);
       margin-bottom: 15px;
     }
-    
+
     /* نظرات */
     .place-reviews {
       margin-top: 30px;
     }
+
     .review-item {
       display: flex;
       gap: 15px;
       padding: 15px;
-      border-bottom: 1px solid rgba(17,139,113,0.08);
+      border-bottom: 1px solid rgba(17, 139, 113, 0.08);
     }
+
     .review-item:last-child {
       border-bottom: none;
     }
+
     .review-avatar {
       width: 45px;
       height: 45px;
@@ -258,42 +286,50 @@
       font-weight: 900;
       flex-shrink: 0;
     }
+
     .review-content {
       flex: 1;
     }
+
     .review-header {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 5px;
     }
+
     .review-header strong {
       font-size: 0.9rem;
       color: var(--brown-text);
     }
+
     .review-header span {
       font-size: 0.7rem;
       color: var(--brown-light);
     }
+
     .review-stars {
       color: #f4b400;
       font-size: 0.85rem;
     }
+
     .review-text {
       font-size: 0.85rem;
       line-height: 1.8;
       color: #6c5b49;
     }
-    
+
     /* جاذبه‌های مرتبط */
     .related-places {
       margin-top: 40px;
     }
+
     .related-places-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 20px;
     }
+
     .related-place-card {
       background: #fff;
       border-radius: 20px;
@@ -302,60 +338,73 @@
       transition: var(--transition);
       text-decoration: none;
     }
+
     .related-place-card:hover {
       transform: translateY(-8px);
       box-shadow: var(--shadow-md);
     }
+
     .related-place-card img {
       width: 100%;
       height: 160px;
       object-fit: cover;
     }
+
     .related-place-card .card-body {
       padding: 15px;
     }
+
     .related-place-card h4 {
       font-size: 1rem;
       font-weight: 900;
       color: var(--brown-text);
       margin-bottom: 5px;
     }
+
     .related-place-card p {
       font-size: 0.8rem;
       color: var(--brown-light);
     }
-    
+
     @media (max-width: 992px) {
       .place-detail-layout {
         grid-template-columns: 1fr;
       }
+
       .place-sidebar {
         position: relative;
         top: 0;
       }
+
       .place-info-grid {
         grid-template-columns: repeat(2, 1fr);
       }
+
       .related-places-grid {
         grid-template-columns: repeat(2, 1fr);
       }
     }
+
     @media (max-width: 768px) {
       .place-hero {
         height: 300px;
       }
+
       .place-hero-title {
         font-size: 1.8rem;
       }
+
       .place-gallery {
         grid-template-columns: repeat(2, 1fr);
       }
+
       .place-actions {
         flex-direction: column;
       }
     }
   </style>
 </head>
+
 <body>
 
   <!-- ===== هدر ===== -->
@@ -379,10 +428,11 @@
   <!-- ===== محتوای اصلی ===== -->
   <main class="place-detail-main">
     <div class="container">
-      
+
       <!-- هدر جاذبه -->
       <section class="place-hero">
-        <img src="{% static 'img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}" onerror="this.onerror=null; this.src='{% static 'img/' %}{{ place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+        <img src="{% static 'img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}"
+          onerror="this.onerror=null; this.src='{% static 'img/' %}{{ place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
         <div class="place-hero-overlay">
           <h1 class="place-hero-title">{{ place.name }}</h1>
           <div class="place-hero-meta">
@@ -392,14 +442,15 @@
           </div>
         </div>
       </section>
-      
+
       <!-- دکمه‌های اقدام -->
       <div class="place-actions">
-        <a href="{% url 'plan' %}" class="place-action-btn primary"><i class="fas fa-calendar-plus"></i> افزودن به برنامه سفر</a>
+        <a href="{% url 'plan' %}" class="place-action-btn primary"><i class="fas fa-calendar-plus"></i> افزودن به
+          برنامه سفر</a>
         <button class="place-action-btn outline" onclick="window.print()"><i class="fas fa-print"></i> چاپ</button>
         <button class="place-action-btn outline" data-share><i class="fas fa-share-alt"></i> اشتراک‌گذاری</button>
       </div>
-      
+
       <!-- اطلاعات جاذبه -->
       <div class="place-info-grid">
         <div class="place-info-card">
@@ -423,41 +474,70 @@
           <span>مناسب کودکان</span>
         </div>
       </div>
-      
+
       <!-- محتوا و سایدبار -->
       <div class="place-detail-layout">
-        
+
         <!-- محتوای اصلی -->
         <div class="place-content">
           <h2>درباره {{ place.name }}</h2>
           <p>{{ place.description|default:place.short_description }}</p>
-          
+
+          <!-- گالری تصاویر -->
           <!-- گالری تصاویر -->
           <h2 style="margin-top: 30px;">گالری تصاویر</h2>
           <div class="place-gallery">
-            <img src="{% static 'img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}" onclick="openLightbox(this.src)">
-            <img src="{% static 'img/slide1.webp' %}" alt="{{ place.name }}" onclick="openLightbox(this.src)">
-            <img src="{% static 'img/slide2.jpg' %}" alt="{{ place.name }}" onclick="openLightbox(this.src)">
+            {% if gallery %}
+            {% for img in gallery %}
+            <img src="{% static 'img/Gallery-img/' %}{{ img }}" alt="{{ place.name }}" onclick="openLightbox(this.src)">
+            {% endfor %}
+            {% else %}
+            <img src="{% static 'img/Gallery-img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}"
+              onclick="openLightbox(this.src)">
+            <img src="{% static 'img/Gallery-img/shavi-waterfall1.webp' %}" alt="{{ place.name }}"
+              onclick="openLightbox(this.src)">
+            <img src="{% static 'img/Gallery-img/slide2.jpg' %}" alt="{{ place.name }}"
+              onclick="openLightbox(this.src)">
+            {% endif %}
           </div>
-          
+
           <!-- نقشه -->
           <div class="place-map-section">
             <h2><i class="fas fa-map-marked-alt"></i> موقعیت روی نقشه</h2>
             <div id="placeMap"></div>
           </div>
         </div>
-        
+
         <!-- سایدبار -->
         <aside class="place-sidebar">
           <div class="place-sidebar-card">
             <h3><i class="fas fa-info-circle"></i> اطلاعات سریع</h3>
             <div style="display: flex; flex-direction: column; gap: 10px;">
-              <div><i class="fas fa-map-marker-alt" style="color: var(--primary-green);"></i> <strong>آدرس:</strong> {{ place.address|default:'دزفول' }}</div>
-              <div><i class="fas fa-phone" style="color: var(--primary-green);"></i> <strong>تلفن:</strong> {{ place.phone|default:'—' }}</div>
-              <div><i class="fas fa-globe" style="color: var(--primary-green);"></i> <strong>وبسایت:</strong> {{ place.website|default:'—' }}</div>
+
+              {% if place.address %}
+              <div>
+                <i class="fas fa-map-marker-alt" style="color: var(--primary-green);"></i>
+                <strong>آدرس:</strong> {{ place.address }}
+              </div>
+              {% endif %}
+
+              {% if place.phone %}
+              <div>
+                <i class="fas fa-phone" style="color: var(--primary-green);"></i>
+                <strong>تلفن:</strong> {{ place.phone }}
+              </div>
+              {% endif %}
+
+              {% if place.contact_info %}
+              <div>
+                <i class="fas fa-link" style="color: var(--primary-green);"></i>
+                <strong>راه ارتباطی:</strong> {{ place.contact_info }}
+              </div>
+              {% endif %}
+
             </div>
           </div>
-          
+
           <div class="place-sidebar-card">
             <h3><i class="fas fa-star"></i> امتیاز کاربران</h3>
             <div style="text-align: center;">
@@ -466,17 +546,18 @@
               <div style="font-size: 0.85rem; color: var(--brown-light);">از {{ reviews.count }} نظر</div>
             </div>
           </div>
-          
+
           <div class="place-sidebar-card">
             <h3><i class="fas fa-clock"></i> بهترین زمان بازدید</h3>
             <p style="font-size: 0.9rem; color: var(--brown-light);">{{ place.best_visit_time|default:'بهترین زمان بازدید صبح زود یا عصر است.' }}</p>
           </div>
         </aside>
       </div>
-      
+
       <!-- نظرات کاربران -->
       <div class="place-reviews">
-        <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i class="fas fa-comments"></i> نظرات کاربران</h2>
+        <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i
+            class="fas fa-comments"></i> نظرات کاربران</h2>
         <div style="background: #fff; border-radius: 20px; padding: 20px; box-shadow: var(--shadow-sm);">
           {% for review in reviews %}
           <div class="review-item">
@@ -488,37 +569,37 @@
               </div>
               <div class="review-stars">
                 {% for i in "12345" %}
-                  {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}
-                {% endfor %}
+                {% if forloop.counter <= review.rating %}★{% else %}☆{% endif %} {% endfor %} </div>
+                  <p class="review-text">{{ review.comment }}</p>
               </div>
-              <p class="review-text">{{ review.comment }}</p>
             </div>
+            {% empty %}
+            <p style="text-align: center; color: var(--brown-light); padding: 20px;">هنوز نظری ثبت نشده است.</p>
+            {% endfor %}
           </div>
-          {% empty %}
-          <p style="text-align: center; color: var(--brown-light); padding: 20px;">هنوز نظری ثبت نشده است.</p>
-          {% endfor %}
         </div>
-      </div>
-      
-      <!-- جاذبه‌های مرتبط -->
-      <div class="related-places">
-        <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i class="fas fa-link"></i> جاذبه‌های مرتبط</h2>
-        <div class="related-places-grid">
-          {% for related_place in related_places %}
-          <a href="{% url 'place_detail' related_place.slug %}" class="related-place-card">
-            <img src="{% static 'img/' %}{{ related_place.slug }}.jpg" alt="{{ related_place.name }}" onerror="this.onerror=null; this.src='{% static 'img/' %}{{ related_place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
-            <div class="card-body">
-              <h4>{{ related_place.name }}</h4>
-              <p>{{ related_place.short_description|truncatewords:10 }}</p>
-            </div>
-          </a>
-          {% endfor %}
+
+        <!-- جاذبه‌های مرتبط -->
+        <div class="related-places">
+          <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i
+              class="fas fa-link"></i> جاذبه‌های مرتبط</h2>
+          <div class="related-places-grid">
+            {% for related_place in related_places %}
+            <a href="{% url 'place_detail' related_place.slug %}" class="related-place-card">
+              <img src="{% static 'img/' %}{{ related_place.slug }}.jpg" alt="{{ related_place.name }}"
+                onerror="this.onerror=null; this.src='{% static 'img/' %}{{ related_place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+              <div class="card-body">
+                <h4>{{ related_place.name }}</h4>
+                <p>{{ related_place.short_description|truncatewords:10 }}</p>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
         </div>
+
       </div>
-      
-    </div>
   </main>
-  
+
   <!-- ===== فوتر ===== -->
   <footer class="footer">
     <div class="container">
@@ -553,53 +634,89 @@
       </div>
     </div>
   </footer>
-  
-  <button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
-  
- <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="{% static 'js/script.js' %}"></script>
 
-<script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // ===== نقشه =====
-    var map = L.map('placeMap').setView([{{ place.latitude|default:32.38 }}, {{ place.longitude|default:48.42 }}], 15);
-    
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution: '&copy; OpenStreetMap &copy; CARTO'
-    }).addTo(map);
-    
-    // مارکر جاذبه
-    L.marker([{{ place.latitude|default:32.38 }}, {{ place.longitude|default:48.42 }}])
-      .addTo(map)
-      .bindPopup('<b>{{ place.name }}</b><br>{{ place.short_description }}')
-      .openPopup();
-    
-    // ===== اشتراک‌گذاری =====
-    var shareBtn = document.querySelector('[data-share]');
-    if (shareBtn) {
-      shareBtn.addEventListener('click', function() {
-        if (navigator.share) {
-          navigator.share({
-            title: '{{ place.name }}',
-            text: '{{ place.short_description }}',
-            url: window.location.href
-          });
-        } else {
-          navigator.clipboard.writeText(window.location.href);
-          alert('لینک کپی شد!');
-        }
-      });
+  <button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{% static 'js/script.js' %}"></script>
+
+  <script>
+   document.addEventListener('DOMContentLoaded', function () {
+  // ===== نقشه =====
+  var map = L.map('placeMap').setView([{{ place.latitude|default:32.38 }}, {{ place.longitude|default:48.42 }}], 15);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; OpenStreetMap &copy; CARTO'
+  }).addTo(map);
+
+  // ===== مارکر با آیکون سفارشی =====
+  var icon = L.divIcon({
+    className: 'custom-pin',
+    html: '<div class="pin-icon"><i class="fas fa-map-marker-alt"></i></div>',
+    iconSize: [40, 40],
+    iconAnchor: [20, 38]
+  });
+
+  L.marker([{{ place.latitude|default:32.38 }}, {{ place.longitude|default:48.42 }}], {
+    icon: icon
+  }).addTo(map);
+
+  // استایل آیکون
+  var style = document.createElement('style');
+  style.textContent = `
+    .custom-pin {
+      background: transparent;
+      border: none;
     }
     
-    // ===== لایت‌باکس =====
-    window.openLightbox = function(src) {
-      var lightbox = document.createElement('div');
-      lightbox.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:9999; cursor:pointer;';
-      lightbox.innerHTML = '<img src="' + src + '" style="max-width:90%; max-height:90%; border-radius:15px;">';
-      lightbox.onclick = function() { document.body.removeChild(lightbox); };
-      document.body.appendChild(lightbox);
-    };
-  });
-</script>
+    .pin-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 50% 50% 50% 0;
+      background: linear-gradient(135deg, #118b71, #2a9d8f);
+      transform: rotate(-45deg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 5px 15px rgba(17,139,113,0.4);
+      border: 3px solid #fff;
+    }
+    
+    .pin-icon i {
+      transform: rotate(45deg);
+      color: #fff;
+      font-size: 16px;
+    }
+  `;
+  document.head.appendChild(style);
+
+  // ===== اشتراک‌گذاری =====
+  var shareBtn = document.querySelector('[data-share]');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', function () {
+      if (navigator.share) {
+        navigator.share({
+          title: '{{ place.name }}',
+          text: '{{ place.short_description }}',
+          url: window.location.href
+        });
+      } else {
+        navigator.clipboard.writeText(window.location.href);
+        alert('لینک کپی شد!');
+      }
+    });
+  }
+
+  // ===== لایت‌باکس =====
+  window.openLightbox = function (src) {
+    var lightbox = document.createElement('div');
+    lightbox.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:9999; cursor:pointer;';
+    lightbox.innerHTML = '<img src="' + src + '" style="max-width:90%; max-height:90%; border-radius:15px;">';
+    lightbox.onclick = function () { document.body.removeChild(lightbox); };
+    document.body.appendChild(lightbox);
+  };
+});
+  </script>
 </body>
+
 </html>

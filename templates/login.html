@@ -5,9 +5,235 @@
 <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ورود | سفر به دزفول</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="{% static 'css/style.css' %}"><link rel="stylesheet" href="{% static 'css/account.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+<style>
+  /* ===== استایل‌های صفحه ورود ===== */
+  .auth-page {
+    min-height: 100vh;
+    padding: 60px 0 80px;
+    background: linear-gradient(135deg, #f8f5f0 0%, #f0ece4 100%);
+  }
+  
+  .auth-container {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .messages-stack {
+    margin-bottom: 30px;
+  }
+  
+  .site-message {
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .site-message.success {
+    background: rgba(17,139,113,0.1);
+    color: var(--primary-green);
+  }
+  
+  .site-message.error {
+    background: rgba(255,80,80,0.1);
+    color: var(--brick-orange);
+  }
+  
+  .auth-card {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+  }
+  
+  .auth-visual {
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    padding: 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #fff;
+  }
+  
+  .visual-badge {
+    width: 70px;
+    height: 70px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 25px;
+  }
+  
+  .auth-visual h1 {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 15px;
+  }
+  
+  .auth-visual h1 span {
+    color: #f4d03f;
+  }
+  
+  .auth-visual p {
+    font-size: 1rem;
+    opacity: 0.9;
+    line-height: 1.8;
+    margin-bottom: 20px;
+  }
+  
+  .login-decoration {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.85rem;
+    opacity: 0.7;
+  }
+  
+  .auth-form-side {
+    padding: 50px;
+  }
+  
+  .form-card-head {
+    margin-bottom: 30px;
+  }
+  
+  .form-card-head span {
+    display: inline-block;
+    font-size: 0.8rem;
+    color: var(--primary-green);
+    font-weight: 700;
+    background: rgba(17,139,113,0.08);
+    padding: 5px 15px;
+    border-radius: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .form-card-head h2 {
+    font-size: 1.8rem;
+    font-weight: 900;
+    color: var(--brown-text);
+    margin-bottom: 5px;
+  }
+  
+  .form-card-head p {
+    font-size: 0.9rem;
+    color: var(--brown-light);
+  }
+  
+  .smart-form label {
+    display: block;
+    margin-bottom: 20px;
+  }
+  
+  .smart-form label span {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--brown-text);
+    margin-bottom: 10px;
+  }
+  
+  .smart-form .input-wrap {
+    position: relative;
+  }
+  
+  .smart-form .input-wrap i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--brown-light);
+    font-size: 1rem;
+    transition: color 0.3s;
+  }
+  
+  .smart-form .input-wrap input {
+    width: 100%;
+    padding: 14px 45px 14px 15px;
+    border: 2px solid rgba(17,139,113,0.1);
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--brown-text);
+    background: var(--cream-bg);
+    outline: none;
+    transition: all 0.3s ease;
+  }
+  
+  .smart-form .input-wrap input:focus {
+    border-color: var(--primary-green);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(17,139,113,0.08);
+  }
+  
+  .smart-form .input-wrap:focus-within i {
+    color: var(--primary-green);
+  }
+  
+  .form-submit {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 14px;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    color: #fff;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    box-shadow: 0 8px 25px rgba(17,139,113,0.25);
+  }
+  
+  .form-submit:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(17,139,113,0.35);
+  }
+  
+  .switch-auth {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 0.9rem;
+    color: var(--brown-light);
+  }
+  
+  .switch-auth a {
+    color: var(--primary-green);
+    font-weight: 700;
+    text-decoration: none;
+  }
+  
+  @media (max-width: 992px) {
+    .auth-card {
+      grid-template-columns: 1fr;
+    }
+    
+    .auth-visual {
+      padding: 30px;
+    }
+    
+    .auth-form-side {
+      padding: 30px;
+    }
+  }
+</style>
 </head>
 <body>
 <div class="overlay" id="menuOverlay"></div>
@@ -20,7 +246,7 @@
     <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
     <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
     <a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
-    <a href="{% url 'contact' %}" class="active"><i class="fas fa-headset"></i> تماس با ما</a>
+    <a href="{% url 'contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
     <div class="auth-mobile">
       {% if user.is_authenticated %}
       <a href="{% url 'logout' %}" class="btn-outline-mobile"><i class="fas fa-sign-out-alt"></i> خروج</a>
@@ -41,19 +267,62 @@
   </div>
   <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
 </header>
-<main class="account-page auth-page"><div class="account-orb orb-one"></div><div class="account-orb orb-two"></div><div class="container auth-container">
-{% if messages %}<div class="messages-stack">{% for message in messages %}<div class="site-message {{ message.tags }}"><i class="fas fa-exclamation-circle"></i>{{ message }}</div>{% endfor %}</div>{% endif %}
-
-<div class="auth-card login-card">
-  <div class="auth-visual"><div class="visual-badge"><i class="fas fa-compass"></i></div><h1>دوباره به <span>دزفول</span> برگرد</h1><p>وارد حساب خود شو و سفرهای ذخیره‌شده و برنامه‌های شخصی‌ات را ادامه بده.</p><div class="login-decoration"><i class="fas fa-location-dot"></i><span>Discover • Plan • Travel</span></div></div>
-  <div class="auth-form-side"><div class="form-card-head"><span>خوش برگشتی</span><h2>ورود به حساب</h2><p>نام کاربری و رمز عبورت را وارد کن.</p></div>
-  <form method="post" class="smart-form">{% csrf_token %}<input type="hidden" name="next" value="{{ next_url }}">
-    <label><span>نام کاربری</span><div class="input-wrap"><i class="fas fa-user"></i><input name="username" required autofocus placeholder="نام کاربری"></div></label>
-    <label><span>رمز عبور</span><div class="input-wrap"><i class="fas fa-lock"></i><input type="password" name="password" required placeholder="رمز عبور"></div></label>
-    <button class="form-submit" type="submit"><span>ورود به حساب</span><i class="fas fa-arrow-left"></i></button>
-  </form><p class="switch-auth">حساب نداری؟ <a href="{% url 'register' %}">ثبت‌نام کن</a></p></div>
-</div>
-</div></main>
+<main class="auth-page">
+  <div class="container auth-container">
+    {% if messages %}
+    <div class="messages-stack">
+      {% for message in messages %}
+      <div class="site-message {{ message.tags }}">
+        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+        {{ message }}
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    
+    <div class="auth-card login-card">
+      <div class="auth-visual">
+        <div class="visual-badge"><i class="fas fa-compass"></i></div>
+        <h1>دوباره به <span>دزفول</span> برگرد</h1>
+        <p>وارد حساب خود شو و سفرهای ذخیره‌شده و برنامه‌های شخصی‌ات را ادامه بده.</p>
+        <div class="login-decoration">
+          <i class="fas fa-location-dot"></i>
+          <span>Discover • Plan • Travel</span>
+        </div>
+      </div>
+      <div class="auth-form-side">
+        <div class="form-card-head">
+          <span>خوش برگشتی</span>
+          <h2>ورود به حساب</h2>
+          <p>نام کاربری و رمز عبورت را وارد کن.</p>
+        </div>
+        <form method="post" class="smart-form">
+          {% csrf_token %}
+          <input type="hidden" name="next" value="{{ next_url }}">
+          <label>
+            <span>نام کاربری</span>
+            <div class="input-wrap">
+              <i class="fas fa-user"></i>
+              <input name="username" required autofocus placeholder="نام کاربری">
+            </div>
+          </label>
+          <label>
+            <span>رمز عبور</span>
+            <div class="input-wrap">
+              <i class="fas fa-lock"></i>
+              <input type="password" name="password" required placeholder="رمز عبور">
+            </div>
+          </label>
+          <button class="form-submit" type="submit">
+            <span>ورود به حساب</span>
+            <i class="fas fa-arrow-left"></i>
+          </button>
+        </form>
+        <p class="switch-auth">حساب نداری؟ <a href="{% url 'register' %}">ثبت‌نام کن</a></p>
+      </div>
+    </div>
+  </div>
+</main>
 <footer class="footer">
   <div class="container">
     <div class="footer-grid">
@@ -80,4 +349,5 @@
   </div>
 </footer>
 <script src="{% static 'js/script.js' %}"></script>
-</body></html>
+</body>
+</html>
