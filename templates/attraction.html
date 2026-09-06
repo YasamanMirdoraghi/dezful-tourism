@@ -469,7 +469,6 @@
 	</header>
 
 	<!-- اسلایدر مجله - داینامیک از دیتابیس -->
-	<!-- اسلایدر مجله - داینامیک از دیتابیس -->
 	<section class="section-magazine-slider" id="magazineSlider"
 		style="background-image: url('{% static 'img/slide1.webp' %}'); background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 0.8s ease;">
 		<div class="container">
@@ -685,7 +684,6 @@
 		}
 
 		// ساخت کارت جاذبه
-		// ساخت کارت جاذبه
 function createCard(place) {
     const card = document.createElement('div');
     card.className = 'attraction-card';
@@ -695,8 +693,12 @@ function createCard(place) {
 
     const costText = place.cost === 0 ? 'رایگان' : faNum(place.cost.toLocaleString()) + ' تومان';
 
+
+
     // استفاده از slug برای پیدا کردن عکس با پسوندهای مختلف
     const imageUrl = `/static/img/${place.slug}.jpg`;
+
+
 
     card.innerHTML = `
         <div class="attraction-img">
