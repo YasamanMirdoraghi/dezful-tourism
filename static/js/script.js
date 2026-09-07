@@ -48,9 +48,6 @@ if (navbar) {
 // ==========================================================
 // بخش اسلایدر اصلی هیرو
 // ==========================================================
-// ==========================================================
-// بخش اسلایدر اصلی هیرو
-// ==========================================================
 const slides = document.querySelectorAll('.slider-slide');
 const dots = document.querySelectorAll('.dot-nav');
 const prevBtn = document.getElementById('prevBtn');
@@ -85,6 +82,7 @@ if (slides.length > 0 && dots.length > 0 && prevBtn && nextBtn && sliderContaine
 	sliderContainer.addEventListener('mouseenter', () => clearInterval(slideInterval));
 	sliderContainer.addEventListener('mouseleave', startInterval);
 }
+
 // ==========================================================
 // انیمیشن شمارنده آمار (Intersection Observer)
 // ==========================================================
@@ -117,9 +115,6 @@ if (statNumbers.length > 0) {
 	statNumbers.forEach(num => counterObserver.observe(num));
 }
 
-// ==========================================================
-// عملکرد اسلایدرهای کارتی (Responsive)
-// ==========================================================
 // ==========================================================
 // عملکرد اسلایدرهای کارتی (Responsive)
 // ==========================================================
@@ -186,12 +181,6 @@ initCardSlider('plansTrack', 'plansPrev', 'plansNext');
 initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 
 // ==========================================================
-// اسلایدر مجله گردشگری (از دیتابیس)
-// ==========================================================
-// ==========================================================
-// اسلایدر مجله گردشگری (با پس‌زمینه متغیر)
-// ==========================================================
-// ==========================================================
 // اسلایدر مجله گردشگری (با پس‌زمینه متغیر)
 // ==========================================================
 (function () {
@@ -209,19 +198,14 @@ initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 	let currentIndex = 0;
 	let autoSlideInterval, progressInterval;
 
-	// تابع تغییر پس‌زمینه سکشن - از عکس لود شده اسلایدر استفاده می‌کنه
-	// تابع تغییر پس‌زمینه سکشن - از عکس لود شده اسلایدر استفاده می‌کنه
-	// تابع تغییر پس‌زمینه سکشن - از عکس لود شده اسلایدر استفاده می‌کنه
 	function changeBackground(index) {
 		if (magazineSlider && slides[index]) {
 			const img = slides[index].querySelector('.slide-image-mag img');
 
 			if (img) {
-				// اگر عکس لود شده، پس‌زمینه رو ست کن
 				if (img.complete) {
 					magazineSlider.style.backgroundImage = `url('${img.src}')`;
 				} else {
-					// اگر هنوز لود نشده، منتظر باش تا لود بشه
 					img.onload = function () {
 						magazineSlider.style.backgroundImage = `url('${img.src}')`;
 					};
@@ -245,7 +229,6 @@ initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 			el.classList.toggle('active-item-h-mag', i === index);
 		});
 
-		// تغییر پس‌زمینه سکشن - از عکس لود شده استفاده می‌کنه
 		changeBackground(index);
 
 		resetProgress();
@@ -284,7 +267,6 @@ initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 		}, 6500);
 	}
 
-	// کلیک روی آیتم‌های لیست
 	listContainer.querySelectorAll('.list-item-h-mag').forEach((item, index) => {
 		item.addEventListener('click', function () {
 			const idx = parseInt(this.dataset.index, 10);
@@ -295,11 +277,9 @@ initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 		});
 	});
 
-	// شروع
 	goToSlide(0);
 	resetAutoSlide();
 
-	// ریسپانسیو
 	window.addEventListener('resize', function () {
 		slidesTrack.style.transition = 'none';
 		slidesTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
@@ -308,6 +288,7 @@ initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 		});
 	});
 })();
+
 // ----- دکمه اسکرول به بالا -----
 const scrollBtn = document.getElementById('scrollTop');
 if (scrollBtn) {
@@ -585,94 +566,157 @@ if (scrollBtn) {
 		$('rvDetails').textContent = `${trav.options[trav.selectedIndex].text} • بودجه: ${bud.options[bud.selectedIndex].text} • ${child ? 'کودک همراه دارد' : 'بدون کودک'}`;
 	}
 
-	const REAL_PLACES = [
-		{ id: 1, name: 'پل قدیم دزفول', category: 'تاریخی', cost: 0, duration: 90, lat: 32.3833, lng: 48.4000, is_child_friendly: true, image: './img/pl-e-ghadim.jpg' },
-		{ id: 2, name: 'آبشار شوی', category: 'طبیعی', cost: 0, duration: 120, lat: 32.8833, lng: 48.5000, is_child_friendly: false, image: './img/abshear-shooy.jpg' },
-		{ id: 3, name: 'بازار کهنه دزفول', category: 'تفریحی', cost: 50000, duration: 60, lat: 32.3733, lng: 48.4100, is_child_friendly: true, image: './img/bazar-kohneh.jpg' },
-		{ id: 4, name: 'خانه تیزنو', category: 'تاریخی', cost: 0, duration: 45, lat: 32.3900, lng: 48.4150, is_child_friendly: true, image: './img/khaneh-tizno.jpg' },
-		{ id: 5, name: 'دره کول خرسان', category: 'طبیعی', cost: 0, duration: 150, lat: 32.7833, lng: 48.6000, is_child_friendly: false, image: './img/darreh-kool.jpg' },
-		{ id: 6, name: 'پارک ساحلی دولت', category: 'تفریحی', cost: 20000, duration: 90, lat: 32.3700, lng: 48.3900, is_child_friendly: true, image: './img/park-dolat.jpg' },
-		{ id: 7, name: 'مسجد جامع دزفول', category: 'تاریخی', cost: 0, duration: 60, lat: 32.3850, lng: 48.4050, is_child_friendly: true, image: './img/masjed-jameh.jpg' },
-		{ id: 8, name: 'دانشگاه جندی شاپور', category: 'تاریخی', cost: 0, duration: 45, lat: 32.3500, lng: 48.4200, is_child_friendly: true, image: './img/jondishapour.jpg' },
-		{ id: 9, name: 'رودخانه دز', category: 'طبیعی', cost: 0, duration: 60, lat: 32.3600, lng: 48.3800, is_child_friendly: true, image: './img/roodkhaneh-dez.jpg' },
-		{ id: 10, name: 'تفرجگاه علی‌کله', category: 'تفریحی', cost: 30000, duration: 90, lat: 32.3800, lng: 48.3700, is_child_friendly: true, image: './img/alikaleh.jpg' },
-		{ id: 11, name: 'آسیاب‌های آبی دزفول', category: 'تاریخی', cost: 0, duration: 30, lat: 32.3880, lng: 48.4080, is_child_friendly: true, image: './img/asiyab-haye-abi.jpg' },
-		{ id: 12, name: 'دژ محمدعلی‌خان', category: 'تاریخی', cost: 0, duration: 45, lat: 32.3950, lng: 48.4120, is_child_friendly: true, image: './img/dezh-mohammad.jpg' },
-		{ id: 13, name: 'موزه دزفول', category: 'تاریخی', cost: 30000, duration: 60, lat: 32.3820, lng: 48.4020, is_child_friendly: true, image: './img/moze-dezfool.jpg' },
-		{ id: 14, name: 'پارک جنگلی دزفول', category: 'تفریحی', cost: 10000, duration: 120, lat: 32.3500, lng: 48.4500, is_child_friendly: true, image: './img/park-jangali.jpg' }
-	];
+	// ==========================================================
+	// داده‌های جاذبه‌ها از دیتابیس (از طریق window.REAL_PLACES)
+	// ==========================================================
+	const REAL_PLACES = window.REAL_PLACES || [];
 
-	const RATINGS = {
-		'پل قدیم دزفول': 4.8, 'آبشار شوی': 4.7, 'بازار کهنه دزفول': 4.5,
-		'خانه تیزنو': 4.2, 'دره کول خرسان': 4.3, 'پارک ساحلی دولت': 4.0,
-		'مسجد جامع دزفول': 4.6, 'دانشگاه جندی شاپور': 4.4, 'رودخانه دز': 4.1,
-		'تفرجگاه علی‌کله': 3.9, 'آسیاب‌های آبی دزفول': 4.3, 'دژ محمدعلی‌خان': 4.0,
-		'موزه دزفول': 4.2, 'پارک جنگلی دزفول': 3.8
-	};
-
+	// ==========================================================
+	// الگوریتم پیشنهاددهی - تفکیک سلیقه‌ها و تولید برنامه
+	// ==========================================================
 	const FAMOUS = ['پل قدیم دزفول', 'آبشار شوی', 'بازار کهنه دزفول', 'مسجد جامع دزفول', 'دانشگاه جندی شاپور'];
 
+	// امتیازدهی به جاذبه‌ها بر اساس نیازها
+	function scorePlace(place, cats, opt) {
+		let score = 0;
+		
+		// امتیاز دسته‌بندی (۳۰٪)
+		if (cats.includes(place.category)) {
+			score += 30;
+		} else if (cats.some(c => place.category.includes(c) || c.includes(place.category))) {
+			score += 20;
+		} else {
+			score += 5;
+		}
+
+		// امتیاز بودجه (۲۰٪)
+		const budgetMax = Number(opt.budgetStr.split('-')[1]) || 5000000;
+		if (place.cost === 0) {
+			score += 20;
+		} else if (place.cost <= budgetMax * 0.2) {
+			score += 18;
+		} else if (place.cost <= budgetMax * 0.5) {
+			score += 14;
+		} else if (place.cost <= budgetMax) {
+			score += 8;
+		} else {
+			score += 2;
+		}
+
+		// امتیاز خانوادگی (۱۵٪)
+		if (opt.hasChild || opt.family) {
+			score += place.is_child_friendly ? 15 : 0;
+		} else {
+			score += 10;
+		}
+
+		// امتیاز زمان بازدید (۱۵٪)
+		if (place.duration <= 60) {
+			score += 15;
+		} else if (place.duration <= 90) {
+			score += 12;
+		} else if (place.duration <= 120) {
+			score += 9;
+		} else {
+			score += 5;
+		}
+
+		// امتیاز محبوبیت (۱۰٪)
+		if (place.views) {
+			score += Math.min(10, (place.views / 1000) * 2);
+		} else {
+			score += 5;
+		}
+
+		// امتیاز امتیاز کاربران (۱۰٪)
+		score += (place.rating || 3.5) / 5 * 10;
+
+		return Math.round(score);
+	}
+
+	// تابع اصلی پیشنهاددهی
 	function getRecommendations(cats, opt) {
-		const maxB = Number(opt.budgetStr.split('-')[1]) || 5000000;
+		const budgetMax = Number(opt.budgetStr.split('-')[1]) || 5000000;
+		const budgetMin = Number(opt.budgetStr.split('-')[0]) || 0;
+		
+		// اعمال امتیازدهی
+		const scored = REAL_PLACES.map(p => ({
+			...p,
+			score: scorePlace(p, cats, opt)
+		}));
 
-		const scored = REAL_PLACES.map(p => {
-			const catS = cats.includes(p.category) ? 100 : 30;
-			const budS = p.cost === 0 ? 100 : (p.cost <= maxB * 0.2 ? 90 : p.cost <= maxB * 0.5 ? 70 : p.cost <= maxB ? 40 : 10);
-			const childS = (opt.hasChild || opt.family) ? (p.is_child_friendly ? 100 : 0) : 70;
-			const durS = p.duration <= 60 ? 100 : p.duration <= 90 ? 85 : p.duration <= 120 ? 65 : 45;
-			const famS = FAMOUS.includes(p.name) ? 100 : 30;
-			const ratS = ((RATINGS[p.name] || 3.5) / 5) * 100;
-			return { ...p, score: Math.round(catS * .3 + budS * .25 + childS * .15 + durS * .1 + famS * .1 + ratS * .1) };
-		});
-
+		// مرتب‌سازی بر اساس امتیاز
 		scored.sort((a, b) => b.score - a.score);
 
-		const maxDays = Math.max(1, Math.min(opt.duration, 7));
-		const perDay = Math.min(4, Math.max(2, Math.ceil(scored.length / maxDays)));
+		// فیلتر بر اساس بودجه
+		const filtered = scored.filter(p => 
+			p.cost === 0 || (p.cost >= budgetMin * 0.3 && p.cost <= budgetMax * 1.2)
+		);
+
+		// تعداد روزهای سفر
+		const maxDays = Math.min(7, opt.duration);
+		const placesPerDay = Math.min(4, Math.max(2, Math.ceil(filtered.length / maxDays)));
+
+		// مرکز شهر دزفول
 		const center = { lat: 32.3833, lng: 48.4000 };
 
-		const prox = (la, ln) => {
-			const d = calcDistance(la, ln, center.lat, center.lng);
-			return d <= 2 ? 100 : d <= 5 ? 80 : d <= 10 ? 60 : d <= 20 ? 40 : 20;
+		// تابع امتیاز نزدیکی
+		const proximityScore = (lat, lng) => {
+			const dist = calcDistance(lat, lng, center.lat, center.lng);
+			return dist <= 2 ? 100 : dist <= 5 ? 80 : dist <= 10 ? 60 : dist <= 20 ? 40 : 20;
 		};
 
 		const usedIds = new Set();
 		const days = [];
 
 		for (let day = 0; day < maxDays; day++) {
-			const rem = scored.filter(p => !usedIds.has(p.id));
-			if (!rem.length) break;
+			const remaining = filtered.filter(p => !usedIds.has(p.id));
+			if (!remaining.length) break;
 
-			let anchor = rem[0], best = -1;
-			rem.forEach(p => {
-				const s = p.score * 0.6 + prox(p.lat, p.lng) * 0.4;
-				if (s > best) { best = s; anchor = p; }
+			// انتخاب جاذبه اول: ترکیب امتیاز و نزدیکی
+			let anchor = remaining[0];
+			let bestScore = -Infinity;
+			remaining.forEach(p => {
+				const s = p.score * 0.7 + proximityScore(p.lat, p.lng) * 0.3;
+				if (s > bestScore) { bestScore = s; anchor = p; }
 			});
 
 			const dayPlaces = [anchor];
 			usedIds.add(anchor.id);
 
-			while (dayPlaces.length < perDay) {
-				let next = null, bestS = -Infinity;
+			// پر کردن بقیه روز
+			while (dayPlaces.length < placesPerDay) {
 				const last = dayPlaces[dayPlaces.length - 1];
-				rem.forEach(p => {
+				let nextPlace = null;
+				let best = -Infinity;
+
+				remaining.forEach(p => {
 					if (usedIds.has(p.id)) return;
-					const d = calcDistance(last.lat, last.lng, p.lat, p.lng);
-					let s = p.score * 0.5 + prox(p.lat, p.lng) * 0.2 - d * 0.8;
-					if (d > 30) s -= 20;
-					if (s > bestS) { bestS = s; next = p; }
+					const dist = calcDistance(last.lat, last.lng, p.lat, p.lng);
+					const s = p.score * 0.5 + proximityScore(p.lat, p.lng) * 0.2 - dist * 0.8;
+					if (s > best) { best = s; nextPlace = p; }
 				});
-				if (!next) break;
-				dayPlaces.push(next);
-				usedIds.add(next.id);
+
+				if (!nextPlace) break;
+				dayPlaces.push(nextPlace);
+				usedIds.add(nextPlace.id);
 			}
 
-			dayPlaces.sort((a, b) => calcDistance(center.lat, center.lng, a.lat, a.lng) - calcDistance(center.lat, center.lng, b.lat, b.lng));
+			// مرتب‌سازی بر اساس فاصله از مرکز
+			dayPlaces.sort((a, b) => 
+				calcDistance(center.lat, center.lng, a.lat, a.lng) - 
+				calcDistance(center.lat, center.lng, b.lat, b.lng)
+			);
+
 			days.push(dayPlaces);
 		}
+
 		return days;
 	}
 
+	// ==========================================================
+	// نمایش نتایج
+	// ==========================================================
 	let plannerMeta = null, activeTab = 'all';
 	const faTime = m => `${faNum(Math.floor(m / 60))}:${faNum(pad2(m % 60))}`;
 
@@ -699,6 +743,49 @@ if (scrollBtn) {
 		document.body.style.overflow = 'hidden';
 		renderAll();
 		$('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+		// ===== ذخیره سفر در دیتابیس (اگر کاربر لاگین شده باشد) =====
+		saveTripToDatabase(cats, days);
+	}
+
+	// تابع ذخیره سفر در دیتابیس
+	function saveTripToDatabase(cats, days) {
+		// بررسی لاگین بودن کاربر
+		const isLoggedIn = document.querySelector('#navbar .nav-user') !== null;
+		
+		if (!isLoggedIn) {
+			showToast('برای ذخیره سفر، ابتدا وارد حساب کاربری خود شوید');
+			setTimeout(() => {
+				window.location.href = '/login/?next=/plan/';
+			}, 2000);
+			return;
+		}
+
+		// پر کردن فرم مخفی
+		$('saveStartDate').value = `${tripStart.jy}/${pad2(tripStart.jm)}/${pad2(tripStart.jd)}`;
+		$('saveEndDate').value = `${tripEnd.jy}/${pad2(tripEnd.jm)}/${pad2(tripEnd.jd)}`;
+		$('saveDurationDays').value = tripEnd.jdn - tripStart.jdn + 1;
+		$('saveCompanions').value = $('travelersCount').value;
+		$('saveHasChildren').value = document.querySelector('input[name="hasChild"]:checked').value;
+		$('saveBudgetToman').value = $('budgetRange').value;
+		$('saveInterests').value = JSON.stringify(cats);
+		
+		// داده‌های جاذبه‌های پیشنهادی
+		const allPlaces = days.flat();
+		const placesData = allPlaces.map(p => ({
+			id: p.id,
+			name: p.name,
+			lat: p.lat,
+			lng: p.lng,
+			category: p.category,
+			cost: p.cost,
+			duration: p.duration,
+			score: p.score
+		}));
+		$('saveSuggestedPlaces').value = JSON.stringify(placesData);
+
+		// ارسال فرم
+		$('saveTripForm').submit();
 	}
 
 	$('editPlanBtn').addEventListener('click', () => {
@@ -727,29 +814,34 @@ if (scrollBtn) {
 	const distTxt = km => km < 1 ? `${faNum(Math.round(km * 1000))} متر` : `حدود ${faNum(Math.round(km))} کیلومتر`;
 
 	function cardsHtml(dayPlaces, di) {
-		return schedule(dayPlaces).map((it, idx) => `
-    <div class="place-row">
-        <span class="place-num">${faNum(idx + 1)}</span>
-        <div class="place-card">
-            <img class="pc-img" src="${it.p.image}" alt="${it.p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-            <div class="pc-info">
-                <h4>${it.p.name}</h4>
-                <div class="pc-time">🕒 ${faTime(it.s)} تا ${faTime(it.e)}</div>
-                <div class="pc-meta">
-                    <span>🏷️ ${it.p.category}</span>
-                    <span>💰 ${it.p.cost === 0 ? 'رایگان' : faNum(it.p.cost.toLocaleString()) + ' تومان'}</span>
+    return schedule(dayPlaces).map((it, idx) => {
+        // اطمینان از وجود تصویر
+        const imgSrc = it.p.image || '/static/img/asiyab-haye-abi.jpg';
+        
+        return `
+        <div class="place-row">
+            <span class="place-num">${faNum(idx + 1)}</span>
+            <div class="place-card">
+                <img class="pc-img" src="${imgSrc}" alt="${it.p.name}" onerror="this.src='/static/img/asiyab-haye-abi.jpg'">
+                <div class="pc-info">
+                    <h4>${it.p.name}</h4>
+                    <div class="pc-time">🕒 ${faTime(it.s)} تا ${faTime(it.e)}</div>
+                    <div class="pc-meta">
+                        <span>🏷️ ${it.p.category}</span>
+                        <span>💰 ${it.p.cost === 0 ? 'رایگان' : faNum(it.p.cost.toLocaleString()) + ' تومان'}</span>
+                    </div>
+                </div>
+                <div class="pc-side">
+                    <span class="dist-chip">${idx === 0 ? '🚩 شروع روز' : '🚗 ' + distTxt(it.dist)}</span>
+                    <div class="pc-actions">
+                        <span class="pc-score">⭐ ${faNum(it.p.score)}</span>
+                        <button type="button" class="icon-btn pc-more" data-day="${di}" data-idx="${idx}" title="گزینه‌های بیشتر"><i class="fas fa-ellipsis-h"></i></button>
+                    </div>
                 </div>
             </div>
-            <div class="pc-side">
-                <span class="dist-chip">${idx === 0 ? '🚩 شروع روز' : '🚗 ' + distTxt(it.dist)}</span>
-                <div class="pc-actions">
-                    <span class="pc-score">⭐ ${faNum(it.p.score)}</span>
-                    <button type="button" class="icon-btn pc-more" data-day="${di}" data-idx="${idx}" title="گزینه‌های بیشتر"><i class="fas fa-ellipsis-h"></i></button>
-                </div>
-            </div>
-        </div>
-    </div>`).join('');
-	}
+        </div>`;
+    }).join('');
+}
 
 	function renderAll() {
 		if (!plannerMeta || !plannerMeta.days.length) return;

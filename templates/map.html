@@ -425,8 +425,13 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         <a href="{% url 'contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
     </nav>
     <div class="auth-buttons">
-        <a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-        <a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+        {% if user.is_authenticated %}
+        <span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
+        <a href="{% url 'logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
+        {% else %}
+        <a href="{% url 'register' %}" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+        <a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+        {% endif %}
         <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
     </div>
 </header>
@@ -528,36 +533,16 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
-    // ---------- متادیتای دسته‌ها ----------
-    const CAT_META = {
-        'تاریخ‌گردی':      { color: '#c45a3c', icon: 'fa-landmark' },
-        'طبیعت‌گردی':      { color: '#2a9d8f', icon: 'fa-tree' },
-        'گردشگری تفریحی': { color: '#f4a62a', icon: 'fa-umbrella-beach' },
-        'گردشگری مذهبی':  { color: '#7a4a9f', icon: 'fa-mosque' },
-        'گردشگری ورزشی':  { color: '#4a7a9f', icon: 'fa-biking' },
-        'شهرگردی':         { color: '#8b7355', icon: 'fa-city' }
-    };
+    // ---------- داده‌های جاذبه‌ها از دیتابیس ----------
+    const MAP_PLACES = {{ places_json|safe }};
 
-    // ---------- داده‌ی جاذبه‌ها ----------
-    const MAP_PLACES = [
-        { id:1, name:'پل قدیم دزفول', cat:'تاریخ‌گردی', sub:'اثر تاریخی', cost:0, duration:90, rating:4.8, child:true, lat:32.3811, lng:48.4032, image:"{% static 'img/pl-e-ghadim.jpg' %}", desc:'کهن‌ترین پل جهان با قدمت ساسانی، نماد معماری باستانی ایران' },
-        { id:2, name:'آبشار شوی', cat:'طبیعت‌گردی', sub:'تنگه', cost:0, duration:120, rating:4.7, child:false, lat:32.7867, lng:48.7133, image:"{% static 'img/abshear-shooy.jpg' %}", desc:'بلندترین آبشار فصلی خوزستان با ارتفاع ۸۵ متر' },
-        { id:3, name:'بازار کهنه دزفول', cat:'گردشگری تفریحی', sub:'سایر', cost:50000, duration:60, rating:4.5, child:true, lat:32.3795, lng:48.4048, image:"{% static 'img/bazar-kohneh.jpg' %}", desc:'بازار سنتی با معماری اصیل و غرفه‌های صنایع دستی' },
-        { id:4, name:'خانه تیزنو', cat:'تاریخ‌گردی', sub:'خانه موزه', cost:0, duration:45, rating:4.2, child:true, lat:32.3842, lng:48.4061, image:"{% static 'img/khaneh-tizno.jpg' %}", desc:'خانه‌ی تاریخی با معماری قاجاری در بافت قدیم دزفول' },
-        { id:5, name:'دره کول خرسان', cat:'طبیعت‌گردی', sub:'ماجراجویانه', cost:0, duration:150, rating:4.3, child:false, lat:32.6950, lng:48.6420, image:"{% static 'img/darreh-kool.jpg' %}", desc:'منطقه‌ای بکر و هیجان‌انگیز برای طبیعت‌گردی' },
-        { id:6, name:'پارک ساحلی دولت', cat:'گردشگری تفریحی', sub:'تفریحات دریایی', cost:20000, duration:90, rating:4.0, child:true, lat:32.3760, lng:48.3965, image:"{% static 'img/park-dolat.jpg' %}", desc:'تفرجگاه در حاشیه رودخانه دز با امکانات تفریحی' },
-        { id:7, name:'مسجد جامع دزفول', cat:'گردشگری مذهبی', sub:'مسجد', cost:0, duration:60, rating:4.6, child:true, lat:32.3830, lng:48.4055, image:"{% static 'img/masjed-jameh.jpg' %}", desc:'اولین و قدیمی‌ترین مسجد دزفول با معماری ساسانی' },
-        { id:8, name:'دانشگاه جندی شاپور', cat:'تاریخ‌گردی', sub:'کاخ', cost:0, duration:45, rating:4.4, child:true, lat:32.2850, lng:48.5260, image:"{% static 'img/jondishapour.jpg' %}", desc:'یادگار تمدن کهن؛ نماد علمی و تاریخی شهرستان دزفول' },
-        { id:9, name:'رودخانه دز', cat:'طبیعت‌گردی', sub:'دریاچه و تالاب', cost:0, duration:60, rating:4.1, child:true, lat:32.3660, lng:48.3890, image:"{% static 'img/roodkhaneh-dez.jpg' %}", desc:'رودخانه‌ای زیبا که از دل دزفول می‌گذرد' },
-        { id:10, name:'تفرجگاه علی‌کله', cat:'گردشگری تفریحی', sub:'تفریحات دریایی', cost:30000, duration:90, rating:3.9, child:true, lat:32.3910, lng:48.3820, image:"{% static 'img/alikaleh.jpg' %}", desc:'فضای سبز و تفریحی در حاشیه رودخانه دز' },
-        { id:11, name:'آسیاب‌های آبی دزفول', cat:'تاریخ‌گردی', sub:'اثر تاریخی', cost:0, duration:30, rating:4.3, child:true, lat:32.3788, lng:48.4005, image:"{% static 'img/asiyab-haye-abi.jpg' %}", desc:'آسیاب‌های تاریخی در حاشیه رودخانه دز' },
-        { id:12, name:'دژ محمدعلی‌خان', cat:'تاریخ‌گردی', sub:'قلعه', cost:0, duration:45, rating:4.0, child:true, lat:32.3990, lng:48.4120, image:"{% static 'img/dezh-mohammad.jpg' %}", desc:'دژ تاریخی با چشم‌انداز زیبا از شهر دزفول' },
-        { id:13, name:'موزه دزفول', cat:'تاریخ‌گردی', sub:'خانه موزه', cost:30000, duration:60, rating:4.2, child:true, lat:32.3825, lng:48.4020, image:"{% static 'img/moze-dezfool.jpg' %}", desc:'موزه مردم‌شناسی با اشیاء تاریخی ارزشمند' },
-        { id:14, name:'پارک جنگلی دزفول', cat:'گردشگری تفریحی', sub:'سایر', cost:10000, duration:120, rating:3.8, child:true, lat:32.3520, lng:48.4480, image:"{% static 'img/park-jangali.jpg' %}", desc:'فضای سبز و تفریحی با امکانات ورزشی' },
-        { id:15, name:'شهربازی دزفول', cat:'گردشگری تفریحی', sub:'شهربازی', cost:150000, duration:120, rating:4.1, child:true, lat:32.3650, lng:48.4350, image:"{% static 'img/slide3.jpg' %}", desc:'مجموعه‌ای از بازی‌های مهیج برای خانواده‌ها' },
-        { id:16, name:'بوستان شهر دزفول', cat:'شهرگردی', sub:'پارک و بوستان', cost:0, duration:60, rating:3.9, child:true, lat:32.3800, lng:48.4150, image:"{% static 'img/slide2.jpg' %}", desc:'فضای سبز شهری در مرکز شهر' },
-        { id:17, name:'پیست دوچرخه‌سواری', cat:'گردشگری ورزشی', sub:'دوچرخه سواری', cost:0, duration:90, rating:4.0, child:true, lat:32.3580, lng:48.4620, image:"{% static 'img/slide1.webp' %}", desc:'مسیر استاندارد دوچرخه‌سواری' }
-    ];
+    // ---------- متادیتای دسته‌ها ----------
+    const CAT_META = {};
+    MAP_PLACES.forEach(p => {
+        if (!CAT_META[p.cat]) {
+            CAT_META[p.cat] = { color: '#118b71', icon: 'fa-map-marker-alt' };
+        }
+    });
 
     // ---------- وضعیت فیلترها ----------
     let activeCats = new Set();
@@ -580,27 +565,6 @@ body.page-map { padding: 0 !important; overflow: hidden; }
 
     const cluster = L.markerClusterGroup({ maxClusterRadius: 45, showCoverageOnHover: false });
     map.addLayer(cluster);
-
-    // ==========================================================
-    // 🔥 کنترلر مسیریاب (اینجا اضافه کن)
-    // ==========================================================
-    L.Routing.control({
-        waypoints: [
-            L.latLng(32.3833, 48.4000), // مرکز دزفول - نقطه شروع
-            L.latLng(32.4067, 48.4228)  // پارک خانواده دزفول - نقطه پایان
-        ],
-        routeWhileDragging: true,
-        router: L.Routing.osrmv1({
-            serviceUrl: 'https://routing.openstreetmap.de/routed-car/route/v1'
-        }),
-        showAlternatives: true,
-        altLineOptions: {
-            styles: [
-                { color: 'blue', opacity: 0.6, weight: 4 },
-                { color: 'red', opacity: 0.4, weight: 3 }
-            ]
-        }
-    }).addTo(map);
 
     // ---------- مارکرها ----------
     function pinIcon(p) {

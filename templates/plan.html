@@ -31,14 +31,23 @@
 			<a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
 			<a href="{% url 'contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
 			<div class="auth-mobile">
-				<a href="#" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-				<a href="#" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
+				{% if user.is_authenticated %}
+				<a href="{% url 'logout' %}" class="btn-outline-mobile"><i class="fas fa-sign-out-alt"></i> خروج</a>
+				{% else %}
+				<a href="{% url 'register' %}" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+				<a href="{% url 'login' %}" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
+				{% endif %}
 			</div>
 		</ul>
 
 		<div class="auth-buttons">
-			<a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-			<a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			{% if user.is_authenticated %}
+			<span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
+			<a href="{% url 'logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
+			{% else %}
+			<a href="{% url 'register' %}" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+			<a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			{% endif %}
 		</div>
 
 		<button class="hamburger" id="hamburgerBtn" aria-label="منو">
@@ -106,54 +115,31 @@
 					<div class="wz-hint" id="dateHint"></div>
 				</div>
 
-				<!-- مرحله ۲: علاقه‌مندی‌ها -->
+				<!-- مرحله ۲: علاقه‌مندی‌ها (داینامیک از دیتابیس) -->
 				<div class="wz-step" data-step="2">
 					<div class="interest-top">
 						<div>
 							<h3>دسته‌های مورد علاقه‌ات را انتخاب کن</h3>
 							<p>هر چندتا که دوست داری — می‌تونی چند مورد انتخاب کنی</p>
 						</div>
-						<span class="interest-count" id="interestCount">۰ از ۹</span>
+						<span class="interest-count" id="interestCount">۰ از {{ categories.count }}</span>
 					</div>
 					<a class="clear-link" id="clearInterests">پاک کردن انتخاب‌ها</a>
 
 					<div class="interest-grid">
-						<button type="button" class="interest-card" data-value="تاریخ‌گردی" data-maps="تاریخی">
+						{% for cat in categories %}
+						<button type="button" class="interest-card" data-value="{{ cat.name }}" data-maps="{{ cat.slug }}">
 							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">🏛️</span><span class="ic-label">تاریخ‌گردی</span>
+							<span class="ic-emoji">
+								{% if cat.icon %}
+								<i class="fas {{ cat.icon }}"></i>
+								{% else %}
+								<i class="fas fa-map-marker-alt"></i>
+								{% endif %}
+							</span>
+							<span class="ic-label">{{ cat.name }}</span>
 						</button>
-						<button type="button" class="interest-card" data-value="طبیعت‌گردی" data-maps="طبیعی">
-							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">🏞️</span><span class="ic-label">طبیعت‌گردی</span>
-						</button>
-						<button type="button" class="interest-card" data-value="گردشگری تفریحی" data-maps="تفریحی">
-							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">🎡</span><span class="ic-label">گردشگری تفریحی</span>
-						</button>
-						<button type="button" class="interest-card" data-value="خانوادگی">
-							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">👨‍👩‍👧‍👦</span><span class="ic-label">خانوادگی</span>
-						</button>
-						<button type="button" class="interest-card" data-value="فرهنگی">
-							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">🎭</span><span class="ic-label">فرهنگی</span>
-						</button>
-						<button type="button" class="interest-card" data-value="گردشگری مذهبی">
-							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">🕌</span><span class="ic-label">گردشگری مذهبی</span>
-						</button>
-						<button type="button" class="interest-card" data-value="از کجا بخریم؟">
-							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">🛍️</span><span class="ic-label">از کجا بخریم؟</span>
-						</button>
-						<button type="button" class="interest-card" data-value="گردشگری ورزشی">
-							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">🧗</span><span class="ic-label">گردشگری ورزشی</span>
-						</button>
-						<button type="button" class="interest-card" data-value="کنار رودخانه">
-							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">🌊</span><span class="ic-label">کنار رودخانه</span>
-						</button>
+						{% endfor %}
 					</div>
 					<div class="wz-hint" id="wzHint"></div>
 				</div>
@@ -272,6 +258,19 @@
 		</div>
 	</section>
 
+	<!-- فرم ذخیره سفر -->
+	<form method="post" action="{% url 'save_trip' %}" id="saveTripForm" style="display:none;">
+		{% csrf_token %}
+		<input type="hidden" name="start_date" id="saveStartDate">
+		<input type="hidden" name="end_date" id="saveEndDate">
+		<input type="hidden" name="duration_days" id="saveDurationDays">
+		<input type="hidden" name="companions" id="saveCompanions">
+		<input type="hidden" name="has_children" id="saveHasChildren">
+		<input type="hidden" name="budget_toman" id="saveBudgetToman">
+		<input type="hidden" name="interests" id="saveInterests">
+		<input type="hidden" name="suggested_places" id="saveSuggestedPlaces">
+	</form>
+
 	<!-- منوی گزینه‌ها -->
 	<div class="more-menu" id="moreMenu">
 		<button data-act="route"><i class="fas fa-map-marked-alt"></i> مسیریابی با نشان</button>
@@ -325,6 +324,10 @@
 	<button class="scroll-top" id="scrollTop" aria-label="اسکرول به بالا"><i class="fas fa-chevron-up"></i></button>
 
 	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script>
+		// داده‌های جاذبه‌ها از دیتابیس
+		window.REAL_PLACES = {{ places_json|safe }};
+	</script>
 	<script src="{% static 'js/script.js' %}"></script>
 </body>
 

@@ -1,13 +1,18 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib import messages
 from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout as auth_logout
+from django.db.models import Count, Avg
+from django.utils import timezone
+from datetime import datetime, timedelta
+import json
+import jdatetime
+
 from .models import (
     Place, Category, Article, Plan, Route, Review, User,
-    ArticleBlock, ArticleRelated, Contact
+    ArticleBlock, ArticleRelated, Contact, Trip
 )
-import json
-from django.db.models import Count, Avg
-from datetime import datetime, timedelta
 
 # ==========================================================
 # صفحه اصلی (خانه)
@@ -62,7 +67,7 @@ def attraction_page(request):
     })
 
 # ==========================================================
-# صفحه تکی جاذبه
+# صفحه تکی جاذبه (فقط یک نسخه - با گالری)
 # ==========================================================
 def place_detail_page(request, slug):
     place = get_object_or_404(Place, slug=slug, is_active=True)
@@ -70,11 +75,15 @@ def place_detail_page(request, slug):
     reviews = Review.objects.filter(place=place, is_approved=True).select_related('user')
     avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or place.rating_avg
     
+    # گالری تصاویر
+    gallery = place.gallery if place.gallery else []
+    
     return render(request, 'place_detail.html', {
         'place': place,
         'related_places': related_places,
         'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
+        'gallery': gallery,
     })
 
 # ==========================================================
@@ -254,40 +263,137 @@ def register_page(request):
     
     return render(request, 'register.html')
 
-
-from django.contrib.auth import logout as auth_logout
-
+# ==========================================================
+# خروج از حساب
+# ==========================================================
 def logout_view(request):
     auth_logout(request)
     return redirect('home')
-
-
-def place_detail_page(request, slug):
-    place = get_object_or_404(Place, slug=slug, is_active=True)
-    related_places = Place.objects.filter(category=place.category).exclude(id=place.id)[:6]
-    reviews = Review.objects.filter(place=place, is_approved=True).select_related('user')
-    avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or place.rating_avg
-    
-    # گالری تصاویر
-    gallery = place.gallery if place.gallery else []
-    
-    return render(request, 'place_detail.html', {
-        'place': place,
-        'related_places': related_places,
-        'reviews': reviews,
-        'avg_rating': round(avg_rating, 1),
-        'gallery': gallery,
-    })
 
 # ==========================================================
 # صفحه برنامه‌ریز سفر
 # ==========================================================
 def plan_page(request):
+    places = Place.objects.filter(is_active=True)
     categories = Category.objects.filter(type='attraction')
     
+    places_json = []
+    for place in places:
+        places_json.append({
+            'id': place.id,
+            'name': place.name,
+            'slug': place.slug,
+            'category': place.category.name if place.category else '',
+            'cost': place.cost_toman,
+            'duration': place.duration_minutes,
+            'lat': float(place.latitude) if place.latitude else 32.38,
+            'lng': float(place.longitude) if place.longitude else 48.42,
+            'is_child_friendly': place.is_child_friendly,
+            'image': f'/static/img/{place.slug}.jpg',
+        })
+    
     return render(request, 'plan.html', {
+        'places': places,
         'categories': categories,
+        'places_json': json.dumps(places_json, ensure_ascii=False),
     })
+
+# ==========================================================
+# توابع تبدیل تاریخ
+# ==========================================================
+def jalali_to_gregorian(jy, jm, jd):
+    """تبدیل تاریخ شمسی به میلادی"""
+    try:
+        gregorian_date = jdatetime.date(jy, jm, jd).togregorian()
+        return gregorian_date
+    except Exception:
+        return timezone.now().date()
+
+def gregorian_to_jalali(date_obj):
+    """تبدیل تاریخ میلادی به شمسی"""
+    try:
+        return jdatetime.date.fromgregorian(date=date_obj)
+    except:
+        return None
+
+# ==========================================================
+# ذخیره سفر (فقط یک نسخه - کامل با jdatetime)
+# ==========================================================
+@login_required
+def save_trip(request):
+    if request.method == 'POST':
+        try:
+            # دریافت داده‌ها از فرم
+            start_date_str = request.POST.get('start_date', '')
+            end_date_str = request.POST.get('end_date', '')
+            duration_days = int(request.POST.get('duration_days', 1))
+            companions_str = request.POST.get('companions', '1')
+            has_children = request.POST.get('has_children', 'false') == 'true'
+            budget_str = request.POST.get('budget_toman', '')
+            interests_json = request.POST.get('interests', '[]')
+            suggested_places_json = request.POST.get('suggested_places', '[]')
+            
+            # تبدیل تاریخ شمسی به میلادی
+            def parse_jalali_date(date_str):
+                """تبدیل رشته تاریخ شمسی (1404/05/15) به تاریخ میلادی"""
+                try:
+                    parts = date_str.split('/')
+                    if len(parts) == 3:
+                        jy, jm, jd = int(parts[0]), int(parts[1]), int(parts[2])
+                        gregorian = jdatetime.date(jy, jm, jd).togregorian()
+                        return gregorian
+                    return None
+                except:
+                    return None
+            
+            start_date = parse_jalali_date(start_date_str) or timezone.now().date()
+            end_date = parse_jalali_date(end_date_str) or (start_date + timedelta(days=duration_days - 1))
+            
+            # تبدیل رشته‌ها به JSON
+            interests = json.loads(interests_json) if interests_json else []
+            suggested_places = json.loads(suggested_places_json) if suggested_places_json else []
+            
+            # بودجه - از رشته "3000000-5000000" عدد سقف رو بردارید
+            budget_toman = 0
+            if '-' in budget_str:
+                parts = budget_str.split('-')
+                budget_toman = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 0
+            
+            # تعداد همراهان
+            companions = 1
+            if companions_str.isdigit():
+                companions = int(companions_str)
+            elif companions_str == '5+':
+                companions = 5
+            
+            # ساخت یا به‌روزرسانی سفر
+            trip, created = Trip.objects.update_or_create(
+                user=request.user,
+                start_date=start_date,
+                end_date=end_date,
+                defaults={
+                    'duration_days': duration_days,
+                    'companions': companions,
+                    'has_children': has_children,
+                    'budget_toman': budget_toman,
+                    'interests': interests,
+                    'suggested_places': suggested_places,
+                    'status': 'planned',
+                }
+            )
+            
+            if created:
+                messages.success(request, 'برنامه سفر شما با موفقیت ذخیره شد! 🎉')
+            else:
+                messages.success(request, 'برنامه سفر شما به‌روزرسانی شد! 🔄')
+                
+            return redirect('plan')
+            
+        except Exception as e:
+            messages.error(request, f'خطا در ذخیره سفر: {str(e)}')
+            return redirect('plan')
+    
+    return redirect('plan')
 
 # ==========================================================
 # صفحه نقشه
@@ -295,6 +401,24 @@ def plan_page(request):
 def map_page(request):
     places = Place.objects.filter(is_active=True)
     
+    places_json = []
+    for place in places:
+        places_json.append({
+            'id': place.id,
+            'name': place.name,
+            'cat': place.category.name if place.category else '',
+            'sub': place.short_description or '',
+            'cost': place.cost_toman,
+            'duration': place.duration_minutes,
+            'rating': place.rating_avg,
+            'child': place.is_child_friendly,
+            'lat': float(place.latitude) if place.latitude else 32.38,
+            'lng': float(place.longitude) if place.longitude else 48.42,
+            'image': f'/static/img/{place.slug}.jpg',
+            'desc': place.description or place.short_description or '',
+        })
+    
     return render(request, 'map.html', {
         'places': places,
+        'places_json': json.dumps(places_json, ensure_ascii=False),
     })

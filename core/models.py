@@ -227,7 +227,12 @@ class Review(models.Model):
 # ۱۲. سفر
 # ==========================================================
 class Trip(models.Model):
-    STATUS_CHOICES = [('draft', 'Draft'), ('planned', 'Planned'), ('in_progress', 'In Progress'), ('completed', 'Completed')]
+    STATUS_CHOICES = [
+        ('draft', 'Draft'),
+        ('planned', 'Planned'),
+        ('in_progress', 'In Progress'),
+        ('completed', 'Completed')
+    ]
     
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trips')
     title = models.CharField(max_length=200, null=True, blank=True)
@@ -243,10 +248,9 @@ class Trip(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
+    
     def __str__(self):
         return f"{self.user.username} - {self.start_date} to {self.end_date}"
-
 # ==========================================================
 # ۱۳. پلن
 # ==========================================================

@@ -10,9 +10,10 @@ urlpatterns = [
     path('articles/', views.articles_page, name='articles'),
     path('articles/<slug:slug>/', views.article_detail_page, name='article_detail'),
     path('articles/<slug:slug>/review/', views.submit_review, name='submit_review'),
-    path('plan/', views.plan_page, name='plan'),
     path('map/', views.map_page, name='map'),
     path('contact/', views.contact_page, name='contact'),
+    path('plan/', views.plan_page, name='plan'),
+    path('plan/save/', views.save_trip, name='save_trip'),
     
     # ===== مسیرهای احراز هویت =====
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
