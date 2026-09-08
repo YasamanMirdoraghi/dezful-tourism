@@ -579,7 +579,7 @@ if (scrollBtn) {
 	// امتیازدهی به جاذبه‌ها بر اساس نیازها
 	function scorePlace(place, cats, opt) {
 		let score = 0;
-		
+
 		// امتیاز دسته‌بندی (۳۰٪)
 		if (cats.includes(place.category)) {
 			score += 30;
@@ -638,7 +638,7 @@ if (scrollBtn) {
 	function getRecommendations(cats, opt) {
 		const budgetMax = Number(opt.budgetStr.split('-')[1]) || 5000000;
 		const budgetMin = Number(opt.budgetStr.split('-')[0]) || 0;
-		
+
 		// اعمال امتیازدهی
 		const scored = REAL_PLACES.map(p => ({
 			...p,
@@ -649,7 +649,7 @@ if (scrollBtn) {
 		scored.sort((a, b) => b.score - a.score);
 
 		// فیلتر بر اساس بودجه
-		const filtered = scored.filter(p => 
+		const filtered = scored.filter(p =>
 			p.cost === 0 || (p.cost >= budgetMin * 0.3 && p.cost <= budgetMax * 1.2)
 		);
 
@@ -684,7 +684,7 @@ if (scrollBtn) {
 			const dayPlaces = [anchor];
 			usedIds.add(anchor.id);
 
-			// پر کردن بقیه روز
+			// پر کردن بقیه روز با مکان‌های نزدیک و پرامتیاز
 			while (dayPlaces.length < placesPerDay) {
 				const last = dayPlaces[dayPlaces.length - 1];
 				let nextPlace = null;
@@ -703,8 +703,8 @@ if (scrollBtn) {
 			}
 
 			// مرتب‌سازی بر اساس فاصله از مرکز
-			dayPlaces.sort((a, b) => 
-				calcDistance(center.lat, center.lng, a.lat, a.lng) - 
+			dayPlaces.sort((a, b) =>
+				calcDistance(center.lat, center.lng, a.lat, a.lng) -
 				calcDistance(center.lat, center.lng, b.lat, b.lng)
 			);
 
@@ -752,7 +752,7 @@ if (scrollBtn) {
 	function saveTripToDatabase(cats, days) {
 		// بررسی لاگین بودن کاربر
 		const isLoggedIn = document.querySelector('#navbar .nav-user') !== null;
-		
+
 		if (!isLoggedIn) {
 			showToast('برای ذخیره سفر، ابتدا وارد حساب کاربری خود شوید');
 			setTimeout(() => {
@@ -762,6 +762,8 @@ if (scrollBtn) {
 		}
 
 		// پر کردن فرم مخفی
+		const form = $('saveTripForm');
+
 		$('saveStartDate').value = `${tripStart.jy}/${pad2(tripStart.jm)}/${pad2(tripStart.jd)}`;
 		$('saveEndDate').value = `${tripEnd.jy}/${pad2(tripEnd.jm)}/${pad2(tripEnd.jd)}`;
 		$('saveDurationDays').value = tripEnd.jdn - tripStart.jdn + 1;
@@ -769,23 +771,28 @@ if (scrollBtn) {
 		$('saveHasChildren').value = document.querySelector('input[name="hasChild"]:checked').value;
 		$('saveBudgetToman').value = $('budgetRange').value;
 		$('saveInterests').value = JSON.stringify(cats);
-		
-		// داده‌های جاذبه‌های پیشنهادی
-		const allPlaces = days.flat();
-		const placesData = allPlaces.map(p => ({
-			id: p.id,
-			name: p.name,
-			lat: p.lat,
-			lng: p.lng,
-			category: p.category,
-			cost: p.cost,
-			duration: p.duration,
-			score: p.score
-		}));
+
+		// داده‌های جاذبه‌های پیشنهادی با روز
+		const placesData = days.map((dayPlaces, dayIndex) =>
+			dayPlaces.map(p => ({
+				id: p.id,
+				name: p.name,
+				lat: p.lat,
+				lng: p.lng,
+				category: p.category,
+				cost: p.cost,
+				duration: p.duration,
+				score: p.score,
+				image: p.image || `/static/img/${p.slug || 'asiyab-haye-abi'}.jpg`,
+				day: dayIndex + 1  // ✅ این خط مهمه
+			}))
+		).flat();
+
 		$('saveSuggestedPlaces').value = JSON.stringify(placesData);
 
-		// ارسال فرم
-		$('saveTripForm').submit();
+		// نمایش فرم و ارسال
+		form.style.display = 'block';
+		form.submit();
 	}
 
 	$('editPlanBtn').addEventListener('click', () => {
@@ -814,11 +821,11 @@ if (scrollBtn) {
 	const distTxt = km => km < 1 ? `${faNum(Math.round(km * 1000))} متر` : `حدود ${faNum(Math.round(km))} کیلومتر`;
 
 	function cardsHtml(dayPlaces, di) {
-    return schedule(dayPlaces).map((it, idx) => {
-        // اطمینان از وجود تصویر
-        const imgSrc = it.p.image || '/static/img/asiyab-haye-abi.jpg';
-        
-        return `
+		return schedule(dayPlaces).map((it, idx) => {
+			// اطمینان از وجود تصویر
+			const imgSrc = it.p.image || '/static/img/asiyab-haye-abi.jpg';
+
+			return `
         <div class="place-row">
             <span class="place-num">${faNum(idx + 1)}</span>
             <div class="place-card">
@@ -840,8 +847,8 @@ if (scrollBtn) {
                 </div>
             </div>
         </div>`;
-    }).join('');
-}
+		}).join('');
+	}
 
 	function renderAll() {
 		if (!plannerMeta || !plannerMeta.days.length) return;

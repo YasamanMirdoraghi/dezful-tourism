@@ -4365,3 +4365,102 @@ body.result-open .float-home {
     background: linear-gradient(90deg, #f4a62a, #ff6b35);
     transition: width 0.1s linear;
 }
+
+.previous-trips {
+    margin-bottom: 30px;
+    background: #fff;
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: var(--shadow-sm);
+    border: 1px solid rgba(17, 139, 113, 0.06);
+}
+
+.previous-trips h3 {
+    font-size: 1.2rem;
+    font-weight: 900;
+    color: var(--brown-text);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.previous-trips h3 i {
+    color: var(--primary-green);
+}
+
+.trips-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.trip-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #fbfaf7;
+    border: 1px solid rgba(74, 58, 42, 0.08);
+    border-radius: 14px;
+    padding: 12px 16px;
+    transition: var(--transition);
+}
+
+.trip-item:hover {
+    border-color: var(--primary-green);
+    background: rgba(17, 139, 113, 0.03);
+    transform: translateX(-4px);
+}
+
+.trip-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.1rem;
+    flex-shrink: 0;
+}
+
+.trip-item > div:nth-child(2) {
+    flex: 1;
+    min-width: 0;
+}
+
+.trip-item strong {
+    display: block;
+    font-size: 0.9rem;
+    color: var(--brown-text);
+    margin-bottom: 4px;
+}
+
+.trip-item span {
+    font-size: 0.78rem;
+    color: var(--brown-light);
+}
+
+.load-trip-btn {
+    background: var(--primary-green);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 16px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: var(--transition);
+    white-space: nowrap;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.load-trip-btn:hover {
+    background: var(--primary-green-dark);
+    transform: scale(1.03);
+}

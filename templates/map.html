@@ -159,7 +159,9 @@ body.page-map { padding: 0 !important; overflow: hidden; }
 .et-btn i { font-size: 14px; }
 .et-btn.active { background: rgba(17,139,113,.12); color: var(--primary-green); border-color: var(--primary-green); }
 
-/* لیست جاذبه‌ها */
+/* ==========================================================
+   لیست جاذبه‌ها با استایل تایم‌لاین (مثل plan.html)
+   ========================================================== */
 .map-list {
     flex: 1; overflow-y: auto;
     padding: 10px 14px 16px;
@@ -168,35 +170,177 @@ body.page-map { padding: 0 !important; overflow: hidden; }
 .map-list::-webkit-scrollbar { width: 5px; }
 .map-list::-webkit-scrollbar-thumb { background: rgba(17,139,113,.3); border-radius: 10px; }
 
-.map-item {
-    display: flex; gap: 10px; background: #fff;
-    border: 2px solid #f1ece3; border-radius: 14px;
-    padding: 8px; cursor: pointer; transition: .2s;
+/* استایل تایم‌لاین */
+.place-row {
+    position: relative;
+    padding-right: 46px;
+    margin-bottom: 16px;
 }
-.map-item:hover { border-color: rgba(17,139,113,.4); transform: translateX(-2px); }
-.map-item.active { border-color: var(--primary-green); box-shadow: 0 6px 18px rgba(17,139,113,.15); }
-.map-item img {
-    width: 64px; height: 64px; border-radius: 10px;
-    object-fit: cover; flex: 0 0 64px; background: #eee;
+
+.place-row::before {
+    content: '';
+    position: absolute;
+    right: 15px;
+    top: 36px;
+    bottom: -14px;
+    border-right: 2px dashed rgba(255, 80, 80, 0.3);
 }
-.mi-body { flex: 1; min-width: 0; }
-.mi-top { display: flex; justify-content: space-between; gap: 6px; }
-.mi-top h4 { font-size: 13px; font-weight: 800; color: var(--brown-text); margin: 0 0 2px; }
-.mi-cost {
-    font-size: 9px; font-weight: 800; white-space: nowrap;
-    background: rgba(255,80,80,.08); color: var(--brick-orange);
-    border-radius: 20px; padding: 2px 7px;
+
+.place-row:last-child::before {
+    display: none;
 }
-.mi-cost.free { background: rgba(17,139,113,.08); color: var(--primary-green); }
-.mi-body > p {
-    font-size: 10.5px; color: var(--brown-light);
-    line-height: 1.6; margin: 0 0 4px;
-    display: -webkit-box; -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical; overflow: hidden;
+
+.place-num {
+    position: absolute;
+    right: 0;
+    top: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--brick-orange);
+    color: var(--brick-orange);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    z-index: 1;
+    box-shadow: 0 2px 8px rgba(255, 80, 80, 0.18);
 }
-.mi-meta {
-    display: flex; gap: 8px; font-size: 10px;
-    font-weight: 700; color: var(--brown-light);
+
+.place-card {
+    display: flex;
+    align-items: stretch;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+    transition: 0.3s;
+}
+
+.place-card:hover {
+    transform: translateX(-4px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+.pc-img {
+    width: 76px;
+    height: 76px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex: 0 0 76px;
+    background: #f0f0f0;
+}
+
+.pc-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.pc-info h4 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--brown-text);
+    margin-bottom: 6px;
+}
+
+.pc-time {
+    font-size: 12px;
+    color: var(--brown-light);
+    margin-bottom: 6px;
+}
+
+.pc-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--brown-light);
+}
+
+.pc-side {
+    flex: 0 0 auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 8px;
+}
+
+.dist-chip {
+    margin: 0;
+    background: rgba(17, 139, 113, 0.08);
+    color: var(--primary-green);
+    border-radius: 20px;
+    padding: 3px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.pc-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 0;
+}
+
+.pc-score {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--brick-orange);
+}
+
+.icon-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: 1px solid #e5e5e5;
+    background: #fff;
+    cursor: pointer;
+    color: var(--brown-light);
+    transition: 0.2s;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.icon-btn:hover {
+    color: var(--primary-green);
+    border-color: var(--primary-green);
+    background: rgba(17, 139, 113, 0.04);
+}
+
+.pc-more {
+    margin-left: auto;
+}
+
+/* گروه روز */
+.day-group {
+    margin-bottom: 20px;
+}
+
+.day-group-title {
+    font-size: 14px;
+    font-weight: 900;
+    color: var(--brown-text);
+    margin: 10px 0 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.day-group-title span {
+    color: var(--brown-light);
+    font-weight: 500;
+    font-size: 12px;
 }
 
 .result-count {
@@ -408,6 +552,28 @@ body.page-map { padding: 0 !important; overflow: hidden; }
     .mc-btn { width: 40px; height: 40px; }
     .layer-switcher { left: 10px; top: 80px; }
 }
+
+.sidebar-head {
+    background-image: url('{% static "img/slide4.jpg" %}');
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+.sidebar-head::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(17,139,113,0.85) 0%, rgba(13,107,86,0.75) 100%);
+    z-index: 0;
+}
+
+.sidebar-head h2,
+.sidebar-head p,
+.sidebar-head .close-sb {
+    position: relative;
+    z-index: 1;
+}
 </style>
 </head>
 <body class="page-map">
@@ -446,8 +612,8 @@ body.page-map { padding: 0 !important; overflow: hidden; }
     <aside class="map-sidebar" id="mapSidebar">
         <div class="sidebar-head">
             <button class="close-sb" id="closeSb" title="بستن"><i class="fas fa-times"></i></button>
-            <h2><i class="fas fa-map-marked-alt"></i> نقشه گردشگری دزفول</h2>
-            <p>جستجو، فیلتر و کشف جاذبه‌های شهر</p>
+            <h2 id="sidebarTitle"><i class="fas fa-map-marked-alt"></i> نقشه گردشگری دزفول</h2>
+            <p id="sidebarSubtitle">جستجو، فیلتر و کشف جاذبه‌های شهر</p>
         </div>
 
         <div class="smart-search">
@@ -456,7 +622,7 @@ body.page-map { padding: 0 !important; overflow: hidden; }
             <div class="search-suggestions" id="searchSug"></div>
         </div>
 
-        <div class="quick-filters">
+        <div class="quick-filters" id="quickFiltersSection">
             <div class="qf-title">
                 <span><i class="fas fa-filter"></i> فیلتر سریع</span>
                 <span class="qf-clear" id="qfClear">پاک کردن</span>
@@ -464,7 +630,7 @@ body.page-map { padding: 0 !important; overflow: hidden; }
             <div class="qf-chips" id="qfChips"></div>
         </div>
 
-        <div class="extra-toggles">
+        <div class="extra-toggles" id="extraTogglesSection">
             <button class="et-btn" id="freeOnly" data-active="false">
                 <i class="fas fa-gift"></i><span>فقط رایگان</span>
             </button>
@@ -485,6 +651,11 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         <button class="mc-btn locate" id="locateBtn" title="موقعیت من"><i class="fas fa-location-crosshairs"></i></button>
         <button class="mc-btn" id="layerBtn" title="لایه نقشه"><i class="fas fa-layer-group"></i></button>
         <button class="mc-btn" id="fitBtn" title="نمایش همه"><i class="fas fa-expand"></i></button>
+        {% if trip_mode %}
+        <button class="mc-btn" id="backToPlanBtn" title="بازگشت به برنامه‌ریز" style="background: var(--brick-orange); color: #fff;">
+            <i class="fas fa-arrow-right"></i>
+        </button>
+        {% endif %}
     </div>
 
     <!-- لایه‌های نقشه -->
@@ -512,6 +683,10 @@ body.page-map { padding: 0 !important; overflow: hidden; }
 <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
 <script>
+const MAP_PLACES = {{ places_json|safe }};
+const TRIP_DATA = {{ trip_json|default:'null'|safe }};
+const TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
+
 (function () {
     'use strict';
     if (typeof L === 'undefined') return;
@@ -520,23 +695,18 @@ body.page-map { padding: 0 !important; overflow: hidden; }
     const faNum = s => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]).replace('.', '٫');
     const fmtCost = c => c === 0 ? 'رایگان' : faNum(c.toLocaleString()) + ' تومان';
 
-    // ---------- علاقه‌مندی‌های کاربر (localStorage) ----------
     const favKey = 'dezful_tourism_favs';
     let favs = new Set(JSON.parse(localStorage.getItem(favKey) || '[]'));
     const saveFavs = () => localStorage.setItem(favKey, JSON.stringify([...favs]));
 
-    // ---------- Toast ----------
     const toast = $('toast');
     function showToast(msg) {
+        if (!toast) return;
         $('toastMsg').textContent = msg;
         toast.classList.add('show');
         setTimeout(() => toast.classList.remove('show'), 2200);
     }
 
-    // ---------- داده‌های جاذبه‌ها از دیتابیس ----------
-    const MAP_PLACES = {{ places_json|safe }};
-
-    // ---------- متادیتای دسته‌ها ----------
     const CAT_META = {};
     MAP_PLACES.forEach(p => {
         if (!CAT_META[p.cat]) {
@@ -544,21 +714,33 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         }
     });
 
-    // ---------- وضعیت فیلترها ----------
     let activeCats = new Set();
     let freeOnly = false, childOnly = false, favsOnly = false;
     let query = '';
 
-    // ---------- ساخت نقشه ----------
     const map = L.map('tourismMap', { zoomControl: false });
     L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-    // لایه‌های مختلف
+    // لایه‌های مختلف - استفاده از CARTO با subdomain
     const layers = {
-        street: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', { attribution:'&copy; OSM &copy; CARTO', maxZoom:19 }),
-        sat:    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { attribution:'&copy; Esri', maxZoom:19 }),
-        terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', { attribution:'&copy; OpenTopoMap', maxZoom:17 }),
-        dark:   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { attribution:'&copy; CARTO', maxZoom:19 })
+        street: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }),
+        sat:    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+            attribution: '&copy; Esri',
+            maxZoom: 19
+        }),
+        terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenTopoMap',
+            maxZoom: 17
+        }),
+        dark:   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+            subdomains: 'abcd',
+            maxZoom: 19
+        })
     };
     layers.street.addTo(map);
     map.setView([32.38, 48.42], 12);
@@ -566,14 +748,20 @@ body.page-map { padding: 0 !important; overflow: hidden; }
     const cluster = L.markerClusterGroup({ maxClusterRadius: 45, showCoverageOnHover: false });
     map.addLayer(cluster);
 
-    // ---------- مارکرها ----------
-    function pinIcon(p) {
+    function pinIcon(p, dayNumber) {
         const meta = CAT_META[p.cat] || { color: '#118b71', icon: 'fa-map-marker-alt' };
+        const color = dayNumber ? getDayColor(dayNumber) : meta.color;
+        const icon = dayNumber ? 'fa-calendar-day' : meta.icon;
         return L.divIcon({
             className: 'pin-wrap',
-            html: `<div class="pin" style="background:${meta.color}"><span><i class="fas ${meta.icon}"></i></span></div>`,
+            html: `<div class="pin" style="background:${color}"><span><i class="fas ${icon}"></i></span></div>`,
             iconSize: [36, 44], iconAnchor: [18, 40], popupAnchor: [0, -38]
         });
+    }
+
+    function getDayColor(day) {
+        const colors = ['#f4a62a', '#118b71', '#ff5050', '#2196f3', '#9c27b0', '#ff9800', '#4caf50'];
+        return colors[(day - 1) % colors.length];
     }
 
     function popupHtml(p) {
@@ -590,8 +778,8 @@ body.page-map { padding: 0 !important; overflow: hidden; }
             </div>
             <div class="map-pop-body">
                 <h4>${p.name}</h4>
-                <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول • ${p.sub}</div>
-                <p>${p.desc}</p>
+                <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول • ${p.sub || ''}</div>
+                <p>${p.desc || p.short_description || ''}</p>
                 <div class="map-pop-meta">
                     <span>💰 ${fmtCost(p.cost)}</span>
                     <span>⏱️ ${faNum(p.duration)} دقیقه</span>
@@ -609,37 +797,83 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         </div>`;
     }
 
+    function tripPopupHtml(p, day) {
+        return `
+        <div class="map-pop">
+            <div class="map-pop-img">
+                <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
+                <span class="map-pop-badge" style="background:${getDayColor(day)}; color:#fff;">روز ${faNum(day)}</span>
+            </div>
+            <div class="map-pop-body">
+                <h4>${p.name}</h4>
+                <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول • ${p.sub || ''}</div>
+                <p>${p.desc || p.short_description || ''}</p>
+                <div class="map-pop-meta">
+                    <span>💰 ${fmtCost(p.cost)}</span>
+                    <span>⏱️ ${faNum(p.duration)} دقیقه</span>
+                    <span>⭐ ${faNum(p.rating)}</span>
+                </div>
+                <div class="map-pop-actions">
+                    <button class="pop-action primary" data-act="route" data-lat="${p.lat}" data-lng="${p.lng}" data-name="${p.name}">
+                        <i class="fas fa-route"></i> مسیر یاب
+                    </button>
+                </div>
+            </div>
+        </div>`;
+    }
+
     const markers = new Map();
-    MAP_PLACES.forEach(p => {
-        const m = L.marker([p.lat, p.lng], { icon: pinIcon(p) });
-        m.bindPopup(popupHtml(p), { maxWidth: 300 });
-        m.on('click', () => highlightItem(p.id, false));
-        m.on('popupopen', e => {
-            const pop = e.popup.getElement();
-            pop.querySelectorAll('.map-pop-fav').forEach(btn => {
-                btn.addEventListener('click', ev => {
-                    ev.stopPropagation();
-                    toggleFav(+btn.dataset.id, btn);
+
+    if (TRIP_MODE && TRIP_DATA) {
+        TRIP_DATA.suggested_places.forEach(sp => {
+            const p = MAP_PLACES.find(x => x.id === sp.id);
+            if (!p) return;
+            const m = L.marker([p.lat, p.lng], { icon: pinIcon(p, sp.day) });
+            m.bindPopup(tripPopupHtml(p, sp.day), { maxWidth: 300 });
+            m.on('click', () => highlightItem(p.id, false));
+            m.on('popupopen', e => {
+                const pop = e.popup.getElement();
+                pop.querySelectorAll('[data-act="route"]').forEach(btn => {
+                    btn.addEventListener('click', ev => {
+                        ev.stopPropagation();
+                        window.open(`https://www.google.com/maps/dir/${btn.dataset.lat},${btn.dataset.lng}`, '_blank');
+                    });
                 });
             });
-            pop.querySelectorAll('[data-act="route"]').forEach(btn => {
-                btn.addEventListener('click', ev => {
-                    ev.stopPropagation();
-                    const url = `https://www.google.com/maps/dir/${btn.dataset.lat},${btn.dataset.lng}`;
-                    window.open(url, '_blank');
-                });
-            });
-            pop.querySelectorAll('[data-act="plan"]').forEach(btn => {
-                btn.addEventListener('click', ev => {
-                    ev.stopPropagation();
-                    const id = +btn.dataset.id;
-                    const p = MAP_PLACES.find(x => x.id === id);
-                    showToast(`«${p.name}» به لیست سفر شما افزوده شد`);
-                });
-            });
+            markers.set(p.id, m);
         });
-        markers.set(p.id, m);
-    });
+    } else {
+        MAP_PLACES.forEach(p => {
+            const m = L.marker([p.lat, p.lng], { icon: pinIcon(p) });
+            m.bindPopup(popupHtml(p), { maxWidth: 300 });
+            m.on('click', () => highlightItem(p.id, false));
+            m.on('popupopen', e => {
+                const pop = e.popup.getElement();
+                pop.querySelectorAll('.map-pop-fav').forEach(btn => {
+                    btn.addEventListener('click', ev => {
+                        ev.stopPropagation();
+                        toggleFav(+btn.dataset.id, btn);
+                    });
+                });
+                pop.querySelectorAll('[data-act="route"]').forEach(btn => {
+                    btn.addEventListener('click', ev => {
+                        ev.stopPropagation();
+                        window.open(`https://www.google.com/maps/dir/${btn.dataset.lat},${btn.dataset.lng}`, '_blank');
+                    });
+                });
+                pop.querySelectorAll('[data-act="plan"]').forEach(btn => {
+                    btn.addEventListener('click', ev => {
+                        ev.stopPropagation();
+                        const id = +btn.dataset.id;
+                        const p = MAP_PLACES.find(x => x.id === id);
+                        showToast(`«${p.name}» به لیست سفر شما افزوده شد`);
+                        window.location.href = '/plan/';
+                    });
+                });
+            });
+            markers.set(p.id, m);
+        });
+    }
 
     function toggleFav(id, btn) {
         if (favs.has(id)) {
@@ -657,44 +891,118 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         if (favsOnly) applyFilters();
     }
 
-    // ---------- لیست ----------
+    // ==========================================================
+    // رندر لیست با استایل تایم‌لاین (مثل plan.html)
+    // ==========================================================
     function renderList(places) {
         const list = $('mapList');
+        if (!list) return;
         if (!places.length) {
             list.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--brown-light);"><i class="fas fa-search" style="font-size:28px; opacity:.3; display:block; margin-bottom:10px;"></i><p style="margin:0;">جاذبه‌ای با این فیلترها پیدا نشد</p></div>';
             return;
         }
-        list.innerHTML = places.map(p => {
-            const meta = CAT_META[p.cat] || {};
-            return `
-            <div class="map-item" data-id="${p.id}">
-                <img src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-                <div class="mi-body">
-                    <div class="mi-top">
-                        <h4>${p.name}</h4>
-                        <span class="mi-cost ${p.cost === 0 ? 'free' : ''}">${fmtCost(p.cost)}</span>
+        
+        if (TRIP_MODE && TRIP_DATA) {
+            // حالت سفر - گروه‌بندی بر اساس روز
+            const totalDays = TRIP_DATA.duration_days;
+            let html = '';
+            
+            for (let day = 1; day <= totalDays; day++) {
+                const dayPlaces = places.filter(p => {
+                    const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
+                    return sp && sp.day === day;
+                });
+                
+                if (dayPlaces.length === 0) continue;
+                
+                html += `<div class="day-group">`;
+                html += `<div class="day-group-title">روز ${faNum(day)} <span>${faNum(dayPlaces.length)} جاذبه</span></div>`;
+                
+                dayPlaces.forEach((p, idx) => {
+                    const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
+                    const dayNum = sp ? sp.day : 1;
+                    
+                    html += `
+                    <div class="place-row">
+                        <span class="place-num">${faNum(idx + 1)}</span>
+                        <div class="place-card" data-id="${p.id}" style="cursor:pointer;">
+                            <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+                            <div class="pc-info">
+                                <h4>${p.name}</h4>
+                                <div class="pc-time">🕒 ${faNum(9 + idx)}:۰۰ تا ${faNum(10 + idx)}:۳۰</div>
+                                <div class="pc-meta">
+                                    <span>🏷️ ${p.cat}</span>
+                                    <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
+                                </div>
+                            </div>
+                            <div class="pc-side">
+                                <span class="dist-chip" style="background:${getDayColor(dayNum)}; color:#fff;">روز ${faNum(dayNum)}</span>
+                                <div class="pc-actions">
+                                    <span class="pc-score">⭐ ${faNum(p.rating)}</span>
+                                    <button class="icon-btn pc-more" data-id="${p.id}" title="گزینه‌ها"><i class="fas fa-ellipsis-h"></i></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>`;
+                });
+                
+                html += `</div>`;
+            }
+            
+            list.innerHTML = html;
+        } else {
+            // حالت عادی - لیست ساده
+            list.innerHTML = places.map(p => {
+                const meta = CAT_META[p.cat] || {};
+                return `
+                <div class="place-row">
+                    <span class="place-num">${faNum(p.id)}</span>
+                    <div class="place-card" data-id="${p.id}" style="cursor:pointer;">
+                        <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+                        <div class="pc-info">
+                            <h4>${p.name}</h4>
+                            <div class="pc-time">🕒 ${faNum(9)}:۰۰ تا ${faNum(10)}:۳۰</div>
+                            <div class="pc-meta">
+                                <span style="color:${meta.color}"><i class="fas ${meta.icon}"></i> ${p.cat}</span>
+                                <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
+                            </div>
+                        </div>
+                        <div class="pc-side">
+                            <span class="dist-chip">⭐ ${faNum(p.rating)}</span>
+                            <div class="pc-actions">
+                                <button class="icon-btn pc-more" data-id="${p.id}" title="گزینه‌ها"><i class="fas fa-ellipsis-h"></i></button>
+                            </div>
+                        </div>
                     </div>
-                    <p>${p.desc}</p>
-                    <div class="mi-meta">
-                        <span style="color:${meta.color}"><i class="fas ${meta.icon}"></i> ${p.cat}</span>
-                        <span><i class="fas fa-star" style="color:#f4a62a"></i> ${faNum(p.rating)}</span>
-                        ${favs.has(p.id) ? '<span><i class="fas fa-heart" style="color:#e04444"></i></span>' : ''}
-                    </div>
-                </div>
-            </div>`;
-        }).join('');
-        list.querySelectorAll('.map-item').forEach(el => {
-            el.addEventListener('click', () => {
-                const p = MAP_PLACES.find(x => x.id === +el.dataset.id);
-                if (p) highlightItem(p.id, true);
+                </div>`;
+            }).join('');
+        }
+        
+        // رویداد کلیک روی کارت‌ها
+        list.querySelectorAll('.place-card').forEach(card => {
+            card.addEventListener('click', () => {
+                const id = +card.dataset.id;
+                if (id) highlightItem(id, true);
+            });
+        });
+        
+        // رویداد کلیک روی دکمه گزینه‌ها
+        list.querySelectorAll('.pc-more').forEach(btn => {
+            btn.addEventListener('click', e => {
+                e.stopPropagation();
+                const id = +btn.dataset.id;
+                if (id) {
+                    const p = MAP_PLACES.find(x => x.id === id);
+                    if (p) showToast(`گزینه‌های ${p.name}`);
+                }
             });
         });
     }
 
     function highlightItem(id, fly) {
-        document.querySelectorAll('.map-item').forEach(el =>
+        document.querySelectorAll('.place-card').forEach(el =>
             el.classList.toggle('active', +el.dataset.id === id));
-        const el = document.querySelector(`.map-item[data-id="${id}"]`);
+        const el = document.querySelector(`.place-card[data-id="${id}"]`);
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         const m = markers.get(id);
         if (!m) return;
@@ -702,8 +1010,12 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         setTimeout(() => cluster.zoomToShowLayer(m, () => m.openPopup()), fly ? 850 : 0);
     }
 
-    // ---------- اعمال فیلترها ----------
     function applyFilters() {
+        if (TRIP_MODE && TRIP_DATA) {
+            applyTripFilters();
+            return;
+        }
+        
         const q = query.trim();
         const visible = MAP_PLACES.filter(p =>
             (activeCats.size === 0 || activeCats.has(p.cat)) &&
@@ -720,16 +1032,45 @@ body.page-map { padding: 0 !important; overflow: hidden; }
             <span>${faNum(visible.filter(p=>p.cost===0).length)} رایگان</span>`;
     }
 
-    // ---------- چیپ‌های دسته‌بندی ----------
+    let activeDay = 'all';
+    
+    function applyTripFilters() {
+        const q = query.trim();
+        let visible = TRIP_DATA.suggested_places
+            .map(sp => MAP_PLACES.find(p => p.id === sp.id))
+            .filter(p => p);
+        
+        if (activeDay !== 'all') {
+            visible = visible.filter(p => {
+                const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
+                return sp && sp.day === activeDay;
+            });
+        }
+        
+        if (q) {
+            visible = visible.filter(p => p.name.includes(q) || p.desc.includes(q));
+        }
+        
+        cluster.clearLayers();
+        visible.forEach(p => { const m = markers.get(p.id); if (m) cluster.addLayer(m); });
+        renderList(visible);
+        
+        $('resultCount').innerHTML = `
+            <span><i class="fas fa-route"></i> ${faNum(visible.length)} جاذبه در ${faNum(TRIP_DATA.duration_days)} روز</span>
+            <span>${faNum(visible.filter(p=>p.cost===0).length)} رایگان</span>`;
+    }
+
     function buildChips() {
-        $('qfChips').innerHTML = Object.entries(CAT_META).map(([cat, meta]) => {
+        const chips = $('qfChips');
+        if (!chips) return;
+        chips.innerHTML = Object.entries(CAT_META).map(([cat, meta]) => {
             const count = MAP_PLACES.filter(p => p.cat === cat).length;
             return `<button class="qf-chip" data-cat="${cat}">
                 <span class="chip-dot" style="background:${meta.color}"></span>${cat}
                 <span class="chip-num">${faNum(count)}</span>
             </button>`;
         }).join('');
-        $('qfChips').querySelectorAll('.qf-chip').forEach(ch => ch.addEventListener('click', () => {
+        chips.querySelectorAll('.qf-chip').forEach(ch => ch.addEventListener('click', () => {
             const c = ch.dataset.cat;
             activeCats.has(c) ? activeCats.delete(c) : activeCats.add(c);
             ch.classList.toggle('active');
@@ -737,13 +1078,54 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         }));
     }
 
-    // ---------- راهنما ----------
-    function buildLegend() {
-        $('legendBody').innerHTML = Object.entries(CAT_META).map(([cat, m]) =>
-            `<div class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${cat}</div>`).join('');
+    function buildTripDayChips() {
+        const chipsContainer = $('qfChips');
+        if (!chipsContainer) return;
+        chipsContainer.innerHTML = '';
+        
+        const allBtn = document.createElement('button');
+        allBtn.className = 'qf-chip active';
+        allBtn.innerHTML = '<i class="fas fa-calendar-alt"></i> همه روزها';
+        allBtn.addEventListener('click', () => {
+            activeDay = 'all';
+            applyTripFilters();
+            chipsContainer.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
+            allBtn.classList.add('active');
+        });
+        chipsContainer.appendChild(allBtn);
+        
+        const totalDays = TRIP_DATA.duration_days;
+        for (let day = 1; day <= totalDays; day++) {
+            const dayBtn = document.createElement('button');
+            dayBtn.className = 'qf-chip';
+            dayBtn.style.background = getDayColor(day);
+            dayBtn.style.color = '#fff';
+            dayBtn.innerHTML = `<i class="fas fa-calendar-day"></i> روز ${faNum(day)}`;
+            dayBtn.addEventListener('click', () => {
+                activeDay = day;
+                applyTripFilters();
+                chipsContainer.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
+                dayBtn.classList.add('active');
+            });
+            chipsContainer.appendChild(dayBtn);
+        }
     }
 
-    // ---------- جستجوی هوشمند با پیشنهاد ----------
+    function buildLegend() {
+        const legendBody = $('legendBody');
+        if (!legendBody) return;
+        if (TRIP_MODE && TRIP_DATA) {
+            let legendHtml = '';
+            for (let day = 1; day <= TRIP_DATA.duration_days; day++) {
+                legendHtml += `<div class="legend-item"><span class="legend-dot" style="background:${getDayColor(day)}"></span> روز ${faNum(day)}</div>`;
+            }
+            legendBody.innerHTML = legendHtml;
+        } else {
+            legendBody.innerHTML = Object.entries(CAT_META).map(([cat, m]) =>
+                `<div class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${cat}</div>`).join('');
+        }
+    }
+
     const sugBox = $('searchSug');
     let searchT;
     $('mapSearch').addEventListener('input', e => {
@@ -751,19 +1133,31 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         const q = e.target.value.trim();
         query = q;
         if (!q) { sugBox.classList.remove('open'); applyFilters(); return; }
-        const matches = MAP_PLACES.filter(p =>
-            p.name.includes(q) || p.desc.includes(q) || p.cat.includes(q) || p.sub.includes(q)
-        ).slice(0, 6);
+        
+        let matches;
+        if (TRIP_MODE && TRIP_DATA) {
+            matches = TRIP_DATA.suggested_places
+                .map(sp => MAP_PLACES.find(p => p.id === sp.id))
+                .filter(p => p && (p.name.includes(q) || p.desc.includes(q) || p.cat.includes(q) || p.sub.includes(q)));
+        } else {
+            matches = MAP_PLACES.filter(p =>
+                p.name.includes(q) || p.desc.includes(q) || p.cat.includes(q) || p.sub.includes(q)
+            );
+        }
+        
+        matches = matches.slice(0, 6);
+        
         if (!matches.length) {
             sugBox.innerHTML = '<div style="padding:14px; text-align:center; color:var(--brown-light); font-size:12px;">نتیجه‌ای یافت نشد</div>';
         } else {
             sugBox.innerHTML = matches.map(p => {
                 const meta = CAT_META[p.cat] || {};
+                const day = TRIP_MODE && TRIP_DATA ? (TRIP_DATA.suggested_places.find(sp => sp.id === p.id)?.day || 1) : null;
                 return `<div class="sug-item" data-id="${p.id}">
                     <i class="fas ${meta.icon}" style="color:${meta.color}"></i>
                     <div>
                         <div class="sug-name">${p.name}</div>
-                        <div class="sug-cat">${p.cat}</div>
+                        <div class="sug-cat">${TRIP_MODE ? 'روز ' + faNum(day) : p.cat}</div>
                     </div>
                 </div>`;
             }).join('');
@@ -777,57 +1171,77 @@ body.page-map { padding: 0 !important; overflow: hidden; }
     });
     $('mapSearch').addEventListener('blur', () => setTimeout(() => sugBox.classList.remove('open'), 200));
 
-    // ---------- دکمه‌های toggle ----------
-    function toggleExtra(btnId, flagName) {
+    function toggleExtra(btnId) {
         const btn = $(btnId);
+        if (!btn) return false;
         const active = btn.dataset.active === 'true';
         btn.dataset.active = active ? 'false' : 'true';
         btn.classList.toggle('active', !active);
         return !active;
     }
-    $('freeOnly').addEventListener('click', () => { freeOnly = toggleExtra('freeOnly'); applyFilters(); });
-    $('childOnly').addEventListener('click', () => { childOnly = toggleExtra('childOnly'); applyFilters(); });
-    $('favsOnly').addEventListener('click', () => { favsOnly = toggleExtra('favsOnly'); applyFilters(); });
 
-    // ---------- toggle سایدبار ----------
-    $('closeSb').addEventListener('click', () => {
-        $('mapSidebar').classList.add('collapsed');
-        $('sbToggle').classList.add('show');
+    if (!TRIP_MODE) {
+        const freeBtn = $('freeOnly');
+        const childBtn = $('childOnly');
+        const favBtn = $('favsOnly');
+        if (freeBtn) freeBtn.addEventListener('click', () => { freeOnly = toggleExtra('freeOnly'); applyFilters(); });
+        if (childBtn) childBtn.addEventListener('click', () => { childOnly = toggleExtra('childOnly'); applyFilters(); });
+        if (favBtn) favBtn.addEventListener('click', () => { favsOnly = toggleExtra('favsOnly'); applyFilters(); });
+    } else {
+        const extraSection = $('extraTogglesSection');
+        const quickSection = $('quickFiltersSection');
+        if (extraSection) extraSection.style.display = 'none';
+        if (quickSection) {
+            const title = quickSection.querySelector('.qf-title');
+            if (title) title.innerHTML = '<span><i class="fas fa-route"></i> روزهای سفر</span>';
+        }
+    }
+
+    const closeSb = $('closeSb');
+    const sbToggle = $('sbToggle');
+    const mapSidebar = $('mapSidebar');
+
+    if (closeSb) closeSb.addEventListener('click', () => {
+        mapSidebar.classList.add('collapsed');
+        sbToggle.classList.add('show');
         setTimeout(() => map.invalidateSize(), 400);
     });
-    $('sbToggle').addEventListener('click', () => {
-        $('mapSidebar').classList.remove('collapsed');
-        $('sbToggle').classList.remove('show');
+    if (sbToggle) sbToggle.addEventListener('click', () => {
+        mapSidebar.classList.remove('collapsed');
+        sbToggle.classList.remove('show');
         setTimeout(() => map.invalidateSize(), 400);
     });
 
-    // ---------- پاک کردن فیلترها ----------
-    $('qfClear').addEventListener('click', () => {
+    const qfClear = $('qfClear');
+    if (qfClear) qfClear.addEventListener('click', () => {
         activeCats.clear();
         $('qfChips').querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
         applyFilters();
     });
 
-    // ---------- لایه‌های نقشه ----------
     let currentLayer = 'street';
-    $('layerBtn').addEventListener('click', () => $('layerSwitcher').classList.toggle('open'));
-    $('layerSwitcher').querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
-        const layer = btn.dataset.layer;
-        if (layer === currentLayer) return;
-        map.removeLayer(layers[currentLayer]);
-        layers[layer].addTo(map);
-        currentLayer = layer;
-        $('layerSwitcher').querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.layer === layer));
-        $('layerSwitcher').classList.remove('open');
-    }));
+    const layerBtn = $('layerBtn');
+    const layerSwitcher = $('layerSwitcher');
+    if (layerBtn && layerSwitcher) {
+        layerBtn.addEventListener('click', () => layerSwitcher.classList.toggle('open'));
+        layerSwitcher.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+            const layer = btn.dataset.layer;
+            if (layer === currentLayer) return;
+            map.removeLayer(layers[currentLayer]);
+            layers[layer].addTo(map);
+            currentLayer = layer;
+            layerSwitcher.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.layer === layer));
+            layerSwitcher.classList.remove('open');
+        }));
+    }
     document.addEventListener('click', e => {
         if (!e.target.closest('#layerBtn') && !e.target.closest('#layerSwitcher')) {
-            $('layerSwitcher').classList.remove('open');
+            layerSwitcher.classList.remove('open');
         }
     });
 
-    // ---------- موقعیت من (GPS) ----------
-    $('locateBtn').addEventListener('click', () => {
+    const locateBtn = $('locateBtn');
+    if (locateBtn) locateBtn.addEventListener('click', () => {
         if (!navigator.geolocation) { showToast('مرورگر شما از موقعیت‌یابی پشتیبانی نمی‌کند'); return; }
         showToast('در حال دریافت موقعیت...');
         navigator.geolocation.getCurrentPosition(pos => {
@@ -844,22 +1258,51 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         }, () => showToast('دسترسی به موقعیت رد شد'));
     });
 
-    // ---------- نمایش همه جاذبه‌ها ----------
-    $('fitBtn').addEventListener('click', () => {
-        map.fitBounds(L.latLngBounds(MAP_PLACES.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 13 });
+    const fitBtn = $('fitBtn');
+    if (fitBtn) fitBtn.addEventListener('click', () => {
+        if (TRIP_MODE && TRIP_DATA) {
+            const tripPlaces = TRIP_DATA.suggested_places.map(sp => MAP_PLACES.find(p => p.id === sp.id)).filter(p => p);
+            if (tripPlaces.length) {
+                map.fitBounds(L.latLngBounds(tripPlaces.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 14 });
+            }
+        } else {
+            map.fitBounds(L.latLngBounds(MAP_PLACES.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 13 });
+        }
     });
 
-    // ---------- toggle راهنما ----------
-    $('toggleLeg').addEventListener('click', () => {
-        $('mapLegend').classList.toggle('collapsed');
-        $('toggleLeg').innerHTML = $('mapLegend').classList.contains('collapsed')
-            ? '<i class="fas fa-plus"></i>' : '<i class="fas fa-minus"></i>';
+    const backBtn = $('backToPlanBtn');
+    if (backBtn) backBtn.addEventListener('click', () => {
+        window.location.href = '/plan/';
     });
 
-    // ---------- اجرای اولیه ----------
-    buildChips();
-    buildLegend();
-    applyFilters();
+    const toggleLeg = $('toggleLeg');
+    const mapLegend = $('mapLegend');
+    if (toggleLeg && mapLegend) {
+        toggleLeg.addEventListener('click', () => {
+            mapLegend.classList.toggle('collapsed');
+            toggleLeg.innerHTML = mapLegend.classList.contains('collapsed')
+                ? '<i class="fas fa-plus"></i>' : '<i class="fas fa-minus"></i>';
+        });
+    }
+
+    if (TRIP_MODE && TRIP_DATA) {
+        const sidebarTitle = $('sidebarTitle');
+        const sidebarSubtitle = $('sidebarSubtitle');
+        if (sidebarTitle) sidebarTitle.innerHTML = '<i class="fas fa-route"></i> برنامه سفر شما';
+        if (sidebarSubtitle) sidebarSubtitle.textContent = `سفر ${faNum(TRIP_DATA.duration_days)} روزه - ${TRIP_DATA.interests.join('، ')}`;
+        buildTripDayChips();
+        buildLegend();
+        applyTripFilters();
+        const tripPlaces = TRIP_DATA.suggested_places.map(sp => MAP_PLACES.find(p => p.id === sp.id)).filter(p => p);
+        if (tripPlaces.length) {
+            map.fitBounds(L.latLngBounds(tripPlaces.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 14 });
+        }
+        showToast(`در حال نمایش برنامه سفر شما (${faNum(TRIP_DATA.duration_days)} روز)`);
+    } else {
+        buildChips();
+        buildLegend();
+        applyFilters();
+    }
     setTimeout(() => map.invalidateSize(), 300);
 })();
 </script>

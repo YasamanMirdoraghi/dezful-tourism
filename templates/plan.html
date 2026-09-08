@@ -77,6 +77,26 @@
 					<div class="step-item" data-step="4"><span class="step-dot"></span></div>
 				</div>
 
+				{% if user_trips %}
+<div class="previous-trips">
+    <h3><i class="fas fa-history"></i> سفرهای اخیر شما</h3>
+    <div class="trips-list">
+        {% for trip in user_trips %}
+        <div class="trip-item">
+            <div class="trip-icon"><i class="fas fa-route"></i></div>
+            <div>
+                <strong>سفر از {{ trip.start_date|date:"Y/m/d" }} تا {{ trip.end_date|date:"Y/m/d" }}</strong>
+                <span>{{ trip.duration_days }} روز - {{ trip.companions }} نفر</span>
+            </div>
+            <a href="/plan/{{ trip.id }}/load/" class="load-trip-btn">
+                <i class="fas fa-map"></i> مشاهده روی نقشه
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
 				<div class="wizard-top">
 					<h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن</h2>
 				</div>
@@ -115,7 +135,7 @@
 					<div class="wz-hint" id="dateHint"></div>
 				</div>
 
-				<!-- مرحله ۲: علاقه‌مندی‌ها (داینامیک از دیتابیس) -->
+				<!-- مرحله ۲: علاقه‌مندی‌ها -->
 				<div class="wz-step" data-step="2">
 					<div class="interest-top">
 						<div>

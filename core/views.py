@@ -49,16 +49,21 @@ def attraction_page(request):
     
     places_json = []
     for place in places:
-        places_json.append({
-            'id': place.id,
-            'name': place.name,
-            'slug': place.slug,
-            'category': place.category.name if place.category else '',
-            'parent_category': place.category.parent.name if place.category and place.category.parent else (place.category.name if place.category else ''),
-            'cost': place.cost_toman,
-            'short_description': place.short_description or '',
-            'image': f'/static/img/{place.slug}.jpg',
-        })
+     places_json.append({
+    'id': place.id,
+    'name': place.name,
+    'slug': place.slug,
+    'cat': place.category.name if place.category else '',
+    'sub': place.short_description or '',
+    'cost': place.cost_toman,
+    'duration': place.duration_minutes,
+    'rating': place.rating_avg,
+    'child': place.is_child_friendly,
+    'lat': float(place.latitude) if place.latitude else 32.38,
+    'lng': float(place.longitude) if place.longitude else 48.42,
+    'image': f'/static/img/{place.slug}.jpg',
+    'desc': place.description or place.short_description or '',
+})
     
     return render(request, 'attraction.html', {
         'places': places,
@@ -292,10 +297,14 @@ def plan_page(request):
             'image': f'/static/img/{place.slug}.jpg',
         })
     
+    # سفرهای اخیر کاربر
+    user_trips = Trip.objects.filter(user=request.user).order_by('-created_at')[:5] if request.user.is_authenticated else []
+    
     return render(request, 'plan.html', {
         'places': places,
         'categories': categories,
         'places_json': json.dumps(places_json, ensure_ascii=False),
+        'user_trips': user_trips,
     })
 
 # ==========================================================
@@ -382,12 +391,8 @@ def save_trip(request):
                 }
             )
             
-            if created:
-                messages.success(request, 'برنامه سفر شما با موفقیت ذخیره شد! 🎉')
-            else:
-                messages.success(request, 'برنامه سفر شما به‌روزرسانی شد! 🔄')
-                
-            return redirect('plan')
+            # هدایت به نقشه گردشگری با شناسه سفر
+            return redirect(f'/map/?trip={trip.id}')
             
         except Exception as e:
             messages.error(request, f'خطا در ذخیره سفر: {str(e)}')
@@ -401,11 +406,33 @@ def save_trip(request):
 def map_page(request):
     places = Place.objects.filter(is_active=True)
     
+    # دریافت شناسه سفر از URL (اگر کاربر از صفحه برنامه‌ریز آمده باشد)
+    trip_id = request.GET.get('trip')
+    trip_data = None
+    trip_days = {}
+    
+    if trip_id and request.user.is_authenticated:
+        try:
+            trip = Trip.objects.get(id=trip_id, user=request.user)
+            trip_data = trip
+            
+            # ساخت دیکشنری روزها: {day_number: [place_ids]}
+            if trip.suggested_places:
+                for item in trip.suggested_places:
+                    day = item.get('day', 1)
+                    place_id = item.get('id')
+                    if day not in trip_days:
+                        trip_days[day] = []
+                    trip_days[day].append(place_id)
+        except Trip.DoesNotExist:
+            pass
+    
     places_json = []
     for place in places:
         places_json.append({
             'id': place.id,
             'name': place.name,
+            'slug': place.slug,
             'cat': place.category.name if place.category else '',
             'sub': place.short_description or '',
             'cost': place.cost_toman,
@@ -418,7 +445,39 @@ def map_page(request):
             'desc': place.description or place.short_description or '',
         })
     
+    # اگر trip_data وجود دارد، اطلاعات سفر را به جاوااسکریپت بفرست
+    trip_json = None
+    if trip_data:
+        trip_json = {
+            'id': trip_data.id,
+            'start_date': trip_data.start_date.isoformat() if trip_data.start_date else '',
+            'end_date': trip_data.end_date.isoformat() if trip_data.end_date else '',
+            'duration_days': trip_data.duration_days,
+            'interests': trip_data.interests,
+            'suggested_places': trip_data.suggested_places,
+            'days': trip_days,
+        }
+    
     return render(request, 'map.html', {
         'places': places,
         'places_json': json.dumps(places_json, ensure_ascii=False),
+        'trip_json': json.dumps(trip_json, ensure_ascii=False) if trip_json else None,
+        'trip_mode': bool(trip_data),
     })
+
+# ==========================================================
+# بارگذاری سفر (مشاهده روی نقشه)
+# ==========================================================
+def load_trip(request, trip_id):
+    if not request.user.is_authenticated:
+        return redirect('login')
+    
+    try:
+        trip = Trip.objects.get(id=trip_id, user=request.user)
+        
+        # هدایت به نقشه با شناسه سفر
+        return redirect(f'/map/?trip={trip.id}')
+        
+    except Trip.DoesNotExist:
+        messages.error(request, 'سفر یافت نشد.')
+        return redirect('plan')
