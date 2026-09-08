@@ -693,12 +693,8 @@ function createCard(place) {
 
     const costText = place.cost === 0 ? 'رایگان' : faNum(place.cost.toLocaleString()) + ' تومان';
 
-
-
     // استفاده از slug برای پیدا کردن عکس با پسوندهای مختلف
     const imageUrl = `/static/img/${place.slug}.jpg`;
-
-
 
     card.innerHTML = `
         <div class="attraction-img">
@@ -708,7 +704,7 @@ function createCard(place) {
         </div>
         <div class="attraction-body">
             <h4>${place.name}</h4>
-            <p>${place.short_description}</p>
+            <p>${place.short_description || place.desc || ''}</p>
             <div class="meta">
                 <span><i class="fas fa-wallet"></i> ${costText}</span>
             </div>

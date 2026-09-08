@@ -43,34 +43,40 @@ def home(request):
 # ==========================================================
 # صفحه جاذبه‌ها
 # ==========================================================
+from django.utils.text import Truncator
+
 def attraction_page(request):
     places = Place.objects.filter(is_active=True).select_related('category__parent')
     categories = Category.objects.filter(type='attraction', parent__isnull=True).prefetch_related('children')
     
     places_json = []
     for place in places:
-     places_json.append({
-    'id': place.id,
-    'name': place.name,
-    'slug': place.slug,
-    'cat': place.category.name if place.category else '',
-    'sub': place.short_description or '',
-    'cost': place.cost_toman,
-    'duration': place.duration_minutes,
-    'rating': place.rating_avg,
-    'child': place.is_child_friendly,
-    'lat': float(place.latitude) if place.latitude else 32.38,
-    'lng': float(place.longitude) if place.longitude else 48.42,
-    'image': f'/static/img/{place.slug}.jpg',
-    'desc': place.description or place.short_description or '',
-})
+        # محدود کردن توضیح کوتاه به ۱۵ کلمه
+        short_desc = Truncator(place.short_description or '').words(15, truncate=' …')
+        
+        places_json.append({
+            'id': place.id,
+            'name': place.name,
+            'slug': place.slug,
+            'category': place.category.name if place.category else '',
+            'sub': short_desc,
+            'cost': place.cost_toman,
+            'duration': place.duration_minutes,
+            'rating': place.rating_avg,
+            'child': place.is_child_friendly,
+            'lat': float(place.latitude) if place.latitude else 32.38,
+            'lng': float(place.longitude) if place.longitude else 48.42,
+            'image': f'/static/img/{place.slug}.jpg',
+            'desc': short_desc,
+            'short_description': short_desc,  # ← این فیلد هم محدود شده
+            'parent_category': place.category.parent.name if place.category and place.category.parent else (place.category.name if place.category else ''),
+        })
     
     return render(request, 'attraction.html', {
         'places': places,
         'categories': categories,
         'places_json': json.dumps(places_json, ensure_ascii=False),
     })
-
 # ==========================================================
 # صفحه تکی جاذبه (فقط یک نسخه - با گالری)
 # ==========================================================
