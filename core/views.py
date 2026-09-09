@@ -5,14 +5,33 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout as auth_logout
 from django.db.models import Count, Avg
 from django.utils import timezone
+from django.utils.text import Truncator
 from datetime import datetime, timedelta
 import json
+import os
 import jdatetime
+
+from django.conf import settings
 
 from .models import (
     Place, Category, Article, Plan, Route, Review, User,
     ArticleBlock, ArticleRelated, Contact, Trip
 )
+
+# ==========================================================
+# تابع کمکی: پیدا کردن عکس جاذبه با فرمت‌های مختلف
+# ==========================================================
+def get_place_image(place):
+    """پیدا کردن عکس جاذبه با فرمت‌های مختلف"""
+    slug = place.slug
+    formats = ['.jpg', '.png', '.jpeg', '.webp']
+    
+    for fmt in formats:
+        image_path = os.path.join(settings.BASE_DIR, 'static', 'img', f'{slug}{fmt}')
+        if os.path.exists(image_path):
+            return f'/static/img/{slug}{fmt}'
+    
+    return '/static/img/asiyab-haye-abi.jpg'
 
 # ==========================================================
 # صفحه اصلی (خانه)
@@ -43,8 +62,6 @@ def home(request):
 # ==========================================================
 # صفحه جاذبه‌ها
 # ==========================================================
-from django.utils.text import Truncator
-
 def attraction_page(request):
     places = Place.objects.filter(is_active=True).select_related('category__parent')
     categories = Category.objects.filter(type='attraction', parent__isnull=True).prefetch_related('children')
@@ -66,9 +83,9 @@ def attraction_page(request):
             'child': place.is_child_friendly,
             'lat': float(place.latitude) if place.latitude else 32.38,
             'lng': float(place.longitude) if place.longitude else 48.42,
-            'image': f'/static/img/{place.slug}.jpg',
+            'image': get_place_image(place),
             'desc': short_desc,
-            'short_description': short_desc,  # ← این فیلد هم محدود شده
+            'short_description': short_desc,
             'parent_category': place.category.parent.name if place.category and place.category.parent else (place.category.name if place.category else ''),
         })
     
@@ -77,6 +94,7 @@ def attraction_page(request):
         'categories': categories,
         'places_json': json.dumps(places_json, ensure_ascii=False),
     })
+
 # ==========================================================
 # صفحه تکی جاذبه (فقط یک نسخه - با گالری)
 # ==========================================================
@@ -300,7 +318,7 @@ def plan_page(request):
             'lat': float(place.latitude) if place.latitude else 32.38,
             'lng': float(place.longitude) if place.longitude else 48.42,
             'is_child_friendly': place.is_child_friendly,
-            'image': f'/static/img/{place.slug}.jpg',
+            'image': get_place_image(place),
         })
     
     # سفرهای اخیر کاربر
@@ -447,7 +465,7 @@ def map_page(request):
             'child': place.is_child_friendly,
             'lat': float(place.latitude) if place.latitude else 32.38,
             'lng': float(place.longitude) if place.longitude else 48.42,
-            'image': f'/static/img/{place.slug}.jpg',
+            'image': get_place_image(place),
             'desc': place.description or place.short_description or '',
         })
     

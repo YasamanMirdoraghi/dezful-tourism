@@ -20,6 +20,11 @@
 body.page-map { padding: 0 !important; overflow: hidden; }
 .page-map .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); }
 
+/* ===== مخفی کردن دکمه خانه در نقشه ===== */
+body.page-map .float-home {
+    display: none !important;
+}
+
 .map-wrapper {
     position: fixed; inset: 0; z-index: 1;
 }
@@ -27,40 +32,81 @@ body.page-map { padding: 0 !important; overflow: hidden; }
     position: absolute; inset: 0;
 }
 
-/* ---------- سایدبار کشویی ---------- */
+/* ---------- سایدبار چسبیده ---------- */
+/* ---------- سایدبار ---------- */
+/* ---------- سایدبار ---------- */
 .map-sidebar {
     position: absolute;
-    top: 80px; right: 20px;
-    width: 400px; max-height: calc(100vh - 110px);
+    top: 75px;
+    right: -5px;
+    width: 400px;
+    height: calc(100vh - 80px);
+    max-height: calc(100vh - 80px);
     background: #fff;
-    border-radius: 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.18);
+    border-radius: 0;
+    box-shadow: -5px 0 20px rgba(0,0,0,0.1);
     z-index: 900;
     display: flex; flex-direction: column;
     overflow: hidden;
     transition: transform .4s cubic-bezier(.4,0,.2,1), opacity .3s;
+    border-radius: 5px;
 }
 .map-sidebar.collapsed { transform: translateX(calc(100% + 30px)); }
 
+/* ===== هدر سایدبار با تصویر و گرادیان ===== */
 .sidebar-head {
+    background-image: url('{% static "img/slide4.jpg" %}');
+    background-size: cover;
+    background-position: center;
     padding: 18px 20px 14px;
-    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
     color: #fff;
     position: relative;
+    overflow: hidden;
+    height: 150px;  /* ← کوچک‌تر شد */
 }
+
+.sidebar-head::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(17,139,113,0.9) 0%, rgba(24, 218, 176, 0.404) 100%);
+    z-index: 0;
+}
+
 .sidebar-head h2 {
     font-size: 17px; font-weight: 900; margin: 0 0 4px;
     display: flex; align-items: center; gap: 8px;
+    position: relative; z-index: 1;
+    text-align: right;  /* ← راست‌چین */
+    justify-content: flex-start;
 }
-.sidebar-head p { font-size: 12px; opacity: .85; margin: 0; }
-.sidebar-head .close-sb {
-    position: absolute; top: 12px; left: 12px;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: rgba(255,255,255,.2); border: none; color: #fff;
-    cursor: pointer; font-size: 14px; transition: .2s;
-}
-.sidebar-head .close-sb:hover { background: rgba(255,255,255,.35); transform: rotate(90deg); }
 
+.sidebar-head p { font-size: 12px; opacity: .85; margin: 0; position: relative; z-index: 1; text-align: right; }
+
+/* ===== ضربدر فیکس و کوچک‌تر ===== */
+.sidebar-head .close-sb {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    width: 24px;  /* ← کوچک‌تر */
+    height: 24px;  /* ← کوچک‌تر */
+    border-radius: 50%;
+    background: rgba(255,255,255,.25);
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    font-size: 11px;  /* ← کوچک‌تر */
+    transition: .2s;
+    z-index: 2;  /* ← بالاتر از همه */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-head .close-sb:hover {
+    background: rgba(255,255,255,.45);
+    transform: rotate(90deg) scale(1.1);
+}
 /* جستجوی شناور */
 .smart-search {
     position: relative; padding: 14px 16px;
@@ -108,42 +154,98 @@ body.page-map { padding: 0 !important; overflow: hidden; }
 .sug-item .sug-cat { font-size: 11px; color: var(--brown-light); }
 
 /* فیلترهای سریع */
+/* ===== فیلترهای سریع - حرفه‌ای ===== */
 .quick-filters {
-    padding: 12px 16px; border-bottom: 1px solid #f1ece3;
+    padding: 12px 16px;
+    border-bottom: 1px solid #f1ece3;
+    background: #faf9f7;
 }
-.qf-title {
-    font-size: 11px; font-weight: 800;
-    color: var(--brown-light); margin-bottom: 8px;
-    display: flex; justify-content: space-between; align-items: center;
-}
-.qf-clear { font-size: 11px; color: var(--brick-orange); cursor: pointer; }
-.qf-chips {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    max-height: 120px; overflow-y: auto;
-}
-.qf-chip {
-    display: inline-flex; align-items: center; gap: 5px;
-    padding: 6px 12px; border-radius: 20px;
-    background: #f5f1ea; border: 1px solid transparent;
-    font-size: 11px; font-weight: 700; cursor: pointer;
-    color: var(--brown-text); transition: .2s;
-    font-family: inherit;
-}
-.qf-chip:hover { border-color: var(--primary-green); transform: translateY(-1px); }
-.qf-chip.active {
-    background: var(--primary-green); color: #fff;
-    border-color: var(--primary-green);
-}
-.qf-chip .chip-dot {
-    width: 8px; height: 8px; border-radius: 50%; flex: 0 0 8px;
-}
-.qf-chip .chip-num {
-    font-size: 9px; background: rgba(0,0,0,.1);
-    border-radius: 10px; padding: 1px 6px;
-}
-.qf-chip.active .chip-num { background: rgba(255,255,255,.25); }
 
-/* گزینه‌های اضافی */
+.qf-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--brown-light);
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.qf-clear {
+    font-size: 11px;
+    color: var(--brick-orange);
+    cursor: pointer;
+    background: rgba(255, 80, 80, 0.08);
+    padding: 4px 10px;
+    border-radius: 8px;
+    transition: .2s;
+}
+
+.qf-clear:hover {
+    background: var(--brick-orange);
+    color: #fff;
+}
+
+.qf-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    max-height: 80px;
+    overflow-y: auto;
+}
+
+.qf-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 10px;  /* ← مربعی گرد */
+    background: #fff;
+    border: 1.5px solid #e8e4dd;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    color: var(--brown-text);
+    transition: all .25s ease;
+    font-family: inherit;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+
+.qf-chip:hover {
+    border-color: var(--primary-green);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(17,139,113,0.1);
+}
+
+.qf-chip.active {
+    background: var(--primary-green);
+    color: #fff;
+    border-color: var(--primary-green);
+    box-shadow: 0 4px 12px rgba(17,139,113,0.2);
+}
+
+.qf-chip .chip-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex: 0 0 8px;
+}
+
+.qf-chip .chip-num {
+    font-size: 10px;
+    background: rgba(0,0,0,0.06);
+    border-radius: 8px;
+    padding: 2px 8px;
+    font-weight: 800;
+    color: var(--brown-light);
+}
+
+.qf-chip.active .chip-num {
+    background: rgba(255,255,255,0.25);
+    color: #fff;
+}
 .extra-toggles {
     padding: 10px 16px; border-bottom: 1px solid #f1ece3;
     display: flex; gap: 8px;
@@ -542,6 +644,49 @@ body.page-map { padding: 0 !important; overflow: hidden; }
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast i { color: var(--primary-green); font-size: 16px; }
 
+/* ===== چیپ‌های روز روی نقشه ===== */
+.map-day-chips {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 6px 10px;
+    border-radius: 40px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    overflow-x: auto;
+    max-width: 92%;
+}
+
+.map-chip {
+    border: 1px solid #e5e5e5;
+    background: #fff;
+    color: var(--brown-text);
+    border-radius: 30px;
+    padding: 7px 16px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.2s;
+}
+
+.map-chip:hover:not(.active) {
+    background: rgba(17, 139, 113, 0.06);
+    border-color: var(--primary-green);
+}
+
+.map-chip.active {
+    background: var(--primary-green);
+    color: #fff;
+    border-color: var(--primary-green);
+}
+
 /* ریسپانسیو */
 @media (max-width: 768px) {
     .map-sidebar { width: calc(100% - 40px); max-height: 55vh; top: 80px; right: 20px; }
@@ -551,28 +696,6 @@ body.page-map { padding: 0 !important; overflow: hidden; }
     .map-controls { left: 10px; bottom: 20px; }
     .mc-btn { width: 40px; height: 40px; }
     .layer-switcher { left: 10px; top: 80px; }
-}
-
-.sidebar-head {
-    background-image: url('{% static "img/slide4.jpg" %}');
-    background-size: cover;
-    background-position: center;
-    position: relative;
-}
-
-.sidebar-head::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, rgba(17,139,113,0.85) 0%, rgba(13,107,86,0.75) 100%);
-    z-index: 0;
-}
-
-.sidebar-head h2,
-.sidebar-head p,
-.sidebar-head .close-sb {
-    position: relative;
-    z-index: 1;
 }
 </style>
 </head>
@@ -674,6 +797,9 @@ body.page-map { padding: 0 !important; overflow: hidden; }
         </div>
         <div class="legend-body" id="legendBody"></div>
     </div>
+
+    <!-- چیپ‌های روز روی نقشه -->
+    <div class="map-day-chips" id="mapDayChips"></div>
 </div>
 
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
@@ -719,40 +845,39 @@ const TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
     let query = '';
 
     const map = L.map('tourismMap', { zoomControl: false });
-    L.control.zoom({ position: 'bottomright' }).addTo(map);
+    
+    // دکمه‌های + و - در بالا سمت راست
+    L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // لایه‌های مختلف - استفاده از CARTO با subdomain
-  const layers = {
-    // لایه اصلی - با رنگ سبز هماهنگ با سایت
-    street: L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-        attribution: '&copy; Google Maps',
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-        maxZoom: 20
-    }),
-    
-    // ماهواره
-    sat: L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
-        attribution: '&copy; Google Maps',
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-        maxZoom: 20
-    }),
-    
-    // زمین
-    terrain: L.tileLayer('https://{s}.google.com/vt/lyrs=p&x={x}&y={y}&z={z}', {
-        attribution: '&copy; Google Maps',
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-        maxZoom: 20
-    }),
-    
-    // شب
-    dark: L.tileLayer('https://{s}.google.com/vt/lyrs=m&x={x}&y={y}&z={z}', {
-        attribution: '&copy; Google Maps',
-        subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
-        maxZoom: 20
-    })
-};
+    const STADIA_API_KEY = '5ea17fd0-2af7-4a48-ab71-408ff7e7107c';
+
+    const layers = {
+        street: L.tileLayer(`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
+            attribution: '&copy; Stadia Maps &copy; OpenStreetMap',
+            maxZoom: 19
+        }),
+        sat: L.tileLayer(`https://tiles.stadiamaps.com/tiles/satellite/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
+            attribution: '&copy; Stadia Maps',
+            maxZoom: 19
+        }),
+        terrain: L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg?api_key=${STADIA_API_KEY}`, {
+            attribution: '&copy; Stamen Design &copy; Stadia Maps',
+            maxZoom: 18
+        }),
+        dark: L.tileLayer(`https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
+            attribution: '&copy; Stadia Maps &copy; OpenStreetMap',
+            maxZoom: 19
+        })
+    };
     layers.street.addTo(map);
-    map.setView([32.38, 48.42], 12);
+
+    // زوم اولیه با نمایش تمام نقاط
+    if (MAP_PLACES.length > 0) {
+        const allPoints = MAP_PLACES.map(p => [p.lat, p.lng]);
+        map.fitBounds(L.latLngBounds(allPoints), { padding: [50, 50], maxZoom: 13 });
+    } else {
+        map.setView([32.38, 48.42], 12);
+    }
 
     const cluster = L.markerClusterGroup({ maxClusterRadius: 45, showCoverageOnHover: false });
     map.addLayer(cluster);
@@ -900,113 +1025,119 @@ const TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
         if (favsOnly) applyFilters();
     }
 
-    // ==========================================================
-    // رندر لیست با استایل تایم‌لاین (مثل plan.html)
-    // ==========================================================
-    function renderList(places) {
-        const list = $('mapList');
-        if (!list) return;
-        if (!places.length) {
-            list.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--brown-light);"><i class="fas fa-search" style="font-size:28px; opacity:.3; display:block; margin-bottom:10px;"></i><p style="margin:0;">جاذبه‌ای با این فیلترها پیدا نشد</p></div>';
-            return;
-        }
+    // رندر لیست با استایل تایم‌لاین
+   function renderList(places) {
+    const list = $('mapList');
+    if (!list) return;
+    if (!places.length) {
+        list.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--brown-light);"><i class="fas fa-search" style="font-size:28px; opacity:.3; display:block; margin-bottom:10px;"></i><p style="margin:0;">جاذبه‌ای با این فیلترها پیدا نشد</p></div>';
+        return;
+    }
+    
+    // === مرتب‌سازی بر اساس id ===
+    places = [...places].sort((a, b) => a.id - b.id);
+    
+    if (TRIP_MODE && TRIP_DATA) {
+        // حالت سفر - گروه‌بندی بر اساس روز
+        const totalDays = TRIP_DATA.duration_days;
+        let html = '';
         
-        if (TRIP_MODE && TRIP_DATA) {
-            // حالت سفر - گروه‌بندی بر اساس روز
-            const totalDays = TRIP_DATA.duration_days;
-            let html = '';
+        for (let day = 1; day <= totalDays; day++) {
+            const dayPlaces = places.filter(p => {
+                const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
+                return sp && sp.day === day;
+            });
             
-            for (let day = 1; day <= totalDays; day++) {
-                const dayPlaces = places.filter(p => {
-                    const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
-                    return sp && sp.day === day;
-                });
-                
-                if (dayPlaces.length === 0) continue;
-                
-                html += `<div class="day-group">`;
-                html += `<div class="day-group-title">روز ${faNum(day)} <span>${faNum(dayPlaces.length)} جاذبه</span></div>`;
-                
-                dayPlaces.forEach((p, idx) => {
-                    const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
-                    const dayNum = sp ? sp.day : 1;
-                    
-                    html += `
-                    <div class="place-row">
-                        <span class="place-num">${faNum(idx + 1)}</span>
-                        <div class="place-card" data-id="${p.id}" style="cursor:pointer;">
-                            <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-                            <div class="pc-info">
-                                <h4>${p.name}</h4>
-                                <div class="pc-time">🕒 ${faNum(9 + idx)}:۰۰ تا ${faNum(10 + idx)}:۳۰</div>
-                                <div class="pc-meta">
-                                    <span>🏷️ ${p.cat}</span>
-                                    <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
-                                </div>
-                            </div>
-                            <div class="pc-side">
-                                <span class="dist-chip" style="background:${getDayColor(dayNum)}; color:#fff;">روز ${faNum(dayNum)}</span>
-                                <div class="pc-actions">
-                                    <span class="pc-score">⭐ ${faNum(p.rating)}</span>
-                                    <button class="icon-btn pc-more" data-id="${p.id}" title="گزینه‌ها"><i class="fas fa-ellipsis-h"></i></button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>`;
-                });
-                
-                html += `</div>`;
-            }
+            if (dayPlaces.length === 0) continue;
             
-            list.innerHTML = html;
-        } else {
-            // حالت عادی - لیست ساده
-            list.innerHTML = places.map(p => {
-                const meta = CAT_META[p.cat] || {};
-                return `
+            html += `<div class="day-group">`;
+            html += `<div class="day-group-title">روز ${faNum(day)} <span>${faNum(dayPlaces.length)} جاذبه</span></div>`;
+            
+            // === مرتب‌سازی جاذبه‌های هر روز بر اساس id ===
+            dayPlaces.sort((a, b) => a.id - b.id);
+            
+            dayPlaces.forEach((p, idx) => {
+                const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
+                const dayNum = sp ? sp.day : 1;
+                
+                html += `
                 <div class="place-row">
                     <span class="place-num">${faNum(p.id)}</span>
                     <div class="place-card" data-id="${p.id}" style="cursor:pointer;">
                         <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
                         <div class="pc-info">
                             <h4>${p.name}</h4>
-                            <div class="pc-time">🕒 ${faNum(9)}:۰۰ تا ${faNum(10)}:۳۰</div>
+                            <div class="pc-time">🕒 ${faNum(9 + idx)}:۰۰ تا ${faNum(10 + idx)}:۳۰</div>
                             <div class="pc-meta">
-                                <span style="color:${meta.color}"><i class="fas ${meta.icon}"></i> ${p.cat}</span>
+                                <span>🏷️ ${p.cat}</span>
                                 <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
                             </div>
                         </div>
                         <div class="pc-side">
-                            <span class="dist-chip">⭐ ${faNum(p.rating)}</span>
+                            <span class="dist-chip" style="background:${getDayColor(dayNum)}; color:#fff;">روز ${faNum(dayNum)}</span>
                             <div class="pc-actions">
+                                <span class="pc-score">⭐ ${faNum(p.rating)}</span>
                                 <button class="icon-btn pc-more" data-id="${p.id}" title="گزینه‌ها"><i class="fas fa-ellipsis-h"></i></button>
                             </div>
                         </div>
                     </div>
                 </div>`;
-            }).join('');
+            });
+            
+            html += `</div>`;
         }
         
-        // رویداد کلیک روی کارت‌ها
-        list.querySelectorAll('.place-card').forEach(card => {
-            card.addEventListener('click', () => {
-                const id = +card.dataset.id;
-                if (id) highlightItem(id, true);
-            });
-        });
+        list.innerHTML = html;
+    } else {
+        // حالت عادی - مرتب‌سازی بر اساس id
+        places.sort((a, b) => a.id - b.id);
         
-        // رویداد کلیک روی دکمه گزینه‌ها
-        list.querySelectorAll('.pc-more').forEach(btn => {
-            btn.addEventListener('click', e => {
-                e.stopPropagation();
-                const id = +btn.dataset.id;
-                if (id) {
-                    const p = MAP_PLACES.find(x => x.id === id);
-                    if (p) showToast(`گزینه‌های ${p.name}`);
-                }
-            });
-        });
+        list.innerHTML = places.map(p => {
+            const meta = CAT_META[p.cat] || {};
+            return `
+            <div class="place-row">
+                <span class="place-num">${faNum(p.id)}</span>
+                <div class="place-card" data-id="${p.id}" style="cursor:pointer;">
+                    <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+                    <div class="pc-info">
+                        <h4>${p.name}</h4>
+                        <div class="pc-time">🕒 ${faNum(9)}:۰۰ تا ${faNum(10)}:۳۰</div>
+                        <div class="pc-meta">
+                            <span style="color:${meta.color}"><i class="fas ${meta.icon}"></i> ${p.cat}</span>
+                            <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
+                        </div>
+                    </div>
+                    <div class="pc-side">
+                        <span class="dist-chip">⭐ ${faNum(p.rating)}</span>
+                        <div class="pc-actions">
+                            <button class="icon-btn pc-more" data-id="${p.id}" title="گزینه‌ها"><i class="fas fa-ellipsis-h"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>`;
+        }).join('');
     }
+    
+    // رویداد کلیک روی کارت‌ها
+    list.querySelectorAll('.place-card').forEach(card => {
+        card.addEventListener('click', () => {
+            const id = +card.dataset.id;
+            if (id) highlightItem(id, true);
+        });
+    });
+    
+    // رویداد کلیک روی دکمه گزینه‌ها
+    list.querySelectorAll('.pc-more').forEach(btn => {
+        btn.addEventListener('click', e => {
+            e.stopPropagation();
+            const id = +btn.dataset.id;
+            if (id) {
+                const p = MAP_PLACES.find(x => x.id === id);
+                if (p) showToast(`گزینه‌های ${p.name}`);
+            }
+        });
+    });
+}
 
     function highlightItem(id, fly) {
         document.querySelectorAll('.place-card').forEach(el =>
@@ -1114,6 +1245,40 @@ const TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
                 activeDay = day;
                 applyTripFilters();
                 chipsContainer.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
+                dayBtn.classList.add('active');
+            });
+            chipsContainer.appendChild(dayBtn);
+        }
+    }
+
+    function buildMapDayChips() {
+        const chipsContainer = $('mapDayChips');
+        if (!chipsContainer) return;
+        
+        chipsContainer.innerHTML = '';
+        
+        const allBtn = document.createElement('button');
+        allBtn.className = 'map-chip active';
+        allBtn.innerHTML = 'همه';
+        allBtn.addEventListener('click', () => {
+            activeDay = 'all';
+            applyTripFilters();
+            chipsContainer.querySelectorAll('.map-chip').forEach(c => c.classList.remove('active'));
+            allBtn.classList.add('active');
+        });
+        chipsContainer.appendChild(allBtn);
+        
+        const totalDays = TRIP_DATA.duration_days;
+        for (let day = 1; day <= totalDays; day++) {
+            const dayBtn = document.createElement('button');
+            dayBtn.className = 'map-chip';
+            dayBtn.style.background = getDayColor(day);
+            dayBtn.style.color = '#fff';
+            dayBtn.innerHTML = `روز ${faNum(day)}`;
+            dayBtn.addEventListener('click', () => {
+                activeDay = day;
+                applyTripFilters();
+                chipsContainer.querySelectorAll('.map-chip').forEach(c => c.classList.remove('active'));
                 dayBtn.classList.add('active');
             });
             chipsContainer.appendChild(dayBtn);
@@ -1300,6 +1465,7 @@ const TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
         if (sidebarTitle) sidebarTitle.innerHTML = '<i class="fas fa-route"></i> برنامه سفر شما';
         if (sidebarSubtitle) sidebarSubtitle.textContent = `سفر ${faNum(TRIP_DATA.duration_days)} روزه - ${TRIP_DATA.interests.join('، ')}`;
         buildTripDayChips();
+        buildMapDayChips();
         buildLegend();
         applyTripFilters();
         const tripPlaces = TRIP_DATA.suggested_places.map(sp => MAP_PLACES.find(p => p.id === sp.id)).filter(p => p);
