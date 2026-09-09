@@ -69,7 +69,7 @@ body.page-map .float-home {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(17,139,113,0.9) 0%, rgba(24, 218, 176, 0.404) 100%);
+    background: linear-gradient(135deg, rgba(13, 68, 56, 0.9) 0%, rgba(7, 68, 55, 0.404) 100%);
     z-index: 0;
 }
 
@@ -505,13 +505,17 @@ body.page-map .float-home {
 
 /* راهنما */
 .map-legend {
-    position: absolute; bottom: 30px; right: 20px;
-    z-index: 800; background: rgba(255,255,255,.96);
-    backdrop-filter: blur(8px); border-radius: 14px;
+    position: absolute;
+    bottom: 30px;
+    left: 80px;
+    z-index: 800;
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
     padding: 12px 16px;
     box-shadow: 0 8px 24px rgba(0,0,0,.12);
-    font-size: 11px; max-width: 200px;
-    transition: .3s;
+    font-size: 11px;
+    max-width: 200px;
 }
 .map-legend.collapsed {
     padding: 8px 14px; max-width: 100px;
@@ -848,27 +852,52 @@ const TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
     
     // دکمه‌های + و - در بالا سمت راست
     L.control.zoom({ position: 'topright' }).addTo(map);
+// const STADIA_API_KEY = '5ea17fd0-2af7-4a48-ab71-408ff7e7107c';
 
-    const STADIA_API_KEY = '5ea17fd0-2af7-4a48-ab71-408ff7e7107c';
+// const layers = {
+//     street: L.tileLayer(`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
+//         attribution: '&copy; Stadia Maps &copy; OpenStreetMap',
+//         maxZoom: 19
+//     }),
+    
+//     sat: L.tileLayer(`https://tiles.stadiamaps.com/tiles/satellite/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
+//         attribution: '&copy; Stadia Maps',
+//         maxZoom: 19
+//     }),
+    
+//     terrain: L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg?api_key=${STADIA_API_KEY}`, {
+//         attribution: '&copy; Stamen Design &copy; Stadia Maps',
+//         maxZoom: 18
+//     }),
+    
+//     dark: L.tileLayer(`https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
+//         attribution: '&copy; Stadia Maps &copy; OpenStreetMap',
+//         maxZoom: 19
+//     })
+// };
+const MAPTILER_API_KEY = 'HJ7dofOgoJi2TfcV7XkF';
 
-    const layers = {
-        street: L.tileLayer(`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
-            attribution: '&copy; Stadia Maps &copy; OpenStreetMap',
-            maxZoom: 19
-        }),
-        sat: L.tileLayer(`https://tiles.stadiamaps.com/tiles/satellite/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
-            attribution: '&copy; Stadia Maps',
-            maxZoom: 19
-        }),
-        terrain: L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg?api_key=${STADIA_API_KEY}`, {
-            attribution: '&copy; Stamen Design &copy; Stadia Maps',
-            maxZoom: 18
-        }),
-        dark: L.tileLayer(`https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
-            attribution: '&copy; Stadia Maps &copy; OpenStreetMap',
-            maxZoom: 19
-        })
-    };
+const layers = {
+    street: L.tileLayer(`https://tile.openstreetmap.de/{z}/{x}/{y}.png`, {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 19
+    }),
+    
+    sat: L.tileLayer(`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
+        attribution: '&copy; MapTiler',
+        maxZoom: 19
+    }),
+    
+    terrain: L.tileLayer(`https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png`, {
+        attribution: '&copy; OpenTopoMap',
+        maxZoom: 17
+    }),
+    
+    dark: L.tileLayer(`https://api.maptiler.com/maps/dark/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
+        attribution: '&copy; MapTiler',
+        maxZoom: 19
+    })
+};
     layers.street.addTo(map);
 
     // زوم اولیه با نمایش تمام نقاط
