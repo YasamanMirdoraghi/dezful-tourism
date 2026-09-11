@@ -19,7 +19,6 @@ class User(AbstractUser):
 # ==========================================================
 # ۲. دسته‌بندی
 # ==========================================================
-
 class Category(models.Model):
     TYPE_CHOICES = [('attraction', 'Attraction'), ('article', 'Article')]
     
@@ -39,7 +38,6 @@ class Category(models.Model):
 # ==========================================================
 # ۳. تگ
 # ==========================================================
-
 class Tag(models.Model):
     TYPE_CHOICES = [('attraction', 'Attraction'), ('article', 'Article'), ('both', 'Both')]
     
@@ -55,7 +53,7 @@ class Tag(models.Model):
         return self.name
 
 # ==========================================================
-# ۴. جاذبه (بدون PointField)
+# ۴. جاذبه
 # ==========================================================
 class Place(models.Model):
     name = models.CharField(max_length=200)
@@ -74,9 +72,9 @@ class Place(models.Model):
     main_image = models.ImageField(upload_to='attractions/', null=True, blank=True)
     gallery = models.JSONField(default=list, blank=True)
     phone = models.CharField(max_length=20, null=True, blank=True)
-    contact_info = models.CharField(max_length=300, null=True, blank=True)  # ← اسم تغییر کرد
+    contact_info = models.CharField(max_length=300, null=True, blank=True)
     rating_avg = models.FloatField(default=0)
-    # visit_count = models.BigIntegerField(default=0)  # ← حذف شد
+    visit_count = models.BigIntegerField(default=0)  # ✅ برگشت
     is_active = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -85,10 +83,10 @@ class Place(models.Model):
 
     def __str__(self):
         return self.name
+
 # ==========================================================
 # ۵. ارتباط جاذبه و تگ
 # ==========================================================
-
 class PlaceTag(models.Model):
     place = models.ForeignKey(Place, on_delete=models.CASCADE)
     tag = models.ForeignKey(Tag, on_delete=models.CASCADE)
@@ -97,7 +95,7 @@ class PlaceTag(models.Model):
         unique_together = ('place', 'tag')
 
 # ==========================================================
-# ۶. مسیر (بدون LineStringField)
+# ۶. مسیر
 # ==========================================================
 class Route(models.Model):
     ROUTE_TYPES = [('walk', 'Walking'), ('car', 'Car'), ('bike', 'Bike')]
@@ -107,7 +105,6 @@ class Route(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True)
     origin = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True, related_name='routes_as_origin')
     destination = models.ForeignKey(Place, on_delete=models.SET_NULL, null=True, blank=True, related_name='routes_as_destination')
-    # route_path = models.LineStringField(...)  ← حذف شد
     route_type = models.CharField(max_length=10, choices=ROUTE_TYPES, default='walk')
     duration_minutes = models.IntegerField(default=20)
     distance_km = models.DecimalField(max_digits=6, decimal_places=2, null=True, blank=True)
@@ -251,6 +248,7 @@ class Trip(models.Model):
     
     def __str__(self):
         return f"{self.user.username} - {self.start_date} to {self.end_date}"
+
 # ==========================================================
 # ۱۳. پلن
 # ==========================================================
@@ -305,7 +303,10 @@ class UserFavorite(models.Model):
 
     def __str__(self):
         return f"{self.user.username} ❤️ {self.place.name}"
-# تماس
+
+# ==========================================================
+# ۱۶. تماس با ما
+# ==========================================================
 class Contact(models.Model):
     name = models.CharField(max_length=100)
     email = models.EmailField()

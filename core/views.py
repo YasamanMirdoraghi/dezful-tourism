@@ -13,6 +13,7 @@ import jdatetime
 
 from django.conf import settings
 
+
 from .models import (
     Place, Category, Article, Plan, Route, Review, User,
     ArticleBlock, ArticleRelated, Contact, Trip
@@ -302,24 +303,48 @@ def logout_view(request):
 # ==========================================================
 # صفحه برنامه‌ریز سفر
 # ==========================================================
+# ==========================================================
+# صفحه برنامه‌ریز سفر
+# ==========================================================
 def plan_page(request):
-    places = Place.objects.filter(is_active=True)
+    places = Place.objects.filter(is_active=True).select_related('category')
     categories = Category.objects.filter(type='attraction')
     
     places_json = []
     for place in places:
+        # توضیح کوتاه برای popup نقشه و کارت‌ها
+        desc = place.short_description or place.description or ''
+        desc = Truncator(desc).chars(150)
+        
         places_json.append({
             'id': place.id,
             'name': place.name,
             'slug': place.slug,
             'category': place.category.name if place.category else '',
+            'category_id': place.category.id if place.category else None,
             'cost': place.cost_toman,
             'duration': place.duration_minutes,
             'lat': float(place.latitude) if place.latitude else 32.38,
             'lng': float(place.longitude) if place.longitude else 48.42,
             'is_child_friendly': place.is_child_friendly,
             'image': get_place_image(place),
+            # ✅ فیلدهای جدید که برای الگوریتم‌ها نیاز داریم:
+            'rating': float(place.rating_avg) if place.rating_avg else 3.5,
+            'views': place.visit_count or 0,
+            'desc': desc,
+            'short_description': desc,
         })
+    
+    # دسته‌بندی‌ها به صورت JSON برای استفاده در الگوریتم‌ها
+    categories_json = [
+        {
+            'id': cat.id,
+            'name': cat.name,
+            'slug': cat.slug,
+            'icon': cat.icon or 'fa-map-marker-alt',
+        }
+        for cat in categories
+    ]
     
     # سفرهای اخیر کاربر
     user_trips = Trip.objects.filter(user=request.user).order_by('-created_at')[:5] if request.user.is_authenticated else []
@@ -328,9 +353,9 @@ def plan_page(request):
         'places': places,
         'categories': categories,
         'places_json': json.dumps(places_json, ensure_ascii=False),
+        'categories_json': json.dumps(categories_json, ensure_ascii=False),  # ✅ جدید
         'user_trips': user_trips,
     })
-
 # ==========================================================
 # توابع تبدیل تاریخ
 # ==========================================================
