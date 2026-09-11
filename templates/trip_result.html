@@ -1,0 +1,1021 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>برنامه سفر شما | سفر به دزفول</title>
+	<link rel="stylesheet" href="{% static 'css/style.css' %}">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+	<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
+	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+	<style>
+		.trip-result-page {
+			min-height: 100vh;
+			background: var(--cream-bg);
+			padding: 30px 0 60px;
+		}
+
+		.trip-result-header {
+			text-align: center;
+			margin-bottom: 30px;
+		}
+
+		.trip-result-header .badge {
+			display: inline-block;
+			background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+			color: #fff;
+			padding: 6px 20px;
+			border-radius: 30px;
+			font-size: 13px;
+			font-weight: 700;
+			margin-bottom: 12px;
+		}
+
+		.trip-result-header h1 {
+			font-size: 2.2rem;
+			color: var(--brown-text);
+			margin-bottom: 8px;
+			font-weight: 900;
+		}
+
+		.trip-result-header p {
+			color: var(--brown-light);
+			font-size: 15px;
+		}
+
+		.trip-result-info {
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+			gap: 16px;
+			margin-bottom: 24px;
+		}
+
+		.trip-info-card {
+			background: #fff;
+			border-radius: 16px;
+			padding: 18px;
+			box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+			display: flex;
+			align-items: center;
+			gap: 14px;
+		}
+
+		.trip-info-card .info-icon {
+			width: 48px;
+			height: 48px;
+			border-radius: 12px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 20px;
+			color: #fff;
+			flex-shrink: 0;
+		}
+
+		.trip-info-card .info-icon.green { background: linear-gradient(135deg, #118b71, #2a9d8f); }
+		.trip-info-card .info-icon.orange { background: linear-gradient(135deg, #f4a62a, #ff7a5a); }
+		.trip-info-card .info-icon.pink { background: linear-gradient(135deg, #e04444, #ff7a5a); }
+		.trip-info-card .info-icon.blue { background: linear-gradient(135deg, #2196f3, #64b5f6); }
+
+		.trip-info-card .info-label {
+			font-size: 12px;
+			color: var(--brown-light);
+			margin-bottom: 4px;
+		}
+
+		.trip-info-card .info-value {
+			font-size: 15px;
+			font-weight: 800;
+			color: var(--brown-text);
+		}
+
+		/* باکس هشدار */
+		.plan-warnings-box {
+			background: #fff;
+			border-radius: 16px;
+			padding: 0;
+			margin-bottom: 24px;
+			box-shadow: 0 4px 20px rgba(0,0,0,.08);
+			overflow: hidden;
+			border: 1px solid rgba(244,166,42,.2);
+		}
+
+		.pw-header {
+			background: linear-gradient(135deg, #fef9e7, #fff4d6);
+			padding: 14px 18px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			color: #8b6914;
+			font-size: 14px;
+			font-weight: 800;
+		}
+
+		.pw-header > i { color: #f4a62a; font-size: 18px; }
+		.pw-header > span { flex: 1; }
+
+		.pw-body {
+			padding: 14px;
+			display: flex;
+			flex-direction: column;
+			gap: 10px;
+		}
+
+		.pw-item {
+			display: flex;
+			gap: 12px;
+			padding: 12px 14px;
+			border-radius: 12px;
+			font-size: 13px;
+			line-height: 1.8;
+			border-right: 3px solid transparent;
+		}
+
+		.pw-item.pw-warn { background: rgba(244,166,42,.06); border-right-color: #f4a62a; }
+		.pw-item.pw-error { background: rgba(255,80,80,.05); border-right-color: #ff5050; }
+
+		.pw-item .pw-icon {
+			flex: 0 0 28px;
+			width: 28px;
+			height: 28px;
+			border-radius: 50%;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 13px;
+		}
+
+		.pw-item.pw-warn .pw-icon { background: rgba(244,166,42,.15); color: #d68f1d; }
+		.pw-item.pw-error .pw-icon { background: rgba(255,80,80,.12); color: #e04444; }
+
+		.pw-item strong { display: block; margin-bottom: 3px; color: var(--brown-text); font-size: 13px; }
+		.pw-item span { color: var(--brown-light); font-size: 12px; }
+		.pw-item b { color: var(--primary-green); font-weight: 800; }
+
+		/* لایه اصلی */
+		.trip-result-layout {
+			display: grid;
+			grid-template-columns: 1fr 1.2fr;
+			gap: 24px;
+			align-items: start;
+		}
+
+		/* سایدبار نتایج */
+		.trip-result-sidebar {
+			background: #fff;
+			border-radius: 20px;
+			overflow: hidden;
+			box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+			max-height: 80vh;
+			display: flex;
+			flex-direction: column;
+		}
+
+		.planner-hero {
+			background-image: url('{% static "img/slide4.jpg" %}');
+			background-size: cover;
+			background-position: center;
+			height: 130px;
+			position: relative;
+		}
+
+		.planner-hero::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,.05) 60%);
+		}
+
+		.ph-title {
+			position: absolute;
+			bottom: 14px;
+			right: 16px;
+			left: 16px;
+			display: flex;
+			align-items: center;
+			gap: 12px;
+			color: #fff;
+			z-index: 2;
+		}
+
+		.ph-thumb {
+			width: 48px;
+			height: 48px;
+			border-radius: 12px;
+			object-fit: cover;
+			border: 2px solid rgba(255,255,255,.6);
+		}
+
+		.ph-title h3 { font-size: 18px; font-weight: 900; }
+		.ph-title span { font-size: 11px; opacity: .9; }
+
+		/* تب‌ها */
+		.planner-tabs {
+			display: flex;
+			gap: 6px;
+			overflow-x: auto;
+			padding: 8px 14px;
+			border-bottom: 1px solid #f0f0f0;
+			background: #fff;
+			flex-shrink: 0;
+		}
+
+		.ptab {
+			flex: 0 0 auto;
+			text-align: center;
+			padding: 10px 16px 12px;
+			border: none;
+			background: none;
+			cursor: pointer;
+			font-family: inherit;
+			border-bottom: 3px solid transparent;
+			color: var(--brown-light);
+			transition: 0.2s;
+		}
+
+		.ptab .t { display: block; font-weight: 800; font-size: 14px; }
+		.ptab .s { display: block; font-size: 11px; margin-top: 3px; opacity: 0.8; }
+		.ptab.active { color: var(--brick-orange); border-bottom-color: var(--brick-orange); }
+		.ptab:hover:not(.active) { color: var(--brown-text); }
+
+		.planner-days {
+			padding: 16px 16px 26px;
+			overflow-y: auto;
+			flex: 1;
+		}
+
+		.planner-days::-webkit-scrollbar { width: 6px; }
+		.planner-days::-webkit-scrollbar-thumb { background: rgba(17,139,113,.35); border-radius: 10px; }
+
+		.day-block { margin-bottom: 26px; }
+
+		.day-block-title {
+			font-size: 13px;
+			font-weight: 800;
+			color: var(--brown-text);
+			margin: 4px 0 14px;
+			display: flex;
+			justify-content: space-between;
+		}
+
+		.day-block-title span { color: var(--brown-light); font-weight: 500; font-size: 12px; }
+
+		.place-row {
+			position: relative;
+			padding-right: 46px;
+			margin-bottom: 16px;
+		}
+
+		.place-row::before {
+			content: '';
+			position: absolute;
+			right: 15px;
+			top: 36px;
+			bottom: -14px;
+			border-right: 2px dashed rgba(255, 80, 80, 0.3);
+		}
+
+		.place-row:last-child::before { display: none; }
+
+		.place-num {
+			position: absolute;
+			right: 0;
+			top: 12px;
+			width: 30px;
+			height: 30px;
+			border-radius: 50%;
+			border: 2px solid var(--brick-orange);
+			color: var(--brick-orange);
+			background: #fff;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: 13px;
+			font-weight: 800;
+			z-index: 1;
+		}
+
+		.place-card {
+			display: flex;
+			gap: 12px;
+			background: #fff;
+			border: 1px solid #f0f0f0;
+			border-radius: 16px;
+			padding: 12px;
+			box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+		}
+
+		.pc-img {
+			width: 76px;
+			height: 76px;
+			border-radius: 12px;
+			object-fit: cover;
+			flex: 0 0 76px;
+			background: #f0f0f0;
+		}
+
+		.pc-info { flex: 1; min-width: 0; }
+		.pc-info h4 { font-size: 15px; font-weight: 800; color: var(--brown-text); margin-bottom: 6px; }
+		.pc-time { font-size: 12px; color: var(--brown-light); margin-bottom: 6px; }
+		.pc-meta { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--brown-light); }
+
+		/* نقشه */
+		.trip-result-map-wrap {
+			background: #fff;
+			border-radius: 20px;
+			overflow: hidden;
+			box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+			position: relative;
+			height: 80vh;
+			position: sticky;
+			top: 90px;
+		}
+
+		#resultMap {
+			position: absolute;
+			inset: 0;
+		}
+
+		.map-day-chips {
+			position: absolute;
+			bottom: 14px;
+			left: 50%;
+			transform: translateX(-50%);
+			display: flex;
+			gap: 8px;
+			z-index: 1000;
+			background: rgba(255, 255, 255, 0.92);
+			padding: 6px 10px;
+			border-radius: 40px;
+			backdrop-filter: blur(6px);
+			box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+			overflow-x: auto;
+			max-width: 92%;
+		}
+
+		.map-chip {
+			border: 1px solid #e5e5e5;
+			background: #fff;
+			color: var(--brown-text);
+			border-radius: 30px;
+			padding: 7px 16px;
+			font-family: inherit;
+			font-size: 12px;
+			font-weight: 700;
+			cursor: pointer;
+			white-space: nowrap;
+			transition: 0.2s;
+		}
+
+		.map-chip:hover:not(.active) {
+			background: rgba(17, 139, 113, 0.06);
+			border-color: var(--primary-green);
+		}
+
+		.map-chip.active {
+			background: var(--primary-green);
+			color: #fff;
+			border-color: var(--primary-green);
+		}
+
+		/* پین‌ها */
+		.pin-wrap { background: transparent; border: none; }
+		.pin {
+			width: 28px;
+			height: 28px;
+			background: var(--brick-orange);
+			border: 3px solid #fff;
+			border-radius: 50% 50% 50% 0;
+			transform: rotate(-45deg);
+			box-shadow: 0 5px 12px rgba(0, 0, 0, 0.35);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+		.pin span {
+			transform: rotate(45deg);
+			color: #fff;
+			font-weight: 800;
+			font-size: 12px;
+			font-family: 'Vazirmatn', sans-serif;
+		}
+
+		.pin-label {
+			position: absolute;
+			top: 34px;
+			left: 50%;
+			transform: translateX(-50%);
+			white-space: nowrap;
+			font-size: 11px;
+			font-weight: 800;
+			color: #2b2b2b;
+			font-family: 'Vazirmatn', sans-serif;
+			text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 6px #fff;
+			pointer-events: none;
+		}
+
+		/* پاپ‌آپ نقشه */
+		.leaflet-popup-content-wrapper {
+			border-radius: 16px;
+			box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+			overflow: hidden;
+		}
+		.leaflet-popup-content {
+			margin: 0 !important;
+			width: 250px !important;
+			font-family: 'Vazirmatn', sans-serif;
+		}
+		.map-pop { direction: rtl; background: #fff; }
+		.map-pop-img { height: 120px; background: #e8e8e8; position: relative; }
+		.map-pop-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+		.map-pop-badge {
+			position: absolute;
+			top: 10px;
+			right: 10px;
+			background: rgba(255, 255, 255, 0.92);
+			color: var(--primary-green);
+			border-radius: 20px;
+			padding: 3px 12px;
+			font-size: 10px;
+			font-weight: 800;
+		}
+		.map-pop-body { padding: 12px 14px 14px; }
+		.map-pop-body h4 { font-size: 15px; font-weight: 800; color: var(--brown-text); margin-bottom: 6px; }
+		.map-pop-loc { font-size: 11px; color: var(--brown-light); display: flex; align-items: center; gap: 5px; margin-bottom: 8px; }
+		.map-pop-loc i { color: var(--brick-orange); }
+		.map-pop-body p { font-size: 11px; color: var(--brown-light); line-height: 1.8; margin: 0; }
+
+		/* دکمه‌های اقدام */
+		.trip-actions {
+			display: flex;
+			gap: 12px;
+			margin-top: 24px;
+			flex-wrap: wrap;
+			justify-content: center;
+		}
+
+		.trip-action-btn {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			padding: 12px 24px;
+			border-radius: 14px;
+			font-family: inherit;
+			font-size: 14px;
+			font-weight: 700;
+			cursor: pointer;
+			transition: all .25s;
+			text-decoration: none;
+			border: none;
+		}
+
+		.trip-action-btn.primary {
+			background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+			color: #fff;
+			box-shadow: 0 8px 25px rgba(17,139,113,0.25);
+		}
+
+		.trip-action-btn.primary:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 12px 30px rgba(17,139,113,0.35);
+		}
+
+		.trip-action-btn.secondary {
+			background: #fff;
+			color: var(--primary-green);
+			border: 2px solid var(--primary-green);
+		}
+
+		.trip-action-btn.secondary:hover {
+			background: var(--primary-green);
+			color: #fff;
+		}
+
+		.trip-action-btn.orange {
+			background: linear-gradient(135deg, #f4a62a, #ff7a5a);
+			color: #fff;
+			box-shadow: 0 8px 25px rgba(244,166,42,0.25);
+		}
+
+		.trip-action-btn.orange:hover {
+			transform: translateY(-3px);
+			box-shadow: 0 12px 30px rgba(244,166,42,0.35);
+		}
+
+		/* ریسپانسیو */
+		@media (max-width: 992px) {
+			.trip-result-layout {
+				grid-template-columns: 1fr;
+			}
+			.trip-result-map-wrap {
+				height: 500px;
+				position: relative;
+				top: 0;
+			}
+			.trip-result-sidebar {
+				max-height: none;
+			}
+		}
+
+		@media (max-width: 600px) {
+			.trip-result-header h1 { font-size: 1.6rem; }
+			.trip-actions { flex-direction: column; }
+			.trip-action-btn { justify-content: center; }
+		}
+	</style>
+</head>
+
+<body>
+
+	<!-- Navbar -->
+	<nav class="navbar" id="navbar">
+		<div class="logo">
+			<i class="fas fa-mountain"></i>
+			سفر به <span>دزفول</span>
+		</div>
+		<ul class="nav-links" id="navLinks">
+			<button class="close-menu-btn" id="closeMenuBtn" aria-label="بستن منو">
+				<i class="fas fa-times"></i>
+			</button>
+			<a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
+			<a href="{% url 'plan' %}" class="active"><i class="fas fa-route"></i> برنامه‌ریز</a>
+			<a href="{% url 'attraction' %}"><i class="fas fa-map-marker-alt"></i> جاذبه‌ها</a>
+			<a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+			<a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+			<a href="{% url 'contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
+		</ul>
+		<div class="auth-buttons">
+			{% if user.is_authenticated %}
+			<span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
+			<a href="{% url 'logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
+			{% else %}
+			<a href="{% url 'register' %}" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+			<a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			{% endif %}
+			<button class="hamburger" id="hamburgerBtn" aria-label="منو">
+				<i class="fas fa-bars"></i>
+			</button>
+		</div>
+	</nav>
+	<div class="overlay" id="menuOverlay"></div>
+
+	<!-- Main -->
+	<section class="trip-result-page">
+		<div class="container">
+
+			<!-- Header -->
+			<div class="trip-result-header">
+				<span class="badge"><i class="fas fa-check-circle"></i> برنامه شما آماده شد</span>
+				<h1>سفر شما به دزفول</h1>
+				<p>برنامه‌ای که هوش مصنوعی بر اساس سلیقه‌ات ساخته</p>
+			</div>
+
+			<!-- Info Cards -->
+			<div class="trip-result-info">
+				<div class="trip-info-card">
+					<div class="info-icon green"><i class="fas fa-calendar-check"></i></div>
+					<div>
+						<div class="info-label">تاریخ سفر</div>
+						<div class="info-value">
+							{% if start_jalali %}{{ start_jalali.year }}/{{ start_jalali.month }}/{{ start_jalali.day }}{% endif %}
+							تا
+							{% if end_jalali %}{{ end_jalali.year }}/{{ end_jalali.month }}/{{ end_jalali.day }}{% endif %}
+						</div>
+					</div>
+				</div>
+				<div class="trip-info-card">
+					<div class="info-icon orange"><i class="fas fa-hourglass-half"></i></div>
+					<div>
+						<div class="info-label">مدت سفر</div>
+						<div class="info-value">{{ trip.duration_days }} روز</div>
+					</div>
+				</div>
+				<div class="trip-info-card">
+					<div class="info-icon pink"><i class="fas fa-users"></i></div>
+					<div>
+						<div class="info-label">همراهان</div>
+						<div class="info-value">{{ trip.companions }} نفر</div>
+					</div>
+				</div>
+				<div class="trip-info-card">
+					<div class="info-icon blue"><i class="fas fa-map-marked-alt"></i></div>
+					<div>
+						<div class="info-label">تعداد جاذبه‌ها</div>
+						<div class="info-value">{{ places_in_trip|length }} مورد</div>
+					</div>
+				</div>
+			</div>
+
+			<!-- Warnings Box -->
+			{% if empty_categories or low_categories %}
+			<div class="plan-warnings-box">
+				<div class="pw-header">
+					<i class="fas fa-info-circle"></i>
+					<span>توجه به نکات زیر برنامه شما رو بهتر می‌کنه</span>
+				</div>
+				<div class="pw-body">
+					{% for lc in low_categories %}
+					<div class="pw-item pw-warn">
+						<span class="pw-icon"><i class="fas fa-exclamation-triangle"></i></span>
+						<div>
+							<strong>«{{ lc.name }}»</strong>
+							<span>
+								فقط <b>{{ lc.count }}</b> جاذبه در این دسته داریم.
+								برای تکمیل برنامه، جاذبه‌های مشابه از دسته‌های دیگر اضافه شدند.
+							</span>
+						</div>
+					</div>
+					{% endfor %}
+
+					{% for ec in empty_categories %}
+					<div class="pw-item pw-error">
+						<span class="pw-icon"><i class="fas fa-times-circle"></i></span>
+						<div>
+							<strong>«{{ ec }}»</strong>
+							<span>
+								در حال حاضر هیچ جاذبه‌ای در این دسته ثبت نشده است.
+								برنامه شما بر اساس سایر علاقه‌مندی‌ها ساخته شد.
+							</span>
+						</div>
+					</div>
+					{% endfor %}
+				</div>
+			</div>
+			{% endif %}
+
+			<!-- Main Layout -->
+			<div class="trip-result-layout">
+
+				<!-- Sidebar -->
+				<div class="trip-result-sidebar">
+					<div class="planner-hero">
+						<div class="ph-title">
+							<img src="{% static 'img/slide4.jpg' %}" alt="" class="ph-thumb">
+							<div>
+								<h3>دزفول</h3>
+								<span>{{ trip.duration_days }} روز - {{ trip.companions }} نفر</span>
+							</div>
+						</div>
+					</div>
+					<div class="planner-tabs" id="plannerTabs"></div>
+					<div class="planner-days" id="plannerDays"></div>
+				</div>
+
+				<!-- Map -->
+				<div class="trip-result-map-wrap">
+					<div id="resultMap"></div>
+					<div class="map-day-chips" id="mapDayChips"></div>
+				</div>
+
+			</div>
+
+			<!-- Actions -->
+			<div class="trip-actions">
+				<a href="{% url 'plan' %}" class="trip-action-btn secondary">
+					<i class="fas fa-plus-circle"></i> برنامه جدید
+				</a>
+				<a href="/map/?trip={{ trip.id }}" class="trip-action-btn primary">
+					<i class="fas fa-map"></i> مشاهده روی نقشه کامل
+				</a>
+				<button class="trip-action-btn orange" onclick="window.print()">
+					<i class="fas fa-print"></i> چاپ برنامه
+				</button>
+			</div>
+
+		</div>
+	</section>
+
+	<!-- Footer -->
+	<footer class="footer">
+		<div class="container">
+			<div class="footer-grid">
+				<div>
+					<h4><i class="fas fa-map-signs" style="color:var(--brick-orange);"></i> سفر به دزفول</h4>
+					<p>سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول، با الگوریتم مبتنی بر نیاز مسافر.</p>
+					<div class="social">
+						<a href="#"><i class="fab fa-telegram"></i></a>
+						<a href="#"><i class="fab fa-instagram"></i></a>
+						<a href="#"><i class="fab fa-youtube"></i></a>
+						<a href="#"><i class="fab fa-linkedin"></i></a>
+					</div>
+				</div>
+				<div>
+					<h4>دسترسی سریع</h4>
+					<a href="{% url 'plan' %}">برنامه‌ریز سفر</a>
+					<a href="{% url 'attraction' %}">جاذبه‌های گردشگری</a>
+					<a href="{% url 'map' %}">نقشه تعاملی</a>
+					<a href="{% url 'articles' %}">مقالات</a>
+				</div>
+				<div>
+					<h4>اطلاعات مفید</h4>
+					<a href="#">بهترین زمان سفر</a>
+					<a href="#">راهنمای مسیرها</a>
+					<a href="#">تماس با ما</a>
+					<a href="#">درباره‌ی پروژه</a>
+				</div>
+			</div>
+			<div class="footer-copy">
+				<i class="fas fa-copyright"></i> ۱۴۰۴ - پروژه‌ی کارشناسی - دانشگاه صنعتی جندی شاپور دزفول
+			</div>
+		</div>
+	</footer>
+
+	<button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
+
+	<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+	<script>
+		// ═══════════════════════════════════════════════════════════
+		// داده‌های سفر از دیتابیس
+		// ═══════════════════════════════════════════════════════════
+		const PLACES_IN_TRIP = {{ places_json|safe }};
+		const TRIP_DATA = {
+			id: {{ trip.id }},
+			duration: {{ trip.duration_days }},
+			companions: {{ trip.companions }},
+		};
+
+		// ═══════════════════════════════════════════════════════════
+		// توابع کمکی
+		// ═══════════════════════════════════════════════════════════
+		const FA = '۰۱۲۳۴۵۶۷۸۹';
+		const faNum = s => String(s).replace(/\d/g, d => FA[d]);
+		const pad2 = n => String(n).padStart(2, '0');
+		const ORD = ['اول', 'دوم', 'سوم', 'چهارم', 'پنجم', 'ششم', 'هفتم'];
+		const MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+		const WDAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
+
+		// الگوریتم جلالی (فقط برای نمایش تاریخ روزها)
+		const div = (a, b) => ~~(a / b);
+		const mod = (a, b) => a - ~~(a / b) * b;
+
+		function jalCal(jy) {
+			const breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+			let bl = breaks.length, gy = jy + 621, leapJ = -14, jp = breaks[0], jump = 0, i;
+			for (i = 1; i < bl; i += 1) {
+				const jm = breaks[i];
+				jump = jm - jp;
+				if (jy < jm) break;
+				leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
+				jp = jm;
+			}
+			let n = jy - jp;
+			leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
+			if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
+			const leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
+			const march = 20 + leapJ - leapG;
+			if (jump - n < 6) n = n - jump + div(jump + 4, 33) * 33;
+			let leap = mod(mod(n + 1, 33) - 1, 4);
+			if (leap === -1) leap = 4;
+			return { leap, gy, march };
+		}
+
+		function g2d(gy, gm, gd) {
+			let d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4) + div(153 * mod(gm + 9, 12) + 2, 5) + gd - 34840408;
+			d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
+			return d;
+		}
+
+		function d2g(jdn) {
+			let j = 4 * jdn + 139361631;
+			j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 390844584;
+			const i = div(mod(j, 1461), 4) * 5 + 308;
+			return {
+				gy: div(j, 1461) - 100100 + div(8 - (mod(div(i, 153), 12) + 1), 6),
+				gm: mod(div(i, 153), 12) + 1,
+				gd: div(mod(i, 153), 5) + 1
+			};
+		}
+
+		function j2d(jy, jm, jd) {
+			const r = jalCal(jy);
+			return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
+		}
+
+		function d2j(jdn) {
+			let gy = d2g(jdn).gy, jy = gy - 621;
+			const r = jalCal(jy);
+			let k = jdn - g2d(gy, 3, r.march);
+			if (k >= 0) {
+				if (k <= 185) return { jy, jm: 1 + div(k, 31), jd: mod(k, 31) + 1 };
+				k -= 186;
+			} else { jy -= 1; k += 179; }
+			return { jy, jm: 7 + div(k, 30), jd: mod(k, 30) + 1 };
+		}
+
+		function calcDistance(lat1, lng1, lat2, lng2) {
+			const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
+			const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+			return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+		}
+
+		const distTxt = km => km < 1 ? `${faNum(Math.round(km * 1000))} متر` : `حدود ${faNum(Math.round(km))} کیلومتر`;
+		const faTime = m => `${faNum(Math.floor(m / 60))}:${faNum(pad2(m % 60))}`;
+
+		// ═══════════════════════════════════════════════════════════
+		// گروه‌بندی جاذبه‌ها بر اساس روز
+		// ═══════════════════════════════════════════════════════════
+		const daysMap = {};
+		PLACES_IN_TRIP.forEach(p => {
+			if (!daysMap[p.day]) daysMap[p.day] = [];
+			daysMap[p.day].push(p);
+		});
+
+		const daysArray = Object.keys(daysMap).sort((a, b) => +a - +b).map(k => daysMap[k]);
+
+		// ═══════════════════════════════════════════════════════════
+		// Schedule (زمان‌بندی)
+		// ═══════════════════════════════════════════════════════════
+		function schedule(dayPlaces) {
+			let cur = 9 * 60;
+			return dayPlaces.map((p, idx) => {
+				const s = cur, e = cur + p.duration;
+				cur = e + 30;
+				if (cur > 23 * 60 + 30) cur = 9 * 60;
+				const dist = idx ? calcDistance(dayPlaces[idx - 1].lat, dayPlaces[idx - 1].lng, p.lat, p.lng) : 0;
+				return { p, s: s % 1440, e: e % 1440, dist };
+			});
+		}
+
+		// ═══════════════════════════════════════════════════════════
+		// Cards HTML
+		// ═══════════════════════════════════════════════════════════
+		function cardsHtml(dayPlaces, di) {
+			return schedule(dayPlaces).map((it, idx) => `
+				<div class="place-row">
+					<span class="place-num">${faNum(idx + 1)}</span>
+					<div class="place-card">
+						<img class="pc-img" src="${it.p.image}" alt="${it.p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+						<div class="pc-info">
+							<h4>${it.p.name}</h4>
+							<div class="pc-time">🕒 ${faTime(it.s)} تا ${faTime(it.e)}</div>
+							<div class="pc-meta">
+								<span>🏷️ ${it.p.category}</span>
+								<span>💰 ${it.p.cost === 0 ? 'رایگان' : faNum(it.p.cost.toLocaleString()) + ' تومان'}</span>
+							</div>
+						</div>
+					</div>
+				</div>`).join('');
+		}
+
+		// ═══════════════════════════════════════════════════════════
+		// Render All
+		// ═══════════════════════════════════════════════════════════
+		let activeTab = 'all';
+
+		function renderAll() {
+			const days = daysArray;
+			if (!days.length) return;
+
+			// محاسبه تاریخ‌های روز
+			const today = new Date();
+			const startJdn = g2d(today.getFullYear(), today.getMonth() + 1, today.getDate());
+
+			const dayDate = i => d2j(startJdn + i);
+			const mName = jm => MONTHS[(jm | 0) - 1] || '';
+
+			// Tabs
+			document.getElementById('plannerTabs').innerHTML =
+				`<button class="ptab active" data-tab="all"><span class="t">نمای کلی</span><span class="s">همه روزها</span></button>` +
+				days.map((_, i) => `<button class="ptab" data-tab="${i}"><span class="t">روز ${ORD[i] || faNum(i + 1)}</span><span class="s">${faNum(days[i].length)} جاذبه</span></button>`).join('');
+
+			// Days
+			document.getElementById('plannerDays').innerHTML = days.map((d, i) => `
+				<div class="day-block">
+					<div class="day-block-title">روز ${faNum(i + 1)} <span>${faNum(d.length)} جاذبه</span></div>
+					${cardsHtml(d, i)}
+				</div>`).join('');
+
+			// Map chips
+			document.getElementById('mapDayChips').innerHTML =
+				`<button class="map-chip active" data-tab="all">همه</button>` +
+				days.map((_, i) => `<button class="map-chip" data-tab="${i}">روز ${faNum(i + 1)}</button>`).join('');
+
+			showOnMap();
+		}
+
+		// ═══════════════════════════════════════════════════════════
+		// Map
+		// ═══════════════════════════════════════════════════════════
+		let mapInstance = null;
+
+		function showOnMap() {
+			if (typeof L === 'undefined' || !document.getElementById('resultMap')) return;
+
+			if (mapInstance) {
+				mapInstance.remove();
+				mapInstance = null;
+			}
+
+			mapInstance = L.map('resultMap', { zoomControl: false });
+			L.control.zoom({ position: 'bottomright' }).addTo(mapInstance);
+			L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+				attribution: '&copy; OpenStreetMap &copy; CARTO',
+				maxZoom: 19
+			}).addTo(mapInstance);
+
+			const all = [];
+			const dayColors = ['#f4a62a', '#118b71', '#ff5050', '#2196f3', '#9c27b0', '#ff9800', '#4caf50'];
+
+			const drawDay = (places, dayIdx) => {
+				const pts = [];
+				const color = dayColors[dayIdx % dayColors.length];
+
+				schedule(places).forEach((it, idx) => {
+					const marker = L.marker([it.p.lat, it.p.lng], {
+						icon: L.divIcon({
+							className: 'pin-wrap',
+							html: `<div class="pin" style="background:${color}"><span>${faNum(idx + 1)}</span></div><div class="pin-label">${it.p.name}</div>`,
+							iconSize: [30, 44],
+							iconAnchor: [15, 33],
+							popupAnchor: [0, -34]
+						})
+					})
+						.addTo(mapInstance)
+						.bindPopup(`
+							<div class="map-pop">
+								<div class="map-pop-img">
+									<img src="${it.p.image}" alt="${it.p.name}" onerror="this.parentNode.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+									<span class="map-pop-badge" style="background:${color}; color:#fff;">روز ${faNum(dayIdx + 1)}</span>
+								</div>
+								<div class="map-pop-body">
+									<h4>${it.p.name}</h4>
+									<div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول، خوزستان</div>
+									<p>${it.p.desc || ''}</p>
+								</div>
+							</div>`);
+
+					marker.on('mouseover', () => marker.openPopup());
+					marker.on('mouseout', () => marker.closePopup());
+
+					pts.push([it.p.lat, it.p.lng]);
+					all.push([it.p.lat, it.p.lng]);
+				});
+
+				if (pts.length > 1) {
+					L.polyline(pts, {
+						color: color,
+						weight: 4,
+						opacity: .85,
+						dashArray: '8 8',
+						lineCap: 'round'
+					}).addTo(mapInstance);
+				}
+			};
+
+			if (activeTab === 'all') {
+				daysArray.forEach((d, i) => drawDay(d, i));
+			} else if (daysArray[+activeTab]) {
+				drawDay(daysArray[+activeTab], +activeTab);
+			}
+
+			if (all.length) {
+				mapInstance.fitBounds(L.latLngBounds(all), { padding: [50, 50] });
+			}
+			setTimeout(() => mapInstance && mapInstance.invalidateSize(), 400);
+		}
+
+		// ═══════════════════════════════════════════════════════════
+		// Tab click
+		// ═══════════════════════════════════════════════════════════
+		document.addEventListener('click', e => {
+			const t = e.target.closest('[data-tab]');
+			if (t) {
+				activeTab = t.dataset.tab === 'all' ? 'all' : parseInt(t.dataset.tab, 10);
+				renderAll();
+			}
+		});
+
+		// ═══════════════════════════════════════════════════════════
+		// Start
+		// ═══════════════════════════════════════════════════════════
+		renderAll();
+
+		// Scroll top
+		const scrollBtn = document.getElementById('scrollTop');
+		if (scrollBtn) {
+			window.addEventListener('scroll', () => {
+				scrollBtn.classList.toggle('visible', window.scrollY > 400);
+			});
+			scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+		}
+
+		// Mobile menu
+		const hamburger = document.getElementById('hamburgerBtn');
+		const navLinks = document.getElementById('navLinks');
+		const overlay = document.getElementById('menuOverlay');
+		const closeBtn = document.getElementById('closeMenuBtn');
+		function toggleMenu() {
+			const isOpen = navLinks.classList.toggle('active');
+			overlay.classList.toggle('active', isOpen);
+			document.body.style.overflow = isOpen ? 'hidden' : '';
+		}
+		if (hamburger) hamburger.addEventListener('click', toggleMenu);
+		if (closeBtn) closeBtn.addEventListener('click', e => { e.stopPropagation(); if (navLinks.classList.contains('active')) toggleMenu(); });
+		if (overlay) overlay.addEventListener('click', () => { if (navLinks.classList.contains('active')) toggleMenu(); });
+	</script>
+
+</body>
+</html>

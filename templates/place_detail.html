@@ -402,28 +402,494 @@
         flex-direction: column;
       }
     }
+
+    /* ═══════════════════════════════════════════════════════
+   فرم نظر حرفه‌ای
+   ═══════════════════════════════════════════════════════ */
+.place-review-form {
+    background: linear-gradient(135deg, #ffffff 0%, #faf8f5 100%);
+    border-radius: 24px;
+    padding: 32px;
+    margin-top: 24px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+    border: 1px solid rgba(17, 139, 113, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+.place-review-form::before {
+    content: '';
+    position: absolute;
+    top: -50px;
+    left: -50px;
+    width: 200px;
+    height: 200px;
+    background: radial-gradient(circle, rgba(17,139,113,.06), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.place-review-form::after {
+    content: '';
+    position: absolute;
+    bottom: -60px;
+    right: -60px;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(255,80,80,.05), transparent 70%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.place-review-form > * {
+    position: relative;
+    z-index: 1;
+}
+
+.place-review-form h3 {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--brown-text);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.place-review-form h3 i {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    color: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    box-shadow: 0 6px 18px rgba(17,139,113,.25);
+}
+
+.place-review-form h3::after {
+    content: 'تجربه‌ات رو با دیگران به اشتراک بذار';
+    display: block;
+    position: absolute;
+    top: 100%;
+    right: 50px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--brown-light);
+    margin-top: 2px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   انتخاب امتیاز (ستاره‌ها)
+   ═══════════════════════════════════════════════════════ */
+.rating-input {
+    margin: 28px 0 22px;
+    padding: 18px 22px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid rgba(17,139,113,.08);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.rating-input > label {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--brown-text);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.rating-input > label::before {
+    content: '⭐';
+    font-size: 1.1rem;
+}
+
+.rating-input .stars {
+    display: flex;
+    flex-direction: row-reverse;
+    gap: 4px;
+    justify-content: flex-end;
+}
+
+.rating-input .stars input {
+    display: none;
+}
+
+.rating-input .stars label {
+    font-size: 2rem;
+    color: #ddd;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    line-height: 1;
+    padding: 2px;
+    user-select: none;
+}
+
+.rating-input .stars label:hover,
+.rating-input .stars label:hover ~ label,
+.rating-input .stars input:checked ~ label {
+    color: #f4b400;
+    text-shadow: 0 2px 8px rgba(244, 180, 0, 0.4);
+    transform: scale(1.15);
+}
+
+.rating-input .stars label:active {
+    transform: scale(0.95);
+}
+
+/* ═══════════════════════════════════════════════════════
+   Textarea نظر
+   ═══════════════════════════════════════════════════════ */
+.place-review-form textarea {
+    width: 100%;
+    min-height: 130px;
+    padding: 18px 20px;
+    border: 2px solid rgba(17, 139, 113, 0.1);
+    border-radius: 16px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 0.95rem;
+    line-height: 1.9;
+    color: var(--brown-text);
+    background: #fff;
+    outline: none;
+    resize: vertical;
+    transition: all 0.3s ease;
+    margin-bottom: 16px;
+}
+
+.place-review-form textarea:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 4px rgba(17, 139, 113, 0.08);
+    background: #fff;
+}
+
+.place-review-form textarea::placeholder {
+    color: rgba(139, 115, 85, 0.45);
+    font-size: 0.9rem;
+}
+
+/* ═══════════════════════════════════════════════════════
+   دکمه ثبت نظر
+   ═══════════════════════════════════════════════════════ */
+.submit-review-btn {
+    width: 100%;
+    padding: 15px 24px;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    color: #fff;
+    border: none;
+    border-radius: 14px;
+    font-family: 'Vazirmatn', sans-serif;
+    font-size: 1rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(17, 139, 113, 0.25);
+    position: relative;
+    overflow: hidden;
+}
+
+.submit-review-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
+    transition: left 0.5s ease;
+}
+
+.submit-review-btn:hover::before {
+    left: 100%;
+}
+
+.submit-review-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 32px rgba(17, 139, 113, 0.35);
+}
+
+.submit-review-btn:active {
+    transform: translateY(0);
+}
+
+.submit-review-btn i {
+    font-size: 1rem;
+    transition: transform 0.3s ease;
+}
+
+.submit-review-btn:hover i {
+    transform: translateX(-4px);
+}
+
+/* ═══════════════════════════════════════════════════════
+   حالت کاربر لاگین‌نشده
+   ═══════════════════════════════════════════════════════ */
+.login-required {
+    padding: 28px;
+    text-align: center;
+    background: linear-gradient(135deg, rgba(244, 166, 42, 0.05), rgba(244, 166, 42, 0.02));
+    border-radius: 18px;
+    border: 2px dashed rgba(244, 166, 42, 0.3);
+    margin-top: 18px;
+}
+
+.login-required p {
+    font-size: 0.95rem;
+    color: var(--brown-text);
+    margin: 0;
+    font-weight: 600;
+}
+
+.login-required a {
+    color: var(--primary-green);
+    font-weight: 800;
+    text-decoration: none;
+    border-bottom: 2px solid var(--primary-green);
+    padding-bottom: 2px;
+    transition: all 0.2s ease;
+}
+
+.login-required a:hover {
+    color: var(--primary-green-dark);
+    border-bottom-color: var(--primary-green-dark);
+}
+
+.login-required::before {
+    content: '🔒';
+    display: block;
+    font-size: 2rem;
+    margin-bottom: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════
+   نظرات - بازطراحی حرفه‌ای
+   ═══════════════════════════════════════════════════════ */
+.place-reviews > div:first-of-type {
+    padding: 24px 28px !important;
+    border: 1px solid rgba(17,139,113,.06);
+}
+
+.review-item {
+    display: flex;
+    gap: 16px;
+    padding: 20px 4px;
+    border-bottom: 1px dashed rgba(17, 139, 113, 0.1);
+    transition: all 0.2s ease;
+}
+
+.review-item:first-child {
+    padding-top: 4px;
+}
+
+.review-item:last-child {
+    border-bottom: none;
+    padding-bottom: 4px;
+}
+
+.review-item:hover {
+    background: rgba(17, 139, 113, 0.02);
+    border-radius: 12px;
+    padding-right: 12px;
+    padding-left: 12px;
+}
+
+.review-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+    box-shadow: 0 6px 18px rgba(17,139,113,.2);
+    position: relative;
+}
+
+.review-avatar::after {
+    content: '';
+    position: absolute;
+    bottom: -3px;
+    left: -3px;
+    width: 14px;
+    height: 14px;
+    background: #4caf50;
+    border: 3px solid #fff;
+    border-radius: 50%;
+}
+
+.review-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.review-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.review-header strong {
+    font-size: 0.95rem;
+    color: var(--brown-text);
+    font-weight: 800;
+}
+
+.review-header span {
+    font-size: 0.72rem;
+    color: var(--brown-light);
+    background: rgba(17,139,113,.06);
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+.review-stars {
+    color: #f4b400;
+    font-size: 0.95rem;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+    text-shadow: 0 1px 3px rgba(244,180,0,.3);
+}
+
+.review-text {
+    font-size: 0.9rem;
+    line-height: 2;
+    color: #6c5b49;
+    margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════
+   رسپانسیو
+   ═══════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+    .place-review-form {
+        padding: 24px 20px;
+        border-radius: 20px;
+    }
+
+    .place-review-form h3 {
+        font-size: 1.15rem;
+    }
+
+    .place-review-form h3::after {
+        position: static;
+        display: block;
+        margin-top: 6px;
+        margin-right: 50px;
+    }
+
+    .rating-input {
+        padding: 14px 16px;
+        gap: 10px;
+    }
+
+    .rating-input .stars label {
+        font-size: 1.7rem;
+    }
+
+    .place-review-form textarea {
+        padding: 14px 16px;
+        font-size: 0.9rem;
+    }
+
+    .review-item {
+        gap: 12px;
+        padding: 16px 0;
+    }
+
+    .review-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .place-review-form {
+        padding: 20px 16px;
+    }
+
+    .place-review-form h3 i {
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+    }
+
+    .rating-input {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .rating-input .stars label {
+        font-size: 1.5rem;
+    }
+
+    .submit-review-btn {
+        padding: 13px 20px;
+        font-size: 0.9rem;
+    }
+}
   </style>
 </head>
 
 <body>
 
-  <!-- ===== هدر ===== -->
-  <header class="navbar" id="navbar">
-    <div class="logo"><i class="fas fa-map-signs"></i> سفر به <span>دزفول</span></div>
-    <nav class="nav-links" id="navLinks">
-      <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i></button>
-      <a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
-      <a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
-      <a href="{% url 'attraction' %}" class="active"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
-      <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
-      <a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
-    </nav>
-    <div class="auth-buttons">
-      <a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-      <a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
-      <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
-    </div>
-  </header>
+	<!-- ===== هدر ===== -->
+	<header class="navbar" id="navbar">
+		<div class="logo">
+			<i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
+		</div>
+
+		<nav class="nav-links" id="navLinks">
+			<button class="close-menu-btn" id="closeMenuBtn">
+				<i class="fas fa-times"></i>
+			</button>
+			<a href="{% url 'home' %}" class="active"><i class="fas fa-home"></i> خانه</a>
+			<a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+			<a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+			<a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+			<a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+			<a href="{% url 'contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
+			<div class="auth-mobile">
+				{% if user.is_authenticated %}
+				<a href="{% url 'logout' %}" class="btn-outline-mobile"><i class="fas fa-sign-out-alt"></i> خروج</a>
+				{% else %}
+				<a href="{% url 'register' %}" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+				<a href="{% url 'login' %}" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
+				{% endif %}
+			</div>
+		</nav>
+
+		<div class="auth-buttons">
+			{% if user.is_authenticated %}
+			<span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
+			<a href="{% url 'logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
+			{% else %}
+			<a href="{% url 'register' %}" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+			<a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			{% endif %}
+			<button class="hamburger" id="hamburgerBtn" aria-label="منو">
+				<i class="fas fa-bars"></i>
+			</button>
+		</div>
+	</header>
 
   <!-- ===== محتوای اصلی ===== -->
   <main class="place-detail-main">
@@ -579,6 +1045,45 @@
           </div>
         </div>
 
+        <!-- بعد از نمایش نظرات، فرم ثبت نظر -->
+<div class="place-review-form" style="background: #fff; border-radius: 20px; padding: 25px; margin-top: 20px; box-shadow: var(--shadow-sm);">
+    <h3><i class="fas fa-pen"></i> نظرت رو بنویس</h3>
+    
+    {% if user.is_authenticated %}
+    <form method="POST" action="{% url 'submit_place_review' place.slug %}">
+        {% csrf_token %}
+        
+        <!-- انتخاب امتیاز -->
+        <div class="rating-input">
+            <label>امتیاز:</label>
+            <div class="stars">
+                <input type="radio" name="rating" value="5" id="star5" checked>
+                <label for="star5">★</label>
+                <input type="radio" name="rating" value="4" id="star4">
+                <label for="star4">★</label>
+                <input type="radio" name="rating" value="3" id="star3">
+                <label for="star3">★</label>
+                <input type="radio" name="rating" value="2" id="star2">
+                <label for="star2">★</label>
+                <input type="radio" name="rating" value="1" id="star1">
+                <label for="star1">★</label>
+            </div>
+        </div>
+        
+        <!-- متن نظر -->
+        <textarea name="comment" rows="4" placeholder="تجربه‌ات رو بنویس..." required></textarea>
+        
+        <button type="submit" class="submit-review-btn">
+            <i class="fas fa-paper-plane"></i> ثبت نظر
+        </button>
+    </form>
+    {% else %}
+    <div class="login-required">
+        <p>برای ثبت نظر، لطفاً <a href="{% url 'login' %}?next={{ request.path }}">وارد</a> شو.</p>
+    </div>
+    {% endif %}
+</div>
+
         <!-- جاذبه‌های مرتبط -->
         <div class="related-places">
           <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i
@@ -640,83 +1145,91 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script src="{% static 'js/script.js' %}"></script>
 
-  <script>
-   document.addEventListener('DOMContentLoaded', function () {
-  // ===== نقشه =====
-  var map = L.map('placeMap').setView([{{ place.latitude|default:32.38 }}, {{ place.longitude|default:48.42 }}], 15);
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // ===== نقشه =====
+    var map = L.map('placeMap').setView([{{ place.latitude|default:32.38 }}, {{ place.longitude|default:48.42 }}], 15);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; OpenStreetMap &copy; CARTO'
-  }).addTo(map);
+    // ===== لایه‌های نقشه =====
+    const MAPTILER_API_KEY = 'HJ7dofOgoJi2TfcV7XkF';
 
-  // ===== مارکر با آیکون سفارشی =====
-  var icon = L.divIcon({
-    className: 'custom-pin',
-    html: '<div class="pin-icon"><i class="fas fa-map-marker-alt"></i></div>',
-    iconSize: [40, 40],
-    iconAnchor: [20, 38]
-  });
+    const layers = {
+        street: L.tileLayer(`https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
+            attribution: '&copy; MapTiler &copy; OpenStreetMap',
+            maxZoom: 19
+        }),
+        sat: L.tileLayer(`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
+            attribution: '&copy; MapTiler',
+            maxZoom: 19
+        }),
+        terrain: L.tileLayer(`https://api.maptiler.com/maps/terrain/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
+            attribution: '&copy; MapTiler',
+            maxZoom: 18
+        }),
+        dark: L.tileLayer(`https://api.maptiler.com/maps/dark/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
+            attribution: '&copy; MapTiler',
+            maxZoom: 19
+        })
+    };
 
-  L.marker([{{ place.latitude|default:32.38 }}, {{ place.longitude|default:48.42 }}], {
-    icon: icon
-  }).addTo(map);
+    layers.street.addTo(map);
 
-  // استایل آیکون
-  var style = document.createElement('style');
-  style.textContent = `
-    .custom-pin {
-      background: transparent;
-      border: none;
-    }
-    
-    .pin-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50% 50% 50% 0;
-      background: linear-gradient(135deg, #118b71, #2a9d8f);
-      transform: rotate(-45deg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 5px 15px rgba(17,139,113,0.4);
-      border: 3px solid #fff;
-    }
-    
-    .pin-icon i {
-      transform: rotate(45deg);
-      color: #fff;
-      font-size: 16px;
-    }
-  `;
-  document.head.appendChild(style);
-
-  // ===== اشتراک‌گذاری =====
-  var shareBtn = document.querySelector('[data-share]');
-  if (shareBtn) {
-    shareBtn.addEventListener('click', function () {
-      if (navigator.share) {
-        navigator.share({
-          title: '{{ place.name }}',
-          text: '{{ place.short_description }}',
-          url: window.location.href
-        });
-      } else {
-        navigator.clipboard.writeText(window.location.href);
-        alert('لینک کپی شد!');
-      }
+    // ===== مارکر با آیکون سفارشی =====
+    var icon = L.divIcon({
+        className: 'custom-pin',
+        html: '<div class="pin-icon"><i class="fas fa-map-marker-alt"></i></div>',
+        iconSize: [40, 40],
+        iconAnchor: [20, 38]
     });
-  }
 
-  // ===== لایت‌باکس =====
-  window.openLightbox = function (src) {
-    var lightbox = document.createElement('div');
-    lightbox.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:9999; cursor:pointer;';
-    lightbox.innerHTML = '<img src="' + src + '" style="max-width:90%; max-height:90%; border-radius:15px;">';
-    lightbox.onclick = function () { document.body.removeChild(lightbox); };
-    document.body.appendChild(lightbox);
-  };
+    L.marker([{{ place.latitude|default:32.38 }}, {{ place.longitude|default:48.42 }}], {
+        icon: icon
+    }).addTo(map);
+
+    // ===== استایل آیکون =====
+    var style = document.createElement('style');
+    style.textContent = `
+        .custom-pin { background: transparent; border: none; }
+        .pin-icon {
+            width: 40px; height: 40px;
+            border-radius: 50% 50% 50% 0;
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            transform: rotate(-45deg);
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 5px 15px rgba(17,139,113,0.4);
+            border: 3px solid #fff;
+        }
+        .pin-icon i { transform: rotate(45deg); color: #fff; font-size: 16px; }
+    `;
+    document.head.appendChild(style);
+
+    // ===== اشتراک‌گذاری =====
+    var shareBtn = document.querySelector('[data-share]');
+    if (shareBtn) {
+        shareBtn.addEventListener('click', function () {
+            if (navigator.share) {
+                navigator.share({
+                    title: '{{ place.name }}',
+                    text: '{{ place.short_description }}',
+                    url: window.location.href
+                });
+            } else {
+                navigator.clipboard.writeText(window.location.href);
+                alert('لینک کپی شد!');
+            }
+        });
+    }
+
+    // ===== لایت‌باکس =====
+    window.openLightbox = function (src) {
+        var lightbox = document.createElement('div');
+        lightbox.style.cssText = 'position:fixed; inset:0; background:rgba(0,0,0,0.9); display:flex; align-items:center; justify-content:center; z-index:9999; cursor:pointer;';
+        lightbox.innerHTML = '<img src="' + src + '" style="max-width:90%; max-height:90%; border-radius:15px;">';
+        lightbox.onclick = function () { document.body.removeChild(lightbox); };
+        document.body.appendChild(lightbox);
+    };
 });
-  </script>
+</script>
 </body>
 
 </html>

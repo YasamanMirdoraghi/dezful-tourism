@@ -18,27 +18,45 @@
 <body id="articlePage">
   <div class="article-reading-progress"><span></span></div>
 
-  <header class="navbar" id="navbar">
-    <div class="logo"><i class="fas fa-map-signs"></i> سفر به <span>دزفول</span></div>
-    <nav class="nav-links" id="navLinks">
-      <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i></button>
-      <a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
-      <a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
-      <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
-      <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
-      <a href="{% url 'articles' %}" class="active"><i class="fas fa-newspaper"></i> مقالات</a>
-      <div class="auth-mobile">
-        <a href="#" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-        <a href="#" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
-      </div>
-    </nav>
-    <div class="auth-buttons">
-      <a href="#" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-      <a href="#" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
-      <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
-    </div>
-    <div class="overlay" id="menuOverlay"></div>
-  </header>
+ 	<!-- ===== هدر ===== -->
+	<header class="navbar" id="navbar">
+		<div class="logo">
+			<i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
+		</div>
+
+		<nav class="nav-links" id="navLinks">
+			<button class="close-menu-btn" id="closeMenuBtn">
+				<i class="fas fa-times"></i>
+			</button>
+			<a href="{% url 'home' %}" class="active"><i class="fas fa-home"></i> خانه</a>
+			<a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+			<a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+			<a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+			<a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+			<a href="{% url 'contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
+			<div class="auth-mobile">
+				{% if user.is_authenticated %}
+				<a href="{% url 'logout' %}" class="btn-outline-mobile"><i class="fas fa-sign-out-alt"></i> خروج</a>
+				{% else %}
+				<a href="{% url 'register' %}" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+				<a href="{% url 'login' %}" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
+				{% endif %}
+			</div>
+		</nav>
+
+		<div class="auth-buttons">
+			{% if user.is_authenticated %}
+			<span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
+			<a href="{% url 'logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
+			{% else %}
+			<a href="{% url 'register' %}" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+			<a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+			{% endif %}
+			<button class="hamburger" id="hamburgerBtn" aria-label="منو">
+				<i class="fas fa-bars"></i>
+			</button>
+		</div>
+	</header>
 
   <!-- Magazine Slider -->
   <section class="section-magazine-slider article-magazine-slider" id="magazineSlider"

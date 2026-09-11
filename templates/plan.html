@@ -9,9 +9,7 @@
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
-	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </head>
-
 
 <body class="page-plan">
 
@@ -20,7 +18,6 @@
 			<i class="fas fa-mountain"></i>
 			سفر به <span>دزفول</span>
 		</div>
-
 		<ul class="nav-links" id="navLinks">
 			<button class="close-menu-btn" id="closeMenuBtn" aria-label="بستن منو">
 				<i class="fas fa-times"></i>
@@ -40,7 +37,6 @@
 				{% endif %}
 			</div>
 		</ul>
-
 		<div class="auth-buttons">
 			{% if user.is_authenticated %}
 			<span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
@@ -50,14 +46,12 @@
 			<a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
 			{% endif %}
 		</div>
-
 		<button class="hamburger" id="hamburgerBtn" aria-label="منو">
 			<i class="fas fa-bars"></i>
 		</button>
 	</nav>
 	<div class="overlay" id="menuOverlay"></div>
 
-	<!-- ===== برنامه‌ریز ===== -->
 	<section class="plan-section">
 		<div class="container">
 			<div class="plan-header">
@@ -67,7 +61,6 @@
 
 			<div class="wizard" id="planWizard">
 
-				<!-- ===== نشانگرهای مرحله ===== -->
 				<div class="step-indicators">
 					<div class="step-item active" data-step="1"><span class="step-dot"></span></div>
 					<span class="step-line"></span>
@@ -79,24 +72,24 @@
 				</div>
 
 				{% if user_trips %}
-<div class="previous-trips">
-    <h3><i class="fas fa-history"></i> سفرهای اخیر شما</h3>
-    <div class="trips-list">
-        {% for trip in user_trips %}
-        <div class="trip-item">
-            <div class="trip-icon"><i class="fas fa-route"></i></div>
-            <div>
-                <strong>سفر از {{ trip.start_date|date:"Y/m/d" }} تا {{ trip.end_date|date:"Y/m/d" }}</strong>
-                <span>{{ trip.duration_days }} روز - {{ trip.companions }} نفر</span>
-            </div>
-            <a href="/plan/{{ trip.id }}/load/" class="load-trip-btn">
-                <i class="fas fa-map"></i> مشاهده روی نقشه
-            </a>
-        </div>
-        {% endfor %}
-    </div>
-</div>
-{% endif %}
+				<div class="previous-trips">
+					<h3><i class="fas fa-history"></i> سفرهای اخیر شما</h3>
+					<div class="trips-list">
+						{% for trip in user_trips %}
+						<div class="trip-item">
+							<div class="trip-icon"><i class="fas fa-route"></i></div>
+							<div>
+								<strong>سفر از {{ trip.start_date|date:"Y/m/d" }} تا {{ trip.end_date|date:"Y/m/d" }}</strong>
+								<span>{{ trip.duration_days }} روز - {{ trip.companions }} نفر</span>
+							</div>
+							<a href="/result/{{ trip.id }}/" class="load-trip-btn">
+								<i class="fas fa-eye"></i> مشاهده برنامه
+							</a>
+						</div>
+						{% endfor %}
+					</div>
+				</div>
+				{% endif %}
 
 				<div class="wizard-top">
 					<h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن</h2>
@@ -116,7 +109,6 @@
 						</div>
 						<div class="cal-grid" id="calGrid"></div>
 					</div>
-
 					<div class="date-boxes">
 						<div class="date-box">
 							<div class="db-icon green"><i class="fas fa-calendar-day"></i></div>
@@ -146,17 +138,12 @@
 						<span class="interest-count" id="interestCount">۰ از {{ categories.count }}</span>
 					</div>
 					<a class="clear-link" id="clearInterests">پاک کردن انتخاب‌ها</a>
-
 					<div class="interest-grid">
 						{% for cat in categories %}
 						<button type="button" class="interest-card" data-value="{{ cat.name }}" data-maps="{{ cat.slug }}">
 							<span class="ic-check"><i class="fas fa-check"></i></span>
 							<span class="ic-emoji">
-								{% if cat.icon %}
-								<i class="fas {{ cat.icon }}"></i>
-								{% else %}
-								<i class="fas fa-map-marker-alt"></i>
-								{% endif %}
+								{% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i class="fas fa-map-marker-alt"></i>{% endif %}
 							</span>
 							<span class="ic-label">{{ cat.name }}</span>
 						</button>
@@ -177,7 +164,6 @@
 							<option value="5+">۵+ نفر</option>
 						</select>
 					</div>
-
 					<div class="form-group">
 						<label><i class="fas fa-wallet"></i> بودجه تقریبی (تومان)</label>
 						<select id="budgetRange" class="budget-select">
@@ -190,7 +176,6 @@
 							<option value="15000000-99999999">بیش از ۱۵,۰۰۰,۰۰۰</option>
 						</select>
 					</div>
-
 					<div class="form-group">
 						<label><i class="fas fa-child"></i> آیا کودک همراه دارید؟</label>
 						<div class="radio-group">
@@ -198,7 +183,6 @@
 							<label><input type="radio" name="hasChild" value="true"> بله</label>
 						</div>
 					</div>
-
 					<div id="tripDaysInfo"></div>
 				</div>
 
@@ -207,12 +191,10 @@
 					<div class="review-card">
 						<h3 class="rv-title">خلاصه سفر شما</h3>
 						<p class="rv-sub">قبل از ساخت برنامه، یک‌بار انتخاب‌هات رو ببین</p>
-
 						<div class="rv-row">
 							<div class="rv-icon blue"><i class="fas fa-map-marker-alt"></i></div>
 							<div><span class="rv-label">مقصد</span><span class="rv-value">دزفول</span></div>
 						</div>
-
 						<div class="rv-row">
 							<div class="rv-icon pink"><i class="fas fa-calendar-alt"></i></div>
 							<div>
@@ -225,7 +207,6 @@
 								</div>
 							</div>
 						</div>
-
 						<div class="rv-row">
 							<div class="rv-icon yellow"><i class="fas fa-heart"></i></div>
 							<div>
@@ -234,13 +215,12 @@
 								<div class="rv-chips" id="rvChips" style="margin-top: 8px;"></div>
 							</div>
 						</div>
-
 						<div class="rv-row">
 							<div class="rv-icon green"><i class="fas fa-info-circle"></i></div>
 							<div><span class="rv-label">جزئیات</span><span class="rv-value" id="rvDetails">-</span></div>
 						</div>
 					</div>
-					<div class="review-note">اگر همه‌چیز درست است، «ساخت برنامه» را بزن تا برنامه سفر ساخته شود.</div>
+					<div class="review-note">اگر همه‌چیز درست است، «ساخت برنامه» را بزن.</div>
 				</div>
 
 				<div class="wizard-actions">
@@ -250,36 +230,9 @@
 					<button type="button" class="wz-next" id="wizNext">مرحله بعد <i class="fas fa-arrow-left"></i></button>
 				</div>
 			</div>
-
-			<!-- ===== نتایج ===== -->
-			<div class="planner-result" id="resultSection">
-				<div class="planner-layout">
-					<div class="planner-sidebar">
-						<div class="planner-hero">
-							<button class="ph-save" title="ذخیره سفر"><i class="far fa-bookmark"></i></button>
-							<button class="ph-edit" id="editPlanBtn"><i class="fas fa-edit"></i> ویرایش برنامه</button>
-							<div class="ph-title">
-								<img src="{% static 'img/slide4.jpg' %}" alt="" class="ph-thumb">
-								<div>
-									<h3>دزفول</h3>
-									<span id="phSub">سفر به دزفول</span>
-								</div>
-							</div>
-						</div>
-						<div class="planner-tabs" id="plannerTabs"></div>
-						<div class="planner-days" id="plannerDays"></div>
-					</div>
-
-					<div class="planner-map-wrap">
-						<div id="resultMap"></div>
-						<div class="map-day-chips" id="mapDayChips"></div>
-					</div>
-				</div>
-			</div>
 		</div>
 	</section>
 
-	<!-- فرم ذخیره سفر -->
 	<form method="post" action="{% url 'save_trip' %}" id="saveTripForm" style="display:none;">
 		{% csrf_token %}
 		<input type="hidden" name="start_date" id="saveStartDate">
@@ -292,35 +245,17 @@
 		<input type="hidden" name="suggested_places" id="saveSuggestedPlaces">
 	</form>
 
-	<!-- منوی گزینه‌ها -->
-	<div class="more-menu" id="moreMenu">
-		<button data-act="route"><i class="fas fa-map-marked-alt"></i> مسیریابی با نشان</button>
-		<button data-act="replace"><i class="fas fa-sync-alt"></i> جایگزین کردن جاذبه</button>
-		<button data-act="remove" class="danger"><i class="fas fa-trash-alt"></i> حذف جاذبه از برنامه سفر</button>
-	</div>
-
-	<!-- دکمه شناور بازگشت به خانه -->
-	<a href="{% url 'home' %}" class="float-home" title="بازگشت به خانه">
-		<i class="fas fa-home"></i>
-	</a>
-
-	<!-- ===== فوتر ===== -->
 	<footer class="footer">
 		<div class="container">
 			<div class="footer-grid">
 				<div>
-					<div class="logo" style="color:#fff; animation:none;">
-						<i class="fas fa-mountain"></i>
-						سفر به <span>دزفول</span>
-					</div>
-					<p style="margin-top:12px; font-size:14px; line-height:1.8;">
-						سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول، با الگوریتم مبتنی بر نیاز مسافر.
-					</p>
+					<h4><i class="fas fa-map-signs" style="color:var(--brick-orange);"></i> سفر به دزفول</h4>
+					<p>سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول.</p>
 					<div class="social">
-						<a href="#"><i class="fab fa-instagram"></i></a>
 						<a href="#"><i class="fab fa-telegram"></i></a>
-						<a href="#"><i class="fab fa-twitter"></i></a>
+						<a href="#"><i class="fab fa-instagram"></i></a>
 						<a href="#"><i class="fab fa-youtube"></i></a>
+						<a href="#"><i class="fab fa-linkedin"></i></a>
 					</div>
 				</div>
 				<div>
@@ -342,1184 +277,727 @@
 		</div>
 	</footer>
 
-	<button class="scroll-top" id="scrollTop" aria-label="اسکرول به بالا"><i class="fas fa-chevron-up"></i></button>
-
-		<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script>
-    // ==========================================================
-    // داده‌های داینامیک از دیتابیس
-    // ==========================================================
-    window.REAL_PLACES = {{ places_json|safe }};
-    window.CATEGORIES = {{ categories_json|safe }};
-
-    // ==========================================================
-    // سیستم برنامه‌ریز سفر هوشمند (Planner Wizard)
-    // معماری ۴ لایه‌ای: Fuzzy → CBF → KNN → GA
-    // ==========================================================
-    (function () {
-        'use strict';
-        if (!document.getElementById('planWizard')) return;
-
-        // ==========================================================
-        // ۰. کانفیگ مرکزی (همه پارامترها یک‌جا)
-        // ==========================================================
-        const CONFIG = {
-            // مرکز دزفول برای محاسبه فاصله
-            center: { lat: 32.3833, lng: 48.4000 },
-
-            // محدودیت‌های سفر
-            maxTripDays: 7,
-            dailyTimeMinutes: 8 * 60,
-            breakTimeMinutes: 30,
-
-            // KNN
-            knnMultiplier: 5,
-
-            // ضرایب نهایی CBF (مجموع = 1)
-            cbf: {
-                baseSimilarity: 0.35,
-                weightedScore: 0.65
-            },
-
-            // وزن‌های اولیه فازی (قبل از قوانین)
-            fuzzyBase: {
-                interest: 30,
-                budget: 20,
-                child: 15,
-                duration: 15,
-                popularity: 10,
-                rating: 10
-            },
-
-            // قوانین فازی (مقدار تعدیل)
-            fuzzyRules: {
-                shortTrip: { interest: +15, popularity: -5 },
-                longTrip: { duration: +8, rating: +5 },
-                lowBudget: { budget: +15, popularity: -5 },
-                highBudget: { interest: +5, rating: +5 },
-                withChild: { child: +15, duration: +5 }
-            },
-
-            // GA
-            ga: {
-                popSize: 60,
-                generations: 100,
-                eliteCount: 5,
-                crossoverRate: 0.85,
-                mutationRate: 0.25,
-                tournamentSize: 5,
-                emptyDayPenalty: 200,
-                timeOverflowPenalty: 5,
-                distancePenalty: 10,
-                varietyBonus: 30
-            }
-        };
-
-        // ==========================================================
-        // ۱. الگوریتم تقویم هجری شمسی (جلالی)
-        // ==========================================================
-        const div = (a, b) => ~~(a / b);
-        const mod = (a, b) => a - ~~(a / b) * b;
-
-        function jalCal(jy) {
-            const breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
-            let bl = breaks.length, gy = jy + 621, leapJ = -14, jp = breaks[0], jump = 0, i;
-            for (i = 1; i < bl; i += 1) {
-                const jm = breaks[i];
-                jump = jm - jp;
-                if (jy < jm) break;
-                leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
-                jp = jm;
-            }
-            let n = jy - jp;
-            leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
-            if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
-            const leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
-            const march = 20 + leapJ - leapG;
-            if (jump - n < 6) n = n - jump + div(jump + 4, 33) * 33;
-            let leap = mod(mod(n + 1, 33) - 1, 4);
-            if (leap === -1) leap = 4;
-            return { leap, gy, march };
-        }
-
-        function g2d(gy, gm, gd) {
-            let d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4) + div(153 * mod(gm + 9, 12) + 2, 5) + gd - 34840408;
-            d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
-            return d;
-        }
-
-        function d2g(jdn) {
-            let j = 4 * jdn + 139361631;
-            j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 390844584;
-            const i = div(mod(j, 1461), 4) * 5 + 308;
-            return {
-                gy: div(j, 1461) - 100100 + div(8 - (mod(div(i, 153), 12) + 1), 6),
-                gm: mod(div(i, 153), 12) + 1,
-                gd: div(mod(i, 153), 5) + 1
-            };
-        }
-
-        function j2d(jy, jm, jd) {
-            const r = jalCal(jy);
-            return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
-        }
-
-        function d2j(jdn) {
-            let gy = d2g(jdn).gy, jy = gy - 621;
-            const r = jalCal(jy);
-            let k = jdn - g2d(gy, 3, r.march);
-            if (k >= 0) {
-                if (k <= 185) return { jy, jm: 1 + div(k, 31), jd: mod(k, 31) + 1 };
-                k -= 186;
-            } else { jy -= 1; k += 179; }
-            return { jy, jm: 7 + div(k, 30), jd: mod(k, 30) + 1 };
-        }
-
-        const jalMonthLen = (jy, jm) => jm <= 6 ? 31 : jm <= 11 ? 30 : (jalCal(jy).leap === 0 ? 30 : 29);
-
-        const FA = '۰۱۲۳۴۵۶۷۸۹';
-        const faNum = s => String(s).replace(/\d/g, d => FA[d]);
-        const pad2 = n => String(n).padStart(2, '0');
-        const MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
-        const ORD = ['اول', 'دوم', 'سوم', 'چهارم', 'پنجم', 'ششم', 'هفتم'];
-        const WDAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
-
-        function jWeekday(jy, jm, jd) {
-            const g = d2g(j2d(jy, jm, jd));
-            return (new Date(g.gy, g.gm - 1, g.gd).getDay() + 1) % 7;
-        }
-
-        const now = new Date();
-        const TODAY = d2j(g2d(now.getFullYear(), now.getMonth() + 1, now.getDate()));
-        TODAY.jdn = j2d(TODAY.jy, TODAY.jm, TODAY.jd);
-
-        try {
-            const parts = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(now);
-            const iy = +parts.find(p => p.type === 'year').value;
-            const im = +parts.find(p => p.type === 'month').value;
-            const idd = +parts.find(p => p.type === 'day').value;
-            if (iy > 1300 && (iy !== TODAY.jy || im !== TODAY.jm || idd !== TODAY.jd)) {
-                TODAY.jy = iy; TODAY.jm = im; TODAY.jd = idd;
-                TODAY.jdn = j2d(iy, im, idd);
-            }
-        } catch (e) { }
-
-        const maxG = new Date(now.getTime() + 365 * 86400000);
-        const MAXJ = d2j(g2d(maxG.getFullYear(), maxG.getMonth() + 1, maxG.getDate()));
-
-        const fmtFull = j => `${WDAYS[jWeekday(j.jy, j.jm, j.jd)]} ${faNum(j.jy)}/${faNum(pad2(j.jm))}/${faNum(pad2(j.jd))}`;
-        const fmtShort = j => `${faNum(j.jy)}/${faNum(pad2(j.jm))}/${faNum(pad2(j.jd))}`;
-
-        // ==========================================================
-        // ۲. محاسبه فاصله بین دو نقطه (Haversine)
-        // ==========================================================
-        function calcDistance(lat1, lng1, lat2, lng2) {
-            const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
-            const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        }
-
-        const $ = id => document.getElementById(id);
-        const calGrid = $('calGrid'), calTitle = $('calTitle'), calPrev = $('calPrev'), calNext = $('calNext');
-        let viewY = TODAY.jy, viewM = TODAY.jm, tripStart = null, tripEnd = null;
-
-        function safeView() {
-            if (!Number.isFinite(viewY) || !Number.isFinite(viewM) || viewM < 1 || viewM > 12 || viewY < 1300) {
-                viewY = TODAY.jy; viewM = TODAY.jm;
-            }
-        }
-
-        function cellEmpty() {
-            const b = document.createElement('button');
-            b.type = 'button'; b.className = 'cal-day empty'; b.disabled = true;
-            return b;
-        }
-
-        function renderCalendar() {
-            safeView();
-            calTitle.textContent = `${MONTHS[viewM - 1]} ${faNum(viewY)}`;
-            calGrid.innerHTML = '';
-
-            const firstWd = jWeekday(viewY, viewM, 1);
-            const len = jalMonthLen(viewY, viewM);
-
-            for (let i = 0; i < firstWd; i++) calGrid.appendChild(cellEmpty());
-
-            for (let d = 1; d <= len; d++) {
-                const jdn = j2d(viewY, viewM, d);
-                const btn = document.createElement('button');
-                btn.type = 'button';
-                btn.className = 'cal-day';
-                btn.textContent = faNum(d);
-
-                if (jWeekday(viewY, viewM, d) === 6) btn.classList.add('friday');
-                if (jdn === TODAY.jdn) btn.classList.add('today');
-                if (jdn < TODAY.jdn) btn.disabled = true;
-
-                if (tripStart && jdn === tripStart.jdn) btn.classList.add('range-start');
-                if (tripEnd && jdn === tripEnd.jdn) btn.classList.add('range-end');
-                if (tripStart && tripEnd && jdn > tripStart.jdn && jdn < tripEnd.jdn) btn.classList.add('in-range');
-
-                btn.addEventListener('click', () => onDayClick({ jy: viewY, jm: viewM, jd: d, jdn }));
-                calGrid.appendChild(btn);
-            }
-
-            const trail = (7 - ((firstWd + len) % 7)) % 7;
-            for (let i = 0; i < trail; i++) calGrid.appendChild(cellEmpty());
-
-            calPrev.disabled = (viewY * 12 + viewM) <= (TODAY.jy * 12 + TODAY.jm);
-            calNext.disabled = (viewY * 12 + viewM) >= (MAXJ.jy * 12 + MAXJ.jm);
-        }
-
-        function onDayClick(d) {
-            $('dateHint').textContent = '';
-            if (!tripStart || (tripStart && tripEnd)) {
-                tripStart = d; tripEnd = null;
-            } else if (d.jdn < tripStart.jdn) {
-                tripStart = d; tripEnd = null;
-            } else {
-                if (d.jdn - tripStart.jdn + 1 > CONFIG.maxTripDays) {
-                    $('dateHint').textContent = `برنامه سفر حداکثر ${faNum(CONFIG.maxTripDays)} روز پشتیبانی می‌شود؛ تاریخ نزدیک‌تری انتخاب کنید.`;
-                    return;
-                }
-                tripEnd = d;
-            }
-            renderCalendar();
-            updateDateBoxes();
-        }
-
-        function updateDateBoxes() {
-            $('dbStart').textContent = tripStart ? fmtFull(tripStart) : 'هنوز انتخاب نشده';
-            $('dbEnd').textContent = tripEnd ? fmtFull(tripEnd) : 'هنوز انتخاب نشده';
-        }
-
-        calPrev.addEventListener('click', () => { safeView(); viewM--; if (viewM < 1) { viewM = 12; viewY--; } renderCalendar(); });
-        calNext.addEventListener('click', () => { safeView(); viewM++; if (viewM > 12) { viewM = 1; viewY++; } renderCalendar(); });
-        renderCalendar();
-
-        // ==========================================================
-        // ۳. مدیریت علاقه‌مندی‌ها
-        // ==========================================================
-        const interestBtns = [...document.querySelectorAll('.interest-card')];
-        interestBtns.forEach(b => b.addEventListener('click', () => {
-            b.classList.toggle('selected');
-            updateIntCount();
-            $('wzHint').textContent = '';
-        }));
-
-        function updateIntCount() {
-            $('interestCount').textContent = `${faNum(interestBtns.filter(b => b.classList.contains('selected')).length)} از ${faNum(interestBtns.length)}`;
-        }
-
-        $('clearInterests').addEventListener('click', e => {
-            e.preventDefault();
-            interestBtns.forEach(b => b.classList.remove('selected'));
-            updateIntCount();
-        });
-        updateIntCount();
-
-        // ==========================================================
-        // ۴. ناوبری بین مراحل ویزارد
-        // ==========================================================
-        const TITLES = {
-            1: 'تاریخ سفرت رو مشخص کن',
-            2: 'علایقت رو مشخص کن',
-            3: 'جزئیات سفر رو وارد کن',
-            4: 'مرور برنامه سفر'
-        };
-        let wizStep = 1;
-
-        function goWiz(n) {
-            wizStep = n;
-            $('wzHint').textContent = '';
-            document.querySelectorAll('.wz-step').forEach(s => s.classList.toggle('active', +s.dataset.step === n));
-            $('wizTitle').textContent = TITLES[n];
-
-            const stepItems = document.querySelectorAll('.step-item');
-            const stepLines = document.querySelectorAll('.step-line');
-            stepItems.forEach(el => {
-                const step = parseInt(el.dataset.step);
-                el.classList.remove('active', 'done');
-                if (step === n) el.classList.add('active');
-                else if (step < n) el.classList.add('done');
-            });
-            stepLines.forEach((el, i) => {
-                if (i + 1 < n) el.classList.add('done');
-                else el.classList.remove('done');
-            });
-
-            $('wizPrev').style.visibility = n === 1 ? 'hidden' : 'visible';
-
-            const next = $('wizNext');
-            next.innerHTML = n === 4 ? 'ساخت برنامه <i class="fas fa-magic"></i>' : 'مرحله بعد <i class="fas fa-arrow-left"></i>';
-            next.classList.toggle('submit', n === 4);
-
-            if (n === 3 && tripStart && tripEnd) {
-                $('tripDaysInfo').innerHTML = `<i class="fas fa-calendar-check"></i> مدت سفر شما: ${faNum(tripEnd.jdn - tripStart.jdn + 1)} روز`;
-            }
-            if (n === 4) buildReview();
-            document.getElementById('planWizard').scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        $('wizPrev').addEventListener('click', () => goWiz(Math.max(1, wizStep - 1)));
-        $('wizNext').addEventListener('click', () => {
-            if (wizStep === 1 && (!tripStart || !tripEnd)) {
-                $('dateHint').textContent = 'لطفاً روز شروع و پایان سفر را روی تقویم انتخاب کنید.';
-                return;
-            }
-            if (wizStep === 2 && !interestBtns.some(b => b.classList.contains('selected'))) {
-                $('wzHint').textContent = 'لطفاً حداقل یک دسته‌بندی انتخاب کنید.';
-                return;
-            }
-            if (wizStep < 4) goWiz(wizStep + 1);
-            else submitPlan();
-        });
-
-        function buildReview() {
-            const sel = interestBtns.filter(b => b.classList.contains('selected'));
-            $('rvStart').textContent = fmtShort(tripStart);
-            $('rvEnd').textContent = fmtShort(tripEnd);
-            $('rvDays').textContent = `${faNum(tripEnd.jdn - tripStart.jdn + 1)} روز`;
-            $('rvIntCount').textContent = faNum(sel.length);
-            $('rvChips').innerHTML = sel.map(b => `<span class="rv-chip">${b.querySelector('.ic-emoji').textContent} ${b.querySelector('.ic-label').textContent}</span>`).join('');
-            const trav = $('travelersCount'), bud = $('budgetRange');
-            const child = document.querySelector('input[name="hasChild"]:checked').value === 'true';
-            $('rvDetails').textContent = `${trav.options[trav.selectedIndex].text} • بودجه: ${bud.options[bud.selectedIndex].text} • ${child ? 'کودک همراه دارد' : 'بدون کودک'}`;
-        }
-
-        // ==========================================================
-        // ۵. داده‌های داینامیک (از دیتابیس)
-        // ==========================================================
-        const REAL_PLACES = window.REAL_PLACES || [];
-        const CATEGORIES_DATA = window.CATEGORIES || [];
-
-        // ✅ دسته‌بندی‌ها از دیتابیس (نه hard-coded)
-        const ALL_CATEGORIES = CATEGORIES_DATA.map(c => c.name);
-
-        console.log('📊 دیتای بارگذاری‌شده:');
-        console.log('  - تعداد جاذبه‌ها:', REAL_PLACES.length);
-        console.log('  - دسته‌بندی‌ها:', ALL_CATEGORIES);
-        console.log('  - نمونه جاذبه:', REAL_PLACES[0]);
-
-        // ==========================================================
-        // 🟣 لایه ۱: منطق فازی (Fuzzy Logic)
-        // ==========================================================
-        function triangularMF(x, a, b, c) {
-            if (x <= a || x >= c) return 0;
-            if (x === b) return 1;
-            if (x < b) return (x - a) / (b - a);
-            return (c - x) / (c - b);
-        }
-
-        function membershipDuration(days) {
-            return {
-                short: triangularMF(days, 0, 1, 4),
-                medium: triangularMF(days, 2, 4, 6),
-                long: triangularMF(days, 5, 7, 10)
-            };
-        }
-
-        function membershipBudget(millions) {
-            return {
-                low: triangularMF(millions, 0, 2, 5),
-                medium: triangularMF(millions, 3, 6, 10),
-                high: triangularMF(millions, 8, 12, 20)
-            };
-        }
-
-        /**
-         * وزن‌دهی پویا بر اساس منطق فازی
-         * ورودی: مدت سفر (روز)، همراه کودک، حداکثر بودجه (تومان)
-         * خروجی: آبجکت وزن‌های نرمال‌شده (مجموع = 100)
-         */
-        function getFuzzyWeights(duration, hasChild, budgetMax) {
-            const durMem = membershipDuration(duration);
-            const budMem = membershipBudget(budgetMax / 1_000_000);
-
-            // شروع با وزن‌های پایه
-            const w = { ...CONFIG.fuzzyBase };
-            const R = CONFIG.fuzzyRules;
-
-            // قانون ۱: سفر کوتاه → علاقه‌مندی مهم‌تر، محبوبیت کم‌اهمیت‌تر
-            w.interest += durMem.short * R.shortTrip.interest;
-            w.popularity += durMem.short * R.shortTrip.popularity;
-
-            // قانون ۲: سفر طولانی → تنوع (مدت + امتیاز) مهم‌تر
-            w.duration += durMem.long * R.longTrip.duration;
-            w.rating += durMem.long * R.longTrip.rating;
-
-            // قانون ۳: بودجه کم → هزینه مهم‌تر، محبوبیت کم‌اهمیت‌تر
-            w.budget += budMem.low * R.lowBudget.budget;
-            w.popularity += budMem.low * R.lowBudget.popularity;
-
-            // قانون ۴: بودجه زیاد → علاقه و امتیاز مهم‌تر
-            w.interest += budMem.high * R.highBudget.interest;
-            w.rating += budMem.high * R.highBudget.rating;
-
-            // قانون ۵: کودک همراه → child-friendly مهم‌تر، مدت طولانی مهم‌تر (باید کوتاه باشه)
-            if (hasChild) {
-                w.child += R.withChild.child;
-                w.duration += R.withChild.duration;
-            }
-
-            // اطمینان از مثبت بودن (بدون از دست دادن اطلاعات)
-            Object.keys(w).forEach(k => {
-                if (w[k] < 0.5) w[k] = 0.5;  // حداقل وزن 0.5
-            });
-
-            // نرمال‌سازی به درصد (مجموع = 100)
-            const total = Object.values(w).reduce((a, b) => a + b, 0);
-            Object.keys(w).forEach(k => { w[k] = (w[k] / total) * 100; });
-
-            return w;
-        }
-
-        // ==========================================================
-        // 🔵 لایه ۲: CBF (Content-Based Filtering)
-        // ==========================================================
-
-        /**
-         * ساخت بردار ویژگی جاذبه
-         * ساختار: [one-hot دسته‌بندی (n), cost, rating, is_child, duration, distance]
-         */
-        function buildPlaceVector(place) {
-            const vec = [];
-
-            // One-hot encoding دسته‌بندی
-            ALL_CATEGORIES.forEach(cat => {
-                vec.push(place.category === cat ? 1 : 0);
-            });
-
-            // ویژگی‌های عددی نرمال‌شده [0, 1]
-            vec.push(Math.min((place.cost || 0) / 5_000_000, 1));            // هزینه
-            vec.push(Math.min((place.rating || 3.5) / 5, 1));                // امتیاز
-            vec.push(place.is_child_friendly ? 1 : 0);                       // مناسب کودک
-            vec.push(Math.min((place.duration || 60) / 120, 1));             // مدت بازدید
-            const distKm = calcDistance(place.lat, place.lng, CONFIG.center.lat, CONFIG.center.lng);
-            vec.push(Math.min(distKm / 50, 1));                              // فاصله از مرکز
-
-            return vec;
-        }
-
-        /**
-         * ساخت بردار ترجیحات کاربر (با همان طول)
-         */
-        function buildUserVector(userPrefs) {
-            const vec = [];
-
-            // One-hot علاقه‌مندی‌ها
-            ALL_CATEGORIES.forEach(cat => {
-                vec.push(userPrefs.interests.includes(cat) ? 1 : 0);
-            });
-
-            // ویژگی‌های عددی
-            vec.push(Math.min(userPrefs.budgetMax / 15_000_000, 1) * 0.4);  // ترجیح هزینه پایین
-            vec.push(0.7);                                                   // ترجیح امتیاز بالا
-            vec.push(userPrefs.hasChild ? 1 : 0);                            // ترجیح مناسب کودک
-            vec.push(0.5);                                                   // مدت متوسط
-            vec.push(0.3);                                                   // ترجیح نزدیک بودن
-
-            return vec;
-        }
-
-        function cosineSimilarity(a, b) {
-            let dot = 0, normA = 0, normB = 0;
-            for (let i = 0; i < a.length; i++) {
-                dot += a[i] * b[i];
-                normA += a[i] * a[i];
-                normB += b[i] * b[i];
-            }
-            if (normA === 0 || normB === 0) return 0;
-            return dot / (Math.sqrt(normA) * Math.sqrt(normB));
-        }
-
-        /**
-         * امتیازدهی CBF به همه جاذبه‌ها
-         * @returns آرایه‌ای از جاذبه‌ها با فیلد score ∈ [0, 100]
-         */
-        function cbfScoring(places, userPrefs, fuzzyWeights) {
-            const userVec = buildUserVector(userPrefs);
-
-            // وزن‌ها رو به [0,1] نرمال کن
-            const w = {
-                interest: fuzzyWeights.interest / 100,
-                budget: fuzzyWeights.budget / 100,
-                child: fuzzyWeights.child / 100,
-                duration: fuzzyWeights.duration / 100,
-                popularity: fuzzyWeights.popularity / 100,
-                rating: fuzzyWeights.rating / 100
-            };
-
-            return places.map(place => {
-                const placeVec = buildPlaceVector(place);
-                const baseSim = cosineSimilarity(userVec, placeVec);  // ∈ [0, 1]
-
-                // === امتیاز وزنی (نرمال به [0, 1]) ===
-                let score = 0;
-
-                // ۱. تطابق علاقه‌مندی
-                const interestMatch = userPrefs.interests.includes(place.category) ? 1 : 0;
-                score += interestMatch * w.interest;
-
-                // ۲. بودجه (امتیاز نرمال)
-                const budgetMax = userPrefs.budgetMax;
-                let budgetScore;
-                if (place.cost === 0) budgetScore = 1;
-                else if (place.cost <= budgetMax * 0.2) budgetScore = 0.9;
-                else if (place.cost <= budgetMax * 0.5) budgetScore = 0.7;
-                else if (place.cost <= budgetMax) budgetScore = 0.4;
-                else budgetScore = 0.1;
-                score += budgetScore * w.budget;
-
-                // ۳. مناسب کودک
-                if (userPrefs.hasChild) {
-                    score += (place.is_child_friendly ? 1 : 0) * w.child;
-                } else {
-                    score += 0.5 * w.child;  // وزن خنثی
-                }
-
-                // ۴. مدت بازدید (کوتاه‌تر = بهتر برای جولان بیشتر)
-                let durScore;
-                if (place.duration <= 60) durScore = 1;
-                else if (place.duration <= 90) durScore = 0.8;
-                else if (place.duration <= 120) durScore = 0.6;
-                else durScore = 0.3;
-                score += durScore * w.duration;
-
-                // ۵. محبوبیت (بر اساس views)
-                const popScore = place.views ? Math.min(place.views / 1000, 1) : 0.3;
-                score += popScore * w.popularity;
-
-                // ۶. امتیاز کاربران
-                const ratingScore = Math.min((place.rating || 3.5) / 5, 1);
-                score += ratingScore * w.rating;
-
-                // score الان ∈ [0, 1] است چون مجموع وزن‌ها = 1
-
-                // === ترکیب نهایی با base similarity ===
-                // هر دو در [0, 1] هستن → ترکیب امن
-                const finalScore01 = baseSim * CONFIG.cbf.baseSimilarity
-                                   + score * CONFIG.cbf.weightedScore;
-                const finalScore = Math.round(finalScore01 * 100);
-
-                return {
-                    ...place,
-                    similarity: baseSim,
-                    weightedScore: score,
-                    score: finalScore
-                };
-            });
-        }
-
-        // ==========================================================
-        // 🟢 لایه ۳: KNN — انتخاب K جاذبه برتر
-        // (Top-K Selection بر اساس امتیاز CBF)
-        // ==========================================================
-        function knnSelection(scoredPlaces, durationDays, budgetMax) {
-            // فیلتر بودجه (با ۲۰٪ انعطاف)
-            const budgetFiltered = scoredPlaces.filter(p =>
-                p.cost === 0 || p.cost <= budgetMax * 1.2
-            );
-
-            // مرتب‌سازی بر اساس امتیاز نزولی
-            budgetFiltered.sort((a, b) => b.score - a.score);
-
-            // K = تعداد روزها × ضریب
-            const K = Math.min(
-                budgetFiltered.length,
-                durationDays * CONFIG.knnMultiplier
-            );
-
-            return budgetFiltered.slice(0, K);
-        }
-
-        // ==========================================================
-        // 🟠 لایه ۴: GA — الگوریتم ژنتیک برای چیدمان روزها
-        // ==========================================================
-        const SEP = -1;  // جداکننده روزها در کروموزوم
-
-        function splitChromosome(chromosome) {
-            const days = [[]];
-            for (const x of chromosome) {
-                if (x === SEP) days.push([]);
-                else days[days.length - 1].push(x);
-            }
-            return days;
-        }
-
-        /**
-         * تابع برازش (Fitness)
-         * هر کروموزوم = آرایه‌ای از ایندکس جاذبه‌ها + جداکننده روزها
-         */
-        function fitness(chromosome, places) {
-            const days = splitChromosome(chromosome);
-            let total = 0;
-
-            const DAILY_TIME = CONFIG.dailyTimeMinutes;
-            const BREAK_TIME = CONFIG.breakTimeMinutes;
-            const GA = CONFIG.ga;
-
-            for (const day of days) {
-                // جریمه روز خالی
-                if (day.length === 0) {
-                    total -= GA.emptyDayPenalty;
-                    continue;
-                }
-
-                // ۱. امتیاز جاذبه‌ها (نرمال‌شده به [0, ~10] برای هم‌سطح شدن با penaltyها)
-                let dayScore = 0;
-                for (const idx of day) {
-                    dayScore += places[idx].score;
-                }
-                total += dayScore / 20;  // ← نرمال‌سازی
-
-                // ۲. زمان کل روز
-                let totalTime = 0;
-                let lastPlace = null;
-                for (const idx of day) {
-                    const p = places[idx];
-                    totalTime += (p.duration || 60) + BREAK_TIME;
-                    if (lastPlace) {
-                        const dist = calcDistance(lastPlace.lat, lastPlace.lng, p.lat, p.lng);
-                        totalTime += (dist / 10) * 15;  // هر ۱۰ کیلومتر = ۱۵ دقیقه
-                    }
-                    lastPlace = p;
-                }
-
-                // جریمه سرریز زمان
-                if (totalTime > DAILY_TIME) {
-                    total -= (totalTime - DAILY_TIME) * GA.timeOverflowPenalty;
-                }
-
-                // ۳. فاصله کل روز (جریمه)
-                let totalDist = 0;
-                for (let i = 0; i < day.length - 1; i++) {
-                    const p1 = places[day[i]];
-                    const p2 = places[day[i + 1]];
-                    totalDist += calcDistance(p1.lat, p1.lng, p2.lat, p2.lng);
-                }
-                total -= totalDist * GA.distancePenalty;
-
-                // ۴. پاداش تنوع دسته‌بندی
-                const categories = new Set(day.map(idx => places[idx].category));
-                if (day.length >= 3 && categories.size >= 3) {
-                    total += GA.varietyBonus;
-                }
-            }
-
-            return total;
-        }
-
-        /**
-         * Order Crossover (OX) — نسخه اصلاح‌شده
-         * جداکننده‌ها رو دقیقاً مثل والد اول حفظ می‌کنه
-         */
-        function orderCrossover(p1, p2) {
-            // موقعیت جداکننده‌ها رو در p1 بگیر
-            const sepPositions = [];
-            p1.forEach((x, i) => { if (x === SEP) sepPositions.push(i); });
-
-            // ژن‌های واقعی (بدون جداکننده) رو استخراج کن
-            const g1 = p1.filter(x => x !== SEP);
-            const g2 = p2.filter(x => x !== SEP);
-            const n = g1.length;
-
-            if (n < 2) return [...p1];
-
-            // انتخاب محدوده تصادفی
-            const a = Math.floor(Math.random() * (n - 1));
-            const b = a + 1 + Math.floor(Math.random() * (n - a - 1));
-
-            // کپی از p1 در محدوده [a, b]
-            const childGenes = new Array(n).fill(null);
-            for (let i = a; i <= b; i++) childGenes[i] = g1[i];
-
-            // پر کردن بقیه از p2
-            const used = new Set(childGenes.slice(a, b + 1));
-            let fi = 0;
-            for (let i = 0; i < n; i++) {
-                if (childGenes[i] === null) {
-                    while (used.has(g2[fi])) fi++;
-                    childGenes[i] = g2[fi++];
-                }
-            }
-
-            // برگرداندن جداکننده‌ها به موقعیت اصلی
-            const result = [...childGenes];
-            for (const pos of sepPositions) {
-                result.splice(pos, 0, SEP);
-            }
-
-            return result;
-        }
-
-        /**
-         * جهش (Mutation)
-         * دو نوع: swap (جابجایی) و reverse (معکوس کردن تکه)
-         */
-        function mutate(chromosome) {
-            const c = [...chromosome];
-            const valid = c.map((x, i) => x !== SEP ? i : -1).filter(i => i >= 0);
-            if (valid.length < 2) return c;
-
-            if (Math.random() < 0.5) {
-                // Swap: جابجایی دو ژن
-                const i = valid[Math.floor(Math.random() * valid.length)];
-                const j = valid[Math.floor(Math.random() * valid.length)];
-                [c[i], c[j]] = [c[j], c[i]];
-            } else {
-                // Reverse: معکوس کردن یک برش
-                const a = valid[Math.floor(Math.random() * valid.length)];
-                const b = valid[Math.floor(Math.random() * valid.length)];
-                const lo = Math.min(a, b), hi = Math.max(a, b);
-                const segment = c.slice(lo, hi + 1).reverse();
-                for (let i = 0; i < segment.length; i++) {
-                    c[lo + i] = segment[i];
-                }
-            }
-            return c;
-        }
-
-        /**
-         * الگوریتم ژنتیک اصلی
-         * @returns آرایه‌ای از روزها؛ هر روز = آرایه‌ای از جاذبه‌ها
-         */
-        function geneticAlgorithm(places, daysCount) {
-            const n = places.length;
-            if (n === 0) return [];
-            if (daysCount <= 1) return [places];  // فقط یک روز
-
-            const GA = CONFIG.ga;
-            const POP_SIZE = GA.popSize;
-            const GENERATIONS = GA.generations;
-            const ELITE = GA.eliteCount;
-
-            /**
-             * ساخت کروموزوم تصادفی
-             * - همه جاذبه‌ها به صورت تصادفی پرمیوت می‌شن
-             * - سپس (daysCount - 1) تا جداکننده در موقعیت‌های تصادفی اضافه می‌شن
-             */
-            function randomChromosome() {
-                const indices = Array.from({ length: n }, (_, i) => i);
-                for (let i = n - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [indices[i], indices[j]] = [indices[j], indices[i]];
-                }
-                // اضافه کردن جداکننده‌ها در موقعیت‌های بین ۱ تا length-1
-                const result = [...indices];
-                for (let i = 0; i < daysCount - 1; i++) {
-                    const pos = 1 + Math.floor(Math.random() * (result.length - 1));
-                    result.splice(pos, 0, SEP);
-                }
-                return result;
-            }
-
-            // جمعیت اولیه
-            let population = [];
-            for (let i = 0; i < POP_SIZE; i++) {
-                population.push(randomChromosome());
-            }
-
-            let bestEver = null;
-            let bestFitnessEver = -Infinity;
-
-            // حلقه نسل‌ها
-            for (let gen = 0; gen < GENERATIONS; gen++) {
-                // محاسبه fitness
-                const fits = population.map(c => fitness(c, places));
-
-                // پیدا کردن بهترین نسل
-                let genBestIdx = 0;
-                for (let i = 1; i < fits.length; i++) {
-                    if (fits[i] > fits[genBestIdx]) genBestIdx = i;
-                }
-                if (fits[genBestIdx] > bestFitnessEver) {
-                    bestFitnessEver = fits[genBestIdx];
-                    bestEver = [...population[genBestIdx]];
-                }
-
-                // مرتب‌سازی بر اساس fitness (نزولی)
-                const sortedIdx = fits.map((_, i) => i).sort((a, b) => fits[b] - fits[a]);
-
-                // نخبه‌گرایی (Elitism)
-                const newPop = [];
-                for (let i = 0; i < ELITE; i++) {
-                    newPop.push([...population[sortedIdx[i]]]);
-                }
-
-                // تورنمنت (Tournament Selection)
-                function tournament() {
-                    const k = GA.tournamentSize;
-                    let best = Math.floor(Math.random() * POP_SIZE);
-                    for (let i = 1; i < k; i++) {
-                        const cand = Math.floor(Math.random() * POP_SIZE);
-                        if (fits[cand] > fits[best]) best = cand;
-                    }
-                    return population[best];
-                }
-
-                // تولید نسل جدید
-                while (newPop.length < POP_SIZE) {
-                    const p1 = tournament();
-                    const p2 = tournament();
-
-                    let child;
-                    if (Math.random() < GA.crossoverRate) {
-                        child = orderCrossover(p1, p2);
-                    } else {
-                        child = [...p1];
-                    }
-
-                    if (Math.random() < GA.mutationRate) {
-                        child = mutate(child);
-                    }
-
-                    newPop.push(child);
-                }
-
-                population = newPop;
-            }
-
-            // تبدیل بهترین کروموزوم به ساختار نهایی
-            const bestDays = splitChromosome(bestEver);
-            return bestDays
-                .map(day => day.map(idx => places[idx]))
-                .filter(d => d.length > 0);
-        }
-
-        // ==========================================================
-        // 🎯 تابع اصلی: اجرای هر ۴ لایه پشت سر هم
-        // ==========================================================
-        function getRecommendations(interests, options) {
-            const budgetMax = Number(options.budgetStr.split('-')[1]) || 5_000_000;
-            const duration = Math.min(CONFIG.maxTripDays, options.duration || 3);
-            const hasChild = options.hasChild || false;
-
-            console.log('\n═══════════════════════════════════════');
-            console.log('🎯 شروع توصیه‌گر با ورودی:');
-            console.log('  علاقه‌مندی‌ها:', interests);
-            console.log('  مدت (روز):', duration);
-            console.log('  بودجه:', budgetMax.toLocaleString());
-            console.log('  کودک همراه:', hasChild);
-            console.log('═══════════════════════════════════════');
-
-            // ══════════ لایه ۱: FUZZY ══════════
-            const fuzzyWeights = getFuzzyWeights(duration, hasChild, budgetMax);
-            console.log('🟣 لایه ۱ - وزن‌های فازی:');
-            Object.entries(fuzzyWeights).forEach(([k, v]) => {
-                console.log(`    ${k}: ${v.toFixed(2)}%`);
-            });
-
-            // ══════════ لایه ۲: CBF ══════════
-            const userPrefs = { interests, budgetMax, hasChild };
-            const scoredPlaces = cbfScoring(REAL_PLACES, userPrefs, fuzzyWeights);
-
-            // گزارش ۵ جاذبه برتر
-            const top5 = [...scoredPlaces].sort((a, b) => b.score - a.score).slice(0, 5);
-            console.log('🔵 لایه ۲ - ۵ جاذبه برتر:');
-            top5.forEach((p, i) => {
-                console.log(`    ${i + 1}. ${p.name} (امتیاز: ${p.score}, دسته: ${p.category})`);
-            });
-
-            // ══════════ لایه ۳: KNN ══════════
-            const knnSelected = knnSelection(scoredPlaces, duration, budgetMax);
-            console.log(`🟢 لایه ۳ - KNN انتخاب ${knnSelected.length} جاذبه از ${scoredPlaces.length}`);
-
-            if (knnSelected.length === 0) {
-                console.warn('⚠️ هیچ جاذبه‌ای انتخاب نشد!');
-                return [];
-            }
-
-            // ══════════ لایه ۴: GA ══════════
-            console.log(`🟠 لایه ۴ - شروع GA برای ${duration} روز...`);
-            const t0 = performance.now();
-
-            const days = geneticAlgorithm(knnSelected, duration);
-            const t1 = performance.now();
-
-            console.log(`    ⏱️ زمان GA: ${(t1 - t0).toFixed(0)} میلی‌ثانیه`);
-            console.log('    📅 چیدمان روزها:', days.map(d => d.length).join(' + '));
-
-            return days.filter(d => d.length > 0);
-        }
-
-        // ==========================================================
-        // ۶. نمایش نتایج
-        // ==========================================================
-        let plannerMeta = null, activeTab = 'all';
-        const faTime = m => `${faNum(Math.floor(m / 60))}:${faNum(pad2(m % 60))}`;
-
-        function submitPlan() {
-            const sel = interestBtns.filter(b => b.classList.contains('selected'));
-            if (!sel.length) { alert('لطفاً حداقل یک علاقه‌مندی انتخاب کنید.'); return; }
-            if (!tripStart || !tripEnd) { alert('لطفاً تاریخ سفر را انتخاب کنید.'); return; }
-
-            // ✅ از data-value استفاده می‌کنیم (اسم فارسی دسته‌بندی)
-            const cats = [...new Set(sel.map(b => b.dataset.value))];
-
-            const days = getRecommendations(cats, {
-                budgetStr: $('budgetRange').value,
-                duration: tripEnd.jdn - tripStart.jdn + 1,
-                hasChild: document.querySelector('input[name="hasChild"]:checked').value === 'true'
-            });
-
-            if (!days.length) { alert('جاذبه‌ای پیدا نشد؛ انتخاب‌ها را تغییر دهید.'); return; }
-
-            plannerMeta = { days, startJdn: j2d(tripStart.jy, tripStart.jm, tripStart.jd) };
-            activeTab = 'all';
-            $('planWizard').style.display = 'none';
-            $('resultSection').classList.add('visible');
-            document.body.classList.add('result-open');
-            document.body.style.overflow = 'hidden';
-            renderAll();
-            $('resultSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
-
-            saveTripToDatabase(cats, days);
-        }
-
-        function saveTripToDatabase(cats, days) {
-            const isLoggedIn = document.querySelector('#navbar .nav-user') !== null;
-
-            if (!isLoggedIn) {
-                showToast('برای ذخیره سفر، ابتدا وارد حساب کاربری خود شوید');
-                setTimeout(() => {
-                    window.location.href = '/login/?next=/plan/';
-                }, 2000);
-                return;
-            }
-
-            const form = $('saveTripForm');
-
-            $('saveStartDate').value = `${tripStart.jy}/${pad2(tripStart.jm)}/${pad2(tripStart.jd)}`;
-            $('saveEndDate').value = `${tripEnd.jy}/${pad2(tripEnd.jm)}/${pad2(tripEnd.jd)}`;
-            $('saveDurationDays').value = tripEnd.jdn - tripStart.jdn + 1;
-            $('saveCompanions').value = $('travelersCount').value;
-            $('saveHasChildren').value = document.querySelector('input[name="hasChild"]:checked').value;
-            $('saveBudgetToman').value = $('budgetRange').value;
-            $('saveInterests').value = JSON.stringify(cats);
-
-            const placesData = days.map((dayPlaces, dayIndex) =>
-                dayPlaces.map(p => ({
-                    id: p.id,
-                    name: p.name,
-                    lat: p.lat,
-                    lng: p.lng,
-                    category: p.category,
-                    cost: p.cost,
-                    duration: p.duration,
-                    score: p.score,
-                    image: p.image || `/static/img/${p.slug || 'asiyab-haye-abi'}.jpg`,
-                    day: dayIndex + 1
-                }))
-            ).flat();
-
-            $('saveSuggestedPlaces').value = JSON.stringify(placesData);
-
-            form.style.display = 'block';
-            form.submit();
-        }
-
-        $('editPlanBtn').addEventListener('click', () => {
-            $('resultSection').classList.remove('visible');
-            document.body.classList.remove('result-open');
-            $('planWizard').style.display = '';
-            document.body.style.overflow = '';
-            plannerMeta = null;
-            activeTab = 'all';
-            goWiz(1);
-        });
-
-        const dayDate = i => d2j(plannerMeta.startJdn + i);
-
-        function schedule(dayPlaces) {
-            let cur = 9 * 60;
-            return dayPlaces.map((p, idx) => {
-                const s = cur, e = cur + p.duration;
-                cur = e + CONFIG.breakTimeMinutes;
-                if (cur > 23 * 60 + 30) cur = 9 * 60;
-                const dist = idx ? calcDistance(dayPlaces[idx - 1].lat, dayPlaces[idx - 1].lng, p.lat, p.lng) : 0;
-                return { p, s: s % 1440, e: e % 1440, dist };
-            });
-        }
-
-        const distTxt = km => km < 1 ? `${faNum(Math.round(km * 1000))} متر` : `حدود ${faNum(Math.round(km))} کیلومتر`;
-
-        function cardsHtml(dayPlaces, di) {
-            return schedule(dayPlaces).map((it, idx) => `
-            <div class="place-row">
-                <span class="place-num">${faNum(idx + 1)}</span>
-                <div class="place-card">
-                    <img class="pc-img" src="${it.p.image}" alt="${it.p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-                    <div class="pc-info">
-                        <h4>${it.p.name}</h4>
-                        <div class="pc-time">🕒 ${faTime(it.s)} تا ${faTime(it.e)}</div>
-                        <div class="pc-meta">
-                            <span>🏷️ ${it.p.category}</span>
-                            <span>💰 ${it.p.cost === 0 ? 'رایگان' : faNum(it.p.cost.toLocaleString()) + ' تومان'}</span>
-                        </div>
-                    </div>
-                    <div class="pc-side">
-                        <span class="dist-chip">${idx === 0 ? '🚩 شروع روز' : '🚗 ' + distTxt(it.dist)}</span>
-                        <div class="pc-actions">
-                            <span class="pc-score">⭐ ${faNum(it.p.score)}</span>
-                            <button type="button" class="icon-btn pc-more" data-day="${di}" data-idx="${idx}" title="گزینه‌های بیشتر"><i class="fas fa-ellipsis-h"></i></button>
-                        </div>
-                    </div>
-                </div>
-            </div>`).join('');
-        }
-
-        function renderAll() {
-            if (!plannerMeta || !plannerMeta.days.length) return;
-            const days = plannerMeta.days;
-
-            activeTab = 'all';
-
-            const st = d2j(plannerMeta.startJdn);
-            const endD = d2j(plannerMeta.startJdn + days.length - 1);
-            const mName = jm => MONTHS[(jm | 0) - 1] || '';
-
-            const monthRange = st.jm === endD.jm
-                ? `${faNum(st.jd)} تا ${faNum(endD.jd)} ${mName(st.jm)}`
-                : `${faNum(st.jd)} ${mName(st.jm)} تا ${faNum(endD.jd)} ${mName(endD.jm)}`;
-
-            $('phSub').textContent = `${faNum(days.length)} روز - ${monthRange}`;
-
-            $('plannerTabs').innerHTML = `<button class="ptab active" data-tab="all"><span class="t">نمای کلی</span><span class="s">همه روزها</span></button>` +
-                days.map((_, i) => `<button class="ptab" data-tab="${i}"><span class="t">روز ${ORD[i] || faNum(i + 1)}</span><span class="s">${mName(dayDate(i).jm)} ${faNum(dayDate(i).jd)}</span></button>`).join('');
-
-            $('plannerDays').innerHTML = days.map((d, i) => `
-                <div class="day-block">
-                    <div class="day-block-title">روز ${faNum(i + 1)} <span>${mName(dayDate(i).jm)} ${faNum(dayDate(i).jd)}</span></div>
-                    ${cardsHtml(d, i)}
-                </div>`).join('');
-
-            $('mapDayChips').innerHTML = `<button class="map-chip active" data-tab="all">همه</button>` +
-                days.map((_, i) => `<button class="map-chip" data-tab="${i}">روز ${faNum(i + 1)}</button>`).join('');
-
-            showOnMap();
-        }
-
-        document.getElementById('resultSection').addEventListener('click', e => {
-            const t = e.target.closest('[data-tab]');
-            if (t) {
-                activeTab = t.dataset.tab === 'all' ? 'all' : parseInt(t.dataset.tab, 10);
-                renderAll();
-            }
-        });
-
-        function showOnMap() {
-            if (typeof L === 'undefined' || !$('resultMap') || !plannerMeta || !plannerMeta.days) return;
-
-            if (window.mapInstance) { window.mapInstance.remove(); window.mapInstance = null; }
-
-            window.mapInstance = L.map('resultMap', { zoomControl: false });
-            L.control.zoom({ position: 'bottomright' }).addTo(window.mapInstance);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO',
-                maxZoom: 19
-            }).addTo(window.mapInstance);
-
-            const all = [];
-            const drawDay = places => {
-                const pts = [];
-                schedule(places).forEach((it, idx) => {
-                    const marker = L.marker([it.p.lat, it.p.lng], {
-                        icon: L.divIcon({
-                            className: 'pin-wrap',
-                            html: `<div class="pin"><span>${faNum(idx + 1)}</span></div><div class="pin-label">${it.p.name}</div>`,
-                            iconSize: [30, 44],
-                            iconAnchor: [15, 33],
-                            popupAnchor: [0, -34]
-                        })
-                    })
-                        .addTo(window.mapInstance)
-                        .bindPopup(`
-                        <div class="map-pop">
-                            <div class="map-pop-img">
-                                <img src="${it.p.image}" alt="${it.p.name}" onerror="this.parentNode.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-                                <span class="map-pop-badge">${it.p.category}</span>
-                            </div>
-                            <div class="map-pop-body">
-                                <h4>${it.p.name}</h4>
-                                <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول، خوزستان</div>
-                                <p>${it.p.desc || ''}</p>
-                            </div>
-                        </div>`);
-
-                    marker.on('mouseover', () => marker.openPopup());
-                    marker.on('mouseout', () => marker.closePopup());
-
-                    pts.push([it.p.lat, it.p.lng]);
-                    all.push([it.p.lat, it.p.lng]);
-                });
-                if (pts.length > 1) L.polyline(pts, { color: '#2a9d8f', weight: 4, opacity: .85, dashArray: '8 8', lineCap: 'round' }).addTo(window.mapInstance);
-            };
-
-            if (activeTab === 'all') plannerMeta.days.forEach(d => drawDay(d));
-            else if (plannerMeta.days[+activeTab]) drawDay(plannerMeta.days[+activeTab]);
-
-            if (all.length) window.mapInstance.fitBounds(L.latLngBounds(all), { padding: [50, 50] });
-            setTimeout(() => window.mapInstance && window.mapInstance.invalidateSize(), 400);
-        }
-
-        const moreMenu = $('moreMenu');
-        let menuTarget = null;
-
-        document.addEventListener('click', e => {
-            const more = e.target.closest('.pc-more');
-            if (more) {
-                e.stopPropagation();
-                menuTarget = { day: +more.dataset.day, idx: +more.dataset.idx };
-                const r = more.getBoundingClientRect();
-                moreMenu.style.top = Math.min(r.bottom + 6, innerHeight - 160) + 'px';
-                moreMenu.style.left = Math.max(10, r.left - 180) + 'px';
-                moreMenu.classList.add('open');
-                return;
-            }
-            if (!e.target.closest('.more-menu')) moreMenu.classList.remove('open');
-        });
-
-        moreMenu.addEventListener('click', e => {
-            const btn = e.target.closest('button');
-            if (!btn || !menuTarget || !plannerMeta) { moreMenu.classList.remove('open'); return; }
-
-            const { day, idx } = menuTarget;
-            if (!plannerMeta.days[day] || !plannerMeta.days[day][idx]) {
-                moreMenu.classList.remove('open'); menuTarget = null; return;
-            }
-
-            const cur = plannerMeta.days[day][idx];
-            moreMenu.classList.remove('open');
-
-            if (btn.dataset.act === 'route') { activeTab = day; renderAll(); }
-
-            if (btn.dataset.act === 'remove') {
-                plannerMeta.days[day].splice(idx, 1);
-                plannerMeta.days = plannerMeta.days.filter(d => d && d.length);
-                if (!plannerMeta.days.length) {
-                    alert('همه‌ی جاذبه‌ها حذف شدند. لطفاً دوباره برنامه‌ریزی کنید.');
-                    $('editPlanBtn').click();
-                    return;
-                }
-                menuTarget = null;
-                renderAll();
-            }
-
-            if (btn.dataset.act === 'replace') {
-                const usedIds = new Set(plannerMeta.days.flat().map(p => p.id));
-                let cand = REAL_PLACES.filter(p => !usedIds.has(p.id) && p.category === cur.category);
-                if (!cand.length) cand = REAL_PLACES.filter(p => !usedIds.has(p.id));
-                if (!cand.length) { alert('جاذبه جایگزینی در دسترس نیست.'); menuTarget = null; return; }
-                plannerMeta.days[day][idx] = cand[Math.floor(Math.random() * cand.length)];
-                menuTarget = null;
-                renderAll();
-            }
-        });
-
-        document.addEventListener('keydown', e => { if (e.key === 'Escape') moreMenu.classList.remove('open'); });
-    })();
-</script>
+	<button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
+
+	<script>
+		// ═══════════════════════════════════════════════════════════
+		// داده‌های داینامیک
+		// ═══════════════════════════════════════════════════════════
+		window.REAL_PLACES = {{ places_json | safe }};
+		window.CATEGORIES = {{ categories_json | safe }};
+
+		// ═══════════════════════════════════════════════════════════
+		// توابع کمکی و الگوریتم ۴ لایه (بدون تغییر)
+		// ═══════════════════════════════════════════════════════════
+		(function () {
+			'use strict';
+			if (!document.getElementById('planWizard')) return;
+
+			const DEBUG = true;
+			const log = {
+				info: (...args) => { if (DEBUG) console.log('ℹ️', ...args); },
+				success: (...args) => { if (DEBUG) console.log('✅', ...args); },
+				warn: (...args) => { if (DEBUG) console.warn('⚠️', ...args); },
+				error: (...args) => console.error('❌', ...args),
+				group: (title) => { if (DEBUG) console.group(title); },
+				groupEnd: () => { if (DEBUG) console.groupEnd(); }
+			};
+
+			const CONFIG = {
+				center: { lat: 32.3833, lng: 48.4000 },
+				maxTripDays: 7,
+				dailyTimeMinutes: 8 * 60,
+				breakTimeMinutes: 30,
+				knnMultiplier: 5,
+				cbf: { baseSimilarity: 0.35, weightedScore: 0.65 },
+				fuzzyBase: { interest: 30, budget: 20, child: 15, duration: 15, popularity: 10, rating: 10 },
+				fuzzyRules: {
+					shortTrip: { interest: +15, popularity: -5 },
+					longTrip: { duration: +8, rating: +5 },
+					lowBudget: { budget: +15, popularity: -5 },
+					highBudget: { interest: +5, rating: +5 },
+					withChild: { child: +15, duration: +5 }
+				},
+				ga: {
+					popSize: 60, generations: 100, eliteCount: 5,
+					crossoverRate: 0.85, mutationRate: 0.25, tournamentSize: 5,
+					emptyDayPenalty: 50, timeOverflowPenalty: 5, distancePenalty: 0.5,
+					varietyBonus: 30, timeBalancePenalty: 5,
+					countBalanceThreshold: 1, countBalancePenalty: 25,
+					earlyStopPatience: 20, dayOrderBonus: 15
+				}
+			};
+
+			// ═══════════════════════════════════════════
+			// تقویم هجری شمسی
+			// ═══════════════════════════════════════════
+			const div = (a, b) => ~~(a / b);
+			const mod = (a, b) => a - ~~(a / b) * b;
+
+			function jalCal(jy) {
+				const breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+				let bl = breaks.length, gy = jy + 621, leapJ = -14, jp = breaks[0], jump = 0, i;
+				for (i = 1; i < bl; i += 1) {
+					const jm = breaks[i];
+					jump = jm - jp;
+					if (jy < jm) break;
+					leapJ = leapJ + div(jump, 33) * 8 + div(mod(jump, 33), 4);
+					jp = jm;
+				}
+				let n = jy - jp;
+				leapJ = leapJ + div(n, 33) * 8 + div(mod(n, 33) + 3, 4);
+				if (mod(jump, 33) === 4 && jump - n === 4) leapJ += 1;
+				const leapG = div(gy, 4) - div((div(gy, 100) + 1) * 3, 4) - 150;
+				const march = 20 + leapJ - leapG;
+				if (jump - n < 6) n = n - jump + div(jump + 4, 33) * 33;
+				let leap = mod(mod(n + 1, 33) - 1, 4);
+				if (leap === -1) leap = 4;
+				return { leap, gy, march };
+			}
+
+			function g2d(gy, gm, gd) {
+				let d = div((gy + div(gm - 8, 6) + 100100) * 1461, 4) + div(153 * mod(gm + 9, 12) + 2, 5) + gd - 34840408;
+				d = d - div(div(gy + 100100 + div(gm - 8, 6), 100) * 3, 4) + 752;
+				return d;
+			}
+
+			function d2g(jdn) {
+				let j = 4 * jdn + 139361631;
+				j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 390844584;
+				const i = div(mod(j, 1461), 4) * 5 + 308;
+				return {
+					gy: div(j, 1461) - 100100 + div(8 - (mod(div(i, 153), 12) + 1), 6),
+					gm: mod(div(i, 153), 12) + 1,
+					gd: div(mod(i, 153), 5) + 1
+				};
+			}
+
+			function j2d(jy, jm, jd) {
+				const r = jalCal(jy);
+				return g2d(r.gy, 3, r.march) + (jm - 1) * 31 - div(jm, 7) * (jm - 7) + jd - 1;
+			}
+
+			function d2j(jdn) {
+				let gy = d2g(jdn).gy, jy = gy - 621;
+				const r = jalCal(jy);
+				let k = jdn - g2d(gy, 3, r.march);
+				if (k >= 0) {
+					if (k <= 185) return { jy, jm: 1 + div(k, 31), jd: mod(k, 31) + 1 };
+					k -= 186;
+				} else { jy -= 1; k += 179; }
+				return { jy, jm: 7 + div(k, 30), jd: mod(k, 30) + 1 };
+			}
+
+			const jalMonthLen = (jy, jm) => jm <= 6 ? 31 : jm <= 11 ? 30 : (jalCal(jy).leap === 0 ? 30 : 29);
+			const FA = '۰۱۲۳۴۵۶۷۸۹';
+			const faNum = s => String(s).replace(/\d/g, d => FA[d]);
+			const pad2 = n => String(n).padStart(2, '0');
+			const MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
+			const WDAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
+
+			function jWeekday(jy, jm, jd) {
+				const g = d2g(j2d(jy, jm, jd));
+				return (new Date(g.gy, g.gm - 1, g.gd).getDay() + 1) % 7;
+			}
+
+			const now = new Date();
+			const TODAY = d2j(g2d(now.getFullYear(), now.getMonth() + 1, now.getDate()));
+			TODAY.jdn = j2d(TODAY.jy, TODAY.jm, TODAY.jd);
+
+			try {
+				const parts = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(now);
+				const iy = +parts.find(p => p.type === 'year').value;
+				const im = +parts.find(p => p.type === 'month').value;
+				const idd = +parts.find(p => p.type === 'day').value;
+				if (iy > 1300 && (iy !== TODAY.jy || im !== TODAY.jm || idd !== TODAY.jd)) {
+					TODAY.jy = iy; TODAY.jm = im; TODAY.jd = idd;
+					TODAY.jdn = j2d(iy, im, idd);
+				}
+			} catch (e) { }
+
+			const maxG = new Date(now.getTime() + 365 * 86400000);
+			const MAXJ = d2j(g2d(maxG.getFullYear(), maxG.getMonth() + 1, maxG.getDate()));
+
+			const fmtFull = j => `${WDAYS[jWeekday(j.jy, j.jm, j.jd)]} ${faNum(j.jy)}/${faNum(pad2(j.jm))}/${faNum(pad2(j.jd))}`;
+			const fmtShort = j => `${faNum(j.jy)}/${faNum(pad2(j.jm))}/${faNum(pad2(j.jd))}`;
+
+			function calcDistance(lat1, lng1, lat2, lng2) {
+				const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
+				const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+				return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+			}
+
+			function euclideanDistance(a, b) {
+				let sum = 0;
+				for (let i = 0; i < a.length; i++) sum += (a[i] - b[i]) ** 2;
+				return Math.sqrt(sum);
+			}
+
+			const $ = id => document.getElementById(id);
+			const calGrid = $('calGrid'), calTitle = $('calTitle'), calPrev = $('calPrev'), calNext = $('calNext');
+			let viewY = TODAY.jy, viewM = TODAY.jm, tripStart = null, tripEnd = null;
+
+			function safeView() {
+				if (!Number.isFinite(viewY) || !Number.isFinite(viewM) || viewM < 1 || viewM > 12 || viewY < 1300) {
+					viewY = TODAY.jy; viewM = TODAY.jm;
+				}
+			}
+
+			function cellEmpty() {
+				const b = document.createElement('button');
+				b.type = 'button'; b.className = 'cal-day empty'; b.disabled = true;
+				return b;
+			}
+
+			function renderCalendar() {
+				safeView();
+				calTitle.textContent = `${MONTHS[viewM - 1]} ${faNum(viewY)}`;
+				calGrid.innerHTML = '';
+				const firstWd = jWeekday(viewY, viewM, 1);
+				const len = jalMonthLen(viewY, viewM);
+				for (let i = 0; i < firstWd; i++) calGrid.appendChild(cellEmpty());
+				for (let d = 1; d <= len; d++) {
+					const jdn = j2d(viewY, viewM, d);
+					const btn = document.createElement('button');
+					btn.type = 'button';
+					btn.className = 'cal-day';
+					btn.textContent = faNum(d);
+					if (jWeekday(viewY, viewM, d) === 6) btn.classList.add('friday');
+					if (jdn === TODAY.jdn) btn.classList.add('today');
+					if (jdn < TODAY.jdn) btn.disabled = true;
+					if (tripStart && jdn === tripStart.jdn) btn.classList.add('range-start');
+					if (tripEnd && jdn === tripEnd.jdn) btn.classList.add('range-end');
+					if (tripStart && tripEnd && jdn > tripStart.jdn && jdn < tripEnd.jdn) btn.classList.add('in-range');
+					btn.addEventListener('click', () => onDayClick({ jy: viewY, jm: viewM, jd: d, jdn }));
+					calGrid.appendChild(btn);
+				}
+				const trail = (7 - ((firstWd + len) % 7)) % 7;
+				for (let i = 0; i < trail; i++) calGrid.appendChild(cellEmpty());
+				calPrev.disabled = (viewY * 12 + viewM) <= (TODAY.jy * 12 + TODAY.jm);
+				calNext.disabled = (viewY * 12 + viewM) >= (MAXJ.jy * 12 + MAXJ.jm);
+			}
+
+			function onDayClick(d) {
+				$('dateHint').textContent = '';
+				if (!tripStart || (tripStart && tripEnd)) {
+					tripStart = d; tripEnd = null;
+				} else if (d.jdn < tripStart.jdn) {
+					tripStart = d; tripEnd = null;
+				} else {
+					if (d.jdn - tripStart.jdn + 1 > CONFIG.maxTripDays) {
+						$('dateHint').textContent = `برنامه سفر حداکثر ${faNum(CONFIG.maxTripDays)} روز پشتیبانی می‌شود.`;
+						return;
+					}
+					tripEnd = d;
+				}
+				renderCalendar();
+				updateDateBoxes();
+			}
+
+			function updateDateBoxes() {
+				$('dbStart').textContent = tripStart ? fmtFull(tripStart) : 'هنوز انتخاب نشده';
+				$('dbEnd').textContent = tripEnd ? fmtFull(tripEnd) : 'هنوز انتخاب نشده';
+			}
+
+			calPrev.addEventListener('click', () => { safeView(); viewM--; if (viewM < 1) { viewM = 12; viewY--; } renderCalendar(); });
+			calNext.addEventListener('click', () => { safeView(); viewM++; if (viewM > 12) { viewM = 1; viewY++; } renderCalendar(); });
+			renderCalendar();
+
+			// علاقه‌مندی‌ها
+			const interestBtns = [...document.querySelectorAll('.interest-card')];
+			interestBtns.forEach(b => b.addEventListener('click', () => {
+				b.classList.toggle('selected');
+				updateIntCount();
+				$('wzHint').textContent = '';
+			}));
+
+			function updateIntCount() {
+				$('interestCount').textContent = `${faNum(interestBtns.filter(b => b.classList.contains('selected')).length)} از ${faNum(interestBtns.length)}`;
+			}
+
+			$('clearInterests').addEventListener('click', e => {
+				e.preventDefault();
+				interestBtns.forEach(b => b.classList.remove('selected'));
+				updateIntCount();
+			});
+			updateIntCount();
+
+			// ویزارد
+			const TITLES = { 1: 'تاریخ سفرت رو مشخص کن', 2: 'علایقت رو مشخص کن', 3: 'جزئیات سفر رو وارد کن', 4: 'مرور برنامه سفر' };
+			let wizStep = 1;
+
+			function goWiz(n) {
+				wizStep = n;
+				$('wzHint').textContent = '';
+				document.querySelectorAll('.wz-step').forEach(s => s.classList.toggle('active', +s.dataset.step === n));
+				$('wizTitle').textContent = TITLES[n];
+				const stepItems = document.querySelectorAll('.step-item');
+				const stepLines = document.querySelectorAll('.step-line');
+				stepItems.forEach(el => {
+					const step = parseInt(el.dataset.step);
+					el.classList.remove('active', 'done');
+					if (step === n) el.classList.add('active');
+					else if (step < n) el.classList.add('done');
+				});
+				stepLines.forEach((el, i) => {
+					if (i + 1 < n) el.classList.add('done');
+					else el.classList.remove('done');
+				});
+				$('wizPrev').style.visibility = n === 1 ? 'hidden' : 'visible';
+				const next = $('wizNext');
+				next.innerHTML = n === 4 ? 'ساخت برنامه <i class="fas fa-magic"></i>' : 'مرحله بعد <i class="fas fa-arrow-left"></i>';
+				next.classList.toggle('submit', n === 4);
+				if (n === 3 && tripStart && tripEnd) {
+					$('tripDaysInfo').innerHTML = `<i class="fas fa-calendar-check"></i> مدت سفر شما: ${faNum(tripEnd.jdn - tripStart.jdn + 1)} روز`;
+				}
+				if (n === 4) buildReview();
+				document.getElementById('planWizard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+			}
+
+			$('wizPrev').addEventListener('click', () => goWiz(Math.max(1, wizStep - 1)));
+			$('wizNext').addEventListener('click', () => {
+				if (wizStep === 1 && (!tripStart || !tripEnd)) {
+					$('dateHint').textContent = 'لطفاً روز شروع و پایان سفر را انتخاب کنید.';
+					return;
+				}
+				if (wizStep === 2 && !interestBtns.some(b => b.classList.contains('selected'))) {
+					$('wzHint').textContent = 'لطفاً حداقل یک دسته‌بندی انتخاب کنید.';
+					return;
+				}
+				if (wizStep < 4) goWiz(wizStep + 1);
+				else submitPlan();
+			});
+
+			function buildReview() {
+				const sel = interestBtns.filter(b => b.classList.contains('selected'));
+				$('rvStart').textContent = fmtShort(tripStart);
+				$('rvEnd').textContent = fmtShort(tripEnd);
+				$('rvDays').textContent = `${faNum(tripEnd.jdn - tripStart.jdn + 1)} روز`;
+				$('rvIntCount').textContent = faNum(sel.length);
+				$('rvChips').innerHTML = sel.map(b => `<span class="rv-chip">${b.querySelector('.ic-emoji').textContent} ${b.querySelector('.ic-label').textContent}</span>`).join('');
+				const trav = $('travelersCount'), bud = $('budgetRange');
+				const child = document.querySelector('input[name="hasChild"]:checked').value === 'true';
+				$('rvDetails').textContent = `${trav.options[trav.selectedIndex].text} • بودجه: ${bud.options[bud.selectedIndex].text} • ${child ? 'کودک همراه' : 'بدون کودک'}`;
+			}
+
+			// ═══════════════════════════════════════════
+			// الگوریتم ۴ لایه
+			// ═══════════════════════════════════════════
+			const REAL_PLACES = window.REAL_PLACES || [];
+			const CATEGORIES_DATA = window.CATEGORIES || [];
+			const ALL_CATEGORIES = CATEGORIES_DATA.map(c => c.name);
+
+			function triangularMF(x, a, b, c) {
+				if (x <= a || x >= c) return 0;
+				if (x === b) return 1;
+				if (x < b) return (x - a) / (b - a);
+				return (c - x) / (c - b);
+			}
+
+			function membershipDuration(days) {
+				return {
+					short: triangularMF(days, 0, 1, 4),
+					medium: triangularMF(days, 2, 4, 6),
+					long: triangularMF(days, 5, 7, 10)
+				};
+			}
+
+			function membershipBudget(millions) {
+				return {
+					low: triangularMF(millions, 0, 2, 5),
+					medium: triangularMF(millions, 3, 6, 10),
+					high: triangularMF(millions, 8, 12, 20)
+				};
+			}
+
+			function getFuzzyWeights(duration, hasChild, budgetMax) {
+				const durMem = membershipDuration(duration);
+				const budMem = membershipBudget(budgetMax / 1_000_000);
+				const w = { ...CONFIG.fuzzyBase };
+				const R = CONFIG.fuzzyRules;
+				w.interest += durMem.short * R.shortTrip.interest;
+				w.popularity += durMem.short * R.shortTrip.popularity;
+				w.duration += durMem.long * R.longTrip.duration;
+				w.rating += durMem.long * R.longTrip.rating;
+				w.budget += budMem.low * R.lowBudget.budget;
+				w.popularity += budMem.low * R.lowBudget.popularity;
+				w.interest += budMem.high * R.highBudget.interest;
+				w.rating += budMem.high * R.highBudget.rating;
+				if (hasChild) {
+					w.child += R.withChild.child;
+					w.duration += R.withChild.duration;
+				}
+				Object.keys(w).forEach(k => { if (w[k] < 0.5) w[k] = 0.5; });
+				const total = Object.values(w).reduce((a, b) => a + b, 0);
+				Object.keys(w).forEach(k => { w[k] = (w[k] / total) * 100; });
+				return w;
+			}
+
+			function buildPlaceVector(place) {
+				const vec = [];
+				ALL_CATEGORIES.forEach(cat => vec.push(place.category === cat ? 1 : 0));
+				vec.push(Math.min((place.cost || 0) / 5_000_000, 1));
+				vec.push(Math.min((place.rating || 3.5) / 5, 1));
+				vec.push(place.is_child_friendly ? 1 : 0);
+				vec.push(Math.min((place.duration || 60) / 120, 1));
+				const distKm = calcDistance(place.lat, place.lng, CONFIG.center.lat, CONFIG.center.lng);
+				vec.push(Math.min(distKm / 50, 1));
+				return vec;
+			}
+
+			function buildUserVector(userPrefs, fuzzyWeights) {
+				const vec = [];
+				ALL_CATEGORIES.forEach(cat => vec.push(userPrefs.interests.includes(cat) ? 1 : 0));
+				const w = {
+					interest: fuzzyWeights.interest / 100,
+					budget: fuzzyWeights.budget / 100,
+					child: fuzzyWeights.child / 100,
+					duration: fuzzyWeights.duration / 100,
+					popularity: fuzzyWeights.popularity / 100,
+					rating: fuzzyWeights.rating / 100
+				};
+				const budgetPref = (1 - Math.min(userPrefs.budgetMax / 15_000_000, 1)) * w.budget;
+				vec.push(budgetPref);
+				vec.push(w.rating);
+				vec.push(userPrefs.hasChild ? 1 : w.child);
+				vec.push(w.duration);
+				vec.push(w.interest * 0.5 + 0.25);
+				return vec;
+			}
+
+			function cosineSimilarity(a, b) {
+				let dot = 0, normA = 0, normB = 0;
+				for (let i = 0; i < a.length; i++) {
+					dot += a[i] * b[i]; normA += a[i] * a[i]; normB += b[i] * b[i];
+				}
+				if (normA === 0 || normB === 0) return 0;
+				return dot / (Math.sqrt(normA) * Math.sqrt(normB));
+			}
+
+			function cbfScoring(places, userPrefs, fuzzyWeights) {
+				const userVec = buildUserVector(userPrefs, fuzzyWeights);
+				const w = {
+					interest: fuzzyWeights.interest / 100,
+					budget: fuzzyWeights.budget / 100,
+					child: fuzzyWeights.child / 100,
+					duration: fuzzyWeights.duration / 100,
+					popularity: fuzzyWeights.popularity / 100,
+					rating: fuzzyWeights.rating / 100
+				};
+				return places.map(place => {
+					const placeVec = buildPlaceVector(place);
+					const baseSim = cosineSimilarity(userVec, placeVec);
+					let score = 0;
+					const interestMatch = userPrefs.interests.includes(place.category) ? 1 : 0;
+					score += interestMatch * w.interest;
+					const budgetMax = userPrefs.budgetMax;
+					let budgetScore;
+					if (place.cost === 0) budgetScore = 1;
+					else if (place.cost <= budgetMax * 0.2) budgetScore = 0.9;
+					else if (place.cost <= budgetMax * 0.5) budgetScore = 0.7;
+					else if (place.cost <= budgetMax) budgetScore = 0.4;
+					else budgetScore = 0.1;
+					score += budgetScore * w.budget;
+					if (userPrefs.hasChild) score += (place.is_child_friendly ? 1 : 0) * w.child;
+					else score += 0.5 * w.child;
+					let durScore;
+					if (place.duration <= 60) durScore = 1;
+					else if (place.duration <= 90) durScore = 0.8;
+					else if (place.duration <= 120) durScore = 0.6;
+					else durScore = 0.3;
+					score += durScore * w.duration;
+					const reviewsCount = place.views || 0;
+					const rating = place.rating || 3.5;
+					const popScore = Math.min((reviewsCount / 20) * 0.6 + (rating / 5) * 0.4, 1);
+					score += popScore * w.popularity;
+					score += Math.min(rating / 5, 1) * w.rating;
+					const finalScore01 = baseSim * CONFIG.cbf.baseSimilarity + score * CONFIG.cbf.weightedScore;
+					return { ...place, similarity: baseSim, weightedScore: score, score: Math.round(finalScore01 * 100) };
+				});
+			}
+
+			function knnSelection(scoredPlaces, userPrefs, fuzzyWeights, durationDays, budgetMax) {
+				const budgetFiltered = scoredPlaces.filter(p => p.cost === 0 || p.cost <= budgetMax * 1.2);
+				const userVec = buildUserVector(userPrefs, fuzzyWeights);
+				const withDistance = budgetFiltered.map(place => {
+					const placeVec = buildPlaceVector(place);
+					return { ...place, featureDistance: euclideanDistance(userVec, placeVec) };
+				});
+				const K = Math.min(withDistance.length, durationDays * CONFIG.knnMultiplier);
+				const interestMatched = withDistance.filter(p => userPrefs.interests.includes(p.category)).sort((a, b) => a.featureDistance - b.featureDistance);
+				const others = withDistance.filter(p => !userPrefs.interests.includes(p.category)).sort((a, b) => a.featureDistance - b.featureDistance);
+				return [...interestMatched, ...others].slice(0, K);
+			}
+
+			const SEP = -1;
+
+			function splitChromosome(chromosome) {
+				const days = [[]];
+				for (const x of chromosome) {
+					if (x === SEP) days.push([]);
+					else days[days.length - 1].push(x);
+				}
+				return days;
+			}
+
+			function fitness(chromosome, places) {
+				const days = splitChromosome(chromosome);
+				const DAILY_TIME = CONFIG.dailyTimeMinutes;
+				const BREAK_TIME = CONFIG.breakTimeMinutes;
+				const nonEmptyDays = days.filter(d => d.length > 0);
+				const emptyDaysCount = days.filter(d => d.length === 0).length;
+				if (nonEmptyDays.length === 0) return 0;
+				let emptyDayPenaltyValue = 0;
+				if (emptyDaysCount > 0) emptyDayPenaltyValue = (emptyDaysCount / days.length) * 1.0;
+				let totalScore = 0, totalPlacesCount = 0;
+				for (const day of nonEmptyDays) for (const idx of day) { totalScore += places[idx].score; totalPlacesCount++; }
+				const avgScore = totalPlacesCount > 0 ? totalScore / totalPlacesCount : 0;
+				const scoreNorm = Math.min(avgScore / 100, 1);
+				let totalCategoriesPerDay = 0;
+				for (const day of nonEmptyDays) {
+					const cats = new Set(day.map(idx => places[idx].category));
+					totalCategoriesPerDay += cats.size;
+				}
+				const avgVariety = totalCategoriesPerDay / nonEmptyDays.length;
+				const varietyNorm = Math.min(avgVariety / 4, 1);
+				let totalTimeOverflow = 0;
+				for (const day of nonEmptyDays) {
+					let dayTime = 0, lastPlace = null;
+					for (const idx of day) {
+						const p = places[idx];
+						dayTime += (p.duration || 60) + BREAK_TIME;
+						if (lastPlace) {
+							const dist = calcDistance(lastPlace.lat, lastPlace.lng, p.lat, p.lng);
+							dayTime += (dist / 10) * 15;
+						}
+						lastPlace = p;
+					}
+					if (dayTime > DAILY_TIME) totalTimeOverflow += (dayTime - DAILY_TIME);
+				}
+				const timeOverflowNorm = Math.min(totalTimeOverflow / (4 * 60 * nonEmptyDays.length), 1);
+				let totalDistance = 0;
+				for (const day of nonEmptyDays) {
+					for (let i = 0; i < day.length - 1; i++) {
+						totalDistance += calcDistance(places[day[i]].lat, places[day[i]].lng, places[day[i + 1]].lat, places[day[i + 1]].lng);
+					}
+				}
+				const distanceNorm = Math.min(totalDistance / (100 * nonEmptyDays.length), 1);
+				const counts = nonEmptyDays.map(d => d.length);
+				const avgCount = counts.reduce((a, b) => a + b, 0) / counts.length;
+				const countVariance = counts.reduce((sum, c) => sum + Math.pow(c - avgCount, 2), 0) / counts.length;
+				const countStdDev = Math.sqrt(countVariance);
+				const countCV = avgCount > 0 ? countStdDev / avgCount : 0;
+				const balanceNorm = Math.min(countCV / 0.5, 1);
+				const WEIGHTS = { score: 0.25, variety: 0.10, timeOverflow: 0.25, distance: 0.10, balance: 0.30 };
+				const finalFitness =
+					WEIGHTS.score * scoreNorm + WEIGHTS.variety * varietyNorm -
+					WEIGHTS.timeOverflow * timeOverflowNorm - WEIGHTS.distance * distanceNorm -
+					WEIGHTS.balance * balanceNorm - emptyDayPenaltyValue * 1.0;
+				return (finalFitness + 1) * 50;
+			}
+
+			function orderCrossover(p1, p2) {
+				const sepPositions = [];
+				p1.forEach((x, i) => { if (x === SEP) sepPositions.push(i); });
+				const g1 = p1.filter(x => x !== SEP);
+				const g2 = p2.filter(x => x !== SEP);
+				const n = g1.length;
+				if (n < 2) return [...p1];
+				const a = Math.floor(Math.random() * (n - 1));
+				const b = a + 1 + Math.floor(Math.random() * (n - a - 1));
+				const childGenes = new Array(n).fill(null);
+				for (let i = a; i <= b; i++) childGenes[i] = g1[i];
+				const used = new Set(childGenes.slice(a, b + 1));
+				let fi = 0;
+				for (let i = 0; i < n; i++) {
+					if (childGenes[i] === null) {
+						while (used.has(g2[fi])) fi++;
+						childGenes[i] = g2[fi++];
+					}
+				}
+				const result = [...childGenes];
+				for (const pos of sepPositions) result.splice(pos, 0, SEP);
+				return result;
+			}
+
+			function mutate(chromosome) {
+				const c = [...chromosome];
+				const valid = c.map((x, i) => x !== SEP ? i : -1).filter(i => i >= 0);
+				if (valid.length < 2) return c;
+				if (Math.random() < 0.5) {
+					const i = valid[Math.floor(Math.random() * valid.length)];
+					const j = valid[Math.floor(Math.random() * valid.length)];
+					[c[i], c[j]] = [c[j], c[i]];
+				} else {
+					const a = valid[Math.floor(Math.random() * valid.length)];
+					const b = valid[Math.floor(Math.random() * valid.length)];
+					const lo = Math.min(a, b), hi = Math.max(a, b);
+					const segment = c.slice(lo, hi + 1).reverse();
+					for (let i = 0; i < segment.length; i++) c[lo + i] = segment[i];
+				}
+				return c;
+			}
+
+			function geneticAlgorithm(places, daysCount) {
+				const n = places.length;
+				if (n === 0) return [];
+				if (daysCount <= 1) return [places];
+				const GA = CONFIG.ga;
+				const POP_SIZE = GA.popSize;
+				const GENERATIONS = GA.generations;
+				const ELITE = GA.eliteCount;
+				const PATIENCE = GA.earlyStopPatience;
+
+				function randomChromosome() {
+					const indices = Array.from({ length: n }, (_, i) => i);
+					for (let i = n - 1; i > 0; i--) {
+						const j = Math.floor(Math.random() * (i + 1));
+						[indices[i], indices[j]] = [indices[j], indices[i]];
+					}
+					const result = [...indices];
+					for (let i = 0; i < daysCount - 1; i++) {
+						const pos = 1 + Math.floor(Math.random() * (result.length - 1));
+						result.splice(pos, 0, SEP);
+					}
+					return result;
+				}
+
+				let population = [];
+				for (let i = 0; i < POP_SIZE; i++) population.push(randomChromosome());
+				let bestEver = null, bestFitnessEver = -Infinity, noImproveCount = 0, actualGenerations = 0;
+
+				for (let gen = 0; gen < GENERATIONS; gen++) {
+					actualGenerations = gen + 1;
+					const fits = population.map(c => fitness(c, places));
+					let genBestIdx = 0;
+					for (let i = 1; i < fits.length; i++) if (fits[i] > fits[genBestIdx]) genBestIdx = i;
+					if (fits[genBestIdx] > bestFitnessEver) {
+						bestFitnessEver = fits[genBestIdx];
+						bestEver = [...population[genBestIdx]];
+						noImproveCount = 0;
+					} else {
+						noImproveCount++;
+						if (noImproveCount >= PATIENCE) break;
+					}
+					const sortedIdx = fits.map((_, i) => i).sort((a, b) => fits[b] - fits[a]);
+					const newPop = [];
+					for (let i = 0; i < ELITE; i++) newPop.push([...population[sortedIdx[i]]]);
+					function tournament() {
+						const k = GA.tournamentSize;
+						let best = Math.floor(Math.random() * POP_SIZE);
+						for (let i = 1; i < k; i++) {
+							const cand = Math.floor(Math.random() * POP_SIZE);
+							if (fits[cand] > fits[best]) best = cand;
+						}
+						return population[best];
+					}
+					while (newPop.length < POP_SIZE) {
+						const p1 = tournament(), p2 = tournament();
+						let child = Math.random() < GA.crossoverRate ? orderCrossover(p1, p2) : [...p1];
+						if (Math.random() < GA.mutationRate) child = mutate(child);
+						newPop.push(child);
+					}
+					population = newPop;
+				}
+				const bestDays = splitChromosome(bestEver);
+				return bestDays.map(day => day.map(idx => places[idx])).filter(d => d.length > 0);
+			}
+
+			function getRecommendations(interests, options) {
+				const budgetMax = Number(options.budgetStr.split('-')[1]) || 5_000_000;
+				const duration = Math.min(CONFIG.maxTripDays, options.duration || 3);
+				const hasChild = options.hasChild || false;
+				const fuzzyWeights = getFuzzyWeights(duration, hasChild, budgetMax);
+				const userPrefs = { interests, budgetMax, hasChild };
+				const scoredPlaces = cbfScoring(REAL_PLACES, userPrefs, fuzzyWeights);
+				const knnSelected = knnSelection(scoredPlaces, userPrefs, fuzzyWeights, duration, budgetMax);
+				if (knnSelected.length === 0) return [];
+				const days = geneticAlgorithm(knnSelected, duration);
+				return days.filter(d => d.length > 0);
+			}
+
+			// ═══════════════════════════════════════════
+			// ذخیره سفر
+			// ═══════════════════════════════════════════
+			function submitPlan() {
+				const sel = interestBtns.filter(b => b.classList.contains('selected'));
+				if (!sel.length) { alert('لطفاً حداقل یک علاقه‌مندی انتخاب کنید.'); return; }
+				if (!tripStart || !tripEnd) { alert('لطفاً تاریخ سفر را انتخاب کنید.'); return; }
+
+				const cats = [...new Set(sel.map(b => b.dataset.value))];
+				const days = getRecommendations(cats, {
+					budgetStr: $('budgetRange').value,
+					duration: tripEnd.jdn - tripStart.jdn + 1,
+					hasChild: document.querySelector('input[name="hasChild"]:checked').value === 'true'
+				});
+
+				if (!days.length) { alert('جاذبه‌ای پیدا نشد؛ انتخاب‌ها را تغییر دهید.'); return; }
+
+				// پر کردن فرم
+				const form = $('saveTripForm');
+				$('saveStartDate').value = `${tripStart.jy}/${pad2(tripStart.jm)}/${pad2(tripStart.jd)}`;
+				$('saveEndDate').value = `${tripEnd.jy}/${pad2(tripEnd.jm)}/${pad2(tripEnd.jd)}`;
+				$('saveDurationDays').value = tripEnd.jdn - tripStart.jdn + 1;
+				$('saveCompanions').value = $('travelersCount').value;
+				$('saveHasChildren').value = document.querySelector('input[name="hasChild"]:checked').value;
+				$('saveBudgetToman').value = $('budgetRange').value;
+				$('saveInterests').value = JSON.stringify(cats);
+
+				const placesData = days.map((dayPlaces, dayIndex) =>
+					dayPlaces.map(p => ({
+						id: p.id, name: p.name, lat: p.lat, lng: p.lng,
+						category: p.category, cost: p.cost, duration: p.duration,
+						score: p.score, day: dayIndex + 1
+					}))
+				).flat();
+				$('saveSuggestedPlaces').value = JSON.stringify(placesData);
+
+				// ✅ ارسال با AJAX
+				const formData = new FormData(form);
+
+				fetch(form.action, {
+					method: 'POST',
+					body: formData,
+					headers: { 'X-Requested-With': 'XMLHttpRequest' }
+				})
+				.then(r => r.json())
+				.then(data => {
+					if (data.status === 'ok' && data.redirect_url) {
+						window.location.href = data.redirect_url;
+					} else {
+						alert('خطا در ذخیره سفر');
+					}
+				})
+				.catch(err => {
+					console.error('❌ خطا:', err);
+					// اگه fetch کار نکرد، روش قدیمی
+					form.submit();
+				});
+			}
+
+			// ═══════════════════════════════════════════
+			// Scroll and menu
+			// ═══════════════════════════════════════════
+			const scrollBtn = document.getElementById('scrollTop');
+			if (scrollBtn) {
+				window.addEventListener('scroll', () => scrollBtn.classList.toggle('visible', window.scrollY > 400));
+				scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+			}
+
+			const hamburger = document.getElementById('hamburgerBtn');
+			const navLinks = document.getElementById('navLinks');
+			const overlay = document.getElementById('menuOverlay');
+			const closeBtn = document.getElementById('closeMenuBtn');
+			function toggleMenu() {
+				const isOpen = navLinks.classList.toggle('active');
+				overlay.classList.toggle('active', isOpen);
+				document.body.style.overflow = isOpen ? 'hidden' : '';
+			}
+			if (hamburger) hamburger.addEventListener('click', toggleMenu);
+			if (closeBtn) closeBtn.addEventListener('click', e => { e.stopPropagation(); if (navLinks.classList.contains('active')) toggleMenu(); });
+			if (overlay) overlay.addEventListener('click', () => { if (navLinks.classList.contains('active')) toggleMenu(); });
+		})();
+	</script>
 	<script src="{% static 'js/script.js' %}"></script>
 </body>
 
