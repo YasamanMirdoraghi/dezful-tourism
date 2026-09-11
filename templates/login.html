@@ -1,353 +1,834 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="fa" dir="rtl">
+
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ورود | سفر به دزفول</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-<link rel="stylesheet" href="{% static 'css/style.css' %}">
-<style>
-  /* ===== استایل‌های صفحه ورود ===== */
-  .auth-page {
-    min-height: 100vh;
-    padding: 60px 0 80px;
-    background: linear-gradient(135deg, #f8f5f0 0%, #f0ece4 100%);
-  }
-  
-  .auth-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 20px;
-  }
-  
-  .messages-stack {
-    margin-bottom: 30px;
-  }
-  
-  .site-message {
-    padding: 15px 20px;
-    border-radius: 12px;
-    margin-bottom: 10px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  
-  .site-message.success {
-    background: rgba(17,139,113,0.1);
-    color: var(--primary-green);
-  }
-  
-  .site-message.error {
-    background: rgba(255,80,80,0.1);
-    color: var(--brick-orange);
-  }
-  
-  .auth-card {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background: #fff;
-    border-radius: 24px;
-    overflow: hidden;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.12);
-  }
-  
-  .auth-visual {
-    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
-    padding: 50px;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    color: #fff;
-  }
-  
-  .visual-badge {
-    width: 70px;
-    height: 70px;
-    border-radius: 20px;
-    background: rgba(255,255,255,0.15);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    margin-bottom: 25px;
-  }
-  
-  .auth-visual h1 {
-    font-size: 2rem;
-    font-weight: 900;
-    margin-bottom: 15px;
-  }
-  
-  .auth-visual h1 span {
-    color: #f4d03f;
-  }
-  
-  .auth-visual p {
-    font-size: 1rem;
-    opacity: 0.9;
-    line-height: 1.8;
-    margin-bottom: 20px;
-  }
-  
-  .login-decoration {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-size: 0.85rem;
-    opacity: 0.7;
-  }
-  
-  .auth-form-side {
-    padding: 50px;
-  }
-  
-  .form-card-head {
-    margin-bottom: 30px;
-  }
-  
-  .form-card-head span {
-    display: inline-block;
-    font-size: 0.8rem;
-    color: var(--primary-green);
-    font-weight: 700;
-    background: rgba(17,139,113,0.08);
-    padding: 5px 15px;
-    border-radius: 20px;
-    margin-bottom: 10px;
-  }
-  
-  .form-card-head h2 {
-    font-size: 1.8rem;
-    font-weight: 900;
-    color: var(--brown-text);
-    margin-bottom: 5px;
-  }
-  
-  .form-card-head p {
-    font-size: 0.9rem;
-    color: var(--brown-light);
-  }
-  
-  .smart-form label {
-    display: block;
-    margin-bottom: 20px;
-  }
-  
-  .smart-form label span {
-    display: block;
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: var(--brown-text);
-    margin-bottom: 10px;
-  }
-  
-  .smart-form .input-wrap {
-    position: relative;
-  }
-  
-  .smart-form .input-wrap i {
-    position: absolute;
-    right: 15px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--brown-light);
-    font-size: 1rem;
-    transition: color 0.3s;
-  }
-  
-  .smart-form .input-wrap input {
-    width: 100%;
-    padding: 14px 45px 14px 15px;
-    border: 2px solid rgba(17,139,113,0.1);
-    border-radius: 14px;
-    font-family: inherit;
-    font-size: 0.9rem;
-    color: var(--brown-text);
-    background: var(--cream-bg);
-    outline: none;
-    transition: all 0.3s ease;
-  }
-  
-  .smart-form .input-wrap input:focus {
-    border-color: var(--primary-green);
-    background: #fff;
-    box-shadow: 0 0 0 4px rgba(17,139,113,0.08);
-  }
-  
-  .smart-form .input-wrap:focus-within i {
-    color: var(--primary-green);
-  }
-  
-  .form-submit {
-    width: 100%;
-    padding: 15px;
-    border: none;
-    border-radius: 14px;
-    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
-    color: #fff;
-    font-family: inherit;
-    font-size: 1rem;
-    font-weight: 800;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    box-shadow: 0 8px 25px rgba(17,139,113,0.25);
-  }
-  
-  .form-submit:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 12px 30px rgba(17,139,113,0.35);
-  }
-  
-  .switch-auth {
-    text-align: center;
-    margin-top: 20px;
-    font-size: 0.9rem;
-    color: var(--brown-light);
-  }
-  
-  .switch-auth a {
-    color: var(--primary-green);
-    font-weight: 700;
-    text-decoration: none;
-  }
-  
-  @media (max-width: 992px) {
-    .auth-card {
-      grid-template-columns: 1fr;
-    }
-    
-    .auth-visual {
-      padding: 30px;
-    }
-    
-    .auth-form-side {
-      padding: 30px;
-    }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ورود | سفر به دزفول</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
+
+    <style>
+        :root {
+            --primary-green: #118b71;
+            --primary-green-light: #2a9d8f;
+            --primary-green-dark: #0d6b56;
+            --brick-orange: #ff5050;
+            --brown-text: #4a3a2a;
+            --brown-light: #8b7355;
+            --cream-bg: #f5efe6;
+        }
+
+        .login-page * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        .login-page {
+            font-family: 'Vazirmatn', sans-serif;
+            min-height: 100vh;
+            overflow-x: hidden;
+            background: #0f1e23;
+            color: #2d2418;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           Navbar شفاف روی پس‌زمینه
+           ═══════════════════════════════════════════════════ */
+        .login-page .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background: rgba(15, 30, 35, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .login-page .navbar .logo {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .login-page .navbar .logo i {
+            color: #4ade80;
+        }
+
+        .login-page .navbar .logo span {
+            color: #4ade80;
+        }
+
+        .login-page .navbar .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+            list-style: none;
+        }
+
+        .login-page .navbar .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 0;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .login-page .navbar .nav-links a:hover {
+            color: #4ade80;
+        }
+
+        .login-page .navbar .nav-links a i {
+            font-size: 0.85rem;
+        }
+
+        .login-page .navbar .auth-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .login-page .navbar .btn-outline,
+        .login-page .navbar .btn-primary {
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .login-page .navbar .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .login-page .navbar .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #fff;
+        }
+
+        .login-page .navbar .btn-primary {
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            color: #fff;
+            border: 2px solid transparent;
+            box-shadow: 0 6px 20px rgba(17, 139, 113, 0.4);
+        }
+
+        .login-page .navbar .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(17, 139, 113, 0.55);
+        }
+
+        .login-page .navbar .hamburger {
+            display: none;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* پس‌زمینه */
+        .login-page .login-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            background-image: url('{% static "img/register-bg6.jpg" %}');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .login-page .login-bg::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg,
+                rgba(15, 30, 35, 0.7) 0%,
+                rgba(15, 30, 35, 0.5) 40%,
+                rgba(15, 30, 35, 0.8) 100%);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           لایوت اصلی
+           ═══════════════════════════════════════════════════ */
+        .login-page .login-main {
+            min-height: 100vh;
+            width: 100%;
+            padding: 120px 20px 40px;
+        }
+
+        .login-page .login-main-inner {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .login-page .login-container {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           باکس فرم
+           ═══════════════════════════════════════════════════ */
+        .login-page .login-card {
+            width: 45%;
+            font-size: 1rem;
+            background: #fff;
+            border-radius: 28px;
+            padding: 36px 40px;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .login-page .login-card::after {
+            content: '';
+            position: absolute;
+            bottom: -20px; right: -20px;
+            width: 180px; height: 180px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23118b71' stroke-width='1.2' opacity='0.1'%3E%3Cpath d='M200 200 Q160 160 120 180 Q80 200 60 160 Q40 120 80 100 Q120 80 140 120 Q160 160 200 200 Z'/%3E%3Cpath d='M200 200 L100 140'/%3E%3Cpath d='M180 180 L140 160 M160 160 L120 140 M140 140 L100 120'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
+            pointer-events: none;
+        }
+
+        .login-page .login-card-header {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-page .login-icon-top {
+            width: 60px; height: 60px;
+            margin: 0 auto 14px;
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            border-radius: 50%;
+            line-height: 60px;
+            text-align: center;
+            font-size: 1.4rem;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(17, 139, 113, 0.4);
+        }
+
+        .login-page .login-icon-top i {
+            color: #fff;
+            font-size: 1.4rem;
+            line-height: 60px;
+        }
+
+        .login-page .login-title {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #2d2418;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .login-page .login-subtitle {
+            font-size: 0.8rem;
+            color: #8b7355;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        .login-page .login-success-msg {
+            background: rgba(17, 139, 113, 0.08);
+            border: 1px solid rgba(17, 139, 113, 0.18);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            font-size: 0.78rem;
+            color: #0d6b56;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-page .login-success-msg i {
+            color: #118b71;
+            font-size: 0.95rem;
+            margin-left: 8px;
+        }
+
+        /* فرم */
+        .login-page .login-form {
+            position: relative;
+            z-index: 1;
+        }
+
+        .login-page .login-form-row {
+            font-size: 0;
+            margin-bottom: 14px;
+        }
+
+        .login-page .login-form-row > .login-field {
+            display: inline-block;
+            vertical-align: top;
+            width: 48%;
+            font-size: 0.85rem;
+        }
+
+        .login-page .login-form-row > .login-field:first-child {
+            margin-left: 4%;
+        }
+
+        .login-page .login-field {
+            margin-bottom: 14px;
+        }
+
+        .login-page .login-field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: #2d2418;
+            margin-bottom: 6px;
+        }
+
+        .login-page .login-field label i {
+            color: #8b7355;
+            font-size: 0.8rem;
+            margin-left: 4px;
+        }
+
+        .login-page .login-field label .required {
+            color: #ff5050;
+        }
+
+        .login-page .login-input-wrap {
+            position: relative;
+        }
+
+        .login-page .login-input-wrap input {
+            width: 100%;
+            padding: 11px 14px;
+            border: 2px solid rgba(17, 139, 113, 0.12);
+            border-radius: 12px;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.85rem;
+            color: #2d2418;
+            background: #fafaf8;
+            outline: none;
+            transition: all 0.25s ease;
+            direction: rtl;
+        }
+
+        .login-page .login-input-wrap input:focus {
+            border-color: #118b71;
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(17, 139, 113, 0.08);
+        }
+
+        .login-page .login-input-wrap input::placeholder {
+            color: rgba(139, 115, 85, 0.55);
+            font-size: 0.78rem;
+        }
+
+        .login-page .password-toggle {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: transparent;
+            border: none;
+            color: #8b7355;
+            cursor: pointer;
+            font-size: 0.85rem;
+            padding: 4px;
+        }
+
+        .login-page .password-toggle:hover {
+            color: #118b71;
+        }
+
+        /* دکمه‌ها */
+        .login-page .login-submit {
+            width: 100%;
+            padding: 13px;
+            border: none;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            color: #fff;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(17, 139, 113, 0.3);
+            margin-top: 6px;
+        }
+
+        .login-page .login-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(17, 139, 113, 0.45);
+        }
+
+        .login-page .login-submit i {
+            color: #fff;
+            margin-right: 6px;
+        }
+
+        .login-page .login-divider {
+            text-align: center;
+            margin: 14px 0 12px;
+            color: #8b7355;
+            font-size: 0.75rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .login-page .login-divider::before,
+        .login-page .login-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: 42%;
+            height: 1px;
+            background: rgba(17, 139, 113, 0.15);
+        }
+
+        .login-page .login-divider::before { right: 0; }
+        .login-page .login-divider::after { left: 0; }
+
+        .login-page .login-switch {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 0.8rem;
+            color: #8b7355;
+        }
+
+        .login-page .login-switch a {
+            color: #118b71;
+            font-weight: 800;
+            text-decoration: none;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+
+        .login-page .login-switch a:hover {
+            border-bottom-color: #118b71;
+        }
+
+        .login-page .site-message {
+            padding: 10px 14px;
+            border-radius: 12px;
+            margin-bottom: 10px;
+            font-size: 0.82rem;
+            font-weight: 600;
+        }
+
+        .login-page .site-message.error {
+            background: rgba(255, 80, 80, 0.08);
+            color: #e04444;
+            border: 1px solid rgba(255, 80, 80, 0.18);
+        }
+
+        .login-page .site-message.success {
+            background: rgba(17, 139, 113, 0.08);
+            color: #118b71;
+            border: 1px solid rgba(17, 139, 113, 0.18);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           باکس اطلاعات
+           ═══════════════════════════════════════════════════ */
+        .login-page .login-info {
+            width: 50%;
+            font-size: 1rem;
+            color: #fff;
+            text-align: right;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            height: auto;
+        }
+
+        .login-page .login-headline {
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1.4;
+            margin-bottom: 50px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+            color: #fff;
+            text-align: right;
+        }
+
+        .login-page .login-headline span {
+            color: #4ade80;
+            display: inline-block;
+        }
+
+        .login-page .login-desc {
+            font-size: 1rem;
+            line-height: 2;
+            opacity: 0.95;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+            font-weight: 500;
+            color: #fff;
+            text-align: right;
+            margin-bottom: 350px;
+        }
+
+        /* آیکون‌های ویژگی */
+        .login-page .login-features {
+            font-size: 0;
+            text-align: right;
+            gap: 2px;
+        }
+
+        .login-page .login-feature {
+            display: inline-block;
+            vertical-align: top;
+            width: 20%;
+            background: rgba(188, 243, 231, 0.158);
+            margin-right: 10px !important;
+            font-size: 0.78rem;
+            border: 1px solid rgba(255, 255, 255, 0.322);
+            border-radius: 5px;
+            padding: 8px;
+            text-align: center;
+            box-shadow:
+                0 4px 20px rgba(17, 139, 113, 0.4),
+                inset 0 1px 1px rgba(255, 255, 255, 0.25);
+        }
+
+        .login-page .login-feature-icon {
+            width: 58px; height: 58px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            line-height: 58px;
+            text-align: center;
+            font-size: 1.25rem;
+            color: #fff;
+            margin: 0 auto 10px;
+            transition: all 0.3s ease;
+        }
+
+        .login-page .login-feature-icon i {
+            color: #fff;
+            font-size: 1.25rem;
+            line-height: 58px;
+        }
+
+        .login-page .login-feature:hover .login-feature-icon {
+            transform: translateY(-3px);
+            background: rgba(17, 139, 113, 0.8);
+            border-color: rgba(74, 222, 128, 0.8);
+            box-shadow:
+                0 8px 28px rgba(17, 139, 113, 0.6),
+                inset 0 1px 1px rgba(255, 255, 255, 0.35);
+        }
+
+        .login-page .login-feature span {
+            font-size: 0.78rem;
+            line-height: 1.6;
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            display: block;
+        }
+
+        .login-page .login-deco-logo {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            color: #fff;
+            font-size: 0.75rem;
+            opacity: 0.75;
+            z-index: 2;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-page .login-deco-logo i {
+            margin-left: 6px;
+        }
+
+        /* ═══════════════════════════════════════════════════
+           ریسپانسیو
+           ═══════════════════════════════════════════════════ */
+        @media (max-width: 1100px) {
+            .login-page .login-card,
+            .login-page .login-info {
+                width: 47%;
+            }
+            .login-page .login-headline {
+                font-size: 1.8rem;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .login-page .navbar .nav-links,
+            .login-page .navbar .auth-buttons {
+                display: none;
+            }
+
+            .login-page .navbar .hamburger {
+                display: block;
+            }
+
+            .login-page .login-container {
+                flex-direction: column;
+            }
+
+            .login-page .login-card,
+            .login-page .login-info {
+                width: 100%;
+                margin-bottom: 40px;
+            }
+
+            .login-page .login-info {
+                text-align: center;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .login-page .login-headline,
+            .login-page .login-desc {
+                text-align: center;
+            }
+
+            .login-page .login-features {
+                text-align: center;
+            }
+
+            .login-page .login-deco-logo {
+                display: none;
+            }
+        }
+
+        @media (max-width: 550px) {
+            .login-page .login-main {
+                padding: 100px 12px 30px;
+            }
+
+            .login-page .login-card {
+                padding: 22px 18px;
+                border-radius: 22px;
+            }
+
+            .login-page .login-form-row > .login-field {
+                display: block;
+                width: 100%;
+                margin-left: 0 !important;
+            }
+
+            .login-page .login-title {
+                font-size: 1.15rem;
+            }
+
+            .login-page .login-headline {
+                font-size: 1.4rem;
+            }
+
+            .login-page .login-desc {
+                font-size: 0.85rem;
+            }
+
+            .login-page .login-feature {
+                width: 50%;
+                margin-bottom: 15px;
+            }
+
+            .login-page .login-feature-icon {
+                width: 50px; height: 50px;
+                line-height: 50px;
+                font-size: 1.05rem;
+            }
+
+            .login-page .login-feature-icon i {
+                font-size: 1.05rem;
+                line-height: 50px;
+            }
+        }
+    </style>
 </head>
-<body>
-<div class="overlay" id="menuOverlay"></div>
-<header class="navbar" id="navbar">
-  <div class="logo"><i class="fas fa-map-signs"></i> سفر به <span>دزفول</span></div>
-  <nav class="nav-links" id="navLinks">
-    <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i></button>
-    <a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
-    <a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
-    <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
-    <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
-    <a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
-    <a href="{% url 'contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
-    <div class="auth-mobile">
-      {% if user.is_authenticated %}
-      <a href="{% url 'logout' %}" class="btn-outline-mobile"><i class="fas fa-sign-out-alt"></i> خروج</a>
-      {% else %}
-      <a href="{% url 'register' %}" class="btn-outline-mobile"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-      <a href="{% url 'login' %}" class="btn-primary-mobile"><i class="fas fa-sign-in-alt"></i> ورود</a>
-      {% endif %}
-    </div>
-  </nav>
-  <div class="auth-buttons">
-    {% if user.is_authenticated %}
-      <span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
-      <a href="{% url 'logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
-    {% else %}
-      <a href="{% url 'register' %}" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-      <a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
-    {% endif %}
-  </div>
-  <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
-</header>
-<main class="auth-page">
-  <div class="container auth-container">
-    {% if messages %}
-    <div class="messages-stack">
-      {% for message in messages %}
-      <div class="site-message {{ message.tags }}">
-        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
-        {{ message }}
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-    
-    <div class="auth-card login-card">
-      <div class="auth-visual">
-        <div class="visual-badge"><i class="fas fa-compass"></i></div>
-        <h1>دوباره به <span>دزفول</span> برگرد</h1>
-        <p>وارد حساب خود شو و سفرهای ذخیره‌شده و برنامه‌های شخصی‌ات را ادامه بده.</p>
-        <div class="login-decoration">
-          <i class="fas fa-location-dot"></i>
-          <span>Discover • Plan • Travel</span>
+
+<body class="login-page">
+
+    <div class="login-bg"></div>
+
+    <!-- ═══════════════════════════════════════════════════
+         Navbar
+         ═══════════════════════════════════════════════════ -->
+    <header class="navbar" id="navbar">
+        <div class="logo">
+            <i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
         </div>
-      </div>
-      <div class="auth-form-side">
-        <div class="form-card-head">
-          <span>خوش برگشتی</span>
-          <h2>ورود به حساب</h2>
-          <p>نام کاربری و رمز عبورت را وارد کن.</p>
+
+        <ul class="nav-links" id="navLinks">
+            <a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
+            <a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+            <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+            <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+            <a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+            <a href="{% url 'contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
+        </ul>
+
+        <div class="auth-buttons">
+            {% if user.is_authenticated %}
+            <span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
+            <a href="{% url 'logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
+            {% else %}
+            <a href="{% url 'register' %}" class="btn-primary"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+            <a href="{% url 'login' %}" class="btn-outline"><i class="fas fa-sign-in-alt"></i> ورود</a>
+            {% endif %}
         </div>
-        <form method="post" class="smart-form">
-          {% csrf_token %}
-          <input type="hidden" name="next" value="{{ next_url }}">
-          <label>
-            <span>نام کاربری</span>
-            <div class="input-wrap">
-              <i class="fas fa-user"></i>
-              <input name="username" required autofocus placeholder="نام کاربری">
+
+        <button class="hamburger" id="hamburgerBtn" aria-label="منو">
+            <i class="fas fa-bars"></i>
+        </button>
+    </header>
+
+    <main class="login-main">
+        <div class="login-main-inner">
+            <div class="login-container">
+                <div class="login-info">
+
+                    <h2 class="login-headline">
+                        دوباره به <br> <span>دزفول برگرد!</span>
+                    </h2>
+
+                    <p class="login-desc">
+                        وارد حساب خود شو و سفرهای ذخیره‌شده و برنامه‌های شخصی‌ات را ادامه بده...
+                    </p>
+
+                    <div class="login-features">
+                        <div class="login-feature">
+                            <div class="login-feature-icon"><i class="fas fa-route"></i></div>
+                            <span>ادامه سفرهای<br>ذخیره‌شده</span>
+                        </div>
+                        <div class="login-feature">
+                            <div class="login-feature-icon"><i class="fas fa-heart"></i></div>
+                            <span>جاذبه‌های<br>موردعلاقه</span>
+                        </div>
+                        <div class="login-feature">
+                            <div class="login-feature-icon"><i class="fas fa-history"></i></div>
+                            <span>تاریخچه<br>برنامه‌ها</span>
+                        </div>
+                        <div class="login-feature">
+                            <div class="login-feature-icon"><i class="fas fa-user-circle"></i></div>
+                            <span>پروفایل<br>شخصی</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="login-card">
+
+                    <div class="login-card-header">
+                        <div class="login-icon-top">
+                            <i class="fas fa-sign-in-alt"></i>
+                        </div>
+                        <h2 class="login-title">ورود به حساب کاربری</h2>
+                        <p class="login-subtitle">
+                            خوش برگشتی! نام کاربری و رمز عبورت را وارد کن.
+                        </p>
+                    </div>
+
+                    {% if messages %}
+                    <div style="margin-bottom: 14px;">
+                        {% for message in messages %}
+                        <div class="site-message {{ message.tags }}">
+                            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="login-success-msg">
+                        <i class="fas fa-check-circle"></i>
+                        <span>خوشحالیم که دوباره می‌بینیمت!</span>
+                    </div>
+
+                    <form method="post" class="login-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ next_url }}">
+
+                        <div class="login-field">
+                            <label><i class="fas fa-user"></i> نام کاربری <span class="required">*</span></label>
+                            <div class="login-input-wrap">
+                                <input name="username" required autofocus placeholder="نام کاربری خود را وارد کنید">
+                            </div>
+                        </div>
+
+                        <div class="login-field">
+                            <label><i class="fas fa-lock"></i> رمز عبور <span class="required">*</span></label>
+                            <div class="login-input-wrap">
+                                <input type="password" name="password" id="password" required placeholder="رمز عبور را وارد کنید">
+                                <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye" id="password-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button class="login-submit" type="submit">
+                            <span>ورود به حساب</span>
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                    </form>
+
+                    <div class="login-divider">یا</div>
+
+                    <p class="login-switch">
+                        حساب نداری؟ <a href="{% url 'register' %}">ثبت‌نام کن</a>
+                    </p>
+
+                </div>
+
             </div>
-          </label>
-          <label>
-            <span>رمز عبور</span>
-            <div class="input-wrap">
-              <i class="fas fa-lock"></i>
-              <input type="password" name="password" required placeholder="رمز عبور">
-            </div>
-          </label>
-          <button class="form-submit" type="submit">
-            <span>ورود به حساب</span>
-            <i class="fas fa-arrow-left"></i>
-          </button>
-        </form>
-        <p class="switch-auth">حساب نداری؟ <a href="{% url 'register' %}">ثبت‌نام کن</a></p>
-      </div>
-    </div>
-  </div>
-</main>
-<footer class="footer">
-  <div class="container">
-    <div class="footer-grid">
-      <div>
-        <h4><i class="fas fa-map-signs" style="color:var(--brick-orange);"></i> سفر به دزفول</h4>
-        <p>سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول، با الگوریتم مبتنی بر نیاز مسافر.</p>
-        <div class="social">
-          <a href="#"><i class="fab fa-telegram"></i></a><a href="#"><i class="fab fa-instagram"></i></a>
-          <a href="#"><i class="fab fa-youtube"></i></a><a href="#"><i class="fab fa-linkedin"></i></a>
         </div>
-      </div>
-      <div>
-        <h4>دسترسی سریع</h4>
-        <a href="{% url 'plan' %}">برنامه‌ریز سفر</a><a href="{% url 'attraction' %}">جاذبه‌های گردشگری</a>
-        <a href="{% url 'map' %}">نقشه تعاملی</a><a href="{% url 'articles' %}">مقالات</a>
-      </div>
-      <div>
-        <h4>اطلاعات مفید</h4>
-        <a href="#">بهترین زمان سفر</a><a href="#">راهنمای مسیرها</a>
-        <a href="{% url 'contact' %}">تماس با ما</a><a href="#">درباره‌ی پروژه</a>
-      </div>
+    </main>
+
+    <div class="login-deco-logo">
+        <i class="fas fa-heart"></i>
+        <span>دزفول، شهر دزفول</span>
     </div>
-    <div class="footer-copy"><i class="fas fa-copyright"></i> ۱۴۰۴ - پروژه‌ی کارشناسی - دانشگاه صنعتی جندی شاپور دزفول</div>
-  </div>
-</footer>
-<script src="{% static 'js/script.js' %}"></script>
+
+    <script>
+        function togglePassword(inputId) {
+            const input = document.getElementById(inputId);
+            const icon = document.getElementById(inputId + '-icon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+    </script>
 </body>
+
 </html>

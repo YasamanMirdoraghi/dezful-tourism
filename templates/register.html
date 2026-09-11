@@ -10,328 +10,350 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/style.css' %}"> -->
 
     <style>
-        /* ═══════════════════════════════════════════════════
-           صفحه ثبت‌نام با پس‌زمینه عکس
-           ═══════════════════════════════════════════════════ */
-        * {
+        :root {
+            --primary-green: #118b71;
+            --primary-green-light: #2a9d8f;
+            --primary-green-dark: #0d6b56;
+            --brick-orange: #ff5050;
+            --brown-text: #4a3a2a;
+            --brown-light: #8b7355;
+            --cream-bg: #f5efe6;
+        }
+
+        .register-page * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
-        body.register-page {
+        .register-page {
             font-family: 'Vazirmatn', sans-serif;
             min-height: 100vh;
             overflow-x: hidden;
+            background: #f5efe6;
+            color: #2d2418;
         }
 
-        .register-bg {
+        /* ═══════════════════════════════════════════════════
+           Navbar شفاف روی پس‌زمینه
+           ═══════════════════════════════════════════════════ */
+        .register-page .navbar {
             position: fixed;
-            inset: 0;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 40px;
+            background: rgba(15, 30, 35, 0.4);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .register-page .navbar .logo {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .register-page .navbar .logo i {
+            color: #4ade80;
+        }
+
+        .register-page .navbar .logo span {
+            color: #4ade80;
+        }
+
+        .register-page .navbar .nav-links {
+            display: flex;
+            gap: 28px;
+            align-items: center;
+            list-style: none;
+        }
+
+        .register-page .navbar .nav-links a {
+            color: rgba(255, 255, 255, 0.9);
+            text-decoration: none;
+            font-size: 0.92rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 0;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .register-page .navbar .nav-links a:hover {
+            color: #4ade80;
+        }
+
+        .register-page .navbar .nav-links a i {
+            font-size: 0.85rem;
+        }
+
+        .register-page .navbar .auth-buttons {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .register-page .navbar .btn-outline,
+        .register-page .navbar .btn-primary {
+            text-decoration: none;
+            font-size: 0.85rem;
+            font-weight: 700;
+            padding: 8px 20px;
+            border-radius: 40px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.3s;
+        }
+
+        .register-page .navbar .btn-outline {
+            background: transparent;
+            color: #fff;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+        }
+
+        .register-page .navbar .btn-outline:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: #fff;
+        }
+
+        .register-page .navbar .btn-primary {
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            color: #fff;
+            border: 2px solid transparent;
+            box-shadow: 0 6px 20px rgba(17, 139, 113, 0.4);
+        }
+
+        .register-page .navbar .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(17, 139, 113, 0.55);
+        }
+
+        .register-page .navbar .hamburger {
+            display: none;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 1.5rem;
+            cursor: pointer;
+        }
+
+        /* پس‌زمینه */
+        .register-page .register-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
             z-index: -1;
-            background-image: url('{% static "img/register-bg.jpg" %}');
+            background-image: url('{% static "img/register-bg6.jpg" %}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
         }
 
-        /* Overlay تیره برای خوانایی */
-        .register-bg::before {
+        .register-page .register-bg::before {
             content: '';
             position: absolute;
-            inset: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background: linear-gradient(135deg,
-                rgba(15, 42, 38, 0.85) 0%,
-                rgba(20, 60, 52, 0.7) 40%,
-                rgba(10, 30, 25, 0.75) 100%);
+                rgba(15, 30, 35, 0.7) 0%,
+                rgba(15, 30, 35, 0.5) 40%,
+                rgba(15, 30, 35, 0.8) 100%);
         }
 
         /* ═══════════════════════════════════════════════════
-           Layout اصلی
+           لایوت اصلی
            ═══════════════════════════════════════════════════ */
-        .register-main {
+        .register-page .register-main {
             min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            position: relative;
-        }
-
-        .register-container {
             width: 100%;
-            max-width: 1300px;
-            display: grid;
-            grid-template-columns: 1fr 520px;
-            gap: 60px;
+            padding: 120px 20px 40px;   /* ← padding-top برای navbar */
+        }
+
+        .register-page .register-main-inner {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .register-page .register-container {
+            width: 100%;
+            display: flex;
             align-items: center;
+            justify-content: space-between;
         }
 
         /* ═══════════════════════════════════════════════════
-           ستون چپ - اطلاعات و برند
+           باکس فرم
            ═══════════════════════════════════════════════════ */
-        .register-info {
-            color: #fff;
-            padding: 20px 0;
-        }
-
-        .register-logo {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            margin-bottom: 50px;
-            padding: 12px 0;
-        }
-
-        .register-logo-icon {
-            width: 56px;
-            height: 56px;
-            background: linear-gradient(135deg, #118b71, #2a9d8f);
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: #fff;
-            box-shadow: 0 10px 30px rgba(17, 139, 113, 0.4);
-        }
-
-        .register-logo-text h1 {
-            font-size: 1.5rem;
-            font-weight: 900;
-            margin: 0;
-            line-height: 1.2;
-        }
-
-        .register-logo-text h1 span {
-            color: #f4d03f;
-        }
-
-        .register-logo-text small {
-            display: block;
-            font-size: 0.75rem;
-            opacity: 0.7;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            margin-top: 2px;
-            font-weight: 400;
-        }
-
-        .register-headline {
-            font-size: clamp(2rem, 3.5vw, 3rem);
-            font-weight: 900;
-            line-height: 1.3;
-            margin-bottom: 24px;
-            letter-spacing: -0.5px;
-        }
-
-        .register-headline span {
-            color: #4ade80;
-            position: relative;
-            display: inline-block;
-        }
-
-        .register-headline span::after {
-            content: '';
-            position: absolute;
-            bottom: 6px;
-            right: 0;
-            left: 0;
-            height: 8px;
-            background: rgba(74, 222, 128, 0.25);
-            border-radius: 4px;
-            z-index: -1;
-        }
-
-        .register-desc {
-            font-size: 1.05rem;
-            line-height: 2;
-            opacity: 0.85;
-            margin-bottom: 40px;
-            max-width: 500px;
-        }
-
-        .register-features {
-            display: flex;
-            flex-direction: column;
-            gap: 18px;
-            margin-top: 20px;
-        }
-
-        .register-feature {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            font-size: 0.95rem;
-            opacity: 0.9;
-        }
-
-        .register-feature-icon {
-            width: 44px;
-            height: 44px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.1rem;
-            flex-shrink: 0;
-        }
-
-        .register-feature:nth-child(1) .register-feature-icon { color: #4ade80; }
-        .register-feature:nth-child(2) .register-feature-icon { color: #60a5fa; }
-        .register-feature:nth-child(3) .register-feature-icon { color: #f87171; }
-
-        /* ═══════════════════════════════════════════════════
-           ستون راست - کارت فرم
-           ═══════════════════════════════════════════════════ */
-        .register-card {
+        .register-page .register-card {
+            width: 45%;
+            font-size: 1rem;
             background: #fff;
             border-radius: 28px;
-            padding: 42px 38px;
+            padding: 36px 40px;
             box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
             position: relative;
             overflow: hidden;
         }
 
-        /* برگ تزئینی گوشه */
-        .register-card::before {
+        .register-page .register-card::after {
             content: '';
             position: absolute;
-            top: -30px;
-            left: -30px;
-            width: 150px;
-            height: 150px;
-            background: radial-gradient(circle, rgba(17,139,113,.06), transparent 70%);
-            border-radius: 50%;
+            bottom: -20px; right: -20px;
+            width: 180px; height: 180px;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23118b71' stroke-width='1.2' opacity='0.1'%3E%3Cpath d='M200 200 Q160 160 120 180 Q80 200 60 160 Q40 120 80 100 Q120 80 140 120 Q160 160 200 200 Z'/%3E%3Cpath d='M200 200 L100 140'/%3E%3Cpath d='M180 180 L140 160 M160 160 L120 140 M140 140 L100 120'/%3E%3C/svg%3E");
+            background-size: contain;
+            background-repeat: no-repeat;
             pointer-events: none;
         }
 
-        /* آیکون بالای کارت */
-        .register-icon-top {
-            width: 68px;
-            height: 68px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, #118b71, #2a9d8f);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.8rem;
-            color: #fff;
-            box-shadow: 0 10px 30px rgba(17, 139, 113, 0.3);
+        .register-page .register-card-header {
+            text-align: center;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
         }
 
-        .register-title {
+        .register-page .register-icon-top {
+            width: 60px; height: 60px;
+            margin: 0 auto 14px;
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            border-radius: 50%;
+            line-height: 60px;
             text-align: center;
-            font-size: 1.5rem;
+            font-size: 1.4rem;
+            color: #fff;
+            box-shadow: 0 10px 30px rgba(17, 139, 113, 0.4);
+        }
+
+        .register-page .register-icon-top i {
+            color: #fff;
+            font-size: 1.4rem;
+            line-height: 60px;
+        }
+
+        .register-page .register-title {
+            font-size: 1.4rem;
             font-weight: 900;
+            color: #2d2418;
+            margin-bottom: 6px;
+            text-align: center;
+        }
+
+        .register-page .register-subtitle {
+            font-size: 0.8rem;
+            color: #8b7355;
+            line-height: 1.7;
+            text-align: center;
+        }
+
+        .register-page .register-success-msg {
+            background: rgba(17, 139, 113, 0.08);
+            border: 1px solid rgba(17, 139, 113, 0.18);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin-bottom: 18px;
+            font-size: 0.78rem;
+            color: #0d6b56;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-page .register-success-msg i {
+            color: #118b71;
+            font-size: 0.95rem;
+            margin-left: 8px;
+        }
+
+        /* فرم */
+        .register-page .register-form {
+            position: relative;
+            z-index: 1;
+        }
+
+        .register-page .register-form-row {
+            font-size: 0;
+            margin-bottom: 14px;
+        }
+
+        .register-page .register-form-row > .register-field {
+            display: inline-block;
+            vertical-align: top;
+            width: 48%;
+            font-size: 0.85rem;
+        }
+
+        .register-page .register-form-row > .register-field:first-child {
+            margin-left: 4%;
+        }
+
+        .register-page .register-field {
+            margin-bottom: 14px;
+        }
+
+        .register-page .register-field label {
+            display: block;
+            font-size: 0.78rem;
+            font-weight: 700;
             color: #2d2418;
             margin-bottom: 6px;
         }
 
-        .register-subtitle {
-            text-align: center;
-            font-size: 0.85rem;
+        .register-page .register-field label i {
             color: #8b7355;
-            margin-bottom: 24px;
-            line-height: 1.7;
-        }
-
-        /* پیام موفقیت */
-        .register-success-msg {
-            background: rgba(17, 139, 113, 0.08);
-            border: 1px solid rgba(17, 139, 113, 0.15);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 20px;
-            font-size: 0.82rem;
-            color: #0d6b56;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 600;
-        }
-
-        .register-success-msg i {
-            color: #118b71;
-            font-size: 1rem;
-        }
-
-        /* ═══════════════════════════════════════════════════
-           فرم
-           ═══════════════════════════════════════════════════ */
-        .register-form {
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-        }
-
-        .register-form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 14px;
-        }
-
-        .register-field {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .register-field label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
             font-size: 0.8rem;
-            font-weight: 700;
-            color: #2d2418;
+            margin-left: 4px;
         }
 
-        .register-field label i {
-            color: #8b7355;
-            font-size: 0.85rem;
-        }
-
-        .register-field label .required {
+        .register-page .register-field label .required {
             color: #ff5050;
         }
 
-        .register-input-wrap {
+        .register-page .register-input-wrap {
             position: relative;
         }
 
-        .register-input-wrap input {
+        .register-page .register-input-wrap input {
             width: 100%;
-            padding: 13px 16px;
-            border: 2px solid rgba(17, 139, 113, 0.1);
+            padding: 11px 14px;
+            border: 2px solid rgba(17, 139, 113, 0.12);
             border-radius: 12px;
-            font-family: inherit;
-            font-size: 0.88rem;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.85rem;
             color: #2d2418;
             background: #fafaf8;
             outline: none;
             transition: all 0.25s ease;
+            direction: rtl;
         }
 
-        .register-input-wrap input:focus {
+        .register-page .register-input-wrap input:focus {
             border-color: #118b71;
             background: #fff;
             box-shadow: 0 0 0 4px rgba(17, 139, 113, 0.08);
         }
 
-        .register-input-wrap input::placeholder {
-            color: rgba(139, 115, 85, 0.5);
-            font-size: 0.82rem;
+        .register-page .register-input-wrap input::placeholder {
+            color: rgba(139, 115, 85, 0.55);
+            font-size: 0.78rem;
         }
 
-        /* آیکون چشم برای رمز عبور */
-        .password-toggle {
+        .register-page .password-toggle {
             position: absolute;
             left: 12px;
             top: 50%;
@@ -340,126 +362,72 @@
             border: none;
             color: #8b7355;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             padding: 4px;
-            transition: color 0.2s;
         }
 
-        .password-toggle:hover {
+        .register-page .password-toggle:hover {
             color: #118b71;
         }
 
-        /* ═══════════════════════════════════════════════════
-           دکمه‌ها
-           ═══════════════════════════════════════════════════ */
-        .register-submit {
+        /* دکمه‌ها */
+        .register-page .register-submit {
             width: 100%;
-            padding: 14px;
+            padding: 13px;
             border: none;
             border-radius: 12px;
             background: linear-gradient(135deg, #118b71, #2a9d8f);
             color: #fff;
-            font-family: inherit;
-            font-size: 0.98rem;
+            font-family: 'Vazirmatn', sans-serif;
+            font-size: 0.95rem;
             font-weight: 800;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            text-align: center;
             transition: all 0.3s ease;
             box-shadow: 0 8px 24px rgba(17, 139, 113, 0.3);
-            margin-top: 8px;
-            position: relative;
-            overflow: hidden;
+            margin-top: 6px;
         }
 
-        .register-submit::before {
+        .register-page .register-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 32px rgba(17, 139, 113, 0.45);
+        }
+
+        .register-page .register-submit i {
+            color: #fff;
+            margin-right: 6px;
+        }
+
+        .register-page .register-divider {
+            text-align: center;
+            margin: 14px 0 12px;
+            color: #8b7355;
+            font-size: 0.75rem;
+            font-weight: 600;
+            position: relative;
+        }
+
+        .register-page .register-divider::before,
+        .register-page .register-divider::after {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,.25), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .register-submit:hover::before {
-            left: 100%;
-        }
-
-        .register-submit:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 32px rgba(17, 139, 113, 0.4);
-        }
-
-        .register-submit i {
-            transition: transform 0.3s;
-        }
-
-        .register-submit:hover i {
-            transform: translateX(-4px);
-        }
-
-        /* جداکننده "یا" */
-        .register-divider {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            margin: 18px 0;
-            color: #8b7355;
-            font-size: 0.78rem;
-            font-weight: 600;
-        }
-
-        .register-divider::before,
-        .register-divider::after {
-            content: '';
-            flex: 1;
+            top: 50%;
+            width: 42%;
             height: 1px;
-            background: rgba(17, 139, 113, 0.1);
+            background: rgba(17, 139, 113, 0.15);
         }
 
-        /* دکمه گوگل */
-        .register-google-btn {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid rgba(17, 139, 113, 0.12);
-            border-radius: 12px;
-            background: #fff;
-            font-family: inherit;
-            font-size: 0.88rem;
-            font-weight: 700;
-            color: #2d2418;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            transition: all 0.25s;
-        }
+        .register-page .register-divider::before { right: 0; }
+        .register-page .register-divider::after { left: 0; }
 
-        .register-google-btn:hover {
-            border-color: #118b71;
-            background: rgba(17, 139, 113, 0.03);
-            transform: translateY(-2px);
-        }
-
-        .register-google-btn img {
-            width: 20px;
-            height: 20px;
-        }
-
-        /* لینک ورود */
-        .register-switch {
+        .register-page .register-switch {
             text-align: center;
-            margin-top: 20px;
-            font-size: 0.85rem;
+            margin-top: 16px;
+            font-size: 0.8rem;
             color: #8b7355;
         }
 
-        .register-switch a {
+        .register-page .register-switch a {
             color: #118b71;
             font-weight: 800;
             text-decoration: none;
@@ -467,107 +435,239 @@
             transition: border-color 0.2s;
         }
 
-        .register-switch a:hover {
+        .register-page .register-switch a:hover {
             border-bottom-color: #118b71;
         }
 
-        /* پیام خطا */
-        .site-message {
-            padding: 12px 16px;
+        .register-page .site-message {
+            padding: 10px 14px;
             border-radius: 12px;
-            margin-bottom: 12px;
-            font-size: 0.85rem;
+            margin-bottom: 10px;
+            font-size: 0.82rem;
             font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
         }
 
-        .site-message.error {
+        .register-page .site-message.error {
             background: rgba(255, 80, 80, 0.08);
             color: #e04444;
-            border: 1px solid rgba(255, 80, 80, 0.15);
+            border: 1px solid rgba(255, 80, 80, 0.18);
         }
 
-        .site-message.success {
+        .register-page .site-message.success {
             background: rgba(17, 139, 113, 0.08);
             color: #118b71;
-            border: 1px solid rgba(17, 139, 113, 0.15);
+            border: 1px solid rgba(17, 139, 113, 0.18);
+        }
+
+        /* ═══════════════════════════════════════════════════
+           باکس اطلاعات
+           ═══════════════════════════════════════════════════ */
+        .register-page .register-info {
+            width: 50%;
+            font-size: 1rem;
+            color: #fff;
+            text-align: right;
+            padding-top: 40px;
+            padding-bottom: 40px;
+            height: auto;
+        }
+
+        .register-page .register-headline {
+            font-size: 2.5rem;
+            font-weight: 900;
+            line-height: 1.4;
+            margin-bottom: 50px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+            color: #fff;
+            text-align: right;
+        }
+
+        .register-page .register-headline span {
+            color: #4ade80;
+            display: inline-block;
+        }
+
+        .register-page .register-desc {
+            font-size: 1rem;
+            line-height: 2;
+            opacity: 0.95;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+            font-weight: 500;
+            color: #fff;
+            text-align: right;
+            margin-bottom: 350px;
+        }
+
+        /* آیکون‌های ویژگی */
+        .register-page .register-features {
+            font-size: 0;
+            text-align: right;
+            gap: 2px;
+        }
+
+        .register-page .register-feature {
+            display: inline-block;
+            vertical-align: top;
+            width: 20%;
+            background: rgba(188, 243, 231, 0.158);
+            margin-right: 10px !important;
+            font-size: 0.78rem;
+            border: 1px solid rgba(255, 255, 255, 0.322);
+            border-radius: 5px;
+            padding: 8px;
+            text-align: center;
+            box-shadow:
+                0 4px 20px rgba(17, 139, 113, 0.4),
+                inset 0 1px 1px rgba(255, 255, 255, 0.25);
+        }
+
+        .register-page .register-feature-icon {
+            width: 58px; height: 58px;
+            border-radius: 50%;
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            line-height: 58px;
+            text-align: center;
+            font-size: 1.25rem;
+            color: #fff;
+            margin: 0 auto 10px;
+            transition: all 0.3s ease;
+        }
+
+        .register-page .register-feature-icon i {
+            color: #fff;
+            font-size: 1.25rem;
+            line-height: 58px;
+        }
+
+        .register-page .register-feature:hover .register-feature-icon {
+            transform: translateY(-3px);
+            background: rgba(17, 139, 113, 0.8);
+            border-color: rgba(74, 222, 128, 0.8);
+            box-shadow:
+                0 8px 28px rgba(17, 139, 113, 0.6),
+                inset 0 1px 1px rgba(255, 255, 255, 0.35);
+        }
+
+        .register-page .register-feature span {
+            font-size: 0.78rem;
+            line-height: 1.6;
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            display: block;
+        }
+
+        .register-page .register-deco-logo {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            color: #fff;
+            font-size: 0.75rem;
+            opacity: 0.75;
+            z-index: 2;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+        }
+
+        .register-page .register-deco-logo i {
+            margin-left: 6px;
         }
 
         /* ═══════════════════════════════════════════════════
            ریسپانسیو
            ═══════════════════════════════════════════════════ */
         @media (max-width: 1100px) {
-            .register-container {
-                grid-template-columns: 1fr 460px;
-                gap: 40px;
+            .register-page .register-card,
+            .register-page .register-info {
+                width: 47%;
             }
-
-            .register-headline {
-                font-size: 2rem;
+            .register-page .register-headline {
+                font-size: 1.8rem;
             }
         }
 
         @media (max-width: 900px) {
-            .register-container {
-                grid-template-columns: 1fr;
-                gap: 30px;
-                max-width: 520px;
-            }
-
-            .register-info {
-                text-align: center;
-                padding: 0;
-            }
-
-            .register-logo {
-                justify-content: center;
-                margin-bottom: 20px;
-            }
-
-            .register-desc {
-                margin: 0 auto 20px;
-            }
-
-            .register-features {
+            .register-page .navbar .nav-links,
+            .register-page .navbar .auth-buttons {
                 display: none;
             }
 
-            .register-headline {
-                font-size: 1.6rem;
-                margin-bottom: 12px;
+            .register-page .navbar .hamburger {
+                display: block;
             }
 
-            .register-card {
-                padding: 32px 24px;
+            .register-page .register-container {
+                flex-direction: column;
+            }
+
+            .register-page .register-card,
+            .register-page .register-info {
+                width: 100%;
+                margin-bottom: 40px;
+            }
+
+            .register-page .register-info {
+                text-align: center;
+                padding-top: 0;
+                padding-bottom: 0;
+            }
+
+            .register-page .register-headline,
+            .register-page .register-desc {
+                text-align: center;
+            }
+
+            .register-page .register-features {
+                text-align: center;
+            }
+
+            .register-page .register-deco-logo {
+                display: none;
             }
         }
 
-        @media (max-width: 500px) {
-            .register-main {
-                padding: 20px 12px;
+        @media (max-width: 550px) {
+            .register-page .register-main {
+                padding: 100px 12px 30px;
             }
 
-            .register-card {
-                padding: 28px 20px;
+            .register-page .register-card {
+                padding: 22px 18px;
                 border-radius: 22px;
             }
 
-            .register-form-row {
-                grid-template-columns: 1fr;
+            .register-page .register-form-row > .register-field {
+                display: block;
+                width: 100%;
+                margin-left: 0 !important;
             }
 
-            .register-title {
-                font-size: 1.25rem;
+            .register-page .register-title {
+                font-size: 1.15rem;
             }
 
-            .register-headline {
-                font-size: 1.35rem;
+            .register-page .register-headline {
+                font-size: 1.4rem;
             }
 
-            .register-desc {
-                font-size: 0.9rem;
+            .register-page .register-desc {
+                font-size: 0.85rem;
+            }
+
+            .register-page .register-feature {
+                width: 50%;
+                margin-bottom: 15px;
+            }
+
+            .register-page .register-feature-icon {
+                width: 50px; height: 50px;
+                line-height: 50px;
+                font-size: 1.05rem;
+            }
+
+            .register-page .register-feature-icon i {
+                font-size: 1.05rem;
+                line-height: 50px;
             }
         }
     </style>
@@ -575,189 +675,188 @@
 
 <body class="register-page">
 
-    <!-- پس‌زمینه -->
     <div class="register-bg"></div>
 
-    <!-- Navbar -->
+    <!-- ═══════════════════════════════════════════════════
+         Navbar
+         ═══════════════════════════════════════════════════ -->
     <header class="navbar" id="navbar">
         <div class="logo">
             <i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
         </div>
-        <nav class="nav-links" id="navLinks">
-            <button class="close-menu-btn" id="closeMenuBtn"><i class="fas fa-times"></i></button>
+
+        <ul class="nav-links" id="navLinks">
             <a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
             <a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
             <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
             <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
             <a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
             <a href="{% url 'contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
-        </nav>
+        </ul>
+
         <div class="auth-buttons">
             {% if user.is_authenticated %}
             <span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
             <a href="{% url 'logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
             {% else %}
-            <a href="{% url 'register' %}" class="btn-outline"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-            <a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
+            <a href="{% url 'register' %}" class="btn-primary"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+            <a href="{% url 'login' %}" class="btn-outline"><i class="fas fa-sign-in-alt"></i> ورود</a>
             {% endif %}
-            <button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
         </div>
+
+        <button class="hamburger" id="hamburgerBtn" aria-label="منو">
+            <i class="fas fa-bars"></i>
+        </button>
     </header>
 
-    <!-- Main -->
     <main class="register-main">
-        <div class="register-container">
+        <div class="register-main-inner">
+            <div class="register-container">
+                <div class="register-info">
 
-            <!-- ستون چپ - اطلاعات -->
-            <div class="register-info">
-                <div class="register-logo">
-                    <div class="register-logo-icon">
-                        <i class="fas fa-mountain"></i>
-                    </div>
-                    <div class="register-logo-text">
-                        <h1>سفر به <span>دزفول</span></h1>
-                        <small>Discover Dezful</small>
-                    </div>
-                </div>
+                    <h2 class="register-headline">
+                     به خانواده سفر به <br>  <span>دزفول خوش آمدید!</span>
+                    </h2>
 
-                <h2 class="register-headline">
-                    به خانواده سفر به دزفول<br>
-                    <span>خوش آمدید!</span>
-                </h2>
+                    <p class="register-desc">
+                        اینجا، تاریخ و طبیعت در کنار هم، تجربه‌های فراموش‌نشدنی<br>
+                        برای شما می‌سازند...
+                    </p>
 
-                <p class="register-desc">
-                    با ثبت‌نام در سایت، به دنیای زیبای سفر، طبیعت بکر و جاذبه‌های تاریخی دزفول قدم بگذارید.
-                </p>
-
-                <div class="register-features">
-                    <div class="register-feature">
-                        <div class="register-feature-icon"><i class="fas fa-map-marker-alt"></i></div>
-                        <span>دسترسی به جاذبه‌های گردشگری، تاریخی، طبیعی و فرهنگی</span>
-                    </div>
-                    <div class="register-feature">
-                        <div class="register-feature-icon"><i class="fas fa-shield-alt"></i></div>
-                        <span>رزرو آسان و مطمئن با بالاترین امنیت</span>
-                    </div>
-                    <div class="register-feature">
-                        <div class="register-feature-icon"><i class="fas fa-heart"></i></div>
-                        <span>تجربه سفر متفاوت در قلب خوزستان</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ستون راست - کارت فرم -->
-            <div class="register-card">
-
-                <div class="register-icon-top">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-
-                <h2 class="register-title">ثبت‌نام در سفر به دزفول</h2>
-                <p class="register-subtitle">
-                    برای شروع یک سفر هیجان‌انگیز، اطلاعات خود را وارد کنید.
-                </p>
-
-                {% if messages %}
-                <div style="margin-bottom: 16px;">
-                    {% for message in messages %}
-                    <div class="site-message {{ message.tags }}">
-                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
-                        {{ message }}
-                    </div>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
-                <div class="register-success-msg">
-                    <i class="fas fa-check-circle"></i>
-                    <span>به جمع ما بپیوندید و از امکانات ویژه بهره‌مند شوید.</span>
-                </div>
-
-                <form method="post" class="register-form">
-                    {% csrf_token %}
-
-                    <div class="register-form-row">
-                        <div class="register-field">
-                            <label><i class="fas fa-user"></i> نام <span class="required">*</span></label>
-                            <div class="register-input-wrap">
-                                <input name="first_name" value="{{ request.POST.first_name|default:'' }}" required placeholder="نام خود را وارد کنید">
-                            </div>
+                    <div class="register-features">
+                        <div class="register-feature">
+                            <div class="register-feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+                            <span>جاذبه‌های<br>گردشگری و تاریخی</span>
                         </div>
-                        <div class="register-field">
-                            <label><i class="fas fa-user"></i> نام خانوادگی</label>
-                            <div class="register-input-wrap">
-                                <input name="last_name" value="{{ request.POST.last_name|default:'' }}" placeholder="نام خانوادگی خود را وارد کنید">
-                            </div>
+                        <div class="register-feature">
+                            <div class="register-feature-icon"><i class="fas fa-mountain"></i></div>
+                            <span>طبیعت بکر<br>و زیبا</span>
+                        </div>
+                        <div class="register-feature">
+                            <div class="register-feature-icon"><i class="fas fa-shield-alt"></i></div>
+                            <span>تجربه سفر<br>امن و راحت</span>
+                        </div>
+                        <div class="register-feature">
+                            <div class="register-feature-icon"><i class="fas fa-heart"></i></div>
+                            <span>پشتیبانی<br>همیشه همراه</span>
                         </div>
                     </div>
+                </div>
 
-                    <div class="register-form-row">
+                <div class="register-card">
+
+                    <div class="register-card-header">
+                        <div class="register-icon-top">
+                            <i class="fas fa-user-plus"></i>
+                        </div>
+                        <h2 class="register-title">ثبت‌نام در سفر به دزفول</h2>
+                        <p class="register-subtitle">
+                            برای شروع یک سفر هیجان‌انگیز، اطلاعات خود را وارد کنید.
+                        </p>
+                    </div>
+
+                    {% if messages %}
+                    <div style="margin-bottom: 14px;">
+                        {% for message in messages %}
+                        <div class="site-message {{ message.tags }}">
+                            <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <div class="register-success-msg">
+                        <i class="fas fa-check-circle"></i>
+                        <span>به جمع ما بپیوندید و از امکانات ویژه بهره‌مند شوید.</span>
+                    </div>
+
+                    <form method="post" class="register-form">
+                        {% csrf_token %}
+
+                        <div class="register-form-row">
+                            <div class="register-field">
+                                <label><i class="fas fa-user"></i> نام <span class="required">*</span></label>
+                                <div class="register-input-wrap">
+                                    <input name="first_name" value="{{ request.POST.first_name|default:'' }}" required placeholder="نام خود را وارد کنید">
+                                </div>
+                            </div>
+                            <div class="register-field">
+                                <label><i class="fas fa-user"></i> نام خانوادگی</label>
+                                <div class="register-input-wrap">
+                                    <input name="last_name" value="{{ request.POST.last_name|default:'' }}" placeholder="نام خانوادگی خود را وارد کنید">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="register-form-row">
+                            <div class="register-field">
+                                <label><i class="fas fa-envelope"></i> ایمیل <span class="required">*</span></label>
+                                <div class="register-input-wrap">
+                                    <input type="email" name="email" value="{{ request.POST.email|default:'' }}" placeholder="example@domain.com">
+                                </div>
+                            </div>
+                            <div class="register-field">
+                                <label><i class="fas fa-phone"></i> شماره موبایل</label>
+                                <div class="register-input-wrap">
+                                    <input name="phone" value="{{ request.POST.phone|default:'' }}" placeholder="۰۹۲۳۴۵۶۷۸۹">
+                                </div>
+                            </div>
+                        </div>
+
                         <div class="register-field">
                             <label><i class="fas fa-at"></i> نام کاربری <span class="required">*</span></label>
                             <div class="register-input-wrap">
                                 <input name="username" value="{{ request.POST.username|default:'' }}" required placeholder="نام کاربری خود را وارد کنید">
                             </div>
                         </div>
-                        <div class="register-field">
-                            <label><i class="fas fa-envelope"></i> ایمیل <span class="required">*</span></label>
-                            <div class="register-input-wrap">
-                                <input type="email" name="email" value="{{ request.POST.email|default:'' }}" placeholder="example@domain.com">
+
+                        <div class="register-form-row">
+                            <div class="register-field">
+                                <label><i class="fas fa-lock"></i> رمز عبور <span class="required">*</span></label>
+                                <div class="register-input-wrap">
+                                    <input type="password" name="password" id="password" required placeholder="رمز عبور را وارد کنید">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                        <i class="fas fa-eye" id="password-icon"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="register-field">
+                                <label><i class="fas fa-shield-halved"></i> تکرار رمز عبور <span class="required">*</span></label>
+                                <div class="register-input-wrap">
+                                    <input type="password" name="password2" id="password2" required placeholder="رمز عبور را دوباره وارد کنید">
+                                    <button type="button" class="password-toggle" onclick="togglePassword('password2')">
+                                        <i class="fas fa-eye" id="password2-icon"></i>
+                                    </button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <div class="register-field">
-                        <label><i class="fas fa-phone"></i> شماره موبایل</label>
-                        <div class="register-input-wrap">
-                            <input name="phone" value="{{ request.POST.phone|default:'' }}" placeholder="۰۹۱۲۳۴۵۶۷۸۹">
-                        </div>
-                    </div>
+                        <button class="register-submit" type="submit">
+                            <span>ثبت‌نام</span>
+                            <i class="fas fa-arrow-left"></i>
+                        </button>
+                    </form>
 
-                    <div class="register-field">
-                        <label><i class="fas fa-lock"></i> رمز عبور <span class="required">*</span></label>
-                        <div class="register-input-wrap">
-                            <input type="password" name="password" id="password" required placeholder="رمز عبور را وارد کنید">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
-                                <i class="fas fa-eye" id="password-icon"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <div class="register-divider">یا</div>
 
-                    <div class="register-field">
-                        <label><i class="fas fa-shield-halved"></i> تکرار رمز عبور <span class="required">*</span></label>
-                        <div class="register-input-wrap">
-                            <input type="password" name="password2" id="password2" required placeholder="رمز عبور را دوباره وارد کنید">
-                            <button type="button" class="password-toggle" onclick="togglePassword('password2')">
-                                <i class="fas fa-eye" id="password2-icon"></i>
-                            </button>
-                        </div>
-                    </div>
+                    <p class="register-switch">
+                        قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'login' %}">وارد شوید</a>
+                    </p>
 
-                    <button class="register-submit" type="submit">
-                        <span>ثبت‌نام</span>
-                        <i class="fas fa-arrow-left"></i>
-                    </button>
-                </form>
-
-                <div class="register-divider">یا</div>
-
-                <button class="register-google-btn" type="button">
-                    <i class="fab fa-google" style="color:#ea4335; font-size:1.1rem;"></i>
-                    ثبت‌نام با گوگل
-                </button>
-
-                <p class="register-switch">
-                    قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'login' %}">وارد شوید</a>
-                </p>
+                </div>
 
             </div>
         </div>
     </main>
 
-    <script src="{% static 'js/script.js' %}"></script>
+    <div class="register-deco-logo">
+        <i class="fas fa-heart"></i>
+        <span>دزفول، شهر دزفول</span>
+    </div>
+
 
     <script>
-        // Toggle password visibility
         function togglePassword(inputId) {
             const input = document.getElementById(inputId);
             const icon = document.getElementById(inputId + '-icon');
@@ -771,27 +870,6 @@
                 icon.classList.add('fa-eye');
             }
         }
-
-        // Menu toggle
-        const hamburger = document.getElementById('hamburgerBtn');
-        const navLinks = document.getElementById('navLinks');
-        const overlay = document.getElementById('menuOverlay');
-        const closeBtn = document.getElementById('closeMenuBtn');
-
-        function toggleMenu() {
-            const isOpen = navLinks.classList.toggle('active');
-            if (overlay) overlay.classList.toggle('active', isOpen);
-            document.body.style.overflow = isOpen ? 'hidden' : '';
-        }
-
-        if (hamburger) hamburger.addEventListener('click', toggleMenu);
-        if (closeBtn) closeBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            if (navLinks.classList.contains('active')) toggleMenu();
-        });
-        if (overlay) overlay.addEventListener('click', () => {
-            if (navLinks.classList.contains('active')) toggleMenu();
-        });
     </script>
 </body>
 
