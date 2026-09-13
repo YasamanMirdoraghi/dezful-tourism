@@ -16,7 +16,7 @@ from django.conf import settings
 
 from .models import (
     Place, Category, Article, Plan, Route, Review, User,
-    ArticleBlock, ArticleRelated, Contact, Trip
+    ArticleBlock, ArticleRelated, Contact, Trip, PlanAttraction
 )
 
 
@@ -270,7 +270,8 @@ def register_page(request):
         password2 = request.POST.get('password2')
 
         if password == password2:
-            if not User.objects.exists(username=username):
+            # ✅ اصلاح باگ: filter به جای exists
+            if not User.objects.filter(username=username).exists():
                 user = User.objects.create_user(
                     username=username,
                     password=password,
@@ -426,7 +427,6 @@ def save_trip(request):
 
             redirect_url = f'/result/{trip.id}/'
 
-            # ✅ اگه AJAX بود، JSON برگردون
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'ok',
@@ -434,11 +434,9 @@ def save_trip(request):
                     'redirect_url': redirect_url
                 })
 
-            # در غیر این صورت، redirect معمولی
             return redirect(redirect_url)
 
         except Exception as e:
-            # ✅ خطا در AJAX
             if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
                 return JsonResponse({
                     'status': 'error',
@@ -452,20 +450,11 @@ def save_trip(request):
 
 
 # ==========================================================
-# ✅ NEW: صفحه نتیجه سفر
+# ✅ صفحه نتیجه سفر شخصی
 # ==========================================================
 def trip_result_page(request, trip_id):
-    """صفحه اختصاصی نمایش نتیجه سفر"""
+    """صفحه اختصاصی نمایش نتیجه سفر شخصی"""
     trip = get_object_or_404(Trip, id=trip_id)
-
-    # اگه کاربر لاگین‌شده سفرش رو می‌خواد
-    # اگه کاربر مهمون هست و سفر مهمون‌هاست، بازم می‌تونه ببینه (اشتراک‌گذاری)
-    # فقط اگه سفر مال کاربر دیگه‌ای هست، اجازه نده
-    if trip.user and request.user.is_authenticated and trip.user != request.user:
-        # سفر مال کاربر دیگه‌ست
-        # اینجا می‌تونی چک کنی آیا سفر عمومیه یا نه
-        # فعلاً اجازه می‌دیم ببینه (چون URL رو داره)
-        pass
 
     # ساخت لیست جاذبه‌های سفر
     places_in_trip = []
@@ -487,9 +476,6 @@ def trip_result_page(request, trip_id):
                 'day': item.get('day', 1),
                 'score': item.get('score', 0),
             })
-
-    # ✅ تحلیل هشدارها
-    warnings = analyze_trip_warnings(trip)
 
     # جاذبه‌های مربوط به علاقه‌مندی‌ها (برای هشدار)
     interests = trip.interests or []
@@ -515,26 +501,74 @@ def trip_result_page(request, trip_id):
         'low_categories': low_categories,
         'start_jalali': start_jalali,
         'end_jalali': end_jalali,
+        'is_plan_mode': False,
     })
 
 
-def analyze_trip_warnings(trip):
-    """تحلیل هشدارهای سفر"""
-    interests = trip.interests or []
-    empty = []
-    low = []
+# ==========================================================
+# ✅ جدید: صفحه نتیجه پلن پیشنهادی
+# ==========================================================
+def plan_detail_page(request, slug):
+    """نمایش یک پلن پیشنهادی از پیش تعریف‌شده - دقیقاً مثل trip_result"""
+    plan = get_object_or_404(Plan, slug=slug, is_active=True)
 
-    for cat_name in interests:
-        count = Place.objects.filter(category__name=cat_name, is_active=True).count()
-        if count == 0:
-            empty.append(cat_name)
-        elif count < 3:
-            low.append({'name': cat_name, 'count': count})
+    # گرفتن جاذبه‌های پلن با ترتیب
+    plan_attractions = PlanAttraction.objects.filter(
+        plan=plan
+    ).select_related('place', 'place__category').order_by('day_number', 'visit_order')
 
-    return {
-        'empty': empty,
-        'low': low,
+    # ساخت لیست جاذبه‌ها دقیقاً به فرمت places_in_trip
+    places_in_trip = []
+    for pa in plan_attractions:
+        place = pa.place
+        places_in_trip.append({
+            'id': place.id,
+            'name': place.name,
+            'slug': place.slug,
+            'category': place.category.name if place.category else '',
+            'cost': place.cost_toman,
+            'duration': place.duration_minutes,
+            'lat': float(place.latitude) if place.latitude else 32.38,
+            'lng': float(place.longitude) if place.longitude else 48.42,
+            'image': get_place_image(place),
+            'rating': float(place.rating_avg) if place.rating_avg else 3.5,
+            'desc': place.short_description or place.description or '',
+            'day': pa.day_number,
+            'score': 0,
+        })
+
+    # تعیین تعداد روز
+    duration_map = {
+        '1_day': 1, '2_days': 2, '3_days': 3, '5_days': 5, '7_days': 7
     }
+    duration_days = plan.duration_days or duration_map.get(plan.duration, 1)
+
+    # ساخت آبجکت شبیه Trip
+    class FakeTrip:
+        def __init__(self, plan, duration_days):
+            self.id = None
+            self.title = plan.name
+            self.duration_days = duration_days
+            self.companions = plan.companions
+            self.has_children = plan.has_children
+            self.budget_toman = plan.budget_toman or plan.estimated_cost
+            self.interests = plan.interests or []
+            self.start_date = None
+            self.end_date = None
+
+    fake_trip = FakeTrip(plan, duration_days)
+
+    return render(request, 'trip_result.html', {
+        'trip': fake_trip,
+        'plan': plan,
+        'places_in_trip': places_in_trip,
+        'places_json': json.dumps(places_in_trip, ensure_ascii=False),
+        'empty_categories': [],
+        'low_categories': [],
+        'start_jalali': None,
+        'end_jalali': None,
+        'is_plan_mode': True,
+    })
 
 
 # ==========================================================
@@ -610,8 +644,11 @@ def load_trip(request, trip_id):
     except Trip.DoesNotExist:
         messages.error(request, 'سفر یافت نشد.')
         return redirect('plan')
-    
-# core/views.py
+
+
+# ==========================================================
+# ثبت نظر جاذبه
+# ==========================================================
 def submit_place_review(request, slug):
     if request.method == 'POST':
         place = get_object_or_404(Place, slug=slug, is_active=True)
@@ -629,7 +666,7 @@ def submit_place_review(request, slug):
                 place=place,
                 rating=rating,
                 comment=comment,
-                is_approved=True  # یا False برای تایید ادمین
+                is_approved=True
             )
             messages.success(request, 'نظر شما با موفقیت ثبت شد!')
         else:

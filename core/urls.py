@@ -18,10 +18,15 @@ urlpatterns = [
 
     # core/urls.py
     path('place/<slug:slug>/review/', views.submit_place_review, name='submit_place_review'), 
+    
     # ===== مسیرهای احراز هویت =====
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('register/', views.register_page, name='register'),
-    # ✅ NEW: صفحه نتیجه سفر
+    
+    # ✅ صفحه نتیجه سفر شخصی
     path('result/<int:trip_id>/', views.trip_result_page, name='trip_result'),
+    
+    # ✅ جدید: صفحه جزئیات پلن پیشنهادی (باید آخر باشه که با plan/ تداخل نکنه)
+    path('plan/<slug:slug>/', views.plan_detail_page, name='plan_detail'),
 ]

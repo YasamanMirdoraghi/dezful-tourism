@@ -74,7 +74,7 @@ class Place(models.Model):
     phone = models.CharField(max_length=20, null=True, blank=True)
     contact_info = models.CharField(max_length=300, null=True, blank=True)
     rating_avg = models.FloatField(default=0)
-    visit_count = models.BigIntegerField(default=0)  # ✅ برگشت
+    visit_count = models.BigIntegerField(default=0)
     is_active = models.BooleanField(default=True)
     is_featured = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -231,7 +231,7 @@ class Trip(models.Model):
         ('completed', 'Completed')
     ]
     
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trips')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trips', null=True, blank=True)
     title = models.CharField(max_length=200, null=True, blank=True)
     start_date = models.DateField()
     end_date = models.DateField()
@@ -247,20 +247,31 @@ class Trip(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f"{self.user.username} - {self.start_date} to {self.end_date}"
+        return f"{self.user.username if self.user else 'Guest'} - {self.start_date} to {self.end_date}"
 
 # ==========================================================
-# ۱۳. پلن
+# ۱۳. پلن (آپدیت شده ✅)
 # ==========================================================
 class Plan(models.Model):
-    DURATION_CHOICES = [('1_day', '1 Day'), ('2_days', '2 Days'), ('3_days', '3 Days'), ('5_days', '5 Days'), ('7_days', '7 Days')]
+    DURATION_CHOICES = [
+        ('1_day', '1 Day'), 
+        ('2_days', '2 Days'), 
+        ('3_days', '3 Days'), 
+        ('5_days', '5 Days'), 
+        ('7_days', '7 Days')
+    ]
     
     name = models.CharField(max_length=200)
     slug = models.CharField(max_length=220, unique=True)
     description = models.TextField(null=True, blank=True)
     duration = models.CharField(max_length=20, choices=DURATION_CHOICES)
+    duration_days = models.IntegerField(default=1)  # ✅ جدید
     badge = models.CharField(max_length=50, null=True, blank=True)
     estimated_cost = models.BigIntegerField(default=0)
+    budget_toman = models.BigIntegerField(default=0)  # ✅ جدید
+    companions = models.IntegerField(default=2)  # ✅ جدید
+    has_children = models.BooleanField(default=False)  # ✅ جدید
+    interests = models.JSONField(default=list, blank=True)  # ✅ جدید
     main_image = models.ImageField(upload_to='plans/', null=True, blank=True)
     color = models.CharField(max_length=20, default='#118b71')
     icon = models.CharField(max_length=50, null=True, blank=True)
@@ -286,6 +297,7 @@ class PlanAttraction(models.Model):
     
     class Meta:
         unique_together = ('plan', 'place')
+        ordering = ['day_number', 'visit_order']  # ✅ جدید (مرتب‌سازی خودکار)
 
     def __str__(self):
         return f"{self.plan.name} - Day {self.day_number}: {self.place.name}"
