@@ -739,8 +739,20 @@ body.page-map .float-home {
     <aside class="map-sidebar" id="mapSidebar">
         <div class="sidebar-head">
             <button class="close-sb" id="closeSb" title="بستن"><i class="fas fa-times"></i></button>
-            <h2 id="sidebarTitle"><i class="fas fa-map-marked-alt"></i> نقشه گردشگری دزفول</h2>
-            <p id="sidebarSubtitle">جستجو، فیلتر و کشف جاذبه‌های شهر</p>
+           <h2 id="sidebarTitle">
+    {% if is_plan_mode %}
+    <i class="fas fa-star"></i> پلن پیشنهادی
+    {% else %}
+    <i class="fas fa-map-marked-alt"></i> نقشه گردشگری دزفول
+    {% endif %}
+</h2>
+<p id="sidebarSubtitle">
+    {% if is_plan_mode %}
+    مشاهده جاذبه‌های این پلن روی نقشه
+    {% else %}
+    جستجو، فیلتر و کشف جاذبه‌های شهر
+    {% endif %}
+</p>
         </div>
 
         <div class="smart-search">
@@ -816,6 +828,7 @@ body.page-map .float-home {
 const MAP_PLACES = {{ places_json|safe }};
 const TRIP_DATA = {{ trip_json|default:'null'|safe }};
 const TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
+const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
 
 (function () {
     'use strict';

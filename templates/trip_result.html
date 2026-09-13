@@ -5,7 +5,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>برنامه سفر شما | سفر به دزفول</title>
+	<title>{% if is_plan_mode %}{{ plan.name }}{% else %}برنامه سفر شما{% endif %} | سفر به دزفول</title>
 	<link rel="stylesheet" href="{% static 'css/style.css' %}">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 	<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
@@ -568,9 +568,15 @@
 
 			<!-- Header -->
 			<div class="trip-result-header">
+				{% if is_plan_mode %}
+				<span class="badge"><i class="fas fa-star"></i> پلن پیشنهادی</span>
+				<h1>{{ plan.name }}</h1>
+				<p>{{ plan.description }}</p>
+				{% else %}
 				<span class="badge"><i class="fas fa-check-circle"></i> برنامه شما آماده شد</span>
 				<h1>سفر شما به دزفول</h1>
 				<p>برنامه‌ای که هوش مصنوعی بر اساس سلیقه‌ات ساخته</p>
+				{% endif %}
 			</div>
 
 			<!-- Info Cards -->
@@ -578,11 +584,17 @@
 				<div class="trip-info-card">
 					<div class="info-icon green"><i class="fas fa-calendar-check"></i></div>
 					<div>
-						<div class="info-label">تاریخ سفر</div>
+						<div class="info-label">
+							{% if is_plan_mode %}مدت پلن{% else %}تاریخ سفر{% endif %}
+						</div>
 						<div class="info-value">
-							{% if start_jalali %}{{ start_jalali.year }}/{{ start_jalali.month }}/{{ start_jalali.day }}{% endif %}
-							تا
-							{% if end_jalali %}{{ end_jalali.year }}/{{ end_jalali.month }}/{{ end_jalali.day }}{% endif %}
+							{% if is_plan_mode %}
+								{{ trip.duration_days }} روز
+							{% else %}
+								{% if start_jalali %}{{ start_jalali.year }}/{{ start_jalali.month }}/{{ start_jalali.day }}{% endif %}
+								تا
+								{% if end_jalali %}{{ end_jalali.year }}/{{ end_jalali.month }}/{{ end_jalali.day }}{% endif %}
+							{% endif %}
 						</div>
 					</div>
 				</div>
@@ -609,41 +621,43 @@
 				</div>
 			</div>
 
-			<!-- Warnings Box -->
-			{% if empty_categories or low_categories %}
-			<div class="plan-warnings-box">
-				<div class="pw-header">
-					<i class="fas fa-info-circle"></i>
-					<span>توجه به نکات زیر برنامه شما رو بهتر می‌کنه</span>
-				</div>
-				<div class="pw-body">
-					{% for lc in low_categories %}
-					<div class="pw-item pw-warn">
-						<span class="pw-icon"><i class="fas fa-exclamation-triangle"></i></span>
-						<div>
-							<strong>«{{ lc.name }}»</strong>
-							<span>
-								فقط <b>{{ lc.count }}</b> جاذبه در این دسته داریم.
-								برای تکمیل برنامه، جاذبه‌های مشابه از دسته‌های دیگر اضافه شدند.
-							</span>
-						</div>
+			<!-- Warnings Box (فقط برای سفر شخصی) -->
+			{% if not is_plan_mode %}
+				{% if empty_categories or low_categories %}
+				<div class="plan-warnings-box">
+					<div class="pw-header">
+						<i class="fas fa-info-circle"></i>
+						<span>توجه به نکات زیر برنامه شما رو بهتر می‌کنه</span>
 					</div>
-					{% endfor %}
+					<div class="pw-body">
+						{% for lc in low_categories %}
+						<div class="pw-item pw-warn">
+							<span class="pw-icon"><i class="fas fa-exclamation-triangle"></i></span>
+							<div>
+								<strong>«{{ lc.name }}»</strong>
+								<span>
+									فقط <b>{{ lc.count }}</b> جاذبه در این دسته داریم.
+									برای تکمیل برنامه، جاذبه‌های مشابه از دسته‌های دیگر اضافه شدند.
+								</span>
+							</div>
+						</div>
+						{% endfor %}
 
-					{% for ec in empty_categories %}
-					<div class="pw-item pw-error">
-						<span class="pw-icon"><i class="fas fa-times-circle"></i></span>
-						<div>
-							<strong>«{{ ec }}»</strong>
-							<span>
-								در حال حاضر هیچ جاذبه‌ای در این دسته ثبت نشده است.
-								برنامه شما بر اساس سایر علاقه‌مندی‌ها ساخته شد.
-							</span>
+						{% for ec in empty_categories %}
+						<div class="pw-item pw-error">
+							<span class="pw-icon"><i class="fas fa-times-circle"></i></span>
+							<div>
+								<strong>«{{ ec }}»</strong>
+								<span>
+									در حال حاضر هیچ جاذبه‌ای در این دسته ثبت نشده است.
+									برنامه شما بر اساس سایر علاقه‌مندی‌ها ساخته شد.
+								</span>
+							</div>
 						</div>
+						{% endfor %}
 					</div>
-					{% endfor %}
 				</div>
-			</div>
+				{% endif %}
 			{% endif %}
 
 			<!-- Main Layout -->
@@ -655,7 +669,7 @@
 						<div class="ph-title">
 							<img src="{% static 'img/slide4.jpg' %}" alt="" class="ph-thumb">
 							<div>
-								<h3>دزفول</h3>
+								<h3>{% if is_plan_mode %}{{ plan.name }}{% else %}دزفول{% endif %}</h3>
 								<span>{{ trip.duration_days }} روز - {{ trip.companions }} نفر</span>
 							</div>
 						</div>
@@ -673,17 +687,36 @@
 			</div>
 
 			<!-- Actions -->
-			<div class="trip-actions">
-				<a href="{% url 'plan' %}" class="trip-action-btn secondary">
-					<i class="fas fa-plus-circle"></i> برنامه جدید
-				</a>
-				<a href="/map/?trip={{ trip.id }}" class="trip-action-btn primary">
-					<i class="fas fa-map"></i> مشاهده روی نقشه کامل
-				</a>
-				<button class="trip-action-btn orange" onclick="window.print()">
-					<i class="fas fa-print"></i> چاپ برنامه
-				</button>
-			</div>
+			<!-- Actions -->
+<div class="trip-actions">
+    {% if not is_plan_mode %}
+    <a href="{% url 'plan' %}" class="trip-action-btn secondary">
+        <i class="fas fa-plus-circle"></i> برنامه جدید
+    </a>
+    {% else %}
+    <a href="{% url 'plan' %}" class="trip-action-btn secondary">
+        <i class="fas fa-magic"></i> ساخت برنامه شخصی
+    </a>
+    {% endif %}
+    
+    {% if is_plan_mode %}
+    <a href="/map/?plan={{ plan.id }}" class="trip-action-btn primary">
+        <i class="fas fa-map"></i> مشاهده روی نقشه کامل
+    </a>
+    {% elif trip.id %}
+    <a href="/map/?trip={{ trip.id }}" class="trip-action-btn primary">
+        <i class="fas fa-map"></i> مشاهده روی نقشه کامل
+    </a>
+    {% else %}
+    <a href="/map/" class="trip-action-btn primary">
+        <i class="fas fa-map"></i> مشاهده روی نقشه کامل
+    </a>
+    {% endif %}
+    
+    <button class="trip-action-btn orange" onclick="window.print()">
+        <i class="fas fa-print"></i> چاپ برنامه
+    </button>
+</div>
 
 		</div>
 	</section>
@@ -731,8 +764,9 @@
 		// داده‌های سفر از دیتابیس
 		// ═══════════════════════════════════════════════════════════
 		const PLACES_IN_TRIP = {{ places_json|safe }};
+		const IS_PLAN_MODE = {{ is_plan_mode|yesno:"true,false" }};
 		const TRIP_DATA = {
-			id: {{ trip.id }},
+			id: {{ trip.id|default:"null" }},
 			duration: {{ trip.duration_days }},
 			companions: {{ trip.companions }},
 		};
@@ -867,14 +901,10 @@
 
 		function renderAll() {
 			const days = daysArray;
-			if (!days.length) return;
-
-			// محاسبه تاریخ‌های روز
-			const today = new Date();
-			const startJdn = g2d(today.getFullYear(), today.getMonth() + 1, today.getDate());
-
-			const dayDate = i => d2j(startJdn + i);
-			const mName = jm => MONTHS[(jm | 0) - 1] || '';
+			if (!days.length) {
+				document.getElementById('plannerDays').innerHTML = '<p style="text-align:center; color:#8b7355; padding:40px 10px;">هیچ جاذبه‌ای برای این برنامه ثبت نشده است.</p>';
+				return;
+			}
 
 			// Tabs
 			document.getElementById('plannerTabs').innerHTML =

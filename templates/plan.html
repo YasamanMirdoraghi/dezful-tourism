@@ -139,16 +139,16 @@
 					</div>
 					<a class="clear-link" id="clearInterests">پاک کردن انتخاب‌ها</a>
 					<div class="interest-grid">
-						{% for cat in categories %}
-						<button type="button" class="interest-card" data-value="{{ cat.name }}" data-maps="{{ cat.slug }}">
-							<span class="ic-check"><i class="fas fa-check"></i></span>
-							<span class="ic-emoji">
-								{% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i class="fas fa-map-marker-alt"></i>{% endif %}
-							</span>
-							<span class="ic-label">{{ cat.name }}</span>
-						</button>
-						{% endfor %}
-					</div>
+    {% for cat in categories %}
+    <button type="button" class="interest-card" data-value="{{ cat.name }}" data-maps="{{ cat.slug }}">
+        <span class="ic-check" style="background: {{ cat.color|default:'#118b71' }};"><i class="fas fa-check"></i></span>
+        <span class="ic-emoji" style="color: {{ cat.color|default:'#118b71' }};">
+            {% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i class="fas fa-map-marker-alt"></i>{% endif %}
+        </span>
+        <span class="ic-label">{{ cat.name }}</span>
+    </button>
+    {% endfor %}
+</div>
 					<div class="wz-hint" id="wzHint"></div>
 				</div>
 

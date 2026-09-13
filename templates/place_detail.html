@@ -1085,22 +1085,25 @@
 </div>
 
         <!-- جاذبه‌های مرتبط -->
-        <div class="related-places">
-          <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i
-              class="fas fa-link"></i> جاذبه‌های مرتبط</h2>
-          <div class="related-places-grid">
-            {% for related_place in related_places %}
-            <a href="{% url 'place_detail' related_place.slug %}" class="related-place-card">
-              <img src="{% static 'img/' %}{{ related_place.slug }}.jpg" alt="{{ related_place.name }}"
-                onerror="this.onerror=null; this.src='{% static 'img/' %}{{ related_place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
-              <div class="card-body">
-                <h4>{{ related_place.name }}</h4>
-                <p>{{ related_place.short_description|truncatewords:10 }}</p>
-              </div>
-            </a>
-            {% endfor %}
-          </div>
-        </div>
+       <!-- جاذبه‌های مرتبط -->
+{% if related_places %}
+<div class="related-places">
+  <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i
+      class="fas fa-link"></i> جاذبه‌های مرتبط</h2>
+  <div class="related-places-grid">
+    {% for related_place in related_places %}
+    <a href="{% url 'place_detail' related_place.slug %}" class="related-place-card">
+      <img src="{% static 'img/' %}{{ related_place.slug }}.jpg" alt="{{ related_place.name }}"
+        onerror="this.onerror=null; this.src='{% static 'img/' %}{{ related_place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">>
+      <div class="card-body">
+        <h4>{{ related_place.name }}</h4>
+        <p>{{ related_place.short_description|truncatewords:10 }}</p>
+      </div>
+    </a>
+    {% endfor %}
+  </div>
+</div>
+{% endif %}
 
       </div>
   </main>

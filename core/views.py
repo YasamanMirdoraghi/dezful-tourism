@@ -270,7 +270,6 @@ def register_page(request):
         password2 = request.POST.get('password2')
 
         if password == password2:
-            # ✅ اصلاح باگ: filter به جای exists
             if not User.objects.filter(username=username).exists():
                 user = User.objects.create_user(
                     username=username,
@@ -331,12 +330,14 @@ def plan_page(request):
             'short_description': desc,
         })
 
+    # ✅ اضافه شد: categories_json با color
     categories_json = [
         {
             'id': cat.id,
             'name': cat.name,
             'slug': cat.slug,
             'icon': cat.icon or 'fa-map-marker-alt',
+            'color': cat.color or '#118b71',
         }
         for cat in categories
     ]
@@ -411,7 +412,6 @@ def save_trip(request):
             elif companions_str == '5+':
                 companions = 5
 
-            # ذخیره سفر
             trip = Trip.objects.create(
                 user=request.user if request.user.is_authenticated else None,
                 start_date=start_date,
@@ -450,13 +450,11 @@ def save_trip(request):
 
 
 # ==========================================================
-# ✅ صفحه نتیجه سفر شخصی
+# صفحه نتیجه سفر شخصی
 # ==========================================================
 def trip_result_page(request, trip_id):
-    """صفحه اختصاصی نمایش نتیجه سفر شخصی"""
     trip = get_object_or_404(Trip, id=trip_id)
 
-    # ساخت لیست جاذبه‌های سفر
     places_in_trip = []
     for item in (trip.suggested_places or []):
         place = Place.objects.filter(id=item.get('id')).first()
@@ -477,7 +475,6 @@ def trip_result_page(request, trip_id):
                 'score': item.get('score', 0),
             })
 
-    # جاذبه‌های مربوط به علاقه‌مندی‌ها (برای هشدار)
     interests = trip.interests or []
     empty_categories = []
     low_categories = []
@@ -489,7 +486,6 @@ def trip_result_page(request, trip_id):
         elif count < 3:
             low_categories.append({'name': cat_name, 'count': count})
 
-    # تبدیل تاریخ به شمسی
     start_jalali = gregorian_to_jalali(trip.start_date)
     end_jalali = gregorian_to_jalali(trip.end_date)
 
@@ -506,18 +502,15 @@ def trip_result_page(request, trip_id):
 
 
 # ==========================================================
-# ✅ جدید: صفحه نتیجه پلن پیشنهادی
+# صفحه نتیجه پلن پیشنهادی
 # ==========================================================
 def plan_detail_page(request, slug):
-    """نمایش یک پلن پیشنهادی از پیش تعریف‌شده - دقیقاً مثل trip_result"""
     plan = get_object_or_404(Plan, slug=slug, is_active=True)
 
-    # گرفتن جاذبه‌های پلن با ترتیب
     plan_attractions = PlanAttraction.objects.filter(
         plan=plan
     ).select_related('place', 'place__category').order_by('day_number', 'visit_order')
 
-    # ساخت لیست جاذبه‌ها دقیقاً به فرمت places_in_trip
     places_in_trip = []
     for pa in plan_attractions:
         place = pa.place
@@ -537,13 +530,11 @@ def plan_detail_page(request, slug):
             'score': 0,
         })
 
-    # تعیین تعداد روز
     duration_map = {
         '1_day': 1, '2_days': 2, '3_days': 3, '5_days': 5, '7_days': 7
     }
     duration_days = plan.duration_days or duration_map.get(plan.duration, 1)
 
-    # ساخت آبجکت شبیه Trip
     class FakeTrip:
         def __init__(self, plan, duration_days):
             self.id = None
@@ -578,8 +569,12 @@ def map_page(request):
     places = Place.objects.filter(is_active=True)
 
     trip_id = request.GET.get('trip')
+    plan_id = request.GET.get('plan')
+
     trip_data = None
     trip_days = {}
+    is_plan_mode = False
+    plan_data = None
 
     if trip_id:
         try:
@@ -594,6 +589,46 @@ def map_page(request):
                         trip_days[day] = []
                     trip_days[day].append(place_id)
         except Trip.DoesNotExist:
+            pass
+
+    elif plan_id:
+        try:
+            plan = Plan.objects.get(id=plan_id, is_active=True)
+            plan_data = plan
+            is_plan_mode = True
+
+            plan_attractions = PlanAttraction.objects.filter(
+                plan=plan
+            ).select_related('place', 'place__category').order_by('day_number', 'visit_order')
+
+            suggested_places = []
+            for pa in plan_attractions:
+                place = pa.place
+                suggested_places.append({
+                    'id': place.id,
+                    'day': pa.day_number,
+                    'score': 0,
+                })
+                day = pa.day_number
+                if day not in trip_days:
+                    trip_days[day] = []
+                trip_days[day].append(place.id)
+
+            duration_map = {
+                '1_day': 1, '2_days': 2, '3_days': 3, '5_days': 5, '7_days': 7
+            }
+            duration_days = plan.duration_days or duration_map.get(plan.duration, 1)
+
+            trip_data = {
+                'id': None,
+                'start_date': None,
+                'end_date': None,
+                'duration_days': duration_days,
+                'interests': plan.interests or [],
+                'suggested_places': suggested_places,
+                'days': trip_days,
+            }
+        except Plan.DoesNotExist:
             pass
 
     places_json = []
@@ -616,21 +651,37 @@ def map_page(request):
 
     trip_json = None
     if trip_data:
-        trip_json = {
-            'id': trip_data.id,
-            'start_date': trip_data.start_date.isoformat() if trip_data.start_date else '',
-            'end_date': trip_data.end_date.isoformat() if trip_data.end_date else '',
-            'duration_days': trip_data.duration_days,
-            'interests': trip_data.interests,
-            'suggested_places': trip_data.suggested_places,
-            'days': trip_days,
-        }
+        if is_plan_mode:
+            trip_json = {
+                'id': None,
+                'start_date': '',
+                'end_date': '',
+                'duration_days': trip_data['duration_days'],
+                'interests': trip_data['interests'],
+                'suggested_places': trip_data['suggested_places'],
+                'days': trip_days,
+                'is_plan': True,
+                'plan_name': plan_data.name if plan_data else '',
+            }
+        else:
+            trip_json = {
+                'id': trip_data.id,
+                'start_date': trip_data.start_date.isoformat() if trip_data.start_date else '',
+                'end_date': trip_data.end_date.isoformat() if trip_data.end_date else '',
+                'duration_days': trip_data.duration_days,
+                'interests': trip_data.interests,
+                'suggested_places': trip_data.suggested_places,
+                'days': trip_days,
+                'is_plan': False,
+            }
 
     return render(request, 'map.html', {
         'places': places,
         'places_json': json.dumps(places_json, ensure_ascii=False),
         'trip_json': json.dumps(trip_json, ensure_ascii=False) if trip_json else None,
         'trip_mode': bool(trip_data),
+        'is_plan_mode': is_plan_mode,
+        'plan': plan_data,
     })
 
 

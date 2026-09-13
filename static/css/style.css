@@ -1001,6 +1001,11 @@ a{
 	padding: 60px 0;
 	background: #ffffff;
 }
+.card-slide {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
 
 .section-card-slider:nth-child(even) {
 	background: var(--cream-bg);
@@ -4464,4 +4469,22 @@ body.result-open .float-home {
 .load-trip-btn:hover {
     background: var(--primary-green-dark);
     transform: scale(1.03);
+}
+/* رنگ کارت‌ها بر اساس رنگ دیتابیس */
+.interest-card.selected {
+    background: rgba(17, 139, 113, 0.08);
+    border-color: var(--primary-green);
+    box-shadow: 0 4px 16px rgba(17, 139, 113, 0.12);
+}
+
+.interest-card .ic-emoji {
+    transition: transform 0.25s ease;
+}
+
+.interest-card:hover .ic-emoji {
+    transform: scale(1.15) rotate(-8deg);
+}
+
+.interest-card.selected .ic-emoji {
+    transform: scale(1.1);
 }
