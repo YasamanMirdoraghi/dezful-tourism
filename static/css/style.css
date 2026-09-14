@@ -4487,4 +4487,537 @@ body.result-open .float-home {
 
 .interest-card.selected .ic-emoji {
     transform: scale(1.1);
+}/* ═══════════════════════════════════════════════════════════
+   اسلایدر سفرهای اخیر - ساده و تضمینی
+   ═══════════════════════════════════════════════════════════ */
+
+.previous-trips {
+    background: #fff;
+    border-radius: 20px;
+    padding: 22px 24px 18px;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(17, 139, 113, 0.06);
 }
+
+.previous-trips-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 18px;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.previous-trips-header h3 {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--brown-text);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.previous-trips-header h3 i {
+    color: var(--primary-green);
+}
+
+.trips-count {
+    font-size: 0.78rem;
+    font-weight: 700;
+    color: var(--primary-green);
+    background: rgba(17, 139, 113, 0.08);
+    padding: 4px 12px;
+    border-radius: 20px;
+}
+
+/* ===== اسلایدر ===== */
+.trips-slider-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.trips-slider-viewport {
+    flex: 1;
+    overflow: hidden;
+    padding: 10px 0;
+    min-width: 0;
+}
+
+.trips-slider-track {
+    /* Grid از JS تنظیم می‌شه */
+    display: grid;
+    gap: 12px;
+}
+
+/* ===== کارت ===== */
+.trip-card {
+    display: flex;
+    flex-direction: column;
+    background: #fbfaf7;
+    border: 1px solid rgba(74, 58, 42, 0.06);
+    border-radius: 16px;
+    overflow: hidden;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    position: relative;
+}
+
+.trip-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.1);
+}
+
+.trip-card.trip-current {
+    background: linear-gradient(180deg, #f0faf6 0%, #e3f5ed 100%);
+    border-color: rgba(17, 139, 113, 0.2);
+}
+
+.trip-card.trip-past {
+    background: linear-gradient(180deg, #fffbf0 0%, #fef7e0 100%);
+    border-color: rgba(244, 166, 42, 0.2);
+}
+
+.trip-card.trip-upcoming {
+    background: linear-gradient(180deg, #f5faff 0%, #eaf4fd 100%);
+    border-color: rgba(33, 150, 243, 0.15);
+}
+
+/* ===== برچسب وضعیت ===== */
+.trip-status-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 9px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    z-index: 3;
+    font-family: 'Vazirmatn', sans-serif;
+    white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12);
+}
+
+.trip-card.trip-current .trip-status-badge {
+    background: var(--primary-green);
+    color: #fff;
+}
+
+.trip-card.trip-past .trip-status-badge {
+    background: #f4a62a;
+    color: #fff;
+}
+
+.trip-card.trip-upcoming .trip-status-badge {
+    background: #2196f3;
+    color: #fff;
+}
+
+/* ===== عکس ===== */
+.trip-card-image {
+    width: 100%;
+    height: 110px;
+    overflow: hidden;
+    background: #f0f0f0;
+    flex-shrink: 0;
+}
+
+.trip-card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.5s ease;
+}
+
+.trip-card:hover .trip-card-image img {
+    transform: scale(1.08);
+}
+
+.trip-card.trip-current .trip-card-image {
+    border-bottom: 3px solid #118b71;
+}
+
+.trip-card.trip-past .trip-card-image {
+    border-bottom: 3px solid #f4a62a;
+}
+
+.trip-card.trip-upcoming .trip-card-image {
+    border-bottom: 3px solid #2196f3;
+}
+
+/* ===== اطلاعات ===== */
+.trip-card-info {
+    padding: 10px 12px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.trip-card-dates {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--brown-text);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.trip-card-meta {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.68rem;
+    color: var(--brown-light);
+    font-weight: 600;
+}
+
+.trip-card-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.trip-card-meta i {
+    color: var(--primary-green);
+    font-size: 0.65rem;
+}
+
+/* ===== دکمه‌ها ===== */
+.trips-slider-btn {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    border: 1px solid rgba(17, 139, 113, 0.15);
+    background: #fff;
+    color: var(--primary-green);
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    transition: all 0.25s ease;
+}
+
+.trips-slider-btn:hover:not(:disabled) {
+    background: var(--primary-green);
+    color: #fff;
+    border-color: var(--primary-green);
+    transform: scale(1.08);
+}
+
+.trips-slider-btn:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+}
+
+/* ===== نقطه‌ها ===== */
+.trips-slider-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-top: 16px;
+    min-height: 8px;
+}
+
+.trips-slider-dots button {
+    width: 8px;
+    height: 8px;
+    padding: 0;
+    border: 0;
+    border-radius: 99px;
+    background: #d3cbc0;
+    cursor: pointer;
+    transition: all 0.25s ease;
+}
+
+.trips-slider-dots button.active {
+    width: 26px;
+    background: var(--primary-green);
+    border-radius: 8px;
+}
+
+/* ===== ریسپانسیو ===== */
+@media (max-width: 700px) {
+    .previous-trips {
+        padding: 18px 14px;
+    }
+
+    .trips-slider-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 13px;
+    }
+
+    .trip-card-image {
+        height: 130px;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   Modal هشدار لاگین
+   ═══════════════════════════════════════════════════════════ */
+.login-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 30, 35, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.login-modal-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+.login-modal {
+    background: #fff;
+    border-radius: 24px;
+    padding: 32px 28px 26px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 25px 70px rgba(0, 0, 0, 0.25);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    transform: translateY(30px) scale(0.95);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    font-family: 'Vazirmatn', sans-serif;
+    direction: rtl;
+}
+
+.login-modal-overlay.show .login-modal {
+    transform: translateY(0) scale(1);
+}
+
+.login-modal-close {
+    position: absolute;
+    top: 14px;
+    left: 14px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(74, 58, 42, 0.06);
+    color: var(--brown-light, #8b7355);
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.login-modal-close:hover {
+    background: rgba(255, 80, 80, 0.1);
+    color: #ff5050;
+    transform: rotate(90deg);
+}
+
+.login-modal-icon {
+    width: 72px;
+    height: 72px;
+    margin: 0 auto 18px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    color: #fff;
+    background: linear-gradient(135deg, #118b71, #2a9d8f);
+    box-shadow: 0 10px 30px rgba(17, 139, 113, 0.35);
+    position: relative;
+    animation: modalIconFloat 3s ease-in-out infinite;
+}
+
+.login-modal-icon::after {
+    content: '';
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px dashed rgba(17, 139, 113, 0.25);
+    animation: modalIconSpin 12s linear infinite;
+}
+
+@keyframes modalIconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+@keyframes modalIconSpin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.login-modal h3 {
+    font-size: 1.35rem;
+    font-weight: 900;
+    color: var(--brown-text, #4a3a2a);
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.login-modal p {
+    font-size: 0.92rem;
+    color: var(--brown-light, #8b7355);
+    line-height: 1.9;
+    margin-bottom: 24px;
+}
+
+.login-modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.login-modal-btn {
+    flex: 1;
+    padding: 13px 20px;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border: 2px solid transparent;
+}
+
+.login-modal-btn.primary {
+    background: linear-gradient(135deg, #118b71, #2a9d8f);
+    color: #fff;
+    box-shadow: 0 8px 22px rgba(17, 139, 113, 0.3);
+}
+
+.login-modal-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 28px rgba(17, 139, 113, 0.4);
+}
+
+.login-modal-btn.secondary {
+    background: #fff;
+    color: #118b71;
+    border-color: rgba(17, 139, 113, 0.3);
+}
+
+.login-modal-btn.secondary:hover {
+    background: rgba(17, 139, 113, 0.06);
+    border-color: #118b71;
+}
+
+@media (max-width: 480px) {
+    .login-modal {
+        padding: 26px 20px 22px;
+        border-radius: 20px;
+    }
+    
+    .login-modal-icon {
+        width: 60px;
+        height: 60px;
+        font-size: 26px;
+    }
+    
+    .login-modal h3 { font-size: 1.15rem; }
+    .login-modal p { font-size: 0.85rem; }
+    .login-modal-actions { flex-direction: column; }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   بنر هشدار لاگین (وسط‌چین)
+   ═══════════════════════════════════════════════════════════ */
+.login-banner-wrapper {
+    text-align: center;
+    margin-bottom: 18px;
+}
+
+.login-banner {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 16px 8px 14px;
+    background: linear-gradient(135deg, #fff9e6 0%, #fef3cc 100%);
+    border: 1.5px solid rgba(244, 166, 42, 0.35);
+    border-radius: 50px;
+    box-shadow: 0 3px 14px rgba(244, 166, 42, 0.12);
+    text-align: right; /* داخل بنر، متن راست‌چین */
+}
+
+.login-banner-icon {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    color: #fff;
+    background: linear-gradient(135deg, #f4a62a, #ff9800);
+    box-shadow: 0 3px 8px rgba(244, 166, 42, 0.3);
+}
+
+.login-banner-text {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: #8b6914;
+    line-height: 1.5;
+}
+
+.login-banner-text strong {
+    font-weight: 900;
+    color: var(--brown-text);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   دکمه‌ی ذخیره در علاقه‌مندی‌ها
+   ═══════════════════════════════════════════════════════════ */
+.favorite-btn {
+    transition: all 0.3s ease;
+}
+
+.favorite-btn.favorited {
+    background: linear-gradient(135deg, #ff5050, #ff7a5a);
+    border-color: #ff5050;
+    box-shadow: 0 8px 22px rgba(255, 80, 80, 0.3);
+}
+
+.favorite-btn.favorited:hover {
+    background: linear-gradient(135deg, #e04444, #ff6a4a);
+}
+
+.favorite-btn.favorited i {
+    animation: heartBeat 0.6s ease;
+}
+
+@keyframes heartBeat {
+    0%, 100% { transform: scale(1); }
+    25% { transform: scale(1.3); }
+    50% { transform: scale(1.1); }
+    75% { transform: scale(1.2); }
+}
+
+
+
+

@@ -15,6 +15,121 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
   <style>
+    /* ═══════════════════════════════════════════════════════
+   Toast سفارشی (با تم سایت)
+   ═══════════════════════════════════════════════════════ */
+.custom-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 22px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 
+        0 10px 40px rgba(17, 139, 113, 0.18),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+    border: 2px solid rgba(17, 139, 113, 0.15);
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    min-width: 220px;
+    max-width: 90vw;
+    font-family: 'Vazirmatn', sans-serif;
+    direction: rtl;
+}
+
+.custom-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.custom-toast-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #fff;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #118b71, #2a9d8f);
+    box-shadow: 0 4px 12px rgba(17, 139, 113, 0.3);
+    transition: all 0.3s ease;
+}
+
+/* حالت خطا */
+.custom-toast.error .custom-toast-icon {
+    background: linear-gradient(135deg, #ff5050, #ff7a5a);
+    box-shadow: 0 4px 12px rgba(255, 80, 80, 0.3);
+}
+
+.custom-toast.error {
+    border-color: rgba(255, 80, 80, 0.2);
+    box-shadow: 
+        0 10px 40px rgba(255, 80, 80, 0.15),
+        0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* حالت اطلاع */
+.custom-toast.info .custom-toast-icon {
+    background: linear-gradient(135deg, #2196f3, #64b5f6);
+    box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
+}
+
+.custom-toast.info {
+    border-color: rgba(33, 150, 243, 0.2);
+}
+
+.custom-toast-text {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--brown-text);
+    line-height: 1.5;
+    flex: 1;
+}
+
+/* انیمیشن آیکون */
+.custom-toast.show .custom-toast-icon {
+    animation: toastIconPop 0.4s ease 0.15s both;
+}
+
+@keyframes toastIconPop {
+    0% {
+        transform: scale(0);
+    }
+    50% {
+        transform: scale(1.15);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* موبایل */
+@media (max-width: 480px) {
+    .custom-toast {
+        bottom: 20px;
+        padding: 12px 18px;
+        min-width: 200px;
+    }
+    
+    .custom-toast-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 14px;
+    }
+    
+    .custom-toast-text {
+        font-size: 0.82rem;
+    }
+}
     /* ===== استایل‌های صفحه تکی جاذبه ===== */
     .place-detail-main {
       padding: 40px 0 80px;
@@ -849,7 +964,7 @@
   </style>
 </head>
 
-<body>
+<body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
 
 	<!-- ===== هدر ===== -->
 	<header class="navbar" id="navbar">
@@ -909,13 +1024,35 @@
         </div>
       </section>
 
-      <!-- دکمه‌های اقدام -->
-      <div class="place-actions">
-        <a href="{% url 'plan' %}" class="place-action-btn primary"><i class="fas fa-calendar-plus"></i> افزودن به
-          برنامه سفر</a>
-        <button class="place-action-btn outline" onclick="window.print()"><i class="fas fa-print"></i> چاپ</button>
-        <button class="place-action-btn outline" data-share><i class="fas fa-share-alt"></i> اشتراک‌گذاری</button>
-      </div>
+    <!-- دکمه‌های اقدام -->
+<div class="place-actions">
+    {% if user.is_authenticated %}
+    <button type="button" 
+            class="place-action-btn primary favorite-btn {% if is_favorited %}favorited{% endif %}" 
+            data-slug="{{ place.slug }}"
+            id="favoriteBtn">
+        <i class="{% if is_favorited %}fas{% else %}far{% endif %} fa-heart"></i>
+        <span>{% if is_favorited %}ذخیره شد{% else %}ذخیره جاذبه{% endif %}</span>
+    </button>
+    {% else %}
+    <button type="button" 
+            class="place-action-btn primary" 
+            onclick="showLoginModal({
+                title: 'برای ذخیره اول وارد شو!',
+                message: 'برای ذخیره این جاذبه در لیست موردعلاقه‌ها، لطفاً ابتدا وارد حساب کاربری خودت شو یا ثبت‌نام کن.'
+            })">
+        <i class="far fa-heart"></i>
+        <span>ذخیره جاذبه</span>
+    </button>
+    {% endif %}
+    
+    <button class="place-action-btn outline" onclick="window.print()">
+        <i class="fas fa-print"></i> چاپ
+    </button>
+    <button class="place-action-btn outline" data-share>
+        <i class="fas fa-share-alt"></i> اشتراک‌گذاری
+    </button>
+</div>
 
       <!-- اطلاعات جاذبه -->
       <div class="place-info-grid">
@@ -1085,7 +1222,6 @@
 </div>
 
         <!-- جاذبه‌های مرتبط -->
-       <!-- جاذبه‌های مرتبط -->
 {% if related_places %}
 <div class="related-places">
   <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i
@@ -1107,7 +1243,13 @@
 
       </div>
   </main>
-
+<!-- ✅ Toast اطلاع‌رسانی -->
+<div class="custom-toast" id="customToast">
+    <div class="custom-toast-icon">
+        <i class="fas fa-check"></i>
+    </div>
+    <div class="custom-toast-text" id="customToastText">لینک کپی شد!</div>
+</div>
   <!-- ===== فوتر ===== -->
   <footer class="footer">
     <div class="container">
@@ -1146,6 +1288,7 @@
   <button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="{% static 'js/login-modal.js' %}"></script>
   <script src="{% static 'js/script.js' %}"></script>
 
 <script>
@@ -1207,22 +1350,68 @@ document.addEventListener('DOMContentLoaded', function () {
     document.head.appendChild(style);
 
     // ===== اشتراک‌گذاری =====
-    var shareBtn = document.querySelector('[data-share]');
-    if (shareBtn) {
-        shareBtn.addEventListener('click', function () {
-            if (navigator.share) {
-                navigator.share({
-                    title: '{{ place.name }}',
-                    text: '{{ place.short_description }}',
-                    url: window.location.href
-                });
-            } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert('لینک کپی شد!');
-            }
-        });
-    }
+   // ===== تابع نمایش Toast سفارشی =====
+function showToast(message, type = 'success') {
+    const toast = document.getElementById('customToast');
+    const toastText = document.getElementById('customToastText');
+    const toastIcon = toast.querySelector('.custom-toast-icon i');
+    
+    if (!toast) return;
+    
+    // متن
+    toastText.textContent = message;
+    
+    // حالت (success, error, info)
+    toast.classList.remove('success', 'error', 'info');
+    toast.classList.add(type);
+    
+    // آیکون بر اساس حالت
+    if (type === 'success') toastIcon.className = 'fas fa-check';
+    else if (type === 'error') toastIcon.className = 'fas fa-exclamation-circle';
+    else if (type === 'info') toastIcon.className = 'fas fa-info-circle';
+    
+    // نمایش
+    toast.classList.add('show');
+    
+    // مخفی کردن بعد از ۲.۵ ثانیه
+    clearTimeout(window._toastTimeout);
+    window._toastTimeout = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 2500);
+}
 
+// ===== اشتراک‌گذاری =====
+var shareBtn = document.querySelector('[data-share]');
+if (shareBtn) {
+    shareBtn.addEventListener('click', function () {
+        if (navigator.share) {
+            navigator.share({
+                title: '{{ place.name }}',
+                text: '{{ place.short_description }}',
+                url: window.location.href
+            }).catch(() => {});
+        } else {
+            navigator.clipboard.writeText(window.location.href)
+                .then(() => {
+                    showToast('لینک با موفقیت کپی شد!', 'success');
+                })
+                .catch(() => {
+                    showToast('کپی لینک ناموفق بود', 'error');
+                });
+        }
+    });
+}
+// ===== چاپ =====
+var printBtn = document.querySelector('[onclick*="print"]');
+if (printBtn) {
+    printBtn.removeAttribute('onclick');
+    printBtn.addEventListener('click', function () {
+        showToast('در حال آماده‌سازی برای چاپ...', 'info');
+        setTimeout(() => {
+            window.print();
+        }, 600);
+    });
+}
     // ===== لایت‌باکس =====
     window.openLightbox = function (src) {
         var lightbox = document.createElement('div');
@@ -1232,6 +1421,80 @@ document.addEventListener('DOMContentLoaded', function () {
         document.body.appendChild(lightbox);
     };
 });
+
+// ═══════════════════════════════════════════════════════════
+// ذخیره/حذف جاذبه از علاقه‌مندی‌ها (AJAX)
+// ═══════════════════════════════════════════════════════════
+document.addEventListener('DOMContentLoaded', function() {
+    const favBtn = document.getElementById('favoriteBtn');
+    
+    if (!favBtn) return;
+    
+    favBtn.addEventListener('click', async function() {
+        const slug = this.dataset.slug;
+        
+        // غیرفعال کردن دکمه در حین درخواست
+        this.disabled = true;
+        this.style.opacity = '0.6';
+        
+        try {
+            const response = await fetch(`/favorite/${slug}/toggle/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            
+            const data = await response.json();
+            
+            if (data.status === 'added') {
+                // ذخیره شد
+                this.classList.add('favorited');
+                this.querySelector('i').className = 'fas fa-heart';
+                this.querySelector('span').textContent = 'ذخیره شد';
+                showToast('به علاقه‌مندی‌ها اضافه شد', 'success');
+                
+            } else if (data.status === 'removed') {
+                // حذف شد
+                this.classList.remove('favorited');
+                this.querySelector('i').className = 'far fa-heart';
+                this.querySelector('span').textContent = 'ذخیره جاذبه';
+                showToast('از علاقه‌مندی‌ها حذف شد', 'success');
+                
+            } else if (data.status === 'auth_required') {
+                // نیاز به لاگین
+                showLoginModal({
+                    title: 'برای ذخیره اول وارد شو!',
+                    message: 'برای ذخیره این جاذبه، لطفاً ابتدا وارد حساب کاربری خودت شو.'
+                });
+            }
+            
+        } catch (err) {
+            console.error(err);
+            showToast('خطا در ارتباط با سرور', 'error');
+        } finally {
+            this.disabled = false;
+            this.style.opacity = '1';
+        }
+    });
+});
+
+// ═══ تابع CSRF ═══
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
 </body>
 

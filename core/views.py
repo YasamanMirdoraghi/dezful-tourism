@@ -16,7 +16,7 @@ from django.conf import settings
 
 from .models import (
     Place, Category, Article, Plan, Route, Review, User,
-    ArticleBlock, ArticleRelated, Contact, Trip, PlanAttraction
+    ArticleBlock, ArticleRelated, Contact, Trip, PlanAttraction, UserFavorite 
 )
 
 
@@ -27,7 +27,8 @@ def get_place_image(place):
     slug = place.slug
     formats = ['.jpg', '.png', '.jpeg', '.webp']
     for fmt in formats:
-        image_path = os.path.join(settings.BASE_DIR, 'static', 'img', f'{slug}{fmt}')
+        image_path = os.path.join(
+            settings.BASE_DIR, 'static', 'img', f'{slug}{fmt}')
         if os.path.exists(image_path):
             return f'/static/img/{slug}{fmt}'
     return '/static/img/asiyab-haye-abi.jpg'
@@ -39,13 +40,15 @@ def get_place_image(place):
 def home(request):
     featured_places = Place.objects.filter(is_active=True)
     plans = Plan.objects.filter(is_active=True)
-    featured_articles = Article.objects.filter(is_published=True).order_by('-created_at')
+    featured_articles = Article.objects.filter(
+        is_published=True).order_by('-created_at')
 
     places_count = Place.objects.filter(is_active=True).count()
     users_count = User.objects.filter(is_active=True).count()
     plans_count = Plan.objects.filter(is_active=True).count()
     reviews_count = Review.objects.filter(is_approved=True).count()
-    avg_rating = Review.objects.filter(is_approved=True, rating__gt=0).aggregate(avg=Avg('rating'))['avg'] or 4.8
+    avg_rating = Review.objects.filter(is_approved=True, rating__gt=0).aggregate(
+        avg=Avg('rating'))['avg'] or 4.8
 
     return render(request, 'index.html', {
         'featured_places': featured_places,
@@ -63,12 +66,15 @@ def home(request):
 # صفحه جاذبه‌ها
 # ==========================================================
 def attraction_page(request):
-    places = Place.objects.filter(is_active=True).select_related('category__parent')
-    categories = Category.objects.filter(type='attraction', parent__isnull=True).prefetch_related('children')
+    places = Place.objects.filter(
+        is_active=True).select_related('category__parent')
+    categories = Category.objects.filter(
+        type='attraction', parent__isnull=True).prefetch_related('children')
 
     places_json = []
     for place in places:
-        short_desc = Truncator(place.short_description or '').words(15, truncate=' …')
+        short_desc = Truncator(
+            place.short_description or '').words(15, truncate=' …')
         places_json.append({
             'id': place.id,
             'name': place.name,
@@ -99,10 +105,21 @@ def attraction_page(request):
 # ==========================================================
 def place_detail_page(request, slug):
     place = get_object_or_404(Place, slug=slug, is_active=True)
-    related_places = Place.objects.filter(category=place.category).exclude(id=place.id)[:6]
-    reviews = Review.objects.filter(place=place, is_approved=True).select_related('user')
-    avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or place.rating_avg
+    related_places = Place.objects.filter(
+        category=place.category).exclude(id=place.id)[:6]
+    reviews = Review.objects.filter(
+        place=place, is_approved=True).select_related('user')
+    avg_rating = reviews.aggregate(avg=Avg('rating'))[
+        'avg'] or place.rating_avg
     gallery = place.gallery if place.gallery else []
+    
+    # ✅ چک کن آیا کاربر این جاذبه رو ذخیره کرده یا نه
+    is_favorited = False
+    if request.user.is_authenticated:
+        is_favorited = UserFavorite.objects.filter(
+            user=request.user, 
+            place=place
+        ).exists()
 
     return render(request, 'place_detail.html', {
         'place': place,
@@ -110,18 +127,19 @@ def place_detail_page(request, slug):
         'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
         'gallery': gallery,
+        'is_favorited': is_favorited,  # ✅ جدید
     })
-
-
 # ==========================================================
 # صفحه مقالات
 # ==========================================================
 def articles_page(request):
-    articles = Article.objects.filter(is_published=True).order_by('-created_at')
+    articles = Article.objects.filter(
+        is_published=True).order_by('-created_at')
     categories = Category.objects.filter(type='article')
 
     author_counts = {}
-    authors = articles.values('author').annotate(count=Count('id')).order_by('author')
+    authors = articles.values('author').annotate(
+        count=Count('id')).order_by('author')
     for author in authors:
         if author['author']:
             author_counts[author['author']] = author['count']
@@ -137,8 +155,10 @@ def articles_page(request):
     year_ago = now - timedelta(days=365)
 
     month_count = articles.filter(published_date__gte=month_ago.date()).count()
-    three_months_count = articles.filter(published_date__gte=three_months_ago.date()).count()
-    six_months_count = articles.filter(published_date__gte=six_months_ago.date()).count()
+    three_months_count = articles.filter(
+        published_date__gte=three_months_ago.date()).count()
+    six_months_count = articles.filter(
+        published_date__gte=six_months_ago.date()).count()
     year_count = articles.filter(published_date__gte=year_ago.date()).count()
 
     popular_count = articles.filter(featured='popular').count()
@@ -186,14 +206,18 @@ def articles_page(request):
 # ==========================================================
 def article_detail_page(request, slug):
     article = get_object_or_404(Article, slug=slug, is_published=True)
-    article_blocks = ArticleBlock.objects.filter(article=article).order_by('block_order')
-    headings = [block for block in article_blocks if block.block_type == 'heading']
+    article_blocks = ArticleBlock.objects.filter(
+        article=article).order_by('block_order')
+    headings = [
+        block for block in article_blocks if block.block_type == 'heading']
 
     for i, block in enumerate(headings, 1):
         block.toc_number = i
 
-    related = Article.objects.filter(category=article.category).exclude(id=article.id)[:6]
-    reviews = Review.objects.filter(article=article, is_approved=True).select_related('user')
+    related = Article.objects.filter(
+        category=article.category).exclude(id=article.id)[:6]
+    reviews = Review.objects.filter(
+        article=article, is_approved=True).select_related('user')
     avg_rating = reviews.aggregate(avg=Avg('rating'))['avg'] or 4.8
 
     return render(request, 'article.html', {
@@ -280,7 +304,8 @@ def register_page(request):
                     phone=phone,
                 )
                 login(request, user)
-                messages.success(request, 'حساب کاربری شما با موفقیت ساخته شد!')
+                messages.success(
+                    request, 'حساب کاربری شما با موفقیت ساخته شد!')
                 return redirect('home')
             else:
                 messages.error(request, 'نام کاربری قبلاً ثبت شده است!')
@@ -298,6 +323,24 @@ def logout_view(request):
     return redirect('home')
 
 
+
+# ==========================================================
+# توابع تبدیل تاریخ
+# ==========================================================
+
+
+def jalali_to_gregorian(jy, jm, jd):
+    try:
+        return jdatetime.date(jy, jm, jd).togregorian()
+    except Exception:
+        return timezone.now().date()
+
+
+def gregorian_to_jalali(date_obj):
+    try:
+        return jdatetime.date.fromgregorian(date=date_obj)
+    except:
+        return None
 # ==========================================================
 # صفحه برنامه‌ریز
 # ==========================================================
@@ -305,7 +348,7 @@ def plan_page(request):
     places = Place.objects.filter(is_active=True).select_related('category').annotate(
         reviews_count=Count('reviews', filter=Q(reviews__is_approved=True))
     )
-    categories = Category.objects.filter(type='attraction')
+    categories = Category.objects.filter(type='attraction', parent__isnull=True).order_by('display_order', 'name')
 
     places_json = []
     for place in places:
@@ -330,7 +373,6 @@ def plan_page(request):
             'short_description': desc,
         })
 
-    # ✅ اضافه شد: categories_json با color
     categories_json = [
         {
             'id': cat.id,
@@ -342,7 +384,75 @@ def plan_page(request):
         for cat in categories
     ]
 
-    user_trips = Trip.objects.filter(user=request.user).order_by('-created_at')[:5] if request.user.is_authenticated else []
+    # ✅ سفرهای اخیر کاربر با مرتب‌سازی هوشمند
+    today = timezone.now().date()
+
+    if request.user.is_authenticated:
+        # گرفتن همه‌ی سفرها
+        all_trips = list(Trip.objects.filter(user=request.user))
+
+        # ✅ دسته‌بندی بر اساس وضعیت
+        current_trips = []   # سفرهای جاری
+        upcoming_trips = []  # سفرهای آینده
+        past_trips = []      # سفرهای گذشته
+
+        for trip in all_trips:
+            if trip.start_date <= today <= trip.end_date:
+                current_trips.append(trip)
+            elif trip.start_date > today:
+                upcoming_trips.append(trip)
+            else:
+                past_trips.append(trip)
+
+        # ✅ مرتب‌سازی هر گروه
+        # جاری: نزدیک‌ترین به پایان (کمترین فاصله از today)
+        current_trips.sort(key=lambda t: (t.end_date - today).days)
+
+        # آینده: نزدیک‌ترین به امروز (کمترین فاصله از today)
+        upcoming_trips.sort(key=lambda t: (t.start_date - today).days)
+
+        # گذشته: جدیدترین‌ها اول (بزرگ‌ترین end_date)
+        past_trips.sort(key=lambda t: t.end_date, reverse=True)
+
+        # ✅ ترتیب نهایی: جاری → آینده → گذشته
+        sorted_trips = current_trips + upcoming_trips + past_trips
+    else:
+        sorted_trips = []
+
+    # ساخت user_trips با عکس و وضعیت
+    user_trips = []
+    for trip in sorted_trips:
+        start_j = gregorian_to_jalali(trip.start_date)
+        end_j = gregorian_to_jalali(trip.end_date)
+
+        # تعیین وضعیت
+        if trip.start_date <= today <= trip.end_date:
+            status = 'current'
+        elif trip.start_date > today:
+            status = 'upcoming'
+        else:
+            status = 'past'
+
+        # گرفتن عکس اولین جاذبه
+        trip_image = '/static/img/asiyab-haye-abi.jpg'
+        if trip.suggested_places:
+            first_place_id = trip.suggested_places[0].get('id')
+            if first_place_id:
+                first_place = Place.objects.filter(id=first_place_id).first()
+                if first_place:
+                    trip_image = get_place_image(first_place)
+
+        user_trips.append({
+            'id': trip.id,
+            'start_jalali': f"{start_j.year}/{start_j.month:02d}/{start_j.day:02d}" if start_j else '-',
+            'end_jalali': f"{end_j.year}/{end_j.month:02d}/{end_j.day:02d}" if end_j else '-',
+            'duration_days': trip.duration_days,
+            'companions': trip.companions,
+            'interests': trip.interests or [],
+            'created_at': trip.created_at,
+            'status': status,
+            'image': trip_image,
+        })
 
     return render(request, 'plan.html', {
         'places': places,
@@ -351,25 +461,6 @@ def plan_page(request):
         'categories_json': json.dumps(categories_json, ensure_ascii=False),
         'user_trips': user_trips,
     })
-
-
-# ==========================================================
-# توابع تبدیل تاریخ
-# ==========================================================
-def jalali_to_gregorian(jy, jm, jd):
-    try:
-        return jdatetime.date(jy, jm, jd).togregorian()
-    except Exception:
-        return timezone.now().date()
-
-
-def gregorian_to_jalali(date_obj):
-    try:
-        return jdatetime.date.fromgregorian(date=date_obj)
-    except:
-        return None
-
-
 # ==========================================================
 # ذخیره سفر (با پاسخ JSON برای AJAX)
 # ==========================================================
@@ -389,22 +480,27 @@ def save_trip(request):
                 try:
                     parts = date_str.split('/')
                     if len(parts) == 3:
-                        jy, jm, jd = int(parts[0]), int(parts[1]), int(parts[2])
+                        jy, jm, jd = int(parts[0]), int(
+                            parts[1]), int(parts[2])
                         return jdatetime.date(jy, jm, jd).togregorian()
                     return None
                 except:
                     return None
 
-            start_date = parse_jalali_date(start_date_str) or timezone.now().date()
-            end_date = parse_jalali_date(end_date_str) or (start_date + timedelta(days=duration_days - 1))
+            start_date = parse_jalali_date(
+                start_date_str) or timezone.now().date()
+            end_date = parse_jalali_date(end_date_str) or (
+                start_date + timedelta(days=duration_days - 1))
 
             interests = json.loads(interests_json) if interests_json else []
-            suggested_places = json.loads(suggested_places_json) if suggested_places_json else []
+            suggested_places = json.loads(
+                suggested_places_json) if suggested_places_json else []
 
             budget_toman = 0
             if '-' in budget_str:
                 parts = budget_str.split('-')
-                budget_toman = int(parts[1]) if len(parts) > 1 and parts[1].isdigit() else 0
+                budget_toman = int(parts[1]) if len(
+                    parts) > 1 and parts[1].isdigit() else 0
 
             companions = 1
             if companions_str.isdigit():
@@ -480,7 +576,8 @@ def trip_result_page(request, trip_id):
     low_categories = []
 
     for cat_name in interests:
-        count = Place.objects.filter(category__name=cat_name, is_active=True).count()
+        count = Place.objects.filter(
+            category__name=cat_name, is_active=True).count()
         if count == 0:
             empty_categories.append(cat_name)
         elif count < 3:
@@ -617,7 +714,8 @@ def map_page(request):
             duration_map = {
                 '1_day': 1, '2_days': 2, '3_days': 3, '5_days': 5, '7_days': 7
             }
-            duration_days = plan.duration_days or duration_map.get(plan.duration, 1)
+            duration_days = plan.duration_days or duration_map.get(
+                plan.duration, 1)
 
             trip_data = {
                 'id': None,
@@ -703,14 +801,14 @@ def load_trip(request, trip_id):
 def submit_place_review(request, slug):
     if request.method == 'POST':
         place = get_object_or_404(Place, slug=slug, is_active=True)
-        
+
         if not request.user.is_authenticated:
             messages.error(request, 'برای ثبت نظر ابتدا وارد شوید.')
             return redirect('place_detail', slug=slug)
-        
+
         comment = request.POST.get('comment', '').strip()
         rating = int(request.POST.get('rating', 5))
-        
+
         if comment:
             Review.objects.create(
                 user=request.user,
@@ -722,7 +820,228 @@ def submit_place_review(request, slug):
             messages.success(request, 'نظر شما با موفقیت ثبت شد!')
         else:
             messages.error(request, 'متن نظر نمی‌تونه خالی باشه.')
-        
+
         return redirect('place_detail', slug=slug)
-    
+
     return redirect('place_detail', slug=slug)
+
+# ==========================================================
+# ✅ ذخیره/حذف جاذبه از علاقه‌مندی‌ها (AJAX)
+# ==========================================================
+def toggle_favorite(request, slug):
+    """ذخیره یا حذف جاذبه از علاقه‌مندی‌های کاربر"""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+    
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'status': 'auth_required',
+            'message': 'برای ذخیره باید وارد شوید'
+        }, status=401)
+    
+    place = get_object_or_404(Place, slug=slug, is_active=True)
+    
+    favorite = UserFavorite.objects.filter(user=request.user, place=place).first()
+    
+    if favorite:
+        # حذف از علاقه‌مندی‌ها
+        favorite.delete()
+        return JsonResponse({
+            'status': 'removed',
+            'message': 'از ذخیره‌شده‌ها حذف شد',
+            'is_favorite': False
+        })
+    else:
+        # اضافه به علاقه‌مندی‌ها
+        UserFavorite.objects.create(user=request.user, place=place)
+        return JsonResponse({
+            'status': 'added',
+            'message': 'به ذخیره‌شده‌ها اضافه شد',
+            'is_favorite': True
+        })
+
+
+# ==========================================================
+# ✅ داشبورد کاربر
+# ==========================================================
+@login_required(login_url='login')
+def dashboard_page(request):
+    """داشبورد کاربر با تب‌های مختلف"""
+    user = request.user
+    
+    # ✅ تب فعال
+    active_tab = request.GET.get('tab', 'trips')
+    if active_tab not in ['trips', 'favorites', 'reviews', 'profile']:
+        active_tab = 'trips'
+    
+    # ✅ آمار کاربر (به‌صورت لیست برای اطمینان)
+    today = timezone.now().date()
+    
+    all_trips_qs = Trip.objects.filter(user=user)
+    all_trips = list(all_trips_qs)
+    total_trips = len(all_trips)
+    
+    # سفر جاری
+    current_trip = None
+    for trip in all_trips:
+        if trip.start_date <= today <= trip.end_date:
+            current_trip = trip
+            break
+    
+    # علاقه‌مندی‌ها
+    favorites_qs = UserFavorite.objects.filter(user=user).select_related('place', 'place__category').order_by('-created_at')
+    favorites = list(favorites_qs)
+    total_favorites = len(favorites)
+    
+    # نظرات کاربر
+    reviews_qs = Review.objects.filter(user=user).select_related('place', 'article').order_by('-created_at')
+    reviews = list(reviews_qs)
+    total_reviews = len(reviews)
+    
+    # ✅ سفرها با مرتب‌سازی
+    trips_list = []
+    for trip in all_trips:
+        start_j = gregorian_to_jalali(trip.start_date)
+        end_j = gregorian_to_jalali(trip.end_date)
+        
+        # وضعیت
+        if trip.start_date <= today <= trip.end_date:
+            status = 'current'
+        elif trip.start_date > today:
+            status = 'upcoming'
+        else:
+            status = 'past'
+        
+        # عکس
+        trip_image = '/static/img/asiyab-haye-abi.jpg'
+        if trip.suggested_places:
+            first_place_id = trip.suggested_places[0].get('id')
+            if first_place_id:
+                first_place = Place.objects.filter(id=first_place_id).first()
+                if first_place:
+                    trip_image = get_place_image(first_place)
+        
+        trips_list.append({
+            'id': trip.id,
+            'start_jalali': f"{start_j.year}/{start_j.month:02d}/{start_j.day:02d}" if start_j else '-',
+            'end_jalali': f"{end_j.year}/{end_j.month:02d}/{end_j.day:02d}" if end_j else '-',
+            'duration_days': trip.duration_days,
+            'companions': trip.companions,
+            'interests': trip.interests or [],
+            'status': status,
+            'image': trip_image,
+            'start_date': trip.start_date,
+            'end_date': trip.end_date,
+        })
+    
+    # مرتب‌سازی: جاری → آینده → گذشته
+    trips_list.sort(key=lambda t: (
+        0 if t['status'] == 'current' else (1 if t['status'] == 'upcoming' else 2),
+        t['start_date'] if t['status'] != 'past' else -t['start_date'].toordinal()
+    ))
+    
+    # فیلتر سفرها
+    trips_filter = request.GET.get('filter', 'all')
+    if trips_filter == 'current':
+        trips_list = [t for t in trips_list if t['status'] == 'current']
+    elif trips_filter == 'upcoming':
+        trips_list = [t for t in trips_list if t['status'] == 'upcoming']
+    elif trips_filter == 'past':
+        trips_list = [t for t in trips_list if t['status'] == 'past']
+    
+    # ✅ نظرات کاربر با جزئیات
+    reviews_list = []
+    for review in reviews:
+        if review.place:
+            target = {
+                'type': 'place',
+                'name': review.place.name,
+                'slug': review.place.slug,
+                'image': get_place_image(review.place),
+                'url': f'/place/{review.place.slug}/'
+            }
+        elif review.article:
+            target = {
+                'type': 'article',
+                'name': review.article.title,
+                'slug': review.article.slug,
+                'image': f'/static/img/{review.article.slug}.jpg',
+                'url': f'/articles/{review.article.slug}/'
+            }
+        else:
+            continue
+        
+        reviews_list.append({
+            'id': review.id,
+            'rating': review.rating,
+            'comment': review.comment,
+            'created_at': review.created_at,
+            'target': target,
+        })
+    
+    # ✅ علاقه‌مندی‌ها با جزئیات
+    favorites_list = []
+    for fav in favorites:
+        place = fav.place
+        favorites_list.append({
+            'id': fav.id,
+            'place_id': place.id,
+            'name': place.name,
+            'slug': place.slug,
+            'category': place.category.name if place.category else '',
+            'short_description': place.short_description or '',
+            'image': get_place_image(place),
+            'rating': place.rating_avg,
+            'duration': place.duration_minutes,
+            'cost': place.cost_toman,
+            'added_at': fav.created_at,
+        })
+    
+    # ✅ تبدیل تاریخ عضویت
+    join_date_jalali = gregorian_to_jalali(user.date_joined.date()) if user.date_joined else None
+    join_date_str = f"{join_date_jalali.year}/{join_date_jalali.month:02d}/{join_date_jalali.day:02d}" if join_date_jalali else '-'
+    
+    # ✅ محبوب‌ترین دسته‌بندی کاربر
+    favorite_categories = {}
+    for fav in favorites_list:
+        cat = fav['category']
+        if cat:
+            favorite_categories[cat] = favorite_categories.get(cat, 0) + 1
+    
+    top_category = None
+    if favorite_categories:
+        top_category = max(favorite_categories.items(), key=lambda x: x[1])[0]
+    
+    # ✅ آواتار کاربر (حرف اول)
+    user_initial = (user.first_name[0] if user.first_name else user.username[0]).upper()
+    
+    context = {
+        'active_tab': active_tab,
+        'trips_filter': trips_filter,
+        
+        # آمار
+        'total_trips': total_trips,
+        'total_favorites': total_favorites,
+        'total_reviews': total_reviews,
+        'current_trip': current_trip,
+        'top_category': top_category,
+        
+        # داده‌ها
+        'trips': trips_list,
+        'favorites': favorites_list,
+        'reviews': reviews_list,
+        
+        # اطلاعات کاربر
+        'user_initial': user_initial,
+        'join_date': join_date_str,
+    }
+    print("=" * 60)
+    print("🔍 DEBUG DASHBOARD")
+    print(f"USER: {user.username}")
+    print(f"TOTAL_TRIPS: {total_trips} (type: {type(total_trips)})")
+    print(f"TOTAL_FAVORITES: {total_favorites} (type: {type(total_favorites)})")
+    print(f"TOTAL_REVIEWS: {total_reviews} (type: {type(total_reviews)})")
+    print(f"JOIN_DATE: {join_date_str}")
+    print("=" * 60)
+    
+    return render(request, 'dashboard.html', context)

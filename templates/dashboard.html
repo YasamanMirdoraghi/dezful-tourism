@@ -1,0 +1,1418 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>داشبورد | سفر به دزفول</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        /* ═══════════════════════════════════════════════════════════
+           داشبورد - CSS اختصاصی
+           ═══════════════════════════════════════════════════════════ */
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body.dash-body {
+            font-family: 'Vazirmatn', sans-serif;
+            background: #f5efe6;
+            min-height: 100vh;
+            color: #4a3a2a;
+            direction: rtl;
+        }
+
+        /* ═══ نوبار ═══ */
+        .dash-navbar {
+            background: #fff;
+            padding: 14px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .dash-logo {
+            font-size: 22px;
+            font-weight: 900;
+            color: #118b71;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dash-logo i { color: #ff5050; }
+        .dash-logo span { color: #ff5050; }
+
+        .dash-nav-links {
+            display: flex;
+            gap: 22px;
+            align-items: center;
+        }
+
+        .dash-nav-links a {
+            color: #4a3a2a;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 600;
+            transition: color 0.2s;
+        }
+        .dash-nav-links a:hover { color: #118b71; }
+        .dash-nav-links a i { margin-left: 4px; }
+
+        .dash-logout {
+            background: #ff5050;
+            color: #fff !important;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 13px !important;
+        }
+        .dash-logout:hover {
+            background: #e04444;
+            color: #fff !important;
+        }
+
+        /* ═══ Main ═══ */
+        .dash-main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+
+        /* ═══ هدر کاربر (Hero) ═══ */
+        .dash-hero {
+            position: relative;
+            background: linear-gradient(135deg, #118b71 0%, #2a9d8f 50%, #4caf84 100%);
+            border-radius: 28px;
+            padding: 35px 32px;
+            margin-bottom: 24px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(17, 139, 113, 0.25);
+            color: #fff;
+        }
+
+        .dash-hero::before,
+        .dash-hero::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.08);
+            pointer-events: none;
+        }
+
+        .dash-hero::before {
+            width: 300px;
+            height: 300px;
+            top: -150px;
+            right: -100px;
+            animation: dashHeroFloat 12s ease-in-out infinite alternate;
+        }
+
+        .dash-hero::after {
+            width: 200px;
+            height: 200px;
+            bottom: -100px;
+            left: -80px;
+            background: rgba(255, 255, 255, 0.05);
+            animation: dashHeroFloat 15s ease-in-out infinite alternate-reverse;
+        }
+
+        @keyframes dashHeroFloat {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-30px, 30px) scale(1.1); }
+        }
+
+        .dash-hero-content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .dash-avatar {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 24px;
+            background: rgba(255, 255, 255, 0.18);
+            backdrop-filter: blur(10px);
+            border: 3px solid rgba(255, 255, 255, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .dash-avatar span {
+            font-size: 2.8rem;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .dash-avatar-badge {
+            position: absolute;
+            bottom: -6px;
+            right: -6px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: #fff;
+            color: #4caf50;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            border: 3px solid #118b71;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .dash-user-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .dash-user-info h1 {
+            font-size: 1.8rem;
+            font-weight: 900;
+            color: #fff;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+        }
+
+        .dash-user-info p {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .dash-sep { opacity: 0.5; }
+
+        .dash-user-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 30px;
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: #fff;
+        }
+        .dash-user-tag i { color: #ffeb3b; }
+        .dash-user-tag strong { font-weight: 900; }
+
+        /* ═══ ۴ کارت آماری ═══ */
+        .dash-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .dash-stat {
+            background: #fff;
+            border-radius: 20px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            border: 1px solid rgba(17, 139, 113, 0.06);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dash-stat::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 4px;
+            height: 100%;
+            transition: width 0.3s ease;
+        }
+
+        .dash-stat:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+        }
+
+        .dash-stat:hover::before { width: 6px; }
+
+        .dash-stat.trips::before { background: linear-gradient(180deg, #118b71, #2a9d8f); }
+        .dash-stat.favs::before { background: linear-gradient(180deg, #ff5050, #ff7a5a); }
+        .dash-stat.reviews::before { background: linear-gradient(180deg, #2196f3, #64b5f6); }
+        .dash-stat.current::before { background: linear-gradient(180deg, #f4a62a, #ff9800); }
+
+        .dash-stat-icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #fff;
+            flex-shrink: 0;
+        }
+
+        .dash-stat.trips .dash-stat-icon {
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            box-shadow: 0 6px 16px rgba(17, 139, 113, 0.3);
+        }
+        .dash-stat.favs .dash-stat-icon {
+            background: linear-gradient(135deg, #ff5050, #ff7a5a);
+            box-shadow: 0 6px 16px rgba(255, 80, 80, 0.3);
+        }
+        .dash-stat.reviews .dash-stat-icon {
+            background: linear-gradient(135deg, #2196f3, #64b5f6);
+            box-shadow: 0 6px 16px rgba(33, 150, 243, 0.3);
+        }
+        .dash-stat.current .dash-stat-icon {
+            background: linear-gradient(135deg, #f4a62a, #ff9800);
+            box-shadow: 0 6px 16px rgba(244, 166, 42, 0.3);
+        }
+
+        .dash-stat-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            min-width: 0;
+        }
+
+        .dash-stat-num {
+            font-size: 1.7rem;
+            font-weight: 900;
+            color: #4a3a2a;
+            line-height: 1;
+        }
+
+        .dash-stat-num.small { font-size: 1.3rem; }
+
+        .dash-stat-label {
+            font-size: 0.78rem;
+            color: #8b7355;
+            font-weight: 600;
+        }
+
+        /* ═══ تب‌ها ═══ */
+        .dash-tabs-section {
+            background: #fff;
+            border-radius: 24px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.05);
+            border: 1px solid rgba(17, 139, 113, 0.06);
+            overflow: hidden;
+        }
+
+        .dash-tabs {
+            display: flex;
+            gap: 4px;
+            padding: 8px;
+            background: #fbfaf7;
+            border-bottom: 1px solid rgba(74, 58, 42, 0.06);
+            overflow-x: auto;
+        }
+
+        .dash-tab {
+            flex: 1;
+            min-width: 130px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 16px;
+            border-radius: 14px;
+            text-decoration: none;
+            color: #8b7355;
+            font-weight: 700;
+            font-size: 0.85rem;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .dash-tab em {
+            font-style: normal;
+            font-size: 0.7rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(74, 58, 42, 0.08);
+            color: #8b7355;
+            font-weight: 800;
+        }
+
+        .dash-tab:hover {
+            background: rgba(17, 139, 113, 0.06);
+            color: #118b71;
+        }
+
+        .dash-tab.active {
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            color: #fff;
+            box-shadow: 0 6px 18px rgba(17, 139, 113, 0.3);
+        }
+
+        .dash-tab.active em {
+            background: rgba(255, 255, 255, 0.25);
+            color: #fff;
+        }
+
+        /* ═══ محتوای تب ═══ */
+        .dash-tab-content {
+            padding: 28px;
+            animation: dashFadeIn 0.4s ease;
+        }
+
+        @keyframes dashFadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dash-tab-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .dash-tab-header h2 {
+            font-size: 1.3rem;
+            font-weight: 900;
+            color: #4a3a2a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dash-tab-header h2 i { color: #118b71; }
+
+        .dash-tab-count {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: #118b71;
+            background: rgba(17, 139, 113, 0.08);
+            padding: 6px 14px;
+            border-radius: 20px;
+        }
+
+        /* ═══ فیلترها ═══ */
+        .dash-filters {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .dash-filter {
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: #fbfaf7;
+            border: 1.5px solid rgba(74, 58, 42, 0.08);
+            color: #8b7355;
+            font-size: 0.78rem;
+            font-weight: 700;
+            text-decoration: none;
+            transition: all 0.25s ease;
+            white-space: nowrap;
+        }
+
+        .dash-filter:hover {
+            border-color: #118b71;
+            color: #118b71;
+        }
+
+        .dash-filter.active {
+            background: #118b71;
+            color: #fff;
+            border-color: #118b71;
+            box-shadow: 0 4px 12px rgba(17, 139, 113, 0.25);
+        }
+
+        /* ═══ تب سفرها ═══ */
+        .dash-trips-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .dash-trip-card {
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            background: #fbfaf7;
+            border: 1px solid rgba(74, 58, 42, 0.06);
+            border-radius: 18px;
+            overflow: hidden;
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .dash-trip-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .dash-trip-card.trip-current {
+            background: linear-gradient(180deg, #f0faf6 0%, #e3f5ed 100%);
+            border-color: rgba(17, 139, 113, 0.2);
+        }
+        .dash-trip-card.trip-past {
+            background: linear-gradient(180deg, #fffbf0 0%, #fef7e0 100%);
+            border-color: rgba(244, 166, 42, 0.2);
+        }
+        .dash-trip-card.trip-upcoming {
+            background: linear-gradient(180deg, #f5faff 0%, #eaf4fd 100%);
+            border-color: rgba(33, 150, 243, 0.15);
+        }
+
+        .dash-trip-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            z-index: 3;
+            color: #fff;
+            box-shadow: 0 3px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .trip-current .dash-trip-badge { background: #118b71; }
+        .trip-past .dash-trip-badge { background: #f4a62a; }
+        .trip-upcoming .dash-trip-badge { background: #2196f3; }
+
+        .dash-trip-image {
+            width: 100%;
+            height: 130px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .dash-trip-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .dash-trip-card:hover .dash-trip-image img { transform: scale(1.08); }
+
+        .trip-current .dash-trip-image { border-bottom: 3px solid #118b71; }
+        .trip-past .dash-trip-image { border-bottom: 3px solid #f4a62a; }
+        .trip-upcoming .dash-trip-image { border-bottom: 3px solid #2196f3; }
+
+        .dash-trip-info {
+            padding: 12px 14px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .dash-trip-dates {
+            font-size: 0.8rem;
+            font-weight: 800;
+            color: #4a3a2a;
+            text-align: center;
+            direction: ltr;
+        }
+
+        .dash-trip-meta {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
+            font-size: 0.72rem;
+            color: #8b7355;
+            font-weight: 600;
+        }
+
+        .dash-trip-meta i { color: #118b71; font-size: 0.7rem; }
+
+        /* ═══ تب ذخیره‌شده‌ها ═══ */
+        .dash-favs-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+        }
+
+        .dash-fav-card {
+            position: relative;
+            background: #fff;
+            border: 1px solid rgba(74, 58, 42, 0.06);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .dash-fav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 14px 32px rgba(0, 0, 0, 0.1);
+            border-color: rgba(17, 139, 113, 0.15);
+        }
+
+        .dash-fav-link { display: block; text-decoration: none; color: inherit; }
+
+        .dash-fav-image {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            overflow: hidden;
+            background: #f0f0f0;
+        }
+
+        .dash-fav-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+
+        .dash-fav-card:hover .dash-fav-image img { transform: scale(1.08); }
+
+        .dash-fav-cat {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #118b71;
+            font-size: 10px;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 20px;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .dash-fav-info { padding: 14px 16px 16px; }
+
+        .dash-fav-info h3 {
+            font-size: 1rem;
+            font-weight: 900;
+            color: #4a3a2a;
+            margin-bottom: 6px;
+            line-height: 1.4;
+        }
+
+        .dash-fav-info p {
+            font-size: 0.78rem;
+            color: #8b7355;
+            line-height: 1.7;
+            margin-bottom: 10px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .dash-fav-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 0.7rem;
+            color: #8b7355;
+            font-weight: 600;
+            flex-wrap: wrap;
+            padding-top: 10px;
+            border-top: 1px dashed rgba(74, 58, 42, 0.08);
+        }
+
+        .dash-fav-meta i { color: #118b71; font-size: 0.68rem; }
+
+        .dash-fav-remove {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.95);
+            color: #ff5050;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 13px;
+            transition: all 0.25s ease;
+            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+            z-index: 3;
+        }
+
+        .dash-fav-remove:hover {
+            background: #ff5050;
+            color: #fff;
+            transform: scale(1.1) rotate(8deg);
+        }
+
+        /* ═══ تب نظرات ═══ */
+        .dash-reviews-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .dash-review-card {
+            background: #fbfaf7;
+            border: 1px solid rgba(74, 58, 42, 0.06);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.25s ease;
+        }
+
+        .dash-review-card:hover {
+            border-color: rgba(17, 139, 113, 0.15);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.06);
+        }
+
+        .dash-review-target {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 14px 16px;
+            background: #fff;
+            border-bottom: 1px solid rgba(74, 58, 42, 0.05);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .dash-review-target img {
+            width: 60px;
+            height: 60px;
+            border-radius: 14px;
+            object-fit: cover;
+            flex-shrink: 0;
+            background: #f0f0f0;
+        }
+
+        .dash-review-type {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #118b71;
+            background: rgba(17, 139, 113, 0.08);
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-bottom: 4px;
+        }
+
+        .dash-review-target strong {
+            display: block;
+            font-size: 0.92rem;
+            font-weight: 900;
+            color: #4a3a2a;
+        }
+
+        .dash-review-body { padding: 14px 16px; }
+
+        .dash-review-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+            gap: 10px;
+        }
+
+        .dash-review-stars { color: #f4b400; font-size: 0.9rem; letter-spacing: 2px; }
+
+        .dash-review-time {
+            font-size: 0.7rem;
+            color: #8b7355;
+            background: rgba(74, 58, 42, 0.05);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .dash-review-body p {
+            font-size: 0.85rem;
+            line-height: 1.9;
+            color: #6c5b49;
+        }
+
+        /* ═══ تب پروفایل ═══ */
+        .dash-profile-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 20px;
+        }
+
+        .dash-profile-card {
+            background: #fbfaf7;
+            border: 1px solid rgba(74, 58, 42, 0.06);
+            border-radius: 20px;
+            overflow: hidden;
+        }
+
+        .dash-profile-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            background: #fff;
+            border-bottom: 1px solid rgba(74, 58, 42, 0.06);
+        }
+
+        .dash-profile-header i {
+            width: 34px;
+            height: 34px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .dash-profile-header h3 {
+            font-size: 1rem;
+            font-weight: 900;
+            color: #4a3a2a;
+        }
+
+        .dash-profile-list { padding: 6px 0; }
+
+        .dash-profile-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            border-bottom: 1px dashed rgba(74, 58, 42, 0.06);
+        }
+
+        .dash-profile-item:last-child { border-bottom: none; }
+
+        .dash-profile-item span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.82rem;
+            color: #8b7355;
+            font-weight: 600;
+        }
+
+        .dash-profile-item span i { color: #118b71; width: 16px; }
+
+        .dash-profile-item strong {
+            font-size: 0.85rem;
+            color: #4a3a2a;
+            font-weight: 800;
+        }
+
+        .dash-activity {
+            padding: 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .dash-activity-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 14px;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid rgba(74, 58, 42, 0.04);
+            transition: all 0.25s ease;
+        }
+
+        .dash-activity-item:hover {
+            transform: translateX(-4px);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.05);
+        }
+
+        .dash-activity-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .dash-activity-icon.green { background: linear-gradient(135deg, #118b71, #2a9d8f); }
+        .dash-activity-icon.red { background: linear-gradient(135deg, #ff5050, #ff7a5a); }
+        .dash-activity-icon.blue { background: linear-gradient(135deg, #2196f3, #64b5f6); }
+
+        .dash-activity-info strong {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #4a3a2a;
+            display: block;
+            line-height: 1;
+        }
+
+        .dash-activity-info span {
+            font-size: 0.75rem;
+            color: #8b7355;
+            font-weight: 600;
+        }
+
+        /* ═══ حالت خالی ═══ */
+        .dash-empty {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .dash-empty-icon {
+            width: 90px;
+            height: 90px;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(17, 139, 113, 0.1), rgba(42, 157, 143, 0.05));
+            color: #118b71;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+
+        .dash-empty-icon.heart {
+            background: linear-gradient(135deg, rgba(255, 80, 80, 0.1), rgba(255, 122, 90, 0.05));
+            color: #ff5050;
+        }
+
+        .dash-empty-icon.review {
+            background: linear-gradient(135deg, rgba(33, 150, 243, 0.1), rgba(100, 181, 246, 0.05));
+            color: #2196f3;
+        }
+
+        .dash-empty h3 {
+            font-size: 1.2rem;
+            font-weight: 900;
+            color: #4a3a2a;
+            margin-bottom: 8px;
+        }
+
+        .dash-empty p {
+            font-size: 0.9rem;
+            color: #8b7355;
+            margin-bottom: 24px;
+            max-width: 400px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+
+        .dash-empty-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 13px 26px;
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+            color: #fff;
+            text-decoration: none;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 22px rgba(17, 139, 113, 0.3);
+        }
+
+        .dash-empty-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(17, 139, 113, 0.4);
+        }
+
+        /* ═══ Toast ═══ */
+        .dash-toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 22px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 10px 40px rgba(17, 139, 113, 0.18);
+            border: 2px solid rgba(17, 139, 113, 0.15);
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            min-width: 220px;
+        }
+
+        .dash-toast.show {
+            opacity: 1;
+            visibility: visible;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .dash-toast-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: #fff;
+            flex-shrink: 0;
+            background: linear-gradient(135deg, #118b71, #2a9d8f);
+        }
+
+        .dash-toast.error .dash-toast-icon {
+            background: linear-gradient(135deg, #ff5050, #ff7a5a);
+        }
+
+        .dash-toast-text {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #4a3a2a;
+        }
+
+        /* ═══ ریسپانسیو ═══ */
+        @media (max-width: 992px) {
+            .dash-stats { grid-template-columns: repeat(2, 1fr); }
+            .dash-trips-grid, .dash-favs-grid { grid-template-columns: repeat(2, 1fr); }
+            .dash-profile-grid { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 768px) {
+            .dash-navbar { padding: 12px 16px; }
+            .dash-nav-links { display: none; }
+            .dash-hero { padding: 24px 20px; border-radius: 22px; }
+            .dash-hero-content { flex-direction: column; text-align: center; gap: 16px; }
+            .dash-avatar { width: 80px; height: 80px; border-radius: 20px; }
+            .dash-avatar span { font-size: 2.2rem; }
+            .dash-user-info h1 { font-size: 1.4rem; }
+            .dash-tab-content { padding: 20px 16px; }
+        }
+
+        @media (max-width: 576px) {
+            .dash-stats { grid-template-columns: 1fr 1fr; gap: 10px; }
+            .dash-stat { padding: 14px; gap: 10px; }
+            .dash-stat-icon { width: 42px; height: 42px; font-size: 18px; }
+            .dash-stat-num { font-size: 1.3rem; }
+            .dash-trips-grid, .dash-favs-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body class="dash-body">
+
+    <!-- ═══ نوبار ═══ -->
+    <nav class="dash-navbar">
+        <a href="/" class="dash-logo">
+            <i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
+        </a>
+        <div class="dash-nav-links">
+            <a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
+            <a href="{% url 'plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+            <a href="{% url 'attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+            <a href="{% url 'map' %}"><i class="fas fa-map"></i> نقشه</a>
+            <a href="{% url 'articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+            <a href="{% url 'logout' %}" class="dash-logout">
+                <i class="fas fa-sign-out-alt"></i> خروج
+            </a>
+        </div>
+    </nav>
+
+    <!-- ═══ محتوای داشبورد ═══ -->
+    <main class="dash-main">
+
+        <!-- هدر کاربر -->
+        <section class="dash-hero">
+            <div class="dash-hero-content">
+                <div class="dash-avatar">
+                    <span>{{ user_initial }}</span>
+                    <div class="dash-avatar-badge">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                </div>
+                <div class="dash-user-info">
+                    <h1>{{ user.first_name|default:user.username }} {{ user.last_name|default:'' }}</h1>
+                    <p>
+                        <i class="fas fa-envelope"></i> {{ user.email|default:'-' }}
+                        <span class="dash-sep">•</span>
+                        <i class="fas fa-calendar-alt"></i> عضو از {{ join_date }}
+                    </p>
+                    {% if top_category %}
+                    <div class="dash-user-tag">
+                        <i class="fas fa-heart"></i> علاقه‌مند به <strong>{{ top_category }}</strong>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </section>
+
+        <!-- ۴ کارت آماری -->
+        <section class="dash-stats">
+            <div class="dash-stat trips">
+                <div class="dash-stat-icon"><i class="fas fa-route"></i></div>
+                <div class="dash-stat-info">
+                    <span class="dash-stat-num">{{ total_trips }}</span>
+                    <span class="dash-stat-label">سفر</span>
+                </div>
+            </div>
+            <div class="dash-stat favs">
+                <div class="dash-stat-icon"><i class="fas fa-heart"></i></div>
+                <div class="dash-stat-info">
+                    <span class="dash-stat-num">{{ total_favorites }}</span>
+                    <span class="dash-stat-label">ذخیره‌شده</span>
+                </div>
+            </div>
+            <div class="dash-stat reviews">
+                <div class="dash-stat-icon"><i class="fas fa-comment-dots"></i></div>
+                <div class="dash-stat-info">
+                    <span class="dash-stat-num">{{ total_reviews }}</span>
+                    <span class="dash-stat-label">نظر</span>
+                </div>
+            </div>
+            <div class="dash-stat current">
+                <div class="dash-stat-icon">
+                    {% if current_trip %}<i class="fas fa-bolt"></i>{% else %}<i class="fas fa-hourglass-half"></i>{% endif %}
+                </div>
+                <div class="dash-stat-info">
+                    <span class="dash-stat-num small">{% if current_trip %}فعال{% else %}—{% endif %}</span>
+                    <span class="dash-stat-label">سفر جاری</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- تب‌ها و محتوا -->
+        <section class="dash-tabs-section">
+            <div class="dash-tabs">
+                <a href="?tab=trips" class="dash-tab {% if active_tab == 'trips' %}active{% endif %}">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>سفرهای من</span>
+                    <em>{{ total_trips }}</em>
+                </a>
+                <a href="?tab=favorites" class="dash-tab {% if active_tab == 'favorites' %}active{% endif %}">
+                    <i class="fas fa-heart"></i>
+                    <span>ذخیره‌شده‌ها</span>
+                    <em>{{ total_favorites }}</em>
+                </a>
+                <a href="?tab=reviews" class="dash-tab {% if active_tab == 'reviews' %}active{% endif %}">
+                    <i class="fas fa-comment-dots"></i>
+                    <span>نظرات من</span>
+                    <em>{{ total_reviews }}</em>
+                </a>
+                <a href="?tab=profile" class="dash-tab {% if active_tab == 'profile' %}active{% endif %}">
+                    <i class="fas fa-user-circle"></i>
+                    <span>پروفایل</span>
+                </a>
+            </div>
+
+            <!-- تب سفرها -->
+            {% if active_tab == 'trips' %}
+            <div class="dash-tab-content">
+                <div class="dash-tab-header">
+                    <h2><i class="fas fa-route"></i> سفرهای من</h2>
+                    <div class="dash-filters">
+                        <a href="?tab=trips&filter=all" class="dash-filter {% if trips_filter == 'all' %}active{% endif %}">همه</a>
+                        <a href="?tab=trips&filter=current" class="dash-filter {% if trips_filter == 'current' %}active{% endif %}">جاری</a>
+                        <a href="?tab=trips&filter=upcoming" class="dash-filter {% if trips_filter == 'upcoming' %}active{% endif %}">پیش‌رو</a>
+                        <a href="?tab=trips&filter=past" class="dash-filter {% if trips_filter == 'past' %}active{% endif %}">پایان‌یافته</a>
+                    </div>
+                </div>
+
+                {% if trips %}
+                <div class="dash-trips-grid">
+                    {% for trip in trips %}
+                    <a href="/result/{{ trip.id }}/" class="dash-trip-card trip-{{ trip.status }}">
+                        <div class="dash-trip-badge">
+                            {% if trip.status == 'current' %}<i class="fas fa-bolt"></i> در حال سفر
+                            {% elif trip.status == 'past' %}<i class="fas fa-check"></i> پایان‌یافته
+                            {% else %}<i class="fas fa-clock"></i> پیش‌رو{% endif %}
+                        </div>
+                        <div class="dash-trip-image">
+                            <img src="{{ trip.image }}" alt="سفر" onerror="this.src='/static/img/asiyab-haye-abi.jpg';">
+                        </div>
+                        <div class="dash-trip-info">
+                            <div class="dash-trip-dates">{{ trip.start_jalali }} → {{ trip.end_jalali }}</div>
+                            <div class="dash-trip-meta">
+                                <span><i class="fas fa-hourglass-half"></i> {{ trip.duration_days }} روز</span>
+                                <span><i class="fas fa-users"></i> {{ trip.companions }} نفر</span>
+                            </div>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="dash-empty">
+                    <div class="dash-empty-icon"><i class="fas fa-route"></i></div>
+                    <h3>هنوز سفری نداری!</h3>
+                    <p>با برنامه‌ریز هوشمند، اولین سفرت رو بساز.</p>
+                    <a href="{% url 'plan' %}" class="dash-empty-btn"><i class="fas fa-magic"></i> ساخت برنامه سفر</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- تب ذخیره‌شده‌ها -->
+            {% if active_tab == 'favorites' %}
+            <div class="dash-tab-content">
+                <div class="dash-tab-header">
+                    <h2><i class="fas fa-heart"></i> جاذبه‌های ذخیره‌شده</h2>
+                    <span class="dash-tab-count">{{ total_favorites }} مورد</span>
+                </div>
+
+                {% if favorites %}
+                <div class="dash-favs-grid">
+                    {% for fav in favorites %}
+                    <div class="dash-fav-card">
+                        <a href="{% url 'place_detail' fav.slug %}" class="dash-fav-link">
+                            <div class="dash-fav-image">
+                                <img src="{{ fav.image }}" alt="{{ fav.name }}" onerror="this.src='/static/img/asiyab-haye-abi.jpg';">
+                                {% if fav.category %}<span class="dash-fav-cat">{{ fav.category }}</span>{% endif %}
+                            </div>
+                            <div class="dash-fav-info">
+                                <h3>{{ fav.name }}</h3>
+                                <p>{{ fav.short_description|truncatewords:12 }}</p>
+                                <div class="dash-fav-meta">
+                                    <span><i class="fas fa-star"></i> {{ fav.rating|floatformat:1 }}</span>
+                                    <span><i class="fas fa-clock"></i> {{ fav.duration }} دقیقه</span>
+                                    <span><i class="fas fa-wallet"></i> {% if fav.cost == 0 %}رایگان{% else %}{{ fav.cost }} ت{% endif %}</span>
+                                </div>
+                            </div>
+                        </a>
+                        <button class="dash-fav-remove" data-slug="{{ fav.slug }}" title="حذف">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="dash-empty">
+                    <div class="dash-empty-icon heart"><i class="fas fa-heart"></i></div>
+                    <h3>هنوز جاذبه‌ای ذخیره نکردی!</h3>
+                    <p>جاذبه‌های موردعلاقه‌ات رو ذخیره کن.</p>
+                    <a href="{% url 'attraction' %}" class="dash-empty-btn"><i class="fas fa-compass"></i> کشف جاذبه‌ها</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- تب نظرات -->
+            {% if active_tab == 'reviews' %}
+            <div class="dash-tab-content">
+                <div class="dash-tab-header">
+                    <h2><i class="fas fa-comment-dots"></i> نظرات من</h2>
+                    <span class="dash-tab-count">{{ total_reviews }} نظر</span>
+                </div>
+
+                {% if reviews %}
+                <div class="dash-reviews-list">
+                    {% for review in reviews %}
+                    <div class="dash-review-card">
+                        <a href="{{ review.target.url }}" class="dash-review-target">
+                            <img src="{{ review.target.image }}" alt="{{ review.target.name }}" onerror="this.src='/static/img/asiyab-haye-abi.jpg';">
+                            <div>
+                                <span class="dash-review-type">
+                                    {% if review.target.type == 'place' %}<i class="fas fa-map-marker-alt"></i> جاذبه
+                                    {% else %}<i class="fas fa-newspaper"></i> مقاله{% endif %}
+                                </span>
+                                <strong>{{ review.target.name }}</strong>
+                            </div>
+                        </a>
+                        <div class="dash-review-body">
+                            <div class="dash-review-head">
+                                <div class="dash-review-stars">
+                                    {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+                                </div>
+                                <span class="dash-review-time">{{ review.created_at|timesince }} پیش</span>
+                            </div>
+                            <p>{{ review.comment }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="dash-empty">
+                    <div class="dash-empty-icon review"><i class="fas fa-comment-dots"></i></div>
+                    <h3>هنوز نظری ثبت نکردی!</h3>
+                    <p>نظرت رو درباره جاذبه‌ها به اشتراک بذار.</p>
+                    <a href="{% url 'attraction' %}" class="dash-empty-btn"><i class="fas fa-pen"></i> نوشتن نظر</a>
+                </div>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            <!-- تب پروفایل -->
+            {% if active_tab == 'profile' %}
+            <div class="dash-tab-content">
+                <div class="dash-tab-header">
+                    <h2><i class="fas fa-user-circle"></i> پروفایل من</h2>
+                </div>
+
+                <div class="dash-profile-grid">
+                    <div class="dash-profile-card">
+                        <div class="dash-profile-header">
+                            <i class="fas fa-id-card"></i>
+                            <h3>اطلاعات شخصی</h3>
+                        </div>
+                        <div class="dash-profile-list">
+                            <div class="dash-profile-item">
+                                <span><i class="fas fa-user"></i> نام کاربری</span>
+                                <strong>{{ user.username }}</strong>
+                            </div>
+                            <div class="dash-profile-item">
+                                <span><i class="fas fa-user-tag"></i> نام</span>
+                                <strong>{{ user.first_name|default:'-' }}</strong>
+                            </div>
+                            <div class="dash-profile-item">
+                                <span><i class="fas fa-user-tag"></i> نام خانوادگی</span>
+                                <strong>{{ user.last_name|default:'-' }}</strong>
+                            </div>
+                            <div class="dash-profile-item">
+                                <span><i class="fas fa-envelope"></i> ایمیل</span>
+                                <strong>{{ user.email|default:'-' }}</strong>
+                            </div>
+                            <div class="dash-profile-item">
+                                <span><i class="fas fa-phone"></i> تلفن</span>
+                                <strong>{{ user.phone|default:'-' }}</strong>
+                            </div>
+                            <div class="dash-profile-item">
+                                <span><i class="fas fa-calendar-alt"></i> تاریخ عضویت</span>
+                                <strong>{{ join_date }}</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="dash-profile-card">
+                        <div class="dash-profile-header">
+                            <i class="fas fa-chart-pie"></i>
+                            <h3>خلاصه فعالیت</h3>
+                        </div>
+                        <div class="dash-activity">
+                            <div class="dash-activity-item">
+                                <div class="dash-activity-icon green"><i class="fas fa-route"></i></div>
+                                <div class="dash-activity-info">
+                                    <strong>{{ total_trips }}</strong>
+                                    <span>سفر ساخته‌شده</span>
+                                </div>
+                            </div>
+                            <div class="dash-activity-item">
+                                <div class="dash-activity-icon red"><i class="fas fa-heart"></i></div>
+                                <div class="dash-activity-info">
+                                    <strong>{{ total_favorites }}</strong>
+                                    <span>جاذبه ذخیره‌شده</span>
+                                </div>
+                            </div>
+                            <div class="dash-activity-item">
+                                <div class="dash-activity-icon blue"><i class="fas fa-comment-dots"></i></div>
+                                <div class="dash-activity-info">
+                                    <strong>{{ total_reviews }}</strong>
+                                    <span>نظر ثبت‌شده</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+        </section>
+
+    </main>
+
+    <!-- Toast -->
+    <div class="dash-toast" id="dashToast">
+        <div class="dash-toast-icon"><i class="fas fa-check"></i></div>
+        <div class="dash-toast-text" id="dashToastText">انجام شد!</div>
+    </div>
+
+    <script>
+        // ═══ حذف از ذخیره‌شده‌ها ═══
+        (function() {
+            function getCookie(name) {
+                let v = null;
+                if (document.cookie && document.cookie !== '') {
+                    const cookies = document.cookie.split(';');
+                    for (let i = 0; i < cookies.length; i++) {
+                        const c = cookies[i].trim();
+                        if (c.substring(0, name.length + 1) === (name + '=')) {
+                            v = decodeURIComponent(c.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return v;
+            }
+
+            function toast(msg, type) {
+                type = type || 'success';
+                const t = document.getElementById('dashToast');
+                const txt = document.getElementById('dashToastText');
+                const ic = t.querySelector('.dash-toast-icon i');
+                txt.textContent = msg;
+                t.classList.remove('error');
+                if (type === 'error') {
+                    t.classList.add('error');
+                    ic.className = 'fas fa-exclamation-circle';
+                } else {
+                    ic.className = 'fas fa-check';
+                }
+                t.classList.add('show');
+                clearTimeout(window._dt);
+                window._dt = setTimeout(() => t.classList.remove('show'), 2500);
+            }
+
+            document.querySelectorAll('.dash-fav-remove').forEach(btn => {
+                btn.addEventListener('click', async function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    if (!confirm('این جاذبه از ذخیره‌شده‌ها حذف بشه؟')) return;
+                    const slug = this.dataset.slug;
+                    const card = this.closest('.dash-fav-card');
+                    try {
+                        const res = await fetch(`/favorite/${slug}/toggle/`, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRFToken': getCookie('csrftoken'),
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        });
+                        const data = await res.json();
+                        if (data.status === 'removed') {
+                            card.style.transition = 'all 0.3s ease';
+                            card.style.opacity = '0';
+                            card.style.transform = 'scale(0.9)';
+                            setTimeout(() => {
+                                card.remove();
+                                toast('از ذخیره‌شده‌ها حذف شد');
+                                if (document.querySelectorAll('.dash-fav-card').length === 0) {
+                                    setTimeout(() => location.reload(), 800);
+                                }
+                            }, 300);
+                        }
+                    } catch (err) {
+                        console.error(err);
+                        toast('خطا در ارتباط با سرور', 'error');
+                    }
+                });
+            });
+        })();
+    </script>
+
+</body>
+</html>

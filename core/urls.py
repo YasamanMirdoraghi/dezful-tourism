@@ -15,18 +15,22 @@ urlpatterns = [
     path('plan/save/', views.save_trip, name='save_trip'),
     path('plan/<int:trip_id>/load/', views.load_trip, name='load_trip'),
     path('contact/', views.contact_page, name='contact'),
+    path('place/<slug:slug>/review/', views.submit_place_review, name='submit_place_review'),
 
-    # core/urls.py
-    path('place/<slug:slug>/review/', views.submit_place_review, name='submit_place_review'), 
-    
     # ===== مسیرهای احراز هویت =====
     path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
     path('logout/', views.logout_view, name='logout'),
     path('register/', views.register_page, name='register'),
-    
-    # ✅ صفحه نتیجه سفر شخصی
+
+    # ✅ صفحه نتیجه سفر
     path('result/<int:trip_id>/', views.trip_result_page, name='trip_result'),
-    
-    # ✅ جدید: صفحه جزئیات پلن پیشنهادی (باید آخر باشه که با plan/ تداخل نکنه)
+
+    # ✅ جدید: صفحه جزئیات پلن پیشنهادی
     path('plan/<slug:slug>/', views.plan_detail_page, name='plan_detail'),
+    
+    # ✅ داشبورد کاربر
+    path('dashboard/', views.dashboard_page, name='dashboard'),
+    
+    # ✅ ذخیره/حذف جاذبه از علاقه‌مندی (AJAX)
+    path('favorite/<slug:slug>/toggle/', views.toggle_favorite, name='toggle_favorite'),
 ]

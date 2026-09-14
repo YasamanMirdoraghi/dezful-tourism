@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 
-<body id="articlePage">
+<body id="articlePage" data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
   <div class="article-reading-progress"><span></span></div>
 
  	<!-- ===== هدر ===== -->
@@ -263,14 +263,19 @@
         </div>
       </div>
       <div class="comments-grid">
-        <form class="comment-form-card" method="POST" action="{% url 'submit_review' article.slug %}">
-          {% csrf_token %}
-          <div class="form-icon"><i class="far fa-comment-dots"></i></div>
-          <h3>تجربه‌ات را با ما به اشتراک بگذار</h3>
-          <p>نظر تو می‌تواند به مسافر بعدی برای انتخاب بهتر کمک کند.</p>
-          <textarea name="comment" rows="5" placeholder="نظرت درباره این مقاله چیست؟"></textarea>
-          <button type="submit">ثبت نظر <i class="fas fa-paper-plane"></i></button>
-        </form>
+      {% if not user.is_authenticated %}
+<button type="button" class="comment-form-card" style="border: none; cursor: pointer; width: 100%; text-align: right;" onclick="showLoginModal({
+    title: 'برای ثبت نظر اول وارد شو!',
+    message: 'برای ثبت نظر درباره این مقاله، لطفاً ابتدا وارد حساب کاربری خودت شو یا ثبت‌نام کن.'
+})">
+    <div class="form-icon"><i class="far fa-comment-dots"></i></div>
+    <h3>تجربه‌ات را با ما به اشتراک بگذار</h3>
+    <p>برای ثبت نظر، اول باید وارد حساب کاربری خودت بشی.</p>
+    <span style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; background: #118b71; color: #fff; border-radius: 14px; font-weight: 800; margin-top: 12px;">
+        <i class="fas fa-sign-in-alt"></i> ورود به حساب
+    </span>
+</button>
+{% endif %}
         <div class="comments-list">
           {% for review in reviews %}
           <article class="comment-item">
@@ -332,7 +337,7 @@
   </footer>
 
   <button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
-
+<script src="{% static 'js/login-modal.js' %}"></script>
   <script src="{% static 'js/script.js' %}"></script>
 
   <script>

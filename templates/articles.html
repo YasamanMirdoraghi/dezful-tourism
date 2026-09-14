@@ -542,7 +542,7 @@
 	</style>
 </head>
 
-<body>
+<body data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
 
 	<header class="navbar" id="navbar">
 		<div class="logo">
@@ -821,7 +821,7 @@
 	<button class="scroll-top" id="scrollTop">
 		<i class="fas fa-chevron-up"></i>
 	</button>
-
+<script src="{% static 'js/login-modal.js' %}"></script>
 	<script src="{% static 'js/articles.js' %}"></script>
 	<script src="{% static 'js/script.js' %}"></script>
 

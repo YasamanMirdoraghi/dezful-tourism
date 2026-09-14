@@ -295,3 +295,87 @@ if (scrollBtn) {
 	window.addEventListener('scroll', function () { scrollBtn.classList.toggle('visible', window.scrollY > 400); });
 	scrollBtn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
 }
+
+function getCookie(name) {
+	let cookieValue = null;
+	if (document.cookie && document.cookie !== '') {
+		const cookies = document.cookie.split(';');
+		for (let i = 0; i < cookies.length; i++) {
+			const cookie = cookies[i].trim();
+			if (cookie.substring(0, name.length + 1) === (name + '=')) {
+				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+				break;
+			}
+		}
+	}
+	return cookieValue;
+}
+
+// ═══════════════════════════════════════════════════════════
+// Toast
+// ═══════════════════════════════════════════════════════════
+function showToast(message, type = 'success') {
+	const toast = document.getElementById('customToast');
+	const toastText = document.getElementById('customToastText');
+	const toastIcon = toast.querySelector('.custom-toast-icon i');
+
+	toastText.textContent = message;
+	toast.classList.remove('success', 'error', 'info');
+	toast.classList.add(type);
+
+	if (type === 'success') toastIcon.className = 'fas fa-check';
+	else if (type === 'error') toastIcon.className = 'fas fa-exclamation-circle';
+	else if (type === 'info') toastIcon.className = 'fas fa-info-circle';
+
+	toast.classList.add('show');
+	clearTimeout(window._toastTimeout);
+	window._toastTimeout = setTimeout(() => {
+		toast.classList.remove('show');
+	}, 2500);
+}
+
+// ═══════════════════════════════════════════════════════════
+// حذف از ذخیره‌شده‌ها
+// ═══════════════════════════════════════════════════════════
+document.querySelectorAll('.dash-fav-remove').forEach(btn => {
+	btn.addEventListener('click', async function (e) {
+		e.preventDefault();
+		e.stopPropagation();
+
+		const slug = this.dataset.slug;
+		const card = this.closest('.dash-fav-card');
+
+		if (!confirm('این جاذبه از ذخیره‌شده‌ها حذف بشه؟')) return;
+
+		try {
+			const response = await fetch(`/favorite/${slug}/toggle/`, {
+				method: 'POST',
+				headers: {
+					'X-CSRFToken': getCookie('csrftoken'),
+					'X-Requested-With': 'XMLHttpRequest'
+				}
+			});
+
+			const data = await response.json();
+
+			if (data.status === 'removed') {
+				card.style.transition = 'all 0.3s ease';
+				card.style.opacity = '0';
+				card.style.transform = 'scale(0.9)';
+				setTimeout(() => {
+					card.remove();
+					showToast('از ذخیره‌شده‌ها حذف شد', 'success');
+
+					if (document.querySelectorAll('.dash-fav-card').length === 0) {
+						setTimeout(() => location.reload(), 800);
+					}
+				}, 300);
+			} else {
+				showToast('خطا در حذف', 'error');
+			}
+		} catch (err) {
+			console.error(err);
+			showToast('خطا در ارتباط با سرور', 'error');
+		}
+	});
+});

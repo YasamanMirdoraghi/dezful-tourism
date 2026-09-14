@@ -11,7 +11,7 @@
 	<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 </head>
 
-<body class="page-plan">
+<body class="page-plan" data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
 
 	<nav class="navbar" id="navbar">
 		<div class="logo">
@@ -58,7 +58,18 @@
 				<h1><i class="fas fa-route"></i> برنامه‌ریز هوشمند سفر به دزفول</h1>
 				<p>با چند کلیک ساده، برنامه سفر اختصاصی خودت رو بساز</p>
 			</div>
-
+{% if not user.is_authenticated %}
+<div class="login-banner-wrapper">
+    <div class="login-banner">
+        <div class="login-banner-icon">
+            <i class="fas fa-info"></i>
+        </div>
+        <div class="login-banner-text">
+            <strong>توجه:</strong> برای ساخت و ذخیره برنامه، ابتدا وارد شوید.
+        </div>
+    </div>
+</div>
+{% endif %}
 			<div class="wizard" id="planWizard">
 
 				<div class="step-indicators">
@@ -70,38 +81,75 @@
 					<span class="step-line"></span>
 					<div class="step-item" data-step="4"><span class="step-dot"></span></div>
 				</div>
-
 				{% if user_trips %}
 				<div class="previous-trips">
-					<h3><i class="fas fa-history"></i> سفرهای اخیر شما</h3>
-					<div class="trips-list">
-						{% for trip in user_trips %}
-						<div class="trip-item">
-							<div class="trip-icon"><i class="fas fa-route"></i></div>
-							<div>
-								<strong>سفر از {{ trip.start_date|date:"Y/m/d" }} تا {{ trip.end_date|date:"Y/m/d" }}</strong>
-								<span>{{ trip.duration_days }} روز - {{ trip.companions }} نفر</span>
-							</div>
-							<a href="/result/{{ trip.id }}/" class="load-trip-btn">
-								<i class="fas fa-eye"></i> مشاهده برنامه
-							</a>
-						</div>
-						{% endfor %}
+					<div class="previous-trips-header">
+						<h3><i class="fas fa-history"></i> برنامه‌های شما</h3>
+						<span class="trips-count">{{ user_trips|length }} برنامه</span>
 					</div>
+
+					<div class="trips-slider-wrapper">
+						<button class="trips-slider-btn trips-prev" id="tripsPrev" aria-label="قبلی">
+							<i class="fas fa-chevron-right"></i>
+						</button>
+
+						<div class="trips-slider-viewport" id="tripsViewport">
+							<div class="trips-slider-track" id="tripsTrack">
+								{% for trip in user_trips %}
+								<a href="/result/{{ trip.id }}/" class="trip-card trip-{{ trip.status }}">
+									<div class="trip-status-badge">
+										{% if trip.status == 'current' %}
+										<i class="fas fa-bolt"></i> در حال سفر
+										{% elif trip.status == 'past' %}
+										<i class="fas fa-check"></i> به پایان رسیده
+										{% else %}
+										<i class="fas fa-clock"></i> پیش‌رو
+										{% endif %}
+									</div>
+
+									<div class="trip-card-image">
+										<img src="{{ trip.image }}" alt="سفر"
+											onerror="this.onerror=null; this.src='/static/img/asiyab-haye-abi.jpg';">
+									</div>
+
+									<div class="trip-card-info">
+										<div class="trip-card-dates">
+											{{ trip.start_jalali }} تا {{ trip.end_jalali }}
+										</div>
+										<div class="trip-card-meta">
+											<span><i class="fas fa-hourglass-half"></i> {{ trip.duration_days }}
+												روز</span>
+											<span><i class="fas fa-users"></i> {{ trip.companions }} نفر</span>
+										</div>
+									</div>
+								</a>
+								{% endfor %}
+							</div>
+						</div>
+
+						<button class="trips-slider-btn trips-next" id="tripsNext" aria-label="بعدی">
+							<i class="fas fa-chevron-left"></i>
+						</button>
+					</div>
+
+					<div class="trips-slider-dots" id="tripsDots"></div>
 				</div>
 				{% endif %}
 
 				<div class="wizard-top">
-					<h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن</h2>
+					<h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن
+					</h2>
 				</div>
 
 				<!-- مرحله ۱: تقویم -->
 				<div class="wz-step active" data-step="1">
 					<div class="cal-card">
 						<div class="cal-header">
-							<button class="cal-nav" id="calPrev" aria-label="ماه قبل"><i class="fas fa-chevron-right"></i></button>
+							<button class="cal-nav" id="calPrev" aria-label="ماه قبل"><i
+									class="fas fa-chevron-right"></i></button>
 							<h3 id="calTitle">فروردین ۱۴۰۵</h3>
-							<button class="cal-nav next" id="calNext" aria-label="ماه بعد"><i class="fas fa-chevron-left"></i></button>
+							<button class="cal-nav next" id="calNext" aria-label="ماه بعد"><i
+									class="fas fa-chevron-left"></i></button>
 						</div>
 						<div class="cal-weekdays">
 							<span>شنبه</span><span>یکشنبه</span><span>دوشنبه</span>
@@ -139,16 +187,19 @@
 					</div>
 					<a class="clear-link" id="clearInterests">پاک کردن انتخاب‌ها</a>
 					<div class="interest-grid">
-    {% for cat in categories %}
-    <button type="button" class="interest-card" data-value="{{ cat.name }}" data-maps="{{ cat.slug }}">
-        <span class="ic-check" style="background: {{ cat.color|default:'#118b71' }};"><i class="fas fa-check"></i></span>
-        <span class="ic-emoji" style="color: {{ cat.color|default:'#118b71' }};">
-            {% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i class="fas fa-map-marker-alt"></i>{% endif %}
-        </span>
-        <span class="ic-label">{{ cat.name }}</span>
-    </button>
-    {% endfor %}
-</div>
+						{% for cat in categories %}
+						<button type="button" class="interest-card" data-value="{{ cat.name }}"
+							data-maps="{{ cat.slug }}">
+							<span class="ic-check" style="background: {{ cat.color|default:'#118b71' }};"><i
+									class="fas fa-check"></i></span>
+							<span class="ic-emoji" style="color: {{ cat.color|default:'#118b71' }};">
+								{% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i
+									class="fas fa-map-marker-alt"></i>{% endif %}
+							</span>
+							<span class="ic-label">{{ cat.name }}</span>
+						</button>
+						{% endfor %}
+					</div>
 					<div class="wz-hint" id="wzHint"></div>
 				</div>
 
@@ -217,7 +268,8 @@
 						</div>
 						<div class="rv-row">
 							<div class="rv-icon green"><i class="fas fa-info-circle"></i></div>
-							<div><span class="rv-label">جزئیات</span><span class="rv-value" id="rvDetails">-</span></div>
+							<div><span class="rv-label">جزئیات</span><span class="rv-value" id="rvDetails">-</span>
+							</div>
 						</div>
 					</div>
 					<div class="review-note">اگر همه‌چیز درست است، «ساخت برنامه» را بزن.</div>
@@ -227,7 +279,8 @@
 					<button type="button" class="wz-prev" id="wizPrev" style="visibility: hidden;">
 						<i class="fas fa-arrow-right"></i> مرحله قبل
 					</button>
-					<button type="button" class="wz-next" id="wizNext">مرحله بعد <i class="fas fa-arrow-left"></i></button>
+					<button type="button" class="wz-next" id="wizNext">مرحله بعد <i
+							class="fas fa-arrow-left"></i></button>
 				</div>
 			</div>
 		</div>
@@ -278,7 +331,7 @@
 	</footer>
 
 	<button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
-
+	<script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.2.0/dist/jalaali.min.js"></script>
 	<script>
 		// ═══════════════════════════════════════════════════════════
 		// داده‌های داینامیک
@@ -396,6 +449,51 @@
 			const WDAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
 
 			function jWeekday(jy, jm, jd) {
+				// از Intl برای گرفتن روز هفته استفاده می‌کنیم
+				// تاریخ رو به Intl می‌دیم، اون خودش تبدیل می‌کنه
+
+				// روش: با یک تاریخ مرجع شروع می‌کنیم و روز به روز جلو میریم
+				// تا به تاریخ هدف برسیم (سریع‌تر از جستجوی کورکورانه)
+
+				const fmt = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', {
+					year: 'numeric', month: 'numeric', day: 'numeric'
+				});
+
+				// تاریخ مرجع: امروز
+				const today = new Date();
+				const todayParts = fmt.formatToParts(today);
+				const todayJy = +todayParts.find(p => p.type === 'year').value;
+				const todayJm = +todayParts.find(p => p.type === 'month').value;
+				const todayJd = +todayParts.find(p => p.type === 'day').value;
+
+				// تعداد روزهای اختلاف رو تخمین می‌زنیم
+				const daysDiff = Math.round(
+					(jy - todayJy) * 365.2425 +
+					(jm - todayJm) * 30.44 +
+					(jd - todayJd)
+				);
+
+				// تاریخ هدف
+				const targetDate = new Date(today);
+				targetDate.setDate(today.getDate() + daysDiff);
+
+				// اصلاح ±۵ روز
+				for (let offset = -5; offset <= 5; offset++) {
+					const tryDate = new Date(targetDate);
+					tryDate.setDate(targetDate.getDate() + offset);
+
+					const parts = fmt.formatToParts(tryDate);
+					const ty = +parts.find(p => p.type === 'year').value;
+					const tm = +parts.find(p => p.type === 'month').value;
+					const td = +parts.find(p => p.type === 'day').value;
+
+					if (ty === jy && tm === jm && td === jd) {
+						const day = tryDate.getDay();
+						return (day + 1) % 7;
+					}
+				}
+
+				// fallback: اگه پیدا نشد، از روش قدیمی استفاده کن
 				const g = d2g(j2d(jy, jm, jd));
 				return (new Date(g.gy, g.gm - 1, g.gd).getDay() + 1) % 7;
 			}
@@ -556,6 +654,14 @@
 
 			$('wizPrev').addEventListener('click', () => goWiz(Math.max(1, wizStep - 1)));
 			$('wizNext').addEventListener('click', () => {
+				if (wizStep === 4 && !window.isUserAuthenticated()) {
+					window.showLoginModal({
+						title: 'برای ساخت برنامه اول وارد شو!',
+						message: 'برای ساختن برنامه سفر شخصی، لازمه اول وارد حساب کاربری خودت بشی.',
+						nextUrl: window.location.pathname
+					});
+					return;
+				}
 				if (wizStep === 1 && (!tripStart || !tripEnd)) {
 					$('dateHint').textContent = 'لطفاً روز شروع و پایان سفر را انتخاب کنید.';
 					return;
@@ -920,6 +1026,15 @@
 			// ذخیره سفر
 			// ═══════════════════════════════════════════
 			function submitPlan() {
+
+				if (!window.isUserAuthenticated()) {
+					window.showLoginModal({
+						title: 'برای ساخت برنامه اول وارد شو!',
+						message: 'برای ساختن برنامه سفر شخصی، لازمه اول وارد حساب کاربری خودت بشی. سفرت بعد از ورود ذخیره می‌شه.',
+						nextUrl: window.location.pathname
+					});
+					return;
+				}
 				const sel = interestBtns.filter(b => b.classList.contains('selected'));
 				if (!sel.length) { alert('لطفاً حداقل یک علاقه‌مندی انتخاب کنید.'); return; }
 				if (!tripStart || !tripEnd) { alert('لطفاً تاریخ سفر را انتخاب کنید.'); return; }
@@ -960,19 +1075,19 @@
 					body: formData,
 					headers: { 'X-Requested-With': 'XMLHttpRequest' }
 				})
-				.then(r => r.json())
-				.then(data => {
-					if (data.status === 'ok' && data.redirect_url) {
-						window.location.href = data.redirect_url;
-					} else {
-						alert('خطا در ذخیره سفر');
-					}
-				})
-				.catch(err => {
-					console.error('❌ خطا:', err);
-					// اگه fetch کار نکرد، روش قدیمی
-					form.submit();
-				});
+					.then(r => r.json())
+					.then(data => {
+						if (data.status === 'ok' && data.redirect_url) {
+							window.location.href = data.redirect_url;
+						} else {
+							alert('خطا در ذخیره سفر');
+						}
+					})
+					.catch(err => {
+						console.error('❌ خطا:', err);
+						// اگه fetch کار نکرد، روش قدیمی
+						form.submit();
+					});
 			}
 
 			// ═══════════════════════════════════════════
@@ -997,7 +1112,112 @@
 			if (closeBtn) closeBtn.addEventListener('click', e => { e.stopPropagation(); if (navLinks.classList.contains('active')) toggleMenu(); });
 			if (overlay) overlay.addEventListener('click', () => { if (navLinks.classList.contains('active')) toggleMenu(); });
 		})();
+		// ═══════════════════════════════════════════════════════════
+		// اسلایدر سفرهای اخیر (نسخه‌ی Grid - تضمینی)
+		// ═══════════════════════════════════════════════════════════
+		(function () {
+			const track = document.getElementById('tripsTrack');
+			const viewport = document.getElementById('tripsViewport');
+			const prevBtn = document.getElementById('tripsPrev');
+			const nextBtn = document.getElementById('tripsNext');
+			const dotsContainer = document.getElementById('tripsDots');
+
+			if (!track || !viewport || !prevBtn || !nextBtn || !dotsContainer) return;
+
+			const slides = track.querySelectorAll('.trip-card');
+			if (slides.length === 0) return;
+
+			let currentIndex = 0;
+
+			function getVisibleCount() {
+				const w = window.innerWidth;
+				if (w >= 1200) return 3;
+				if (w >= 700) return 2;
+				return 1;
+			}
+
+			function updateLayout() {
+				const visible = getVisibleCount();
+				const total = slides.length;
+				const maxIdx = Math.max(0, total - visible);
+
+				// ✅ تنظیم Grid
+				track.style.display = 'grid';
+				track.style.gridTemplateColumns = `repeat(${total}, calc((100% - ${(visible - 1) * 12}px) / ${visible}))`;
+				track.style.gap = '12px';
+				track.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+
+				if (currentIndex > maxIdx) currentIndex = maxIdx;
+				updateTransform();
+				updateDots(maxIdx);
+				updateButtons(maxIdx);
+			}
+
+			function updateTransform() {
+				const visible = getVisibleCount();
+				const cardWidth = slides[0].getBoundingClientRect().width;
+				const gap = 12;
+				const offset = currentIndex * (cardWidth + gap);
+				track.style.transform = `translateX(${offset}px)`;
+			}
+
+			function updateDots(maxIdx) {
+				dotsContainer.innerHTML = '';
+				if (maxIdx === 0) return;
+
+				for (let i = 0; i <= maxIdx; i++) {
+					const btn = document.createElement('button');
+					btn.type = 'button';
+					if (i === currentIndex) btn.classList.add('active');
+					btn.addEventListener('click', () => {
+						currentIndex = i;
+						updateTransform();
+						updateDots(maxIdx);
+						updateButtons(maxIdx);
+					});
+					dotsContainer.appendChild(btn);
+				}
+			}
+
+			function updateButtons(maxIdx) {
+				prevBtn.disabled = currentIndex === 0;
+				nextBtn.disabled = currentIndex >= maxIdx;
+			}
+
+			prevBtn.addEventListener('click', () => {
+				if (currentIndex > 0) {
+					currentIndex--;
+					const maxIdx = slides.length - getVisibleCount();
+					updateTransform();
+					updateDots(maxIdx);
+					updateButtons(maxIdx);
+				}
+			});
+
+			nextBtn.addEventListener('click', () => {
+				const maxIdx = slides.length - getVisibleCount();
+				if (currentIndex < maxIdx) {
+					currentIndex++;
+					updateTransform();
+					updateDots(maxIdx);
+					updateButtons(maxIdx);
+				}
+			});
+
+			let resizeTimer;
+			window.addEventListener('resize', () => {
+				clearTimeout(resizeTimer);
+				resizeTimer = setTimeout(() => {
+					currentIndex = 0;
+					updateLayout();
+				}, 200);
+			});
+
+			// شروع
+			updateLayout();
+		})();
 	</script>
+	<script src="{% static 'js/login-modal.js' %}"></script>
 	<script src="{% static 'js/script.js' %}"></script>
 </body>
 
