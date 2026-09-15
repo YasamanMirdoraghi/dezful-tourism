@@ -731,7 +731,6 @@ def map_page(request):
 
     places_json = []
     for place in places:
-        # ✅ دسته اصلی و زیرمجموعه با محافظت کامل
         cat_name = ''
         cat_color = '#118b71'
         parent_cat_name = ''
@@ -748,7 +747,6 @@ def map_page(request):
                     parent_cat_name = parent.name or ''
                     parent_color = parent.color or '#118b71'
                 else:
-                    # اگه زیرمجموعه نداره، خودش دسته اصلیه
                     parent_cat_name = cat_name
                     parent_color = cat_color
         except Exception as e:
@@ -758,9 +756,9 @@ def map_page(request):
             'id': place.id,
             'name': place.name or '',
             'slug': place.slug or '',
-            'cat': cat_name,                    # زیرمجموعه (نمایش)
-            'parent_cat': parent_cat_name,      # دسته اصلی (فیلتر + رنگ)
-            'color': parent_color,              # رنگ دسته اصلی
+            'cat': cat_name,
+            'parent_cat': parent_cat_name,
+            'color': parent_color,
             'sub': place.short_description or '',
             'cost': place.cost_toman or 0,
             'duration': place.duration_minutes or 60,
@@ -798,6 +796,18 @@ def map_page(request):
                 'is_plan': False,
             }
 
+    # ═══════════════════════════════════════════════════════
+    # ✅ اینجا favorite_ids رو تعریف کن (قبل از return)
+    # ═══════════════════════════════════════════════════════
+    favorite_ids = []
+    if request.user.is_authenticated:
+        favorite_ids = list(
+            UserFavorite.objects.filter(
+                user=request.user
+            ).values_list('place_id', flat=True)
+        )
+    print(f'❤️ User: {request.user} | Favorites: {favorite_ids}')  # ← برای دیباگ
+
     return render(request, 'map.html', {
         'places': places,
         'places_json': json.dumps(places_json, ensure_ascii=False),
@@ -805,8 +815,8 @@ def map_page(request):
         'trip_mode': bool(trip_data),
         'is_plan_mode': is_plan_mode,
         'plan': plan_data,
+        'favorite_ids': json.dumps(favorite_ids),  # ✅ حالا تعریف شده
     })
-
 
 # ==========================================================
 # بارگذاری سفر

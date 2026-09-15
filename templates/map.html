@@ -14,7 +14,7 @@
 
 <style>
 /* ═══════════════════════════════════════════════════════════
-   نقشه - نسخه‌ی نهایی (کلاستر کوچیک + لیبل دائمی + فیلتر کشویی)
+   نقشه - نسخه‌ی نهایی (بدون zoom control)
    ═══════════════════════════════════════════════════════════ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -27,7 +27,6 @@ body.page-map {
     direction: rtl;
 }
 
-/* ═══ نوبار ═══ */
 .page-map .navbar {
     position: fixed;
     top: 0; left: 0; right: 0;
@@ -39,7 +38,6 @@ body.page-map {
 }
 .page-map .float-home { display: none !important; }
 
-/* ═══ ساختار اصلی ═══ */
 .page-map .map-layout {
     position: fixed;
     top: 70px;
@@ -173,17 +171,13 @@ body.page-map {
 .sug-item .sug-name { font-weight: 700; font-size: 13px; color: #4a3a2a; }
 .sug-item .sug-cat { font-size: 11px; color: #8b7355; }
 
-/* ═══════════════════════════════════════════════════════════
-   🎯 فیلتر سریع - کشویی (Accordion)
-   ═══════════════════════════════════════════════════════════ */
+/* ═══ فیلتر سریع ═══ */
 .quick-filters {
     border-bottom: 1px solid #f1ece3;
     background: #faf9f7;
     flex-shrink: 0;
     transition: all 0.3s ease;
 }
-
-/* هدر فیلتر - کلیک‌پذیر */
 .qf-header {
     padding: 12px 16px;
     cursor: pointer;
@@ -193,9 +187,7 @@ body.page-map {
     user-select: none;
     transition: background 0.2s;
 }
-.qf-header:hover {
-    background: rgba(17,139,113,.04);
-}
+.qf-header:hover { background: rgba(17,139,113,.04); }
 .qf-header-title {
     font-size: 12px;
     font-weight: 800;
@@ -204,10 +196,7 @@ body.page-map {
     align-items: center;
     gap: 8px;
 }
-.qf-header-title i {
-    color: #118b71;
-    font-size: 13px;
-}
+.qf-header-title i { color: #118b71; font-size: 13px; }
 .qf-header-title .qf-active-count {
     background: #118b71;
     color: #fff;
@@ -217,13 +206,9 @@ body.page-map {
     border-radius: 10px;
     margin-right: 4px;
 }
-.qf-header-title .qf-active-count:empty {
-    display: none;
-}
-
+.qf-header-title .qf-active-count:empty { display: none; }
 .qf-toggle-icon {
-    width: 24px;
-    height: 24px;
+    width: 24px; height: 24px;
     border-radius: 8px;
     background: rgba(17,139,113,.08);
     color: #118b71;
@@ -233,11 +218,8 @@ body.page-map {
     font-size: 11px;
     transition: transform 0.3s ease, background 0.2s;
 }
-.qf-header:hover .qf-toggle-icon {
-    background: rgba(17,139,113,.15);
-}
+.qf-header:hover .qf-toggle-icon { background: rgba(17,139,113,.15); }
 
-/* بدنه فیلتر - بسته به‌طور پیش‌فرض */
 .qf-body {
     max-height: 0;
     overflow: hidden;
@@ -248,11 +230,7 @@ body.page-map {
     max-height: 400px;
     padding: 0 16px 14px;
 }
-
-/* وقتی بازه، آیکون می‌چرخه */
-.quick-filters.open .qf-toggle-icon {
-    transform: rotate(180deg);
-}
+.quick-filters.open .qf-toggle-icon { transform: rotate(180deg); }
 
 .qf-actions {
     display: flex;
@@ -512,9 +490,11 @@ body.page-map {
     margin-bottom: 10px;
 }
 
+/* ═══ دکمه toggle سایدبار ═══ */
 .sb-toggle {
-    position: absolute;
-    top: 20px; right: 20px;
+    position: fixed;
+    top: 90px;
+    right: 16px;
     width: 48px; height: 48px;
     border-radius: 50%;
     background: #fff;
@@ -522,60 +502,80 @@ body.page-map {
     border: none;
     box-shadow: 0 6px 20px rgba(0,0,0,.18);
     cursor: pointer;
-    z-index: 900;
+    z-index: 950;
     display: none;
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    transition: .2s;
+    transition: all .25s ease;
 }
-.sb-toggle:hover { transform: scale(1.08); }
+.sb-toggle:hover {
+    transform: scale(1.08);
+    background: #118b71;
+    color: #fff;
+}
 .sb-toggle.show { display: flex; }
 
-/* ═══ چیپ‌های شناور روی نقشه ═══ */
-.map-day-chips {
-    position: absolute;
-    bottom: 20px; left: 50%;
-    transform: translateX(-50%);
+/* ═══ چیپ‌های روز ═══ */
+#mapDayChips {
+    position: absolute !important;
+    bottom: 24px !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
     display: none;
-    gap: 8px;
-    z-index: 1000;
-    background: rgba(255, 255, 255, 0.92);
-    backdrop-filter: blur(6px);
-    padding: 6px 10px;
-    border-radius: 40px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    gap: 8px !important;
+    z-index: 1100 !important;
+    background: rgba(255, 255, 255, 0.97) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 8px 12px !important;
+    border-radius: 40px !important;
+    box-shadow: 0 8px 28px rgba(0, 0, 0, 0.18) !important;
+    border: 1px solid rgba(17, 139, 113, 0.1);
     overflow-x: auto;
     max-width: 92%;
+    pointer-events: auto;
 }
-.map-day-chips.show { display: flex; }
-.map-chip {
-    border: 1px solid #e5e5e5;
+#mapDayChips.show,
+#mapDayChips[style*="display: flex"] {
+    display: flex !important;
+}
+#mapDayChips .map-chip {
+    border: 1.5px solid #e5e5e5;
     background: #fff;
     color: #4a3a2a;
     border-radius: 30px;
-    padding: 7px 16px;
-    font-family: inherit;
+    padding: 8px 18px;
+    font-family: 'Vazirmatn', sans-serif;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
     white-space: nowrap;
     transition: 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
 }
-.map-chip:hover:not(.active) {
+#mapDayChips .map-chip:hover:not(.active) {
     background: rgba(17, 139, 113, 0.06);
     border-color: #118b71;
+    transform: translateY(-1px);
 }
-.map-chip.active {
+#mapDayChips .map-chip.active {
     background: #118b71;
     color: #fff;
     border-color: #118b71;
+    box-shadow: 0 4px 12px rgba(17, 139, 113, 0.3);
 }
 
-/* ═══ کنترل‌ها ═══ */
+/* ═══════════════════════════════════════════════════════════
+   ✅ کنترل‌های نقشه - ستون سمت چپ
+   ═══════════════════════════════════════════════════════════ */
 .map-controls {
     position: absolute;
-    left: 20px; bottom: 30px;
+    left: 20px;
+    bottom: 30px;
     z-index: 800;
     display: flex;
     flex-direction: column;
@@ -599,6 +599,12 @@ body.page-map {
 .mc-btn.active { background: #118b71; color: #fff; }
 .mc-btn.locate { color: #ff5050; }
 
+/* ✅ کلاً zoom control رو مخفی می‌کنیم */
+.leaflet-control-zoom {
+    display: none !important;
+}
+
+/* ═══ لایه‌ها ═══ */
 .layer-switcher {
     position: absolute;
     left: 20px; top: 20px;
@@ -631,7 +637,7 @@ body.page-map {
 .layer-switcher button:hover { background: rgba(17,139,113,.08); }
 .layer-switcher button.active { background: #118b71; color: #fff; }
 
-/* راهنما */
+/* ═══ راهنما ═══ */
 .map-legend {
     position: absolute;
     bottom: 30px; right: 20px;
@@ -685,11 +691,8 @@ body.page-map {
     box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 2px 4px rgba(0,0,0,.15);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   🎯 پین‌های تکی + لیبل دائمی
-   ═══════════════════════════════════════════════════════════ */
+/* ═══ پین‌ها ═══ */
 .pin-wrap { background: transparent; border: none; }
-
 .pin {
     width: 26px; height: 26px;
     background: var(--c, #118b71);
@@ -714,8 +717,6 @@ body.page-map {
     font-family: 'Vazirmatn', sans-serif;
     line-height: 1;
 }
-
-/* ═══ ✅ لیبل دائمی (همیشه نمایش داده می‌شه) ═══ */
 .pin-label {
     position: absolute;
     top: 32px;
@@ -737,42 +738,32 @@ body.page-map {
     line-height: 1.4;
 }
 
-/* ═══════════════════════════════════════════════════════════
-   🎯 کلاسترها - کوچیک‌تر
-   ═══════════════════════════════════════════════════════════ */
-.custom-cluster {
-    background: transparent;
-    border: none;
-}
-
+/* ═══ کلاستر ═══ */
+.custom-cluster { background: transparent; border: none; }
 .custom-cluster-inner {
     position: relative;
-    width: 34px;
-    height: 34px;
     border-radius: 50%;
-    background: var(--c, #118b71);
+    background: #118b71;
     border: 3px solid #ffffff;
     box-shadow:
-        0 4px 12px rgba(0, 0, 0, 0.3),
-        0 0 0 2px var(--c, #118b71),
-        inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+        0 4px 14px rgba(0, 0, 0, 0.32),
+        0 0 0 1px rgba(17, 139, 113, 0.15),
+        inset 0 -3px 6px rgba(0, 0, 0, 0.18);
     display: flex;
     align-items: center;
     justify-content: center;
     transition: transform 0.25s ease;
     cursor: pointer;
 }
-
 .custom-cluster:hover .custom-cluster-inner {
     transform: scale(1.12);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 0 2px #118b71;
 }
-
 .custom-cluster-num {
     color: #ffffff;
     font-weight: 900;
-    font-size: 12px;
     font-family: 'Vazirmatn', sans-serif;
-    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    text-shadow: 0 1.5px 3px rgba(0, 0, 0, 0.4);
     line-height: 1;
 }
 
@@ -850,13 +841,22 @@ body.page-map {
     .map-controls { left: 10px; bottom: 20px; }
     .map-legend { bottom: 20px; right: 10px; max-width: 180px; font-size: 10px; }
     .layer-switcher { left: 10px; top: 80px; }
+    .sb-toggle { top: 80px; right: 10px; width: 44px; height: 44px; font-size: 16px; }
+    #mapDayChips {
+        bottom: 80px !important;
+        padding: 6px 10px !important;
+        max-width: 95%;
+    }
+    #mapDayChips .map-chip {
+        padding: 6px 14px;
+        font-size: 11px;
+    }
 }
 </style>
 </head>
 <body class="page-map">
 <div class="overlay" id="menuOverlay"></div>
 
-<!-- Navbar -->
 <header class="navbar" id="navbar">
     <div class="logo"><i class="fas fa-map-signs"></i> سفر به <span>دزفول</span></div>
     <nav class="nav-links" id="navLinks">
@@ -882,7 +882,6 @@ body.page-map {
 
 <div class="map-layout">
 
-    <!-- سایدبار -->
     <aside class="map-sidebar" id="mapSidebar">
         <div class="planner-hero">
             <button class="close-sb" id="closeSb" title="بستن"><i class="fas fa-times"></i></button>
@@ -907,9 +906,7 @@ body.page-map {
 
         <div class="planner-tabs" id="plannerTabs" style="display:none;"></div>
 
-        <!-- 🎯 فیلتر سریع کشویی -->
         <div class="quick-filters" id="quickFiltersSection" style="display:none;">
-            <!-- هدر کلیک‌پذیر -->
             <div class="qf-header" id="qfHeader">
                 <span class="qf-header-title">
                     <i class="fas fa-filter"></i>
@@ -920,7 +917,6 @@ body.page-map {
                     <i class="fas fa-chevron-down"></i>
                 </span>
             </div>
-            <!-- بدنه کشویی -->
             <div class="qf-body" id="qfBody">
                 <div class="qf-actions">
                     <span class="qf-actions-label">دسته‌بندی‌ها</span>
@@ -946,7 +942,6 @@ body.page-map {
         <div class="map-list" id="mapList"></div>
     </aside>
 
-    <!-- نقشه -->
     <div class="map-viewport">
         <div id="tourismMap"></div>
         <div class="map-day-chips" id="mapDayChips"></div>
@@ -992,6 +987,7 @@ const MAP_PLACES = {{ places_json|safe }};
 const TRIP_DATA = {{ trip_json|default:'null'|safe }};
 const TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
 const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
+const FAVORITE_IDS = {{ favorite_ids|safe }};
 
 (function () {
     'use strict';
@@ -1028,11 +1024,21 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
     let activeCats = new Set();
     let freeOnly = false, childOnly = false, favsOnly = false;
     let query = '';
-    const favKey = 'dezful_tourism_favs';
-    let favs = new Set(JSON.parse(localStorage.getItem(favKey) || '[]'));
+  let favs = new Set(FAVORITE_IDS || []);
+console.log('❤️ Favorites loaded:', [...favs]);
 
-    const map = L.map('tourismMap', { zoomControl: false });
-    L.control.zoom({ position: 'topright' }).addTo(map);
+    // ✅ نکته: zoomControl: false و بدون L.control.zoom
+    const map = L.map('tourismMap', { 
+        zoomControl: false,
+        // غیرفعال کردن اسکرول و کلیک‌های zoom
+        scrollWheelZoom: true,    // ← اسکرول موس فعال بمونه
+        doubleClickZoom: true,    // ← دابل‌کلیک فعال بمونه
+        boxZoom: true,            // ← shift+درگ فعال بمونه
+        keyboard: true,           // ← کیبورد فعال بمونه
+        touchZoom: true           // ← pinch to zoom روی موبایل
+    });
+    
+    // ✅ دیگه L.control.zoom صدا زده نمی‌شه
 
     const MAPTILER_API_KEY = 'HJ7dofOgoJi2TfcV7XkF';
     const layers = {
@@ -1052,7 +1058,7 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
     let currentLayer = 'street';
     layers.street.addTo(map);
 
-    // ═══ 🎯 کلاستر کوچیک‌تر ═══
+    // ═══ کلاستر با رنگ ثابت ═══
     const clusterGroup = L.markerClusterGroup({
         maxClusterRadius: 50,
         spiderfyOnMaxZoom: true,
@@ -1061,36 +1067,18 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
         animate: true,
         animateAddingMarkers: true,
         iconCreateFunction: function(cluster) {
-            const children = cluster.getAllChildMarkers();
-            const count = children.length;
-            
-            const colorCounts = {};
-            children.forEach(m => {
-                const c = m.options._catColor || '#118b71';
-                colorCounts[c] = (colorCounts[c] || 0) + 1;
-            });
-            
-            let dominantColor = '#118b71';
-            let maxCount = 0;
-            Object.entries(colorCounts).forEach(([color, cnt]) => {
-                if (cnt > maxCount) {
-                    maxCount = cnt;
-                    dominantColor = color;
-                }
-            });
-            
-            // if (Object.keys(colorCounts).length > 2) {
-            //     dominantColor = '#2a9d8f';
-            // }
-            
-            // ✅ اندازه‌های کوچیک‌تر
-            const size = count < 10 ? 30 : count < 50 ? 36 : 42;
-            const fontSize = count < 10 ? 11 : count < 50 ? 12 : 13;
+            const count = cluster.getChildCount();
+            const size = count < 10 ? 34 : count < 50 ? 40 : 46;
+            const fontSize = count < 10 ? 12 : count < 50 ? 13 : 14;
             
             return L.divIcon({
                 html: `
-                    <div class="custom-cluster-inner" style="--c:${dominantColor}; width:${size}px; height:${size}px;">
-                        <span class="custom-cluster-num" style="font-size:${fontSize}px;">${faNum(count)}</span>
+                    <div class="custom-cluster-inner" style="
+                        width:${size}px; height:${size}px;
+                    ">
+                        <span class="custom-cluster-num" style="font-size:${fontSize}px;">
+                            ${faNum(count)}
+                        </span>
                     </div>
                 `,
                 className: 'custom-cluster',
@@ -1131,7 +1119,6 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
 
     const markers = new Map();
 
-    // ═══ ✅ پین با لیبل دائمی ═══
     function pinIcon(p, num, color) {
         const pinColor = color || '#118b71';
         return L.divIcon({
@@ -1316,10 +1303,8 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
             const badgeCol = TRIP_MODE ? color : badgeColor;
             
             const m = L.marker([p.lat, p.lng], { 
-                icon: pinIcon(p, num, color),
-                _catColor: color
-            })
-                .bindPopup(popupHtml(p, badge, badgeCol));
+                icon: pinIcon(p, num, color)
+            }).bindPopup(popupHtml(p, badge, badgeCol));
             
             clusterGroup.addLayer(m);
             markers.set(p.id, m);
@@ -1383,7 +1368,6 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
         }));
     }
 
-    // ✅ شمارنده فیلترهای فعال
     function updateQfActiveCount() {
         const count = activeCats.size;
         const el = $('qfActiveCount');
@@ -1401,12 +1385,12 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
         const container = $('mapDayChips');
         if (!container) return;
 
-        if (!TRIP_MODE || !TRIP_DATA) {
+        if (!TRIP_MODE || !TRIP_DATA || daysArray.length === 0) {
             container.classList.remove('show');
+            container.style.display = 'none';
             return;
         }
 
-        container.classList.add('show');
         container.innerHTML = '';
 
         const allBtn = document.createElement('button');
@@ -1432,6 +1416,9 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
             });
             container.appendChild(dayBtn);
         });
+
+        container.style.display = 'flex';
+        container.classList.add('show');
     }
 
     function buildLegend() {
@@ -1470,7 +1457,6 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
         }
     });
 
-    // ═══ 🎯 فیلتر کشویی ═══
     $('qfHeader')?.addEventListener('click', () => {
         const section = $('quickFiltersSection');
         const body = $('qfBody');
@@ -1579,11 +1565,13 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
     const closeSb = $('closeSb');
     const sbToggle = $('sbToggle');
     const mapSidebar = $('mapSidebar');
+    
     closeSb?.addEventListener('click', () => {
         mapSidebar.classList.add('collapsed');
         sbToggle.classList.add('show');
         setTimeout(() => map.invalidateSize(), 400);
     });
+    
     sbToggle?.addEventListener('click', () => {
         mapSidebar.classList.remove('collapsed');
         sbToggle.classList.remove('show');
