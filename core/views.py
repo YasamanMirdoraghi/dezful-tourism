@@ -1198,3 +1198,50 @@ def update_profile(request):
         'status': 'updated',
         'message': 'اطلاعات پروفایل با موفقیت به‌روزرسانی شد'
     })
+def test_algorithm_page(request):
+    from decimal import Decimal
+    
+    places = Place.objects.filter(is_active=True).select_related('category')
+    categories = Category.objects.filter(type='attraction', parent__isnull=True)
+    
+    places_json = []
+    for place in places:
+        # ✅ تبدیل Decimal به float
+        lat = float(place.latitude) if place.latitude else 32.38
+        lng = float(place.longitude) if place.longitude else 48.42
+        rating = float(place.rating_avg) if place.rating_avg else 3.5
+        cost = int(place.cost_toman) if place.cost_toman else 0
+        duration = int(place.duration_minutes) if place.duration_minutes else 60
+        views = int(place.visit_count) if place.visit_count else 0
+        
+        places_json.append({
+            'id': place.id,
+            'name': place.name,
+            'slug': place.slug,
+            'category': place.category.name if place.category else '',
+            'cost': cost,
+            'duration': duration,
+            'rating': rating,
+            'views': views,
+            'is_child_friendly': bool(place.is_child_friendly),
+            'lat': lat,
+            'lng': lng,
+            'image': get_place_image(place),
+            'desc': (place.short_description or place.description or '')[:200],
+        })
+    
+    categories_json = [
+        {
+            'id': cat.id,
+            'name': cat.name,
+            'slug': cat.slug,
+            'icon': cat.icon or 'fa-map-marker-alt',
+            'color': cat.color or '#118b71',
+        }
+        for cat in categories
+    ]
+    
+    return render(request, 'test_algorithm.html', {
+        'places_json': json.dumps(places_json, ensure_ascii=False),
+        'categories_json': json.dumps(categories_json, ensure_ascii=False),
+    })

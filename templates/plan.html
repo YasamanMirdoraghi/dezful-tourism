@@ -13,15 +13,138 @@
 
 <body class="page-plan" data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}">
 
-	<nav class="navbar" id="navbar">
-		<div class="logo">
-			<i class="fas fa-mountain"></i>
-			سفر به <span>دزفول</span>
+	<!-- 🐛 دیباگ پنل -->
+	<button id="debugToggle" style="
+		position: fixed; bottom: 20px; left: 20px;
+		width: 50px; height: 50px; border-radius: 50%;
+		background: linear-gradient(135deg, #118b71, #2a9d8f);
+		color: #fff; border: none; cursor: pointer;
+		z-index: 99998; font-size: 20px;
+		box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+	" title="نمایش دیباگ">🐛</button>
+
+	<!-- 🧪 دکمه تست الگوریتم -->
+	<button id="testToggle" style="
+		position: fixed; bottom: 20px; left: 80px;
+		width: 50px; height: 50px; border-radius: 50%;
+		background: linear-gradient(135deg, #e76f51, #f4a62a);
+		color: #fff; border: none; cursor: pointer;
+		z-index: 99998; font-size: 20px;
+		box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+	" title="تست الگوریتم">🧪</button>
+
+	<div id="debugPanel" style="
+		position: fixed; bottom: 80px; left: 20px;
+		width: 480px; max-height: 60vh;
+		background: rgba(15, 30, 35, 0.97);
+		color: #4ade80; font-family: 'Courier New', monospace;
+		font-size: 12px; padding: 14px; border-radius: 14px;
+		z-index: 99999; display: none;
+		direction: ltr; text-align: left;
+		box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+		overflow: hidden;
+	">
+		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(74, 222, 128, 0.3);">
+			<span style="color: #fff; font-weight: 900; font-size: 13px;">🐛 DEBUG LOG</span>
+			<div>
+				<button onclick="window.clearDbg && window.clearDbg()" style="background: #f59e0b; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-right: 5px;">Clear</button>
+				<button onclick="document.getElementById('debugPanel').style.display='none'" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px;">✕</button>
+			</div>
 		</div>
+		<div id="debugContent" style="overflow-y: auto; max-height: calc(60vh - 60px); white-space: pre-wrap; line-height: 1.5;"></div>
+	</div>
+
+	<!-- 🧪 پنل تست -->
+	<div id="testPanel" style="
+		position: fixed; top: 80px; left: 20px; right: 20px;
+		max-height: 85vh; background: #fff;
+		border-radius: 20px; padding: 20px;
+		z-index: 99999; display: none;
+		box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+		overflow: hidden;
+	">
+		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #118b71;">
+			<h3 style="margin: 0; color: #118b71; font-size: 1.3rem;">🧪 تست الگوریتم</h3>
+			<div>
+				<button id="runAllTests" style="background: #118b71; color: #fff; border: none; padding: 8px 20px; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: 800; margin-right: 8px;">🚀 اجرای همه تست‌ها</button>
+				<button onclick="document.getElementById('testPanel').style.display='none'" style="background: #ef4444; color: #fff; border: none; padding: 8px 14px; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: 800;">✕ بستن</button>
+			</div>
+		</div>
+		<div id="testResults" style="overflow-y: auto; max-height: calc(85vh - 120px); padding: 4px;"></div>
+	</div>
+
+	<script>
+	// ═══════════════════════════════════════════════════════════
+	// 🐛 سیستم دیباگ
+	// ═══════════════════════════════════════════════════════════
+	(function() {
+		const STORAGE_KEY = 'dezful_debug_logs';
+		let logs = [];
+		try { logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { logs = []; }
+		
+		window.dbg = function(...args) {
+			const content = document.getElementById('debugContent');
+			if (!content) return;
+			const time = new Date().toLocaleTimeString('en-US', {hour12: false});
+			const text = args.map(a => {
+				if (a === null) return 'null';
+				if (a === undefined) return 'undefined';
+				if (typeof a === 'object') { try { return JSON.stringify(a); } catch(e) { return String(a); } }
+				return String(a);
+			}).join(' ');
+			const line = `[${time}] ${text}`;
+			logs.push(line);
+			if (logs.length > 100) logs = logs.slice(-100);
+			try { localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); } catch(e) {}
+			const div = document.createElement('div');
+			div.textContent = line;
+			div.style.padding = '2px 0';
+			if (line.includes('❌')) div.style.color = '#ef4444';
+			else if (line.includes('⚠️') || line.includes('🔒')) div.style.color = '#f59e0b';
+			else if (line.includes('✅')) div.style.color = '#4ade80';
+			content.appendChild(div);
+			content.scrollTop = content.scrollHeight;
+			console.log(...args);
+		};
+		
+		window.clearDbg = function() {
+			logs = [];
+			localStorage.removeItem(STORAGE_KEY);
+			document.getElementById('debugContent').innerHTML = '';
+		};
+		
+		function restoreLogs() {
+			const content = document.getElementById('debugContent');
+			if (!content) return;
+			content.innerHTML = '';
+			logs.forEach(line => {
+				const div = document.createElement('div');
+				div.textContent = line;
+				div.style.padding = '2px 0';
+				if (line.includes('❌')) div.style.color = '#ef4444';
+				else if (line.includes('⚠️') || line.includes('🔒')) div.style.color = '#f59e0b';
+				else if (line.includes('✅')) div.style.color = '#4ade80';
+				content.appendChild(div);
+			});
+			content.scrollTop = content.scrollHeight;
+		}
+		
+		document.addEventListener('DOMContentLoaded', () => {
+			const toggleBtn = document.getElementById('debugToggle');
+			const panel = document.getElementById('debugPanel');
+			toggleBtn.addEventListener('click', () => {
+				panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+				if (panel.style.display === 'block') restoreLogs();
+			});
+			restoreLogs();
+		});
+	})();
+	</script>
+
+	<nav class="navbar" id="navbar">
+		<div class="logo"><i class="fas fa-mountain"></i> سفر به <span>دزفول</span></div>
 		<ul class="nav-links" id="navLinks">
-			<button class="close-menu-btn" id="closeMenuBtn" aria-label="بستن منو">
-				<i class="fas fa-times"></i>
-			</button>
+			<button class="close-menu-btn" id="closeMenuBtn" aria-label="بستن منو"><i class="fas fa-times"></i></button>
 			<a href="{% url 'home' %}"><i class="fas fa-home"></i> خانه</a>
 			<a href="{% url 'plan' %}" class="active"><i class="fas fa-route"></i> برنامه‌ریز</a>
 			<a href="{% url 'attraction' %}"><i class="fas fa-map-marker-alt"></i> جاذبه‌ها</a>
@@ -46,9 +169,7 @@
 			<a href="{% url 'login' %}" class="btn-primary"><i class="fas fa-sign-in-alt"></i> ورود</a>
 			{% endif %}
 		</div>
-		<button class="hamburger" id="hamburgerBtn" aria-label="منو">
-			<i class="fas fa-bars"></i>
-		</button>
+		<button class="hamburger" id="hamburgerBtn" aria-label="منو"><i class="fas fa-bars"></i></button>
 	</nav>
 	<div class="overlay" id="menuOverlay"></div>
 
@@ -61,12 +182,8 @@
 {% if not user.is_authenticated %}
 <div class="login-banner-wrapper">
     <div class="login-banner">
-        <div class="login-banner-icon">
-            <i class="fas fa-info"></i>
-        </div>
-        <div class="login-banner-text">
-            <strong>توجه:</strong> برای ساخت و ذخیره برنامه، ابتدا وارد شوید.
-        </div>
+        <div class="login-banner-icon"><i class="fas fa-info"></i></div>
+        <div class="login-banner-text"><strong>توجه:</strong> برای ساخت و ذخیره برنامه، ابتدا وارد شوید.</div>
     </div>
 </div>
 {% endif %}
@@ -87,38 +204,24 @@
 						<h3><i class="fas fa-history"></i> برنامه‌های شما</h3>
 						<span class="trips-count">{{ user_trips|length }} برنامه</span>
 					</div>
-
 					<div class="trips-slider-wrapper">
-						<button class="trips-slider-btn trips-prev" id="tripsPrev" aria-label="قبلی">
-							<i class="fas fa-chevron-right"></i>
-						</button>
-
+						<button class="trips-slider-btn trips-prev" id="tripsPrev" aria-label="قبلی"><i class="fas fa-chevron-right"></i></button>
 						<div class="trips-slider-viewport" id="tripsViewport">
 							<div class="trips-slider-track" id="tripsTrack">
 								{% for trip in user_trips %}
 								<a href="/result/{{ trip.id }}/" class="trip-card trip-{{ trip.status }}">
 									<div class="trip-status-badge">
-										{% if trip.status == 'current' %}
-										<i class="fas fa-bolt"></i> در حال سفر
-										{% elif trip.status == 'past' %}
-										<i class="fas fa-check"></i> به پایان رسیده
-										{% else %}
-										<i class="fas fa-clock"></i> پیش‌رو
-										{% endif %}
+										{% if trip.status == 'current' %}<i class="fas fa-bolt"></i> در حال سفر
+										{% elif trip.status == 'past' %}<i class="fas fa-check"></i> به پایان رسیده
+										{% else %}<i class="fas fa-clock"></i> پیش‌رو{% endif %}
 									</div>
-
 									<div class="trip-card-image">
-										<img src="{{ trip.image }}" alt="سفر"
-											onerror="this.onerror=null; this.src='/static/img/asiyab-haye-abi.jpg';">
+										<img src="{{ trip.image }}" alt="سفر" onerror="this.onerror=null; this.src='/static/img/asiyab-haye-abi.jpg';">
 									</div>
-
 									<div class="trip-card-info">
-										<div class="trip-card-dates">
-											{{ trip.start_jalali }} تا {{ trip.end_jalali }}
-										</div>
+										<div class="trip-card-dates">{{ trip.start_jalali }} تا {{ trip.end_jalali }}</div>
 										<div class="trip-card-meta">
-											<span><i class="fas fa-hourglass-half"></i> {{ trip.duration_days }}
-												روز</span>
+											<span><i class="fas fa-hourglass-half"></i> {{ trip.duration_days }} روز</span>
 											<span><i class="fas fa-users"></i> {{ trip.companions }} نفر</span>
 										</div>
 									</div>
@@ -126,30 +229,22 @@
 								{% endfor %}
 							</div>
 						</div>
-
-						<button class="trips-slider-btn trips-next" id="tripsNext" aria-label="بعدی">
-							<i class="fas fa-chevron-left"></i>
-						</button>
+						<button class="trips-slider-btn trips-next" id="tripsNext" aria-label="بعدی"><i class="fas fa-chevron-left"></i></button>
 					</div>
-
 					<div class="trips-slider-dots" id="tripsDots"></div>
 				</div>
 				{% endif %}
 
 				<div class="wizard-top">
-					<h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن
-					</h2>
+					<h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن</h2>
 				</div>
 
-				<!-- مرحله ۱: تقویم -->
 				<div class="wz-step active" data-step="1">
 					<div class="cal-card">
 						<div class="cal-header">
-							<button class="cal-nav" id="calPrev" aria-label="ماه قبل"><i
-									class="fas fa-chevron-right"></i></button>
+							<button class="cal-nav" id="calPrev" aria-label="ماه قبل"><i class="fas fa-chevron-right"></i></button>
 							<h3 id="calTitle">فروردین ۱۴۰۵</h3>
-							<button class="cal-nav next" id="calNext" aria-label="ماه بعد"><i
-									class="fas fa-chevron-left"></i></button>
+							<button class="cal-nav next" id="calNext" aria-label="ماه بعد"><i class="fas fa-chevron-left"></i></button>
 						</div>
 						<div class="cal-weekdays">
 							<span>شنبه</span><span>یکشنبه</span><span>دوشنبه</span>
@@ -160,23 +255,16 @@
 					<div class="date-boxes">
 						<div class="date-box">
 							<div class="db-icon green"><i class="fas fa-calendar-day"></i></div>
-							<div>
-								<span class="db-label">شروع سفر</span>
-								<span class="db-value" id="dbStart">هنوز انتخاب نشده</span>
-							</div>
+							<div><span class="db-label">شروع سفر</span><span class="db-value" id="dbStart">هنوز انتخاب نشده</span></div>
 						</div>
 						<div class="date-box">
 							<div class="db-icon orange"><i class="fas fa-calendar-check"></i></div>
-							<div>
-								<span class="db-label">پایان سفر</span>
-								<span class="db-value" id="dbEnd">هنوز انتخاب نشده</span>
-							</div>
+							<div><span class="db-label">پایان سفر</span><span class="db-value" id="dbEnd">هنوز انتخاب نشده</span></div>
 						</div>
 					</div>
 					<div class="wz-hint" id="dateHint"></div>
 				</div>
 
-				<!-- مرحله ۲: علاقه‌مندی‌ها -->
 				<div class="wz-step" data-step="2">
 					<div class="interest-top">
 						<div>
@@ -188,13 +276,10 @@
 					<a class="clear-link" id="clearInterests">پاک کردن انتخاب‌ها</a>
 					<div class="interest-grid">
 						{% for cat in categories %}
-						<button type="button" class="interest-card" data-value="{{ cat.name }}"
-							data-maps="{{ cat.slug }}">
-							<span class="ic-check" style="background: {{ cat.color|default:'#118b71' }};"><i
-									class="fas fa-check"></i></span>
+						<button type="button" class="interest-card" data-value="{{ cat.name }}" data-maps="{{ cat.slug }}">
+							<span class="ic-check" style="background: {{ cat.color|default:'#118b71' }};"><i class="fas fa-check"></i></span>
 							<span class="ic-emoji" style="color: {{ cat.color|default:'#118b71' }};">
-								{% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i
-									class="fas fa-map-marker-alt"></i>{% endif %}
+								{% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i class="fas fa-map-marker-alt"></i>{% endif %}
 							</span>
 							<span class="ic-label">{{ cat.name }}</span>
 						</button>
@@ -203,7 +288,6 @@
 					<div class="wz-hint" id="wzHint"></div>
 				</div>
 
-				<!-- مرحله ۳: جزئیات -->
 				<div class="wz-step" data-step="3">
 					<div class="form-group">
 						<label><i class="fas fa-users"></i> تعداد مسافران</label>
@@ -237,7 +321,6 @@
 					<div id="tripDaysInfo"></div>
 				</div>
 
-				<!-- مرحله ۴: خلاصه -->
 				<div class="wz-step" data-step="4">
 					<div class="review-card">
 						<h3 class="rv-title">خلاصه سفر شما</h3>
@@ -268,19 +351,15 @@
 						</div>
 						<div class="rv-row">
 							<div class="rv-icon green"><i class="fas fa-info-circle"></i></div>
-							<div><span class="rv-label">جزئیات</span><span class="rv-value" id="rvDetails">-</span>
-							</div>
+							<div><span class="rv-label">جزئیات</span><span class="rv-value" id="rvDetails">-</span></div>
 						</div>
 					</div>
 					<div class="review-note">اگر همه‌چیز درست است، «ساخت برنامه» را بزن.</div>
 				</div>
 
 				<div class="wizard-actions">
-					<button type="button" class="wz-prev" id="wizPrev" style="visibility: hidden;">
-						<i class="fas fa-arrow-right"></i> مرحله قبل
-					</button>
-					<button type="button" class="wz-next" id="wizNext">مرحله بعد <i
-							class="fas fa-arrow-left"></i></button>
+					<button type="button" class="wz-prev" id="wizPrev" style="visibility: hidden;"><i class="fas fa-arrow-right"></i> مرحله قبل</button>
+					<button type="button" class="wz-next" id="wizNext">مرحله بعد <i class="fas fa-arrow-left"></i></button>
 				</div>
 			</div>
 		</div>
@@ -333,28 +412,38 @@
 	<button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
 	<script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.2.0/dist/jalaali.min.js"></script>
 	<script>
-		// ═══════════════════════════════════════════════════════════
-		// داده‌های داینامیک
-		// ═══════════════════════════════════════════════════════════
 		window.REAL_PLACES = {{ places_json | safe }};
 		window.CATEGORIES = {{ categories_json | safe }};
 
-		// ═══════════════════════════════════════════════════════════
-		// توابع کمکی و الگوریتم ۴ لایه (بدون تغییر)
-		// ═══════════════════════════════════════════════════════════
 		(function () {
 			'use strict';
 			if (!document.getElementById('planWizard')) return;
 
-			const DEBUG = true;
-			const log = {
-				info: (...args) => { if (DEBUG) console.log('ℹ️', ...args); },
-				success: (...args) => { if (DEBUG) console.log('✅', ...args); },
-				warn: (...args) => { if (DEBUG) console.warn('⚠️', ...args); },
-				error: (...args) => console.error('❌', ...args),
-				group: (title) => { if (DEBUG) console.group(title); },
-				groupEnd: () => { if (DEBUG) console.groupEnd(); }
-			};
+			function dbg(...args) {
+				if (window.dbg) window.dbg(...args);
+				else console.log(...args);
+			}
+
+			// ═══ سیاست هر جاذبه ═══
+			function getPlacePolicy(place) {
+				const d = place.duration || 60;
+				if (d >= 360) return { type: 'full_day', maxCompanions: 1, label: '🔒 روز کامل' };
+				if (d >= 240) return { type: 'large', maxCompanions: 2, label: '🔒 بزرگ' };
+				if (d >= 180) return { type: 'medium', maxCompanions: 3, label: '⏱️ متوسط' };
+				if (d >= 90)  return { type: 'small', maxCompanions: 4, label: '📦 کوچیک' };
+				return { type: 'tiny', maxCompanions: 5, label: '📦 خیلی کوچیک' };
+			}
+
+			setTimeout(() => {
+				dbg('══════════════════════════════════════');
+				dbg('📋 لیست جاذبه‌ها بر اساس مدت (نزولی):');
+				const sorted = [...(window.REAL_PLACES || [])].sort((a, b) => (b.duration || 0) - (a.duration || 0));
+				sorted.slice(0, 15).forEach(p => {
+					const policy = getPlacePolicy(p);
+					dbg(`   ${policy.label} | ${p.name} → ${p.duration} دقیقه (max همراه: ${policy.maxCompanions})`);
+				});
+				dbg('══════════════════════════════════════');
+			}, 300);
 
 			const CONFIG = {
 				center: { lat: 32.3833, lng: 48.4000 },
@@ -374,16 +463,10 @@
 				ga: {
 					popSize: 60, generations: 100, eliteCount: 5,
 					crossoverRate: 0.85, mutationRate: 0.25, tournamentSize: 5,
-					emptyDayPenalty: 50, timeOverflowPenalty: 5, distancePenalty: 0.5,
-					varietyBonus: 30, timeBalancePenalty: 5,
-					countBalanceThreshold: 1, countBalancePenalty: 25,
-					earlyStopPatience: 20, dayOrderBonus: 15
+					earlyStopPatience: 20
 				}
 			};
 
-			// ═══════════════════════════════════════════
-			// تقویم هجری شمسی
-			// ═══════════════════════════════════════════
 			const div = (a, b) => ~~(a / b);
 			const mod = (a, b) => a - ~~(a / b) * b;
 
@@ -418,11 +501,7 @@
 				let j = 4 * jdn + 139361631;
 				j = j + div(div(4 * jdn + 183187720, 146097) * 3, 4) * 4 - 390844584;
 				const i = div(mod(j, 1461), 4) * 5 + 308;
-				return {
-					gy: div(j, 1461) - 100100 + div(8 - (mod(div(i, 153), 12) + 1), 6),
-					gm: mod(div(i, 153), 12) + 1,
-					gd: div(mod(i, 153), 5) + 1
-				};
+				return { gy: div(j, 1461) - 100100 + div(8 - (mod(div(i, 153), 12) + 1), 6), gm: mod(div(i, 153), 12) + 1, gd: div(mod(i, 153), 5) + 1 };
 			}
 
 			function j2d(jy, jm, jd) {
@@ -449,51 +528,27 @@
 			const WDAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
 
 			function jWeekday(jy, jm, jd) {
-				// از Intl برای گرفتن روز هفته استفاده می‌کنیم
-				// تاریخ رو به Intl می‌دیم، اون خودش تبدیل می‌کنه
-
-				// روش: با یک تاریخ مرجع شروع می‌کنیم و روز به روز جلو میریم
-				// تا به تاریخ هدف برسیم (سریع‌تر از جستجوی کورکورانه)
-
-				const fmt = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', {
-					year: 'numeric', month: 'numeric', day: 'numeric'
-				});
-
-				// تاریخ مرجع: امروز
+				const fmt = new Intl.DateTimeFormat('en-US-u-ca-persian-nu-latn', { year: 'numeric', month: 'numeric', day: 'numeric' });
 				const today = new Date();
 				const todayParts = fmt.formatToParts(today);
 				const todayJy = +todayParts.find(p => p.type === 'year').value;
 				const todayJm = +todayParts.find(p => p.type === 'month').value;
 				const todayJd = +todayParts.find(p => p.type === 'day').value;
-
-				// تعداد روزهای اختلاف رو تخمین می‌زنیم
-				const daysDiff = Math.round(
-					(jy - todayJy) * 365.2425 +
-					(jm - todayJm) * 30.44 +
-					(jd - todayJd)
-				);
-
-				// تاریخ هدف
+				const daysDiff = Math.round((jy - todayJy) * 365.2425 + (jm - todayJm) * 30.44 + (jd - todayJd));
 				const targetDate = new Date(today);
 				targetDate.setDate(today.getDate() + daysDiff);
-
-				// اصلاح ±۵ روز
 				for (let offset = -5; offset <= 5; offset++) {
 					const tryDate = new Date(targetDate);
 					tryDate.setDate(targetDate.getDate() + offset);
-
 					const parts = fmt.formatToParts(tryDate);
 					const ty = +parts.find(p => p.type === 'year').value;
 					const tm = +parts.find(p => p.type === 'month').value;
 					const td = +parts.find(p => p.type === 'day').value;
-
 					if (ty === jy && tm === jm && td === jd) {
 						const day = tryDate.getDay();
 						return (day + 1) % 7;
 					}
 				}
-
-				// fallback: اگه پیدا نشد، از روش قدیمی استفاده کن
 				const g = d2g(j2d(jy, jm, jd));
 				return (new Date(g.gy, g.gm - 1, g.gd).getDay() + 1) % 7;
 			}
@@ -577,11 +632,9 @@
 
 			function onDayClick(d) {
 				$('dateHint').textContent = '';
-				if (!tripStart || (tripStart && tripEnd)) {
-					tripStart = d; tripEnd = null;
-				} else if (d.jdn < tripStart.jdn) {
-					tripStart = d; tripEnd = null;
-				} else {
+				if (!tripStart || (tripStart && tripEnd)) { tripStart = d; tripEnd = null; }
+				else if (d.jdn < tripStart.jdn) { tripStart = d; tripEnd = null; }
+				else {
 					if (d.jdn - tripStart.jdn + 1 > CONFIG.maxTripDays) {
 						$('dateHint').textContent = `برنامه سفر حداکثر ${faNum(CONFIG.maxTripDays)} روز پشتیبانی می‌شود.`;
 						return;
@@ -601,7 +654,6 @@
 			calNext.addEventListener('click', () => { safeView(); viewM++; if (viewM > 12) { viewM = 1; viewY++; } renderCalendar(); });
 			renderCalendar();
 
-			// علاقه‌مندی‌ها
 			const interestBtns = [...document.querySelectorAll('.interest-card')];
 			interestBtns.forEach(b => b.addEventListener('click', () => {
 				b.classList.toggle('selected');
@@ -620,7 +672,6 @@
 			});
 			updateIntCount();
 
-			// ویزارد
 			const TITLES = { 1: 'تاریخ سفرت رو مشخص کن', 2: 'علایقت رو مشخص کن', 3: 'جزئیات سفر رو وارد کن', 4: 'مرور برنامه سفر' };
 			let wizStep = 1;
 
@@ -662,14 +713,8 @@
 					});
 					return;
 				}
-				if (wizStep === 1 && (!tripStart || !tripEnd)) {
-					$('dateHint').textContent = 'لطفاً روز شروع و پایان سفر را انتخاب کنید.';
-					return;
-				}
-				if (wizStep === 2 && !interestBtns.some(b => b.classList.contains('selected'))) {
-					$('wzHint').textContent = 'لطفاً حداقل یک دسته‌بندی انتخاب کنید.';
-					return;
-				}
+				if (wizStep === 1 && (!tripStart || !tripEnd)) { $('dateHint').textContent = 'لطفاً روز شروع و پایان سفر را انتخاب کنید.'; return; }
+				if (wizStep === 2 && !interestBtns.some(b => b.classList.contains('selected'))) { $('wzHint').textContent = 'لطفاً حداقل یک دسته‌بندی انتخاب کنید.'; return; }
 				if (wizStep < 4) goWiz(wizStep + 1);
 				else submitPlan();
 			});
@@ -686,9 +731,6 @@
 				$('rvDetails').textContent = `${trav.options[trav.selectedIndex].text} • بودجه: ${bud.options[bud.selectedIndex].text} • ${child ? 'کودک همراه' : 'بدون کودک'}`;
 			}
 
-			// ═══════════════════════════════════════════
-			// الگوریتم ۴ لایه
-			// ═══════════════════════════════════════════
 			const REAL_PLACES = window.REAL_PLACES || [];
 			const CATEGORIES_DATA = window.CATEGORIES || [];
 			const ALL_CATEGORIES = CATEGORIES_DATA.map(c => c.name);
@@ -701,19 +743,11 @@
 			}
 
 			function membershipDuration(days) {
-				return {
-					short: triangularMF(days, 0, 1, 4),
-					medium: triangularMF(days, 2, 4, 6),
-					long: triangularMF(days, 5, 7, 10)
-				};
+				return { short: triangularMF(days, 0, 1, 4), medium: triangularMF(days, 2, 4, 6), long: triangularMF(days, 5, 7, 10) };
 			}
 
 			function membershipBudget(millions) {
-				return {
-					low: triangularMF(millions, 0, 2, 5),
-					medium: triangularMF(millions, 3, 6, 10),
-					high: triangularMF(millions, 8, 12, 20)
-				};
+				return { low: triangularMF(millions, 0, 2, 5), medium: triangularMF(millions, 3, 6, 10), high: triangularMF(millions, 8, 12, 20) };
 			}
 
 			function getFuzzyWeights(duration, hasChild, budgetMax) {
@@ -729,10 +763,7 @@
 				w.popularity += budMem.low * R.lowBudget.popularity;
 				w.interest += budMem.high * R.highBudget.interest;
 				w.rating += budMem.high * R.highBudget.rating;
-				if (hasChild) {
-					w.child += R.withChild.child;
-					w.duration += R.withChild.duration;
-				}
+				if (hasChild) { w.child += R.withChild.child; w.duration += R.withChild.duration; }
 				Object.keys(w).forEach(k => { if (w[k] < 0.5) w[k] = 0.5; });
 				const total = Object.values(w).reduce((a, b) => a + b, 0);
 				Object.keys(w).forEach(k => { w[k] = (w[k] / total) * 100; });
@@ -773,9 +804,7 @@
 
 			function cosineSimilarity(a, b) {
 				let dot = 0, normA = 0, normB = 0;
-				for (let i = 0; i < a.length; i++) {
-					dot += a[i] * b[i]; normA += a[i] * a[i]; normB += b[i] * b[i];
-				}
+				for (let i = 0; i < a.length; i++) { dot += a[i] * b[i]; normA += a[i] * a[i]; normB += b[i] * b[i]; }
 				if (normA === 0 || normB === 0) return 0;
 				return dot / (Math.sqrt(normA) * Math.sqrt(normB));
 			}
@@ -835,8 +864,90 @@
 				return [...interestMatched, ...others].slice(0, K);
 			}
 
-			const SEP = -1;
+			// ═══════════════════════════════════════════════════════════
+			// assignLargePlaces
+			// ═══════════════════════════════════════════════════════════
+			function assignLargePlaces(places, daysCount, userInterests, logFn) {
+				const DAILY_TIME = 8 * 60;
+				const LUNCH_TIME = 60;
+				const BREAK_TIME = 30;
+				
+				const fullDayPlaces = places.filter(p => getPlacePolicy(p).type === 'full_day');
+				const otherPlaces = places.filter(p => getPlacePolicy(p).type !== 'full_day');
+				
+				if (logFn) {
+					logFn(`🔒 جاذبه‌های «روز کامل» (${fullDayPlaces.length}): ${fullDayPlaces.map(p => `${p.name}(${p.duration}د)`).join(', ') || 'هیچ'}`);
+					logFn(`📦 بقیه‌ی جاذبه‌ها (${otherPlaces.length}): ${otherPlaces.map(p => `${p.name}(${p.duration}د)`).join(', ') || 'هیچ'}`);
+				}
+				
+				if (places.length === 0) return null;
+				
+				let maxFullDaySlots;
+				if (daysCount === 1) maxFullDaySlots = 0;
+				else if (daysCount === 2) maxFullDaySlots = 1;
+				else maxFullDaySlots = Math.floor(daysCount / 2);
+				
+				const actualFullDayCount = Math.min(fullDayPlaces.length, maxFullDaySlots);
+				
+				if (logFn) {
+					logFn(`📊 روزها: ${daysCount} | حداکثر اسلات روزکامل: ${maxFullDaySlots} | استفاده می‌کنیم: ${actualFullDayCount}`);
+				}
+				
+				fullDayPlaces.sort((a, b) => (b.score || 0) - (a.score || 0));
+				const selectedFullDay = fullDayPlaces.slice(0, actualFullDayCount);
+				
+				const assignment = Array.from({ length: daysCount }, () => []);
+				selectedFullDay.sort((a, b) => (b.duration || 60) - (a.duration || 60));
+				
+				if (actualFullDayCount === 1 && daysCount >= 2) {
+					assignment[0].push(selectedFullDay[0]);
+					if (logFn) logFn(`   📍 روز 1: ${selectedFullDay[0].name} (${selectedFullDay[0].duration}د)`);
+				} else {
+					selectedFullDay.forEach((p, i) => {
+						const dayIdx = Math.floor(i * daysCount / actualFullDayCount);
+						assignment[dayIdx].push(p);
+						if (logFn) logFn(`   📍 روز ${dayIdx + 1}: ${p.name} (${p.duration}د)`);
+					});
+				}
+				
+				otherPlaces.sort((a, b) => (b.score || 0) - (a.score || 0));
+				
+				otherPlaces.forEach(p => {
+					const placeTime = (p.duration || 60) + BREAK_TIME;
+					let bestDay = -1;
+					let minTime = Infinity;
+					
+					assignment.forEach((day, i) => {
+						let dayTime = day.reduce((s, x) => s + (x.duration || 60) + BREAK_TIME, 0);
+						if (day.length > 0) dayTime += LUNCH_TIME;
+						
+						const mainPlace = day[0];
+						if (mainPlace) {
+							const mainPolicy = getPlacePolicy(mainPlace);
+							const companionCount = day.length - 1;
+							if (companionCount >= mainPolicy.maxCompanions) return;
+						}
+						
+						const newTime = dayTime + placeTime;
+						if (newTime <= DAILY_TIME && dayTime < minTime) {
+							minTime = dayTime;
+							bestDay = i;
+						}
+					});
+					
+					if (bestDay !== -1) {
+						assignment[bestDay].push(p);
+						if (logFn) logFn(`   ➕ ${p.name} (${p.duration}د) → روز ${bestDay + 1}`);
+					} else {
+						if (logFn) logFn(`   ❌ ${p.name} (${p.duration}د) جا نشد`);
+					}
+				});
+				
+				return assignment;
+			}
 
+			// ═══ GA (ساده‌شده برای تست) ═══
+			const SEP = -1;
 			function splitChromosome(chromosome) {
 				const days = [[]];
 				for (const x of chromosome) {
@@ -848,112 +959,41 @@
 
 			function fitness(chromosome, places) {
 				const days = splitChromosome(chromosome);
-				const DAILY_TIME = CONFIG.dailyTimeMinutes;
-				const BREAK_TIME = CONFIG.breakTimeMinutes;
+				const DAILY_TIME = 8 * 60;
+				const BREAK_TIME = 30;
+				const LUNCH_TIME = 60;
 				const nonEmptyDays = days.filter(d => d.length > 0);
-				const emptyDaysCount = days.filter(d => d.length === 0).length;
 				if (nonEmptyDays.length === 0) return 0;
-				let emptyDayPenaltyValue = 0;
-				if (emptyDaysCount > 0) emptyDayPenaltyValue = (emptyDaysCount / days.length) * 1.0;
+				
 				let totalScore = 0, totalPlacesCount = 0;
-				for (const day of nonEmptyDays) for (const idx of day) { totalScore += places[idx].score; totalPlacesCount++; }
-				const avgScore = totalPlacesCount > 0 ? totalScore / totalPlacesCount : 0;
-				const scoreNorm = Math.min(avgScore / 100, 1);
-				let totalCategoriesPerDay = 0;
 				for (const day of nonEmptyDays) {
-					const cats = new Set(day.map(idx => places[idx].category));
-					totalCategoriesPerDay += cats.size;
+					for (const idx of day) { totalScore += places[idx].score; totalPlacesCount++; }
 				}
-				const avgVariety = totalCategoriesPerDay / nonEmptyDays.length;
-				const varietyNorm = Math.min(avgVariety / 4, 1);
+				const scoreNorm = Math.min((totalPlacesCount > 0 ? totalScore / totalPlacesCount : 0) / 100, 1);
+				
 				let totalTimeOverflow = 0;
 				for (const day of nonEmptyDays) {
 					let dayTime = 0, lastPlace = null;
-					for (const idx of day) {
-						const p = places[idx];
-						dayTime += (p.duration || 60) + BREAK_TIME;
-						if (lastPlace) {
-							const dist = calcDistance(lastPlace.lat, lastPlace.lng, p.lat, p.lng);
-							dayTime += (dist / 10) * 15;
-						}
+					for (let i = 0; i < day.length; i++) {
+						const p = places[day[i]];
+						dayTime += (p.duration || 60);
+						if (i > 0) dayTime += BREAK_TIME;
+						if (lastPlace) dayTime += (calcDistance(lastPlace.lat, lastPlace.lng, p.lat, p.lng) / 10) * 15;
 						lastPlace = p;
 					}
-					if (dayTime > DAILY_TIME) totalTimeOverflow += (dayTime - DAILY_TIME);
+					if (dayTime > 4 * 60) dayTime += LUNCH_TIME;
+					if (dayTime > DAILY_TIME) totalTimeOverflow += ((dayTime - DAILY_TIME) / DAILY_TIME) ** 2 * 100;
 				}
-				const timeOverflowNorm = Math.min(totalTimeOverflow / (4 * 60 * nonEmptyDays.length), 1);
-				let totalDistance = 0;
-				for (const day of nonEmptyDays) {
-					for (let i = 0; i < day.length - 1; i++) {
-						totalDistance += calcDistance(places[day[i]].lat, places[day[i]].lng, places[day[i + 1]].lat, places[day[i + 1]].lng);
-					}
-				}
-				const distanceNorm = Math.min(totalDistance / (100 * nonEmptyDays.length), 1);
-				const counts = nonEmptyDays.map(d => d.length);
-				const avgCount = counts.reduce((a, b) => a + b, 0) / counts.length;
-				const countVariance = counts.reduce((sum, c) => sum + Math.pow(c - avgCount, 2), 0) / counts.length;
-				const countStdDev = Math.sqrt(countVariance);
-				const countCV = avgCount > 0 ? countStdDev / avgCount : 0;
-				const balanceNorm = Math.min(countCV / 0.5, 1);
-				const WEIGHTS = { score: 0.25, variety: 0.10, timeOverflow: 0.25, distance: 0.10, balance: 0.30 };
-				const finalFitness =
-					WEIGHTS.score * scoreNorm + WEIGHTS.variety * varietyNorm -
-					WEIGHTS.timeOverflow * timeOverflowNorm - WEIGHTS.distance * distanceNorm -
-					WEIGHTS.balance * balanceNorm - emptyDayPenaltyValue * 1.0;
-				return (finalFitness + 1) * 50;
-			}
-
-			function orderCrossover(p1, p2) {
-				const sepPositions = [];
-				p1.forEach((x, i) => { if (x === SEP) sepPositions.push(i); });
-				const g1 = p1.filter(x => x !== SEP);
-				const g2 = p2.filter(x => x !== SEP);
-				const n = g1.length;
-				if (n < 2) return [...p1];
-				const a = Math.floor(Math.random() * (n - 1));
-				const b = a + 1 + Math.floor(Math.random() * (n - a - 1));
-				const childGenes = new Array(n).fill(null);
-				for (let i = a; i <= b; i++) childGenes[i] = g1[i];
-				const used = new Set(childGenes.slice(a, b + 1));
-				let fi = 0;
-				for (let i = 0; i < n; i++) {
-					if (childGenes[i] === null) {
-						while (used.has(g2[fi])) fi++;
-						childGenes[i] = g2[fi++];
-					}
-				}
-				const result = [...childGenes];
-				for (const pos of sepPositions) result.splice(pos, 0, SEP);
-				return result;
-			}
-
-			function mutate(chromosome) {
-				const c = [...chromosome];
-				const valid = c.map((x, i) => x !== SEP ? i : -1).filter(i => i >= 0);
-				if (valid.length < 2) return c;
-				if (Math.random() < 0.5) {
-					const i = valid[Math.floor(Math.random() * valid.length)];
-					const j = valid[Math.floor(Math.random() * valid.length)];
-					[c[i], c[j]] = [c[j], c[i]];
-				} else {
-					const a = valid[Math.floor(Math.random() * valid.length)];
-					const b = valid[Math.floor(Math.random() * valid.length)];
-					const lo = Math.min(a, b), hi = Math.max(a, b);
-					const segment = c.slice(lo, hi + 1).reverse();
-					for (let i = 0; i < segment.length; i++) c[lo + i] = segment[i];
-				}
-				return c;
+				const timeOverflowNorm = Math.min(totalTimeOverflow / (nonEmptyDays.length * 100), 1);
+				
+				return (scoreNorm - timeOverflowNorm * 0.45 + 1) * 50;
 			}
 
 			function geneticAlgorithm(places, daysCount) {
 				const n = places.length;
 				if (n === 0) return [];
 				if (daysCount <= 1) return [places];
-				const GA = CONFIG.ga;
-				const POP_SIZE = GA.popSize;
-				const GENERATIONS = GA.generations;
-				const ELITE = GA.eliteCount;
-				const PATIENCE = GA.earlyStopPatience;
-
+				
 				function randomChromosome() {
 					const indices = Array.from({ length: n }, (_, i) => i);
 					for (let i = n - 1; i > 0; i--) {
@@ -969,39 +1009,25 @@
 				}
 
 				let population = [];
-				for (let i = 0; i < POP_SIZE; i++) population.push(randomChromosome());
-				let bestEver = null, bestFitnessEver = -Infinity, noImproveCount = 0, actualGenerations = 0;
+				for (let i = 0; i < 60; i++) population.push(randomChromosome());
+				let bestEver = null, bestFitnessEver = -Infinity;
 
-				for (let gen = 0; gen < GENERATIONS; gen++) {
-					actualGenerations = gen + 1;
+				for (let gen = 0; gen < 100; gen++) {
 					const fits = population.map(c => fitness(c, places));
 					let genBestIdx = 0;
 					for (let i = 1; i < fits.length; i++) if (fits[i] > fits[genBestIdx]) genBestIdx = i;
 					if (fits[genBestIdx] > bestFitnessEver) {
 						bestFitnessEver = fits[genBestIdx];
 						bestEver = [...population[genBestIdx]];
-						noImproveCount = 0;
-					} else {
-						noImproveCount++;
-						if (noImproveCount >= PATIENCE) break;
 					}
 					const sortedIdx = fits.map((_, i) => i).sort((a, b) => fits[b] - fits[a]);
 					const newPop = [];
-					for (let i = 0; i < ELITE; i++) newPop.push([...population[sortedIdx[i]]]);
-					function tournament() {
-						const k = GA.tournamentSize;
-						let best = Math.floor(Math.random() * POP_SIZE);
-						for (let i = 1; i < k; i++) {
-							const cand = Math.floor(Math.random() * POP_SIZE);
-							if (fits[cand] > fits[best]) best = cand;
-						}
-						return population[best];
-					}
-					while (newPop.length < POP_SIZE) {
-						const p1 = tournament(), p2 = tournament();
-						let child = Math.random() < GA.crossoverRate ? orderCrossover(p1, p2) : [...p1];
-						if (Math.random() < GA.mutationRate) child = mutate(child);
-						newPop.push(child);
+					for (let i = 0; i < 5; i++) newPop.push([...population[sortedIdx[i]]]);
+					
+					while (newPop.length < 60) {
+						const p1 = population[Math.floor(Math.random() * 60)];
+						const p2 = population[Math.floor(Math.random() * 60)];
+						newPop.push([...p1]);
 					}
 					population = newPop;
 				}
@@ -1009,28 +1035,199 @@
 				return bestDays.map(day => day.map(idx => places[idx])).filter(d => d.length > 0);
 			}
 
-			function getRecommendations(interests, options) {
+			// ═══ Pipeline نهایی ═══
+			function getRecommendations(interests, options, logFn) {
+				if (logFn) {
+					logFn(`══════════════════════════════════════`);
+					logFn(`🚀 شروع پیشنهاد سفر`);
+					logFn(`   علاقه‌مندی‌ها: ${interests.join(', ')}`);
+				}
+				
 				const budgetMax = Number(options.budgetStr.split('-')[1]) || 5_000_000;
 				const duration = Math.min(CONFIG.maxTripDays, options.duration || 3);
 				const hasChild = options.hasChild || false;
+				
+				if (logFn) logFn(`   مدت: ${duration} روز | بودجه: ${budgetMax.toLocaleString()} | کودک: ${hasChild ? 'بله' : 'خیر'}`);
+				
 				const fuzzyWeights = getFuzzyWeights(duration, hasChild, budgetMax);
 				const userPrefs = { interests, budgetMax, hasChild };
+				
 				const scoredPlaces = cbfScoring(REAL_PLACES, userPrefs, fuzzyWeights);
 				const knnSelected = knnSelection(scoredPlaces, userPrefs, fuzzyWeights, duration, budgetMax);
+				
+				if (logFn) logFn(`✅ CBF+KNN انتخاب کرد: ${knnSelected.length} جاذبه`);
+				
 				if (knnSelected.length === 0) return [];
+				
+				const lockedAssignment = assignLargePlaces(knnSelected, duration, interests, logFn);
+				
+				if (lockedAssignment) return lockedAssignment.filter(d => d.length > 0);
+				
 				const days = geneticAlgorithm(knnSelected, duration);
 				return days.filter(d => d.length > 0);
 			}
 
-			// ═══════════════════════════════════════════
-			// ذخیره سفر
-			// ═══════════════════════════════════════════
-			function submitPlan() {
+			// ═══════════════════════════════════════════════════════════
+			// 🧪 تست الگوریتم (داخل همین صفحه)
+			// ═══════════════════════════════════════════════════════════
+			window.runAllTests = function() {
+				const resultsDiv = document.getElementById('testResults');
+				resultsDiv.innerHTML = '';
+				
+				const scenarios = [
+					{ days: 1, budget: '2000000-5000000', child: false, label: '۱ روز، بدون کودک' },
+					{ days: 2, budget: '2000000-5000000', child: false, label: '۲ روز، بدون کودک' },
+					{ days: 2, budget: '2000000-5000000', child: true,  label: '۲ روز، با کودک' },
+					{ days: 3, budget: '5000000-10000000', child: false, label: '۳ روز، بدون کودک' },
+					{ days: 4, budget: '5000000-10000000', child: true,  label: '۴ روز، با کودک' },
+					{ days: 5, budget: '10000000-15000000', child: false, label: '۵ روز، بدون کودک' },
+					{ days: 7, budget: '15000000-99999999', child: false, label: '۷ روز، بدون کودک' }
+				];
+				
+				const allInterests = CATEGORIES_DATA.map(c => c.name);
+				
+				scenarios.forEach((s, idx) => {
+					const logs = [];
+					const logFn = msg => logs.push(msg);
+					
+					const days = getRecommendations(allInterests, {
+						budgetStr: s.budget,
+						duration: s.days,
+						hasChild: s.child
+					}, logFn);
+					
+					// ═══ اعتبارسنجی ═══
+					const issues = [];
+					const seenPlaces = new Set();
+					let totalPlaces = 0;
+					let overflowCount = 0;
+					let emptyCount = 0;
+					let companionViolations = 0;
+					
+					days.forEach((day, dayIdx) => {
+						let dayTime = 0, lastPlace = null;
+						day.forEach((p, i) => {
+							totalPlaces++;
+							if (seenPlaces.has(p.id)) issues.push(`❌ تکراری: ${p.name}`);
+							seenPlaces.add(p.id);
+							dayTime += (p.duration || 60);
+							if (i > 0) dayTime += 30;
+							if (lastPlace) dayTime += (calcDistance(lastPlace.lat, lastPlace.lng, p.lat, p.lng) / 10) * 15;
+							lastPlace = p;
+						});
+						if (day.length > 0) dayTime += 60;
+						
+						if (dayTime > 8 * 60) { overflowCount++; issues.push(`⚠️ سرریز: روز ${dayIdx+1} = ${Math.round(dayTime/60)} ساعت`); }
+						if (day.length === 0) { emptyCount++; issues.push(`⚠️ روز ${dayIdx+1} خالیه`); }
+						
+						if (day.length > 0) {
+							const mainPolicy = getPlacePolicy(day[0]);
+							if (day.length - 1 > mainPolicy.maxCompanions) {
+								companionViolations++;
+								issues.push(`⚠️ maxCompanions نقض: روز ${dayIdx+1}`);
+							}
+						}
+					});
+					
+					// ═══ نمایش ═══
+					const isPass = issues.length === 0;
+					const hasWarn = issues.some(i => i.includes('⚠️'));
+					const borderColor = isPass ? '#4caf50' : (hasWarn ? '#f59e0b' : '#ff5050');
+					const bgColor = isPass ? '#e8f5e9' : (hasWarn ? '#fff8e1' : '#ffebee');
+					
+					let daysHtml = '';
+					days.forEach((day, i) => {
+						let dayTime = day.reduce((s, x) => s + (x.duration || 60) + 30, 0);
+						if (day.length > 0) dayTime += 60;
+						const isOver = dayTime > 8 * 60;
+						daysHtml += `
+							<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(17,139,113,0.15);font-size:0.82rem;">
+								<span><strong>روز ${faNum(i+1)}:</strong> ${day.map(p => p.name).join(' + ') || '—'}</span>
+								<span style="font-weight:800;color:${isOver ? '#ff5050' : '#4caf50'};">${faNum(Math.round(dayTime/60*10)/10)} ساعت ${isOver ? '⚠️' : '✅'}</span>
+							</div>`;
+					});
+					
+					const card = document.createElement('div');
+					card.style.cssText = `
+						background: #fff;
+						border-radius: 16px;
+						padding: 18px;
+						margin-bottom: 14px;
+						box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+						border-right: 5px solid ${borderColor};
+					`;
+					
+					card.innerHTML = `
+						<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+							<div style="font-size:1.05rem;font-weight:900;color:#4a3a2a;">
+								🧪 تست ${faNum(idx+1)}: ${s.label}
+							</div>
+							<div style="display:flex;gap:8px;flex-wrap:wrap;">
+								<span style="background:#2196f3;color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;">${faNum(s.days)} روز</span>
+								<span style="background:#2196f3;color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;">${s.child ? '👶 با کودک' : 'بدون کودک'}</span>
+								<span style="background:${borderColor};color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;">
+									${isPass ? '✅ PASS' : (hasWarn ? '⚠️ WARN' : '❌ FAIL')}
+								</span>
+							</div>
+						</div>
+						
+						<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:12px;">
+							<div style="background:#f0faf6;padding:10px;border-radius:10px;text-align:center;">
+								<div style="font-size:1.3rem;font-weight:900;color:#118b71;">${faNum(days.length)}</div>
+								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">روز</div>
+							</div>
+							<div style="background:#f0faf6;padding:10px;border-radius:10px;text-align:center;">
+								<div style="font-size:1.3rem;font-weight:900;color:#118b71;">${faNum(totalPlaces)}</div>
+								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">جاذبه</div>
+							</div>
+							<div style="background:${overflowCount > 0 ? '#fff0f0' : '#f0faf6'};padding:10px;border-radius:10px;text-align:center;">
+								<div style="font-size:1.3rem;font-weight:900;color:${overflowCount > 0 ? '#ff5050' : '#118b71'};">${faNum(overflowCount)}</div>
+								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">سرریز</div>
+							</div>
+							<div style="background:${emptyCount > 0 ? '#fff0f0' : '#f0faf6'};padding:10px;border-radius:10px;text-align:center;">
+								<div style="font-size:1.3rem;font-weight:900;color:${emptyCount > 0 ? '#ff5050' : '#118b71'};">${faNum(emptyCount)}</div>
+								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">خالی</div>
+							</div>
+							<div style="background:${companionViolations > 0 ? '#fff0f0' : '#f0faf6'};padding:10px;border-radius:10px;text-align:center;">
+								<div style="font-size:1.3rem;font-weight:900;color:${companionViolations > 0 ? '#ff5050' : '#118b71'};">${faNum(companionViolations)}</div>
+								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">نقض همراه</div>
+							</div>
+						</div>
+						
+						${issues.length > 0 ? `
+							<div style="background:${bgColor};padding:12px;border-radius:10px;margin-bottom:10px;font-size:0.78rem;direction:rtl;">
+								<strong style="color:${borderColor};">🔍 مشکلات:</strong><br>
+								${issues.map(i => `• ${i}`).join('<br>')}
+							</div>
+						` : ''}
+						
+						<div style="background:#fbfaf7;padding:12px;border-radius:10px;">
+							<strong style="font-size:0.85rem;color:#118b71;">📋 چیدمان:</strong>
+							${daysHtml || '<span style="color:#8b7355;">هیچ جاذبه‌ای پیدا نشد</span>'}
+						</div>
+						
+						<details style="margin-top:10px;">
+							<summary style="cursor:pointer;font-size:0.8rem;color:#8b7355;font-weight:700;">🔍 نمایش لاگ کامل</summary>
+							<pre style="background:#1a2a2a;color:#4ade80;padding:12px;border-radius:10px;font-size:0.7rem;direction:ltr;text-align:left;overflow-x:auto;max-height:300px;margin-top:8px;">${logs.join('\n')}</pre>
+						</details>
+					`;
+					
+					resultsDiv.appendChild(card);
+				});
+			};
 
+			// اتصال دکمه‌ها
+			document.getElementById('testToggle').addEventListener('click', () => {
+				document.getElementById('testPanel').style.display = 'block';
+			});
+			document.getElementById('runAllTests').addEventListener('click', window.runAllTests);
+
+			// ═══ ذخیره سفر ═══
+			function submitPlan() {
 				if (!window.isUserAuthenticated()) {
 					window.showLoginModal({
 						title: 'برای ساخت برنامه اول وارد شو!',
-						message: 'برای ساختن برنامه سفر شخصی، لازمه اول وارد حساب کاربری خودت بشی. سفرت بعد از ورود ذخیره می‌شه.',
+						message: 'برای ساختن برنامه سفر شخصی، لازمه اول وارد حساب کاربری خودت بشی.',
 						nextUrl: window.location.pathname
 					});
 					return;
@@ -1048,7 +1245,6 @@
 
 				if (!days.length) { alert('جاذبه‌ای پیدا نشد؛ انتخاب‌ها را تغییر دهید.'); return; }
 
-				// پر کردن فرم
 				const form = $('saveTripForm');
 				$('saveStartDate').value = `${tripStart.jy}/${pad2(tripStart.jm)}/${pad2(tripStart.jd)}`;
 				$('saveEndDate').value = `${tripEnd.jy}/${pad2(tripEnd.jm)}/${pad2(tripEnd.jd)}`;
@@ -1067,7 +1263,6 @@
 				).flat();
 				$('saveSuggestedPlaces').value = JSON.stringify(placesData);
 
-				// ✅ ارسال با AJAX
 				const formData = new FormData(form);
 
 				fetch(form.action, {
@@ -1085,14 +1280,10 @@
 					})
 					.catch(err => {
 						console.error('❌ خطا:', err);
-						// اگه fetch کار نکرد، روش قدیمی
 						form.submit();
 					});
 			}
 
-			// ═══════════════════════════════════════════
-			// Scroll and menu
-			// ═══════════════════════════════════════════
 			const scrollBtn = document.getElementById('scrollTop');
 			if (scrollBtn) {
 				window.addEventListener('scroll', () => scrollBtn.classList.toggle('visible', window.scrollY > 400));
@@ -1112,47 +1303,37 @@
 			if (closeBtn) closeBtn.addEventListener('click', e => { e.stopPropagation(); if (navLinks.classList.contains('active')) toggleMenu(); });
 			if (overlay) overlay.addEventListener('click', () => { if (navLinks.classList.contains('active')) toggleMenu(); });
 		})();
-		// ═══════════════════════════════════════════════════════════
-		// اسلایدر سفرهای اخیر (نسخه‌ی Grid - تضمینی)
-		// ═══════════════════════════════════════════════════════════
+
+		// اسلایدر سفرهای اخیر
 		(function () {
 			const track = document.getElementById('tripsTrack');
 			const viewport = document.getElementById('tripsViewport');
 			const prevBtn = document.getElementById('tripsPrev');
 			const nextBtn = document.getElementById('tripsNext');
 			const dotsContainer = document.getElementById('tripsDots');
-
 			if (!track || !viewport || !prevBtn || !nextBtn || !dotsContainer) return;
-
 			const slides = track.querySelectorAll('.trip-card');
 			if (slides.length === 0) return;
-
 			let currentIndex = 0;
-
 			function getVisibleCount() {
 				const w = window.innerWidth;
 				if (w >= 1200) return 3;
 				if (w >= 700) return 2;
 				return 1;
 			}
-
 			function updateLayout() {
 				const visible = getVisibleCount();
 				const total = slides.length;
 				const maxIdx = Math.max(0, total - visible);
-
-				// ✅ تنظیم Grid
 				track.style.display = 'grid';
 				track.style.gridTemplateColumns = `repeat(${total}, calc((100% - ${(visible - 1) * 12}px) / ${visible}))`;
 				track.style.gap = '12px';
 				track.style.transition = 'transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-
 				if (currentIndex > maxIdx) currentIndex = maxIdx;
 				updateTransform();
 				updateDots(maxIdx);
 				updateButtons(maxIdx);
 			}
-
 			function updateTransform() {
 				const visible = getVisibleCount();
 				const cardWidth = slides[0].getBoundingClientRect().width;
@@ -1160,60 +1341,33 @@
 				const offset = currentIndex * (cardWidth + gap);
 				track.style.transform = `translateX(${offset}px)`;
 			}
-
 			function updateDots(maxIdx) {
 				dotsContainer.innerHTML = '';
 				if (maxIdx === 0) return;
-
 				for (let i = 0; i <= maxIdx; i++) {
 					const btn = document.createElement('button');
 					btn.type = 'button';
 					if (i === currentIndex) btn.classList.add('active');
-					btn.addEventListener('click', () => {
-						currentIndex = i;
-						updateTransform();
-						updateDots(maxIdx);
-						updateButtons(maxIdx);
-					});
+					btn.addEventListener('click', () => { currentIndex = i; updateTransform(); updateDots(maxIdx); updateButtons(maxIdx); });
 					dotsContainer.appendChild(btn);
 				}
 			}
-
 			function updateButtons(maxIdx) {
 				prevBtn.disabled = currentIndex === 0;
 				nextBtn.disabled = currentIndex >= maxIdx;
 			}
-
 			prevBtn.addEventListener('click', () => {
-				if (currentIndex > 0) {
-					currentIndex--;
-					const maxIdx = slides.length - getVisibleCount();
-					updateTransform();
-					updateDots(maxIdx);
-					updateButtons(maxIdx);
-				}
+				if (currentIndex > 0) { currentIndex--; const maxIdx = slides.length - getVisibleCount(); updateTransform(); updateDots(maxIdx); updateButtons(maxIdx); }
 			});
-
 			nextBtn.addEventListener('click', () => {
 				const maxIdx = slides.length - getVisibleCount();
-				if (currentIndex < maxIdx) {
-					currentIndex++;
-					updateTransform();
-					updateDots(maxIdx);
-					updateButtons(maxIdx);
-				}
+				if (currentIndex < maxIdx) { currentIndex++; updateTransform(); updateDots(maxIdx); updateButtons(maxIdx); }
 			});
-
 			let resizeTimer;
 			window.addEventListener('resize', () => {
 				clearTimeout(resizeTimer);
-				resizeTimer = setTimeout(() => {
-					currentIndex = 0;
-					updateLayout();
-				}, 200);
+				resizeTimer = setTimeout(() => { currentIndex = 0; updateLayout(); }, 200);
 			});
-
-			// شروع
 			updateLayout();
 		})();
 	</script>

@@ -8,13 +8,14 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
 <style>
 /* ═══════════════════════════════════════════════════════════
-   نقشه - نسخه‌ی نهایی (بدون zoom control)
+   نقشه - نسخه‌ی نهایی با مسیریابی هوشمند
    ═══════════════════════════════════════════════════════════ */
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -76,7 +77,6 @@ body.page-map {
     inset: 0;
 }
 
-/* ═══ هدر سایدبار ═══ */
 .planner-hero {
     background-image: url('{% static "img/slide4.jpg" %}');
     background-size: cover;
@@ -114,7 +114,6 @@ body.page-map {
 }
 .close-sb:hover { background: rgba(255,255,255,.45); transform: rotate(90deg); }
 
-/* ═══ جستجو ═══ */
 .smart-search {
     position: relative;
     padding: 14px 16px;
@@ -171,7 +170,6 @@ body.page-map {
 .sug-item .sug-name { font-weight: 700; font-size: 13px; color: #4a3a2a; }
 .sug-item .sug-cat { font-size: 11px; color: #8b7355; }
 
-/* ═══ فیلتر سریع ═══ */
 .quick-filters {
     border-bottom: 1px solid #f1ece3;
     background: #faf9f7;
@@ -303,7 +301,6 @@ body.page-map {
     color: #fff;
 }
 
-/* ═══ toggle های اضافی ═══ */
 .extra-toggles {
     padding: 10px 16px;
     border-bottom: 1px solid #f1ece3;
@@ -335,7 +332,6 @@ body.page-map {
     border-color: #118b71;
 }
 
-/* ═══ تب‌های سفر ═══ */
 .planner-tabs {
     display: flex;
     gap: 6px;
@@ -364,7 +360,6 @@ body.page-map {
 .ptab.active { color: #ff5050; border-bottom-color: #ff5050; }
 .ptab:hover:not(.active) { color: #4a3a2a; }
 
-/* ═══ لیست جاذبه‌ها ═══ */
 .result-count {
     padding: 8px 16px;
     font-size: 11px;
@@ -490,7 +485,6 @@ body.page-map {
     margin-bottom: 10px;
 }
 
-/* ═══ دکمه toggle سایدبار ═══ */
 .sb-toggle {
     position: fixed;
     top: 90px;
@@ -516,7 +510,6 @@ body.page-map {
 }
 .sb-toggle.show { display: flex; }
 
-/* ═══ چیپ‌های روز ═══ */
 #mapDayChips {
     position: absolute !important;
     bottom: 24px !important;
@@ -569,9 +562,6 @@ body.page-map {
     box-shadow: 0 4px 12px rgba(17, 139, 113, 0.3);
 }
 
-/* ═══════════════════════════════════════════════════════════
-   ✅ کنترل‌های نقشه - ستون سمت چپ
-   ═══════════════════════════════════════════════════════════ */
 .map-controls {
     position: absolute;
     left: 20px;
@@ -598,13 +588,22 @@ body.page-map {
 .mc-btn:hover { color: #118b71; transform: scale(1.06); }
 .mc-btn.active { background: #118b71; color: #fff; }
 .mc-btn.locate { color: #ff5050; }
+.mc-btn.route { color: #2196f3; }
 
-/* ✅ کلاً zoom control رو مخفی می‌کنیم */
 .leaflet-control-zoom {
     display: none !important;
 }
 
-/* ═══ لایه‌ها ═══ */
+/* ═══════════════════════════════════════════════════════════
+   🎯 استایل مسیریابی
+   ═══════════════════════════════════════════════════════════ */
+.leaflet-routing-container {
+    display: none !important;
+}
+.leaflet-routing-alt {
+    display: none !important;
+}
+
 .layer-switcher {
     position: absolute;
     left: 20px; top: 20px;
@@ -637,7 +636,6 @@ body.page-map {
 .layer-switcher button:hover { background: rgba(17,139,113,.08); }
 .layer-switcher button.active { background: #118b71; color: #fff; }
 
-/* ═══ راهنما ═══ */
 .map-legend {
     position: absolute;
     bottom: 30px; right: 20px;
@@ -691,7 +689,6 @@ body.page-map {
     box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 2px 4px rgba(0,0,0,.15);
 }
 
-/* ═══ پین‌ها ═══ */
 .pin-wrap { background: transparent; border: none; }
 .pin {
     width: 26px; height: 26px;
@@ -738,7 +735,6 @@ body.page-map {
     line-height: 1.4;
 }
 
-/* ═══ کلاستر ═══ */
 .custom-cluster { background: transparent; border: none; }
 .custom-cluster-inner {
     position: relative;
@@ -767,7 +763,6 @@ body.page-map {
     line-height: 1;
 }
 
-/* ═══ پاپ‌آپ ═══ */
 .leaflet-popup-content-wrapper {
     border-radius: 16px;
     box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
@@ -804,7 +799,6 @@ body.page-map {
 .map-pop-loc i { color: #ff5050; }
 .map-pop-body p { font-size: 11px; color: #8b7355; line-height: 1.8; margin: 0; }
 
-/* ═══ Toast ═══ */
 .toast {
     position: fixed;
     bottom: 30px; left: 50%;
@@ -826,7 +820,6 @@ body.page-map {
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 .toast i { color: #118b71; font-size: 16px; }
 
-/* ═══ ریسپانسیو ═══ */
 @media (max-width: 992px) {
     .page-map .map-sidebar { width: 340px; flex-basis: 340px; }
 }
@@ -950,6 +943,9 @@ body.page-map {
             <button class="mc-btn locate" id="locateBtn" title="موقعیت من">
                 <i class="fas fa-location-crosshairs"></i>
             </button>
+            <button class="mc-btn route" id="routeBtn" title="نمایش/مخفی مسیر" style="display:none;">
+                <i class="fas fa-route"></i>
+            </button>
             <button class="mc-btn" id="layerBtn" title="لایه نقشه">
                 <i class="fas fa-layer-group"></i>
             </button>
@@ -981,13 +977,14 @@ body.page-map {
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
 <script>
 const MAP_PLACES = {{ places_json|safe }};
 const TRIP_DATA = {{ trip_json|default:'null'|safe }};
 const TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
 const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
-const FAVORITE_IDS = {{ favorite_ids|safe }};
+const FAVORITE_IDS = {{ favorite_ids|default:'[]'|safe }};
 
 (function () {
     'use strict';
@@ -1024,21 +1021,18 @@ const FAVORITE_IDS = {{ favorite_ids|safe }};
     let activeCats = new Set();
     let freeOnly = false, childOnly = false, favsOnly = false;
     let query = '';
-  let favs = new Set(FAVORITE_IDS || []);
-console.log('❤️ Favorites loaded:', [...favs]);
+    let favs = new Set(FAVORITE_IDS || []);
+    let activeRoute = null;
+    let routeEnabled = true;  // ← مسیریابی روشن باشه به‌طور پیش‌فرض
 
-    // ✅ نکته: zoomControl: false و بدون L.control.zoom
     const map = L.map('tourismMap', { 
         zoomControl: false,
-        // غیرفعال کردن اسکرول و کلیک‌های zoom
-        scrollWheelZoom: true,    // ← اسکرول موس فعال بمونه
-        doubleClickZoom: true,    // ← دابل‌کلیک فعال بمونه
-        boxZoom: true,            // ← shift+درگ فعال بمونه
-        keyboard: true,           // ← کیبورد فعال بمونه
-        touchZoom: true           // ← pinch to zoom روی موبایل
+        scrollWheelZoom: true,
+        doubleClickZoom: true,
+        boxZoom: true,
+        keyboard: true,
+        touchZoom: true
     });
-    
-    // ✅ دیگه L.control.zoom صدا زده نمی‌شه
 
     const MAPTILER_API_KEY = 'HJ7dofOgoJi2TfcV7XkF';
     const layers = {
@@ -1058,7 +1052,6 @@ console.log('❤️ Favorites loaded:', [...favs]);
     let currentLayer = 'street';
     layers.street.addTo(map);
 
-    // ═══ کلاستر با رنگ ثابت ═══
     const clusterGroup = L.markerClusterGroup({
         maxClusterRadius: 50,
         spiderfyOnMaxZoom: true,
@@ -1090,14 +1083,6 @@ console.log('❤️ Favorites loaded:', [...favs]);
 
     map.addLayer(clusterGroup);
 
-    function schedule(dayPlaces) {
-        let cur = 9 * 60;
-        return dayPlaces.map((p) => {
-            const s = cur, e = cur + (p.duration || 60);
-            cur = e + 30;
-            return { p, s: s % 1440, e: e % 1440 };
-        });
-    }
     const faTime = m => `${faNum(Math.floor(m / 60))}:${faNum(String(m % 60).padStart(2, '0'))}`;
 
     let daysArray = [];
@@ -1147,6 +1132,118 @@ console.log('❤️ Favorites loaded:', [...favs]);
                     <p>${p.desc || p.short_description || ''}</p>
                 </div>
             </div>`;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 🎯 الگوریتم Nearest Neighbor برای کوتاه‌ترین مسیر
+    // (مرتب کردن جاذبه‌ها به صورتی که کمترین مسافت رو داشته باشه)
+    // ═══════════════════════════════════════════════════════════
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+        const R = 6371; // km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLng = (lng2 - lng1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng/2) * Math.sin(dLng/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    function nearestNeighbor(places) {
+        if (places.length <= 2) return [...places];
+
+        const unvisited = [...places];
+        const ordered = [];
+        
+        // شروع از اولین جاذبه (می‌تونه هر کدوم باشه، برای سادگی اولین)
+        let current = unvisited.shift();
+        ordered.push(current);
+
+        while (unvisited.length > 0) {
+            let nearestIdx = 0;
+            let nearestDist = Infinity;
+            
+            for (let i = 0; i < unvisited.length; i++) {
+                const dist = calculateDistance(
+                    current.lat, current.lng,
+                    unvisited[i].lat, unvisited[i].lng
+                );
+                if (dist < nearestDist) {
+                    nearestDist = dist;
+                    nearestIdx = i;
+                }
+            }
+            
+            current = unvisited.splice(nearestIdx, 1)[0];
+            ordered.push(current);
+        }
+
+        return ordered;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 🎯 رسم مسیر
+    // ═══════════════════════════════════════════════════════════
+    function drawRoute(placesList, color) {
+        // پاک کردن مسیر قبلی
+        if (activeRoute) {
+            map.removeControl(activeRoute);
+            activeRoute = null;
+        }
+
+        if (!routeEnabled) return;
+
+        if (!placesList || placesList.length < 2) {
+            return; // ← کمتر از ۲ نقطه، مسیری نیست
+        }
+
+        // ✅ پیدا کردن کوتاه‌ترین ترتیب
+        const orderedPlaces = nearestNeighbor(placesList);
+        
+        console.log('🗺️ ترتیب بهینه:', orderedPlaces.map(p => p.name));
+
+        const waypoints = orderedPlaces.map(p => L.latLng(p.lat, p.lng));
+        const routeColor = color || '#118b71';
+
+        try {
+            activeRoute = L.Routing.control({
+                waypoints: waypoints,
+                routeWhileDragging: false,
+                addWaypoints: false,
+                fitSelectedRoutes: false,    // ← خودمون fit می‌کنیم
+                show: false,
+                lineOptions: {
+                    styles: [
+                        {
+                            color: routeColor,
+                            weight: 5,
+                            opacity: 0.85,
+                            dashArray: '8, 8'
+                        }
+                    ],
+                    extendToWaypoints: true,
+                    missingRouteTolerance: 0
+                },
+                createMarker: function() { return null; },
+                router: L.Routing.osrmv1({
+                    serviceUrl: 'https://router.project-osrm.org/route/v1',
+                    profile: 'driving'
+                })
+            }).addTo(map);
+
+            console.log('✅ مسیر رسم شد برای', orderedPlaces.length, 'جاذبه');
+
+        } catch (err) {
+            console.error('❌ خطا در مسیریابی:', err);
+        }
+    }
+
+    function clearRoute() {
+        if (activeRoute) {
+            map.removeControl(activeRoute);
+            activeRoute = null;
+            console.log('🗑️ مسیر پاک شد');
+        }
     }
 
     function renderTripList() {
@@ -1261,12 +1358,16 @@ console.log('❤️ Favorites loaded:', [...favs]);
         markers.forEach(m => clusterGroup.removeLayer(m));
         markers.clear();
         clusterGroup.clearLayers();
+        
+        // پاک کردن مسیر قبلی
+        clearRoute();
 
         const allPoints = [];
         let placesToDraw = [];
 
         if (TRIP_MODE && TRIP_DATA) {
             if (activeDay === 'all') {
+                // ✅ نمای کلی: همه‌ی روزها، بدون مسیر
                 daysArray.forEach((d, i) => {
                     const dayNum = i + 1;
                     const color = getDayColor(dayNum);
@@ -1275,6 +1376,7 @@ console.log('❤️ Favorites loaded:', [...favs]);
                     });
                 });
             } else {
+                // ✅ یه روز خاص: فقط همون روز، با مسیر
                 const i = +activeDay;
                 const dayNum = i + 1;
                 const color = getDayColor(dayNum);
@@ -1310,6 +1412,12 @@ console.log('❤️ Favorites loaded:', [...favs]);
             markers.set(p.id, m);
             allPoints.push([p.lat, p.lng]);
         });
+
+        // ✅ رسم مسیر فقط برای یه روز خاص (نه نمای کلی)
+        if (TRIP_MODE && TRIP_DATA && activeDay !== 'all') {
+            const i = +activeDay;
+            drawRoute(daysArray[i], getDayColor(i + 1));
+        }
 
         if (allPoints.length) {
             map.fitBounds(L.latLngBounds(allPoints), { padding: [80, 80], maxZoom: 14 });
@@ -1520,6 +1628,21 @@ console.log('❤️ Favorites loaded:', [...favs]);
         applyFilters();
     });
 
+    // ✅ دکمه‌ی toggle مسیر
+    $('routeBtn')?.addEventListener('click', () => {
+        routeEnabled = !routeEnabled;
+        $('routeBtn').classList.toggle('active', routeEnabled);
+        
+        if (routeEnabled && activeDay !== 'all') {
+            const i = +activeDay;
+            drawRoute(daysArray[i], getDayColor(i + 1));
+            showToast('مسیر نمایش داده شد');
+        } else {
+            clearRoute();
+            showToast(routeEnabled ? 'مسیر روشن' : 'مسیر خاموش');
+        }
+    });
+
     const layerBtn = $('layerBtn');
     const layerSwitcher = $('layerSwitcher');
     layerBtn?.addEventListener('click', () => layerSwitcher?.classList.toggle('open'));
@@ -1591,6 +1714,11 @@ console.log('❤️ Favorites loaded:', [...favs]);
         if (subtitle) {
             subtitle.textContent = `${faNum(daysArray.length)} روزه - ${faNum(tripPlaces.length)} جاذبه`;
         }
+        
+        // ✅ نمایش دکمه‌ی مسیریابی
+        $('routeBtn').style.display = 'flex';
+        $('routeBtn').classList.add('active');  // ← فعال به‌طور پیش‌فرض
+        
         renderTripList();
         drawMap();
         buildMapDayChips();

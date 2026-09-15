@@ -41,4 +41,5 @@ urlpatterns = [
     
     # ✅ ویرایش پروفایل
     path('profile/update/', views.update_profile, name='update_profile'),
+    path('test-algorithm/', views.test_algorithm_page, name='test_algorithm'),
 ]
