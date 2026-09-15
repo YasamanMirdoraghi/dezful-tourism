@@ -731,16 +731,41 @@ def map_page(request):
 
     places_json = []
     for place in places:
+        # ✅ دسته اصلی و زیرمجموعه با محافظت کامل
+        cat_name = ''
+        cat_color = '#118b71'
+        parent_cat_name = ''
+        parent_color = '#118b71'
+        
+        try:
+            cat = place.category
+            if cat is not None:
+                cat_name = cat.name or ''
+                cat_color = cat.color or '#118b71'
+                
+                parent = cat.parent
+                if parent is not None:
+                    parent_cat_name = parent.name or ''
+                    parent_color = parent.color or '#118b71'
+                else:
+                    # اگه زیرمجموعه نداره، خودش دسته اصلیه
+                    parent_cat_name = cat_name
+                    parent_color = cat_color
+        except Exception as e:
+            print(f'⚠️ خطا در جاذبه {place.id}: {e}')
+        
         places_json.append({
             'id': place.id,
-            'name': place.name,
-            'slug': place.slug,
-            'cat': place.category.name if place.category else '',
+            'name': place.name or '',
+            'slug': place.slug or '',
+            'cat': cat_name,                    # زیرمجموعه (نمایش)
+            'parent_cat': parent_cat_name,      # دسته اصلی (فیلتر + رنگ)
+            'color': parent_color,              # رنگ دسته اصلی
             'sub': place.short_description or '',
-            'cost': place.cost_toman,
-            'duration': place.duration_minutes,
-            'rating': place.rating_avg,
-            'child': place.is_child_friendly,
+            'cost': place.cost_toman or 0,
+            'duration': place.duration_minutes or 60,
+            'rating': float(place.rating_avg) if place.rating_avg else 0,
+            'child': bool(place.is_child_friendly),
             'lat': float(place.latitude) if place.latitude else 32.38,
             'lng': float(place.longitude) if place.longitude else 48.42,
             'image': get_place_image(place),

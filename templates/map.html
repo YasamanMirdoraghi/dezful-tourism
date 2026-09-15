@@ -9,298 +9,426 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
 <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.003/Vazirmatn-font-face.css" rel="stylesheet">
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
-<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
 
 <style>
-/* ==========================================================
-   نقشه تمام‌صفحه سبک بزنیم‌بیرون - نسخه‌ی سفارشی‌سازی‌شده
-========================================================== */
-body.page-map { padding: 0 !important; overflow: hidden; }
-.page-map .navbar { position: fixed; top: 0; left: 0; right: 0; z-index: 1000; background: rgba(255,255,255,.92); backdrop-filter: blur(12px); }
+/* ═══════════════════════════════════════════════════════════
+   نقشه - نسخه‌ی نهایی (کلاستر کوچیک + لیبل دائمی + فیلتر کشویی)
+   ═══════════════════════════════════════════════════════════ */
 
-/* ===== مخفی کردن دکمه خانه در نقشه ===== */
-body.page-map .float-home {
-    display: none !important;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
-.map-wrapper {
-    position: fixed; inset: 0; z-index: 1;
-}
-#tourismMap {
-    position: absolute; inset: 0;
-}
-
-/* ---------- سایدبار چسبیده ---------- */
-/* ---------- سایدبار ---------- */
-/* ---------- سایدبار ---------- */
-.map-sidebar {
-    position: absolute;
-    top: 75px;
-    right: -5px;
-    width: 400px;
-    height: calc(100vh - 80px);
-    max-height: calc(100vh - 80px);
-    background: #fff;
-    border-radius: 0;
-    box-shadow: -5px 0 20px rgba(0,0,0,0.1);
-    z-index: 900;
-    display: flex; flex-direction: column;
+body.page-map {
+    font-family: 'Vazirmatn', sans-serif;
     overflow: hidden;
-    transition: transform .4s cubic-bezier(.4,0,.2,1), opacity .3s;
-    border-radius: 5px;
+    height: 100vh;
+    background: #f5efe6;
+    direction: rtl;
 }
-.map-sidebar.collapsed { transform: translateX(calc(100% + 30px)); }
 
-/* ===== هدر سایدبار با تصویر و گرادیان ===== */
-.sidebar-head {
+/* ═══ نوبار ═══ */
+.page-map .navbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 1000;
+    background: rgba(255,255,255,.95);
+    backdrop-filter: blur(12px);
+    box-shadow: 0 2px 20px rgba(0,0,0,.06);
+    height: 70px;
+}
+.page-map .float-home { display: none !important; }
+
+/* ═══ ساختار اصلی ═══ */
+.page-map .map-layout {
+    position: fixed;
+    top: 70px;
+    left: 0; right: 0; bottom: 0;
+    display: flex;
+    direction: rtl;
+}
+
+.page-map .map-sidebar {
+    width: 400px;
+    flex: 0 0 400px;
+    background: #fff;
+    display: flex;
+    flex-direction: column;
+    border-left: 1px solid rgba(74, 58, 42, 0.08);
+    box-shadow: -5px 0 20px rgba(0, 0, 0, 0.06);
+    z-index: 900;
+    transition: all 0.35s cubic-bezier(.4,0,.2,1);
+    overflow: hidden;
+    position: relative;
+}
+.page-map .map-sidebar.collapsed {
+    width: 0;
+    flex-basis: 0;
+    border-left: none;
+}
+
+.page-map .map-viewport {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+}
+
+#tourismMap {
+    position: absolute;
+    inset: 0;
+}
+
+/* ═══ هدر سایدبار ═══ */
+.planner-hero {
     background-image: url('{% static "img/slide4.jpg" %}');
     background-size: cover;
     background-position: center;
-    padding: 18px 20px 14px;
-    color: #fff;
+    height: 130px;
     position: relative;
-    overflow: hidden;
-    height: 150px;  /* ← کوچک‌تر شد */
+    flex-shrink: 0;
 }
-
-.sidebar-head::before {
+.planner-hero::after {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(13, 68, 56, 0.9) 0%, rgba(7, 68, 55, 0.404) 100%);
-    z-index: 0;
+    background: linear-gradient(to top, rgba(0,0,0,.75), rgba(0,0,0,.05) 60%);
 }
-
-.sidebar-head h2 {
-    font-size: 17px; font-weight: 900; margin: 0 0 4px;
-    display: flex; align-items: center; gap: 8px;
-    position: relative; z-index: 1;
-    text-align: right;  /* ← راست‌چین */
-    justify-content: flex-start;
-}
-
-.sidebar-head p { font-size: 12px; opacity: .85; margin: 0; position: relative; z-index: 1; text-align: right; }
-
-/* ===== ضربدر فیکس و کوچک‌تر ===== */
-.sidebar-head .close-sb {
+.ph-title {
     position: absolute;
-    top: 10px;
-    left: 10px;
-    width: 24px;  /* ← کوچک‌تر */
-    height: 24px;  /* ← کوچک‌تر */
-    border-radius: 50%;
-    background: rgba(255,255,255,.25);
-    border: none;
-    color: #fff;
-    cursor: pointer;
-    font-size: 11px;  /* ← کوچک‌تر */
-    transition: .2s;
-    z-index: 2;  /* ← بالاتر از همه */
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    bottom: 14px; right: 16px; left: 16px;
+    display: flex; align-items: center; gap: 12px;
+    color: #fff; z-index: 2;
 }
+.ph-thumb {
+    width: 48px; height: 48px; border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid rgba(255,255,255,.6);
+}
+.ph-title h3 { font-size: 18px; font-weight: 900; margin: 0; }
+.ph-title span { font-size: 11px; opacity: .9; }
 
-.sidebar-head .close-sb:hover {
-    background: rgba(255,255,255,.45);
-    transform: rotate(90deg) scale(1.1);
+.close-sb {
+    position: absolute; top: 10px; left: 10px;
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,.25); border: none; color: #fff;
+    cursor: pointer; font-size: 12px; transition: .2s;
+    z-index: 3; display: flex; align-items: center; justify-content: center;
 }
-/* جستجوی شناور */
+.close-sb:hover { background: rgba(255,255,255,.45); transform: rotate(90deg); }
+
+/* ═══ جستجو ═══ */
 .smart-search {
-    position: relative; padding: 14px 16px;
+    position: relative;
+    padding: 14px 16px;
     border-bottom: 1px solid #f1ece3;
+    flex-shrink: 0;
 }
 .smart-search input {
-    width: 100%; padding: 12px 42px 12px 14px;
-    border-radius: 14px; border: 2px solid rgba(17,139,113,.12);
-    background: rgba(17,139,113,.04); font-family: inherit;
-    font-size: 13px; color: var(--brown-text); outline: none;
+    width: 100%;
+    padding: 12px 42px 12px 14px;
+    border-radius: 14px;
+    border: 2px solid rgba(17,139,113,.12);
+    background: rgba(17,139,113,.04);
+    font-family: inherit;
+    font-size: 13px;
+    color: #4a3a2a;
+    outline: none;
     transition: .25s;
 }
 .smart-search input:focus {
-    border-color: var(--primary-green); background: #fff;
+    border-color: #118b71;
+    background: #fff;
     box-shadow: 0 0 0 4px rgba(17,139,113,.08);
 }
-.smart-search i.fa-search {
-    position: absolute; top: 28px; right: 30px;
-    color: var(--primary-green); font-size: 14px;
+.smart-search .search-icon {
+    position: absolute;
+    top: 28px; right: 30px;
+    color: #118b71; font-size: 14px;
+    pointer-events: none;
 }
 .search-suggestions {
-    position: absolute; top: 100%; left: 16px; right: 16px;
-    background: #fff; border-radius: 14px;
+    position: absolute;
+    top: 100%; left: 16px; right: 16px;
+    background: #fff;
+    border-radius: 14px;
     box-shadow: 0 10px 30px rgba(0,0,0,.15);
-    max-height: 280px; overflow-y: auto;
-    z-index: 100; display: none;
+    max-height: 280px;
+    overflow-y: auto;
+    z-index: 100;
+    display: none;
     margin-top: 4px;
 }
 .search-suggestions.open { display: block; }
 .sug-item {
-    padding: 10px 14px; cursor: pointer;
+    padding: 10px 14px;
+    cursor: pointer;
     border-bottom: 1px solid #f5f1ea;
-    display: flex; align-items: center; gap: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
     transition: .15s;
 }
 .sug-item:hover { background: rgba(17,139,113,.06); }
 .sug-item:last-child { border-bottom: none; }
-.sug-item i {
-    width: 30px; height: 30px; border-radius: 50%;
-    background: rgba(17,139,113,.1); color: var(--primary-green);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 12px; flex: 0 0 30px;
-}
-.sug-item .sug-name { font-weight: 700; font-size: 13px; color: var(--brown-text); }
-.sug-item .sug-cat { font-size: 11px; color: var(--brown-light); }
+.sug-item .sug-name { font-weight: 700; font-size: 13px; color: #4a3a2a; }
+.sug-item .sug-cat { font-size: 11px; color: #8b7355; }
 
-/* فیلترهای سریع */
-/* ===== فیلترهای سریع - حرفه‌ای ===== */
+/* ═══════════════════════════════════════════════════════════
+   🎯 فیلتر سریع - کشویی (Accordion)
+   ═══════════════════════════════════════════════════════════ */
 .quick-filters {
-    padding: 12px 16px;
     border-bottom: 1px solid #f1ece3;
     background: #faf9f7;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
 }
 
-.qf-title {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--brown-light);
-    margin-bottom: 10px;
+/* هدر فیلتر - کلیک‌پذیر */
+.qf-header {
+    padding: 12px 16px;
+    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    user-select: none;
+    transition: background 0.2s;
+}
+.qf-header:hover {
+    background: rgba(17,139,113,.04);
+}
+.qf-header-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #4a3a2a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.qf-header-title i {
+    color: #118b71;
+    font-size: 13px;
+}
+.qf-header-title .qf-active-count {
+    background: #118b71;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 8px;
+    border-radius: 10px;
+    margin-right: 4px;
+}
+.qf-header-title .qf-active-count:empty {
+    display: none;
+}
+
+.qf-toggle-icon {
+    width: 24px;
+    height: 24px;
+    border-radius: 8px;
+    background: rgba(17,139,113,.08);
+    color: #118b71;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    transition: transform 0.3s ease, background 0.2s;
+}
+.qf-header:hover .qf-toggle-icon {
+    background: rgba(17,139,113,.15);
+}
+
+/* بدنه فیلتر - بسته به‌طور پیش‌فرض */
+.qf-body {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.35s ease;
+    padding: 0 16px;
+}
+.qf-body.open {
+    max-height: 400px;
+    padding: 0 16px 14px;
+}
+
+/* وقتی بازه، آیکون می‌چرخه */
+.quick-filters.open .qf-toggle-icon {
+    transform: rotate(180deg);
+}
+
+.qf-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    padding-top: 4px;
+}
+.qf-actions-label {
+    font-size: 10px;
+    font-weight: 800;
+    color: #8b7355;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
-
 .qf-clear {
     font-size: 11px;
-    color: var(--brick-orange);
+    color: #ff5050;
     cursor: pointer;
-    background: rgba(255, 80, 80, 0.08);
+    background: rgba(255,80,80,.08);
     padding: 4px 10px;
     border-radius: 8px;
     transition: .2s;
+    font-weight: 700;
 }
-
-.qf-clear:hover {
-    background: var(--brick-orange);
-    color: #fff;
-}
+.qf-clear:hover { background: #ff5050; color: #fff; }
 
 .qf-chips {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    max-height: 80px;
+    max-height: 200px;
     overflow-y: auto;
 }
+.qf-chips::-webkit-scrollbar { width: 4px; }
+.qf-chips::-webkit-scrollbar-thumb { background: rgba(17,139,113,.3); border-radius: 10px; }
 
 .qf-chip {
     display: inline-flex;
     align-items: center;
     gap: 6px;
     padding: 8px 14px;
-    border-radius: 10px;  /* ← مربعی گرد */
+    border-radius: 10px;
     background: #fff;
     border: 1.5px solid #e8e4dd;
     font-size: 12px;
     font-weight: 700;
     cursor: pointer;
-    color: var(--brown-text);
+    color: #4a3a2a;
     transition: all .25s ease;
     font-family: inherit;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.03);
 }
-
-.qf-chip:hover {
-    border-color: var(--primary-green);
-    transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(17,139,113,0.1);
-}
-
-.qf-chip.active {
-    background: var(--primary-green);
-    color: #fff;
-    border-color: var(--primary-green);
-    box-shadow: 0 4px 12px rgba(17,139,113,0.2);
-}
-
+.qf-chip:hover { border-color: #118b71; transform: translateY(-2px); }
+.qf-chip.active { background: #118b71; color: #fff; border-color: #118b71; }
 .qf-chip .chip-dot {
-    width: 8px;
-    height: 8px;
+    width: 8px; height: 8px;
     border-radius: 50%;
     flex: 0 0 8px;
 }
-
 .qf-chip .chip-num {
     font-size: 10px;
-    background: rgba(0,0,0,0.06);
+    background: rgba(0,0,0,.06);
     border-radius: 8px;
     padding: 2px 8px;
     font-weight: 800;
-    color: var(--brown-light);
+    color: #8b7355;
 }
-
 .qf-chip.active .chip-num {
-    background: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,.25);
     color: #fff;
 }
+
+/* ═══ toggle های اضافی ═══ */
 .extra-toggles {
-    padding: 10px 16px; border-bottom: 1px solid #f1ece3;
-    display: flex; gap: 8px;
+    padding: 10px 16px;
+    border-bottom: 1px solid #f1ece3;
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
 }
 .et-btn {
-    flex: 1; padding: 8px 6px;
-    background: rgba(17,139,113,.05); border: 1px solid transparent;
-    border-radius: 10px; cursor: pointer; font-family: inherit;
-    font-size: 11px; font-weight: 700; color: var(--brown-light);
-    display: flex; flex-direction: column; align-items: center; gap: 3px;
+    flex: 1;
+    padding: 8px 6px;
+    background: rgba(17,139,113,.05);
+    border: 1px solid transparent;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 700;
+    color: #8b7355;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
     transition: .2s;
 }
 .et-btn i { font-size: 14px; }
-.et-btn.active { background: rgba(17,139,113,.12); color: var(--primary-green); border-color: var(--primary-green); }
+.et-btn.active {
+    background: rgba(17,139,113,.12);
+    color: #118b71;
+    border-color: #118b71;
+}
 
-/* ==========================================================
-   لیست جاذبه‌ها با استایل تایم‌لاین (مثل plan.html)
-   ========================================================== */
+/* ═══ تب‌های سفر ═══ */
+.planner-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 8px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fff;
+    flex-shrink: 0;
+}
+.planner-tabs::-webkit-scrollbar { height: 4px; }
+.planner-tabs::-webkit-scrollbar-thumb { background: rgba(17,139,113,.3); border-radius: 10px; }
+.ptab {
+    flex: 0 0 auto;
+    text-align: center;
+    padding: 10px 16px 12px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    border-bottom: 3px solid transparent;
+    color: #8b7355;
+    transition: 0.2s;
+}
+.ptab .t { display: block; font-weight: 800; font-size: 14px; }
+.ptab .s { display: block; font-size: 11px; margin-top: 3px; opacity: 0.8; }
+.ptab.active { color: #ff5050; border-bottom-color: #ff5050; }
+.ptab:hover:not(.active) { color: #4a3a2a; }
+
+/* ═══ لیست جاذبه‌ها ═══ */
+.result-count {
+    padding: 8px 16px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #118b71;
+    border-bottom: 1px solid #f1ece3;
+    display: flex;
+    justify-content: space-between;
+    flex-shrink: 0;
+    background: #fff;
+}
 .map-list {
-    flex: 1; overflow-y: auto;
+    flex: 1;
+    overflow-y: auto;
     padding: 10px 14px 16px;
-    display: flex; flex-direction: column; gap: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
 }
 .map-list::-webkit-scrollbar { width: 5px; }
 .map-list::-webkit-scrollbar-thumb { background: rgba(17,139,113,.3); border-radius: 10px; }
 
-/* استایل تایم‌لاین */
 .place-row {
     position: relative;
     padding-right: 46px;
     margin-bottom: 16px;
 }
-
 .place-row::before {
     content: '';
     position: absolute;
     right: 15px;
-    top: 36px;
-    bottom: -14px;
+    top: 36px; bottom: -14px;
     border-right: 2px dashed rgba(255, 80, 80, 0.3);
 }
-
-.place-row:last-child::before {
-    display: none;
-}
-
+.place-row:last-child::before { display: none; }
 .place-num {
     position: absolute;
-    right: 0;
-    top: 12px;
-    width: 30px;
-    height: 30px;
+    right: 0; top: 12px;
+    width: 30px; height: 30px;
     border-radius: 50%;
-    border: 2px solid var(--brick-orange);
-    color: var(--brick-orange);
+    border: 2px solid #ff5050;
+    color: #ff5050;
     background: #fff;
     display: flex;
     align-items: center;
@@ -310,10 +438,8 @@ body.page-map .float-home {
     z-index: 1;
     box-shadow: 0 2px 8px rgba(255, 80, 80, 0.18);
 }
-
 .place-card {
     display: flex;
-    align-items: stretch;
     gap: 12px;
     background: #fff;
     border: 1px solid #f0f0f0;
@@ -321,355 +447,112 @@ body.page-map .float-home {
     padding: 12px;
     box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
     transition: 0.3s;
+    cursor: pointer;
 }
-
 .place-card:hover {
     transform: translateX(-4px);
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
-
+.place-card.active {
+    border-color: #118b71;
+    box-shadow: 0 8px 24px rgba(17, 139, 113, 0.15);
+}
 .pc-img {
-    width: 76px;
-    height: 76px;
+    width: 76px; height: 76px;
     border-radius: 12px;
     object-fit: cover;
     flex: 0 0 76px;
     background: #f0f0f0;
 }
-
-.pc-info {
-    flex: 1;
-    min-width: 0;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
+.pc-info { flex: 1; min-width: 0; }
 .pc-info h4 {
     font-size: 15px;
     font-weight: 800;
-    color: var(--brown-text);
-    margin-bottom: 6px;
+    color: #4a3a2a;
+    margin: 0 0 6px;
 }
-
 .pc-time {
     font-size: 12px;
-    color: var(--brown-light);
+    color: #8b7355;
     margin-bottom: 6px;
 }
-
 .pc-meta {
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
     font-size: 11px;
-    color: var(--brown-light);
+    color: #8b7355;
 }
 
-.pc-side {
-    flex: 0 0 auto;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    align-items: flex-end;
-    gap: 8px;
-}
-
-.dist-chip {
-    margin: 0;
-    background: rgba(17, 139, 113, 0.08);
-    color: var(--primary-green);
-    border-radius: 20px;
-    padding: 3px 10px;
-    font-size: 10px;
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.pc-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    margin-top: 0;
-}
-
-.pc-score {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--brick-orange);
-}
-
-.icon-btn {
-    width: 32px;
-    height: 32px;
-    border-radius: 10px;
-    border: 1px solid #e5e5e5;
-    background: #fff;
-    cursor: pointer;
-    color: var(--brown-light);
-    transition: 0.2s;
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.icon-btn:hover {
-    color: var(--primary-green);
-    border-color: var(--primary-green);
-    background: rgba(17, 139, 113, 0.04);
-}
-
-.pc-more {
-    margin-left: auto;
-}
-
-/* گروه روز */
-.day-group {
-    margin-bottom: 20px;
-}
-
+.day-group { margin-bottom: 20px; }
 .day-group-title {
     font-size: 14px;
     font-weight: 900;
-    color: var(--brown-text);
+    color: #4a3a2a;
     margin: 10px 0 12px;
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
-
 .day-group-title span {
-    color: var(--brown-light);
+    color: #8b7355;
     font-weight: 500;
     font-size: 12px;
 }
 
-.result-count {
-    padding: 8px 16px; font-size: 11px;
-    font-weight: 700; color: var(--primary-green);
-    border-bottom: 1px solid #f1ece3;
-    display: flex; justify-content: space-between;
+.empty-list {
+    text-align: center;
+    padding: 30px 10px;
+    color: #8b7355;
+}
+.empty-list i {
+    font-size: 28px;
+    opacity: .3;
+    display: block;
+    margin-bottom: 10px;
 }
 
-/* دکمه toggle سایدبار */
 .sb-toggle {
-    position: absolute; top: 90px; right: 20px;
-    width: 48px; height: 48px; border-radius: 50%;
-    background: #fff; color: var(--primary-green);
-    border: none; box-shadow: 0 6px 20px rgba(0,0,0,.18);
-    cursor: pointer; z-index: 900;
-    display: none; align-items: center; justify-content: center;
-    font-size: 18px; transition: .2s;
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 48px; height: 48px;
+    border-radius: 50%;
+    background: #fff;
+    color: #118b71;
+    border: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,.18);
+    cursor: pointer;
+    z-index: 900;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    transition: .2s;
 }
 .sb-toggle:hover { transform: scale(1.08); }
 .sb-toggle.show { display: flex; }
 
-/* ---------- کنترل‌های شناور روی نقشه ---------- */
-.map-controls {
-    position: absolute; left: 20px; bottom: 30px;
-    z-index: 800;
-    display: flex; flex-direction: column; gap: 8px;
-}
-.mc-btn {
-    width: 44px; height: 44px; border-radius: 12px;
-    background: #fff; color: var(--brown-text);
-    border: none; box-shadow: 0 6px 20px rgba(0,0,0,.15);
-    cursor: pointer; font-size: 16px;
-    display: flex; align-items: center; justify-content: center;
-    transition: .2s;
-}
-.mc-btn:hover { color: var(--primary-green); transform: scale(1.06); }
-.mc-btn.active { background: var(--primary-green); color: #fff; }
-.mc-btn.locate { color: var(--brick-orange); }
-
-/* لایه‌های نقشه */
-.layer-switcher {
-    position: absolute; left: 20px; top: 90px;
-    z-index: 800; background: #fff;
-    border-radius: 14px; padding: 8px;
-    box-shadow: 0 6px 20px rgba(0,0,0,.15);
-    display: none; flex-direction: column; gap: 4px;
-}
-.layer-switcher.open { display: flex; }
-.layer-switcher button {
-    background: transparent; border: none; cursor: pointer;
-    padding: 8px 14px; border-radius: 8px; font-family: inherit;
-    font-size: 12px; font-weight: 700; color: var(--brown-text);
-    display: flex; align-items: center; gap: 8px;
-    transition: .15s;
-}
-.layer-switcher button:hover { background: rgba(17,139,113,.08); }
-.layer-switcher button.active { background: var(--primary-green); color: #fff; }
-.layer-switcher button i { font-size: 14px; }
-
-/* راهنما */
-.map-legend {
-    position: absolute;
-    bottom: 30px;
-    left: 80px;
-    z-index: 800;
-    background: rgba(255,255,255,.96);
-    backdrop-filter: blur(8px);
-    border-radius: 14px;
-    padding: 12px 16px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.12);
-    font-size: 11px;
-    max-width: 200px;
-}
-.map-legend.collapsed {
-    padding: 8px 14px; max-width: 100px;
-}
-.map-legend.collapsed .legend-body { display: none; }
-.legend-title {
-    font-weight: 800; color: var(--brown-text);
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 6px; cursor: pointer;
-}
-.legend-title i.lc { color: var(--brick-orange); }
-.legend-title .toggle-leg {
-    background: none; border: none; color: var(--brown-light);
-    cursor: pointer; font-size: 11px; padding: 2px 6px;
-}
-.legend-body { margin-top: 8px; }
-.legend-item {
-    display: flex; align-items: center; gap: 8px;
-    margin: 5px 0; color: var(--brown-text); font-weight: 600;
-}
-.legend-dot {
-    width: 11px; height: 11px; border-radius: 50%;
-    flex: 0 0 11px;
-    box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 2px 4px rgba(0,0,0,.15);
-}
-
-/* مارکرها */
-.pin-wrap { background: transparent; border: none; }
-.pin {
-    width: 36px; height: 36px;
-    border: 3px solid #fff; border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    box-shadow: 0 5px 14px rgba(0,0,0,.35);
-    display: flex; align-items: center; justify-content: center;
-    transition: transform .2s;
-}
-.pin:hover { transform: rotate(-45deg) scale(1.15); }
-.pin span {
-    transform: rotate(45deg); color: #fff;
-    font-size: 14px;
-}
-
-/* پاپ‌آپ غنی */
-.leaflet-popup-content-wrapper {
-    border-radius: 16px; padding: 0 !important;
-    box-shadow: 0 15px 50px rgba(0,0,0,.22);
-    overflow: hidden;
-}
-.leaflet-popup-content {
-    margin: 0 !important; width: 280px !important;
-    font-family: 'Vazirmatn', sans-serif;
-}
-.leaflet-popup-tip { background: #fff; }
-.map-pop { background: #fff; direction: rtl; }
-.map-pop-img {
-    position: relative; height: 140px;
-    background: linear-gradient(135deg, #dff0ea, #cfe6dd);
-}
-.map-pop-img img { width: 100%; height: 100%; object-fit: cover; }
-.map-pop-badge {
-    position: absolute; top: 10px; right: 10px;
-    background: rgba(255,255,255,.95); color: var(--primary-green);
-    border-radius: 20px; padding: 4px 12px;
-    font-size: 10px; font-weight: 800;
-}
-.map-pop-fav {
-    position: absolute; top: 10px; left: 10px;
-    width: 34px; height: 34px; border-radius: 50%;
-    background: rgba(255,255,255,.95); border: none;
-    color: var(--brown-light); font-size: 14px;
-    cursor: pointer; transition: .2s;
-    display: flex; align-items: center; justify-content: center;
-}
-.map-pop-fav:hover, .map-pop-fav.active { color: #e04444; }
-.map-pop-body { padding: 14px 16px 16px; }
-.map-pop-body h4 { font-size: 16px; font-weight: 900; color: var(--brown-text); margin: 0 0 6px; }
-.map-pop-loc {
-    font-size: 11px; color: var(--brown-light);
-    display: flex; align-items: center; gap: 5px;
-    margin-bottom: 8px;
-}
-.map-pop-loc i { color: var(--brick-orange); }
-.map-pop-body p {
-    font-size: 11.5px; color: var(--brown-light);
-    line-height: 1.8; margin: 0 0 10px;
-}
-.map-pop-meta {
-    display: flex; gap: 10px; flex-wrap: wrap;
-    font-size: 10.5px; font-weight: 700; color: var(--brown-light);
-    padding: 10px 0; border-top: 1px dashed rgba(17,139,113,.15);
-    border-bottom: 1px dashed rgba(17,139,113,.15);
-}
-.map-pop-actions {
-    display: flex; gap: 6px; margin-top: 10px;
-}
-.pop-action {
-    flex: 1; padding: 8px;
-    border-radius: 10px; border: none; cursor: pointer;
-    font-family: inherit; font-size: 11px; font-weight: 700;
-    display: flex; align-items: center; justify-content: center; gap: 5px;
-    transition: .2s;
-}
-.pop-action.primary { background: var(--primary-green); color: #fff; }
-.pop-action.primary:hover { background: var(--primary-green-dark); }
-.pop-action.outline {
-    background: transparent; color: var(--primary-green);
-    border: 1.5px solid var(--primary-green);
-}
-.pop-action.outline:hover { background: rgba(17,139,113,.08); }
-
-/* کلاسترها */
-.marker-cluster-small { background-color: rgba(17,139,113,.25); }
-.marker-cluster-small div { background-color: rgba(17,139,113,.9); color: #fff; font-family: 'Vazirmatn'; font-weight: 800; }
-.marker-cluster-medium { background-color: rgba(244,166,42,.25); }
-.marker-cluster-medium div { background-color: rgba(244,166,42,.9); color: #fff; font-family: 'Vazirmatn'; font-weight: 800; }
-.marker-cluster-large { background-color: rgba(255,80,80,.25); }
-.marker-cluster-large div { background-color: rgba(255,80,80,.9); color: #fff; font-family: 'Vazirmatn'; font-weight: 800; }
-
-/* Toast اطلاع */
-.toast {
-    position: fixed; bottom: 30px; left: 50%;
-    transform: translateX(-50%) translateY(100px);
-    background: var(--brown-text); color: #fff;
-    padding: 12px 24px; border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,.25);
-    font-size: 13px; font-weight: 700; z-index: 2000;
-    display: flex; align-items: center; gap: 10px;
-    opacity: 0; transition: all .3s;
-}
-.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-.toast i { color: var(--primary-green); font-size: 16px; }
-
-/* ===== چیپ‌های روز روی نقشه ===== */
+/* ═══ چیپ‌های شناور روی نقشه ═══ */
 .map-day-chips {
     position: absolute;
-    bottom: 14px;
-    left: 50%;
+    bottom: 20px; left: 50%;
     transform: translateX(-50%);
-    display: flex;
+    display: none;
     gap: 8px;
     z-index: 1000;
     background: rgba(255, 255, 255, 0.92);
+    backdrop-filter: blur(6px);
     padding: 6px 10px;
     border-radius: 40px;
-    backdrop-filter: blur(6px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
     overflow-x: auto;
     max-width: 92%;
 }
-
+.map-day-chips.show { display: flex; }
 .map-chip {
     border: 1px solid #e5e5e5;
     background: #fff;
-    color: var(--brown-text);
+    color: #4a3a2a;
     border-radius: 30px;
     padding: 7px 16px;
     font-family: inherit;
@@ -679,26 +562,293 @@ body.page-map .float-home {
     white-space: nowrap;
     transition: 0.2s;
 }
-
 .map-chip:hover:not(.active) {
     background: rgba(17, 139, 113, 0.06);
-    border-color: var(--primary-green);
+    border-color: #118b71;
 }
-
 .map-chip.active {
-    background: var(--primary-green);
+    background: #118b71;
     color: #fff;
-    border-color: var(--primary-green);
+    border-color: #118b71;
 }
 
-/* ریسپانسیو */
+/* ═══ کنترل‌ها ═══ */
+.map-controls {
+    position: absolute;
+    left: 20px; bottom: 30px;
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.mc-btn {
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: #fff;
+    color: #4a3a2a;
+    border: none;
+    box-shadow: 0 6px 20px rgba(0,0,0,.15);
+    cursor: pointer;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: .2s;
+}
+.mc-btn:hover { color: #118b71; transform: scale(1.06); }
+.mc-btn.active { background: #118b71; color: #fff; }
+.mc-btn.locate { color: #ff5050; }
+
+.layer-switcher {
+    position: absolute;
+    left: 20px; top: 20px;
+    z-index: 800;
+    background: #fff;
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 6px 20px rgba(0,0,0,.15);
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+}
+.layer-switcher.open { display: flex; }
+.layer-switcher button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: #4a3a2a;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: .15s;
+    white-space: nowrap;
+}
+.layer-switcher button:hover { background: rgba(17,139,113,.08); }
+.layer-switcher button.active { background: #118b71; color: #fff; }
+
+/* راهنما */
+.map-legend {
+    position: absolute;
+    bottom: 30px; right: 20px;
+    z-index: 800;
+    background: rgba(255,255,255,.96);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
+    padding: 12px 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.12);
+    font-size: 11px;
+    max-width: 220px;
+    max-height: 50vh;
+    overflow-y: auto;
+}
+.map-legend::-webkit-scrollbar { width: 4px; }
+.map-legend::-webkit-scrollbar-thumb { background: rgba(17,139,113,.3); border-radius: 10px; }
+.map-legend.collapsed { padding: 8px 14px; max-width: 100px; max-height: none; }
+.map-legend.collapsed .legend-body { display: none; }
+.legend-title {
+    font-weight: 800;
+    color: #4a3a2a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    cursor: pointer;
+}
+.legend-title i.lc { color: #ff5050; }
+.legend-title .toggle-leg {
+    background: none;
+    border: none;
+    color: #8b7355;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 2px 6px;
+}
+.legend-body { margin-top: 8px; }
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 5px 0;
+    color: #4a3a2a;
+    font-weight: 600;
+    font-size: 11px;
+}
+.legend-dot {
+    width: 11px; height: 11px;
+    border-radius: 50%;
+    flex: 0 0 11px;
+    box-shadow: 0 0 0 2px rgba(255,255,255,.9), 0 2px 4px rgba(0,0,0,.15);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🎯 پین‌های تکی + لیبل دائمی
+   ═══════════════════════════════════════════════════════════ */
+.pin-wrap { background: transparent; border: none; }
+
+.pin {
+    width: 26px; height: 26px;
+    background: var(--c, #118b71);
+    border: 2.5px solid #fff;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+}
+.pin:hover {
+    transform: rotate(-45deg) scale(1.15);
+    z-index: 1000;
+}
+.pin span {
+    transform: rotate(45deg);
+    color: #fff;
+    font-weight: 800;
+    font-size: 11px;
+    font-family: 'Vazirmatn', sans-serif;
+    line-height: 1;
+}
+
+/* ═══ ✅ لیبل دائمی (همیشه نمایش داده می‌شه) ═══ */
+.pin-label {
+    position: absolute;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 10px;
+    font-weight: 800;
+    color: #2b2b2b;
+    font-family: 'Vazirmatn', sans-serif;
+    background: rgba(255, 255, 255, 0.96);
+    padding: 2px 7px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    pointer-events: none;
+    max-width: 110px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🎯 کلاسترها - کوچیک‌تر
+   ═══════════════════════════════════════════════════════════ */
+.custom-cluster {
+    background: transparent;
+    border: none;
+}
+
+.custom-cluster-inner {
+    position: relative;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--c, #118b71);
+    border: 3px solid #ffffff;
+    box-shadow:
+        0 4px 12px rgba(0, 0, 0, 0.3),
+        0 0 0 2px var(--c, #118b71),
+        inset 0 -2px 4px rgba(0, 0, 0, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.25s ease;
+    cursor: pointer;
+}
+
+.custom-cluster:hover .custom-cluster-inner {
+    transform: scale(1.12);
+}
+
+.custom-cluster-num {
+    color: #ffffff;
+    font-weight: 900;
+    font-size: 12px;
+    font-family: 'Vazirmatn', sans-serif;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.35);
+    line-height: 1;
+}
+
+/* ═══ پاپ‌آپ ═══ */
+.leaflet-popup-content-wrapper {
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+}
+.leaflet-popup-content {
+    margin: 0 !important;
+    width: 250px !important;
+    font-family: 'Vazirmatn', sans-serif;
+}
+.map-pop { direction: rtl; background: #fff; }
+.map-pop-img { height: 120px; background: #e8e8e8; position: relative; }
+.map-pop-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.map-pop-badge {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: rgba(255, 255, 255, 0.92);
+    color: #118b71;
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 10px;
+    font-weight: 800;
+}
+.map-pop-body { padding: 12px 14px 14px; }
+.map-pop-body h4 { font-size: 15px; font-weight: 800; color: #4a3a2a; margin: 0 0 6px; }
+.map-pop-loc {
+    font-size: 11px;
+    color: #8b7355;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+.map-pop-loc i { color: #ff5050; }
+.map-pop-body p { font-size: 11px; color: #8b7355; line-height: 1.8; margin: 0; }
+
+/* ═══ Toast ═══ */
+.toast {
+    position: fixed;
+    bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #4a3a2a;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.25);
+    font-size: 13px;
+    font-weight: 700;
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    opacity: 0;
+    transition: all .3s;
+}
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.toast i { color: #118b71; font-size: 16px; }
+
+/* ═══ ریسپانسیو ═══ */
+@media (max-width: 992px) {
+    .page-map .map-sidebar { width: 340px; flex-basis: 340px; }
+}
 @media (max-width: 768px) {
-    .map-sidebar { width: calc(100% - 40px); max-height: 55vh; top: 80px; right: 20px; }
-    .map-sidebar.collapsed { transform: translateY(calc(100% + 20px)); }
-    .sb-toggle { top: 80px; }
-    .map-legend { bottom: 20px; right: 10px; max-width: 160px; font-size: 10px; }
+    .page-map .map-sidebar {
+        position: absolute;
+        top: 0; right: 0; bottom: 0;
+        width: 320px;
+        flex: none;
+    }
+    .page-map .map-sidebar.collapsed { transform: translateX(100%); width: 320px; }
     .map-controls { left: 10px; bottom: 20px; }
-    .mc-btn { width: 40px; height: 40px; }
+    .map-legend { bottom: 20px; right: 10px; max-width: 180px; font-size: 10px; }
     .layer-switcher { left: 10px; top: 80px; }
 }
 </style>
@@ -706,6 +856,7 @@ body.page-map .float-home {
 <body class="page-map">
 <div class="overlay" id="menuOverlay"></div>
 
+<!-- Navbar -->
 <header class="navbar" id="navbar">
     <div class="logo"><i class="fas fa-map-signs"></i> سفر به <span>دزفول</span></div>
     <nav class="nav-links" id="navLinks">
@@ -729,47 +880,57 @@ body.page-map .float-home {
     </div>
 </header>
 
-<div class="map-wrapper">
-    <div id="tourismMap"></div>
-
-    <!-- دکمه toggle سایدبار -->
-    <button class="sb-toggle" id="sbToggle" title="نمایش پنل"><i class="fas fa-list"></i></button>
+<div class="map-layout">
 
     <!-- سایدبار -->
     <aside class="map-sidebar" id="mapSidebar">
-        <div class="sidebar-head">
+        <div class="planner-hero">
             <button class="close-sb" id="closeSb" title="بستن"><i class="fas fa-times"></i></button>
-           <h2 id="sidebarTitle">
-    {% if is_plan_mode %}
-    <i class="fas fa-star"></i> پلن پیشنهادی
-    {% else %}
-    <i class="fas fa-map-marked-alt"></i> نقشه گردشگری دزفول
-    {% endif %}
-</h2>
-<p id="sidebarSubtitle">
-    {% if is_plan_mode %}
-    مشاهده جاذبه‌های این پلن روی نقشه
-    {% else %}
-    جستجو، فیلتر و کشف جاذبه‌های شهر
-    {% endif %}
-</p>
+            <div class="ph-title">
+                <img src="{% static 'img/slide4.jpg' %}" alt="" class="ph-thumb">
+                <div>
+                    <h3 id="sidebarTitle">
+                        {% if is_plan_mode %}{{ plan.name }}{% elif trip_mode %}برنامه سفر شما{% else %}دزفول{% endif %}
+                    </h3>
+                    <span id="sidebarSubtitle">
+                        {% if trip_mode %}{{ trip.duration_days|default:'' }} روز{% else %}کشف جاذبه‌های شهر{% endif %}
+                    </span>
+                </div>
+            </div>
         </div>
 
-        <div class="smart-search">
-            <i class="fas fa-search"></i>
-            <input type="text" id="mapSearch" placeholder="نام جاذبه، دسته یا توضیح...">
+        <div class="smart-search" id="searchBox" style="display:none;">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="mapSearch" placeholder="جستجو در جاذبه‌ها...">
             <div class="search-suggestions" id="searchSug"></div>
         </div>
 
-        <div class="quick-filters" id="quickFiltersSection">
-            <div class="qf-title">
-                <span><i class="fas fa-filter"></i> فیلتر سریع</span>
-                <span class="qf-clear" id="qfClear">پاک کردن</span>
+        <div class="planner-tabs" id="plannerTabs" style="display:none;"></div>
+
+        <!-- 🎯 فیلتر سریع کشویی -->
+        <div class="quick-filters" id="quickFiltersSection" style="display:none;">
+            <!-- هدر کلیک‌پذیر -->
+            <div class="qf-header" id="qfHeader">
+                <span class="qf-header-title">
+                    <i class="fas fa-filter"></i>
+                    <span>فیلتر سریع</span>
+                    <span class="qf-active-count" id="qfActiveCount"></span>
+                </span>
+                <span class="qf-toggle-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </span>
             </div>
-            <div class="qf-chips" id="qfChips"></div>
+            <!-- بدنه کشویی -->
+            <div class="qf-body" id="qfBody">
+                <div class="qf-actions">
+                    <span class="qf-actions-label">دسته‌بندی‌ها</span>
+                    <span class="qf-clear" id="qfClear">پاک کردن</span>
+                </div>
+                <div class="qf-chips" id="qfChips"></div>
+            </div>
         </div>
 
-        <div class="extra-toggles" id="extraTogglesSection">
+        <div class="extra-toggles" id="extraTogglesSection" style="display:none;">
             <button class="et-btn" id="freeOnly" data-active="false">
                 <i class="fas fa-gift"></i><span>فقط رایگان</span>
             </button>
@@ -777,7 +938,7 @@ body.page-map .float-home {
                 <i class="fas fa-child"></i><span>خانوادگی</span>
             </button>
             <button class="et-btn" id="favsOnly" data-active="false">
-                <i class="fas fa-heart"></i><span>علاقه‌مندی‌ها</span>
+                <i class="fas fa-heart"></i><span>علاقه‌مندی</span>
             </button>
         </div>
 
@@ -785,44 +946,46 @@ body.page-map .float-home {
         <div class="map-list" id="mapList"></div>
     </aside>
 
-    <!-- کنترل‌های شناور -->
-    <div class="map-controls">
-        <button class="mc-btn locate" id="locateBtn" title="موقعیت من"><i class="fas fa-location-crosshairs"></i></button>
-        <button class="mc-btn" id="layerBtn" title="لایه نقشه"><i class="fas fa-layer-group"></i></button>
-        <button class="mc-btn" id="fitBtn" title="نمایش همه"><i class="fas fa-expand"></i></button>
-        {% if trip_mode %}
-        <button class="mc-btn" id="backToPlanBtn" title="بازگشت به برنامه‌ریز" style="background: var(--brick-orange); color: #fff;">
-            <i class="fas fa-arrow-right"></i>
-        </button>
-        {% endif %}
-    </div>
+    <!-- نقشه -->
+    <div class="map-viewport">
+        <div id="tourismMap"></div>
+        <div class="map-day-chips" id="mapDayChips"></div>
 
-    <!-- لایه‌های نقشه -->
-    <div class="layer-switcher" id="layerSwitcher">
-        <button data-layer="street" class="active"><i class="fas fa-road"></i> خیابان</button>
-        <button data-layer="sat"><i class="fas fa-satellite"></i> ماهواره</button>
-        <button data-layer="terrain"><i class="fas fa-mountain"></i> زمین</button>
-        <button data-layer="dark"><i class="fas fa-moon"></i> شب</button>
-    </div>
-
-    <!-- راهنما -->
-    <div class="map-legend" id="mapLegend">
-        <div class="legend-title">
-            <span><i class="fas fa-palette lc"></i> راهنما</span>
-            <button class="toggle-leg" id="toggleLeg"><i class="fas fa-minus"></i></button>
+        <div class="map-controls">
+            <button class="mc-btn locate" id="locateBtn" title="موقعیت من">
+                <i class="fas fa-location-crosshairs"></i>
+            </button>
+            <button class="mc-btn" id="layerBtn" title="لایه نقشه">
+                <i class="fas fa-layer-group"></i>
+            </button>
+            <button class="mc-btn" id="fitBtn" title="نمایش همه">
+                <i class="fas fa-expand"></i>
+            </button>
         </div>
-        <div class="legend-body" id="legendBody"></div>
+
+        <div class="layer-switcher" id="layerSwitcher">
+            <button data-layer="street" class="active"><i class="fas fa-road"></i> خیابان</button>
+            <button data-layer="sat"><i class="fas fa-satellite"></i> ماهواره</button>
+            <button data-layer="terrain"><i class="fas fa-mountain"></i> زمین</button>
+            <button data-layer="dark"><i class="fas fa-moon"></i> شب</button>
+        </div>
+
+        <div class="map-legend" id="mapLegend">
+            <div class="legend-title">
+                <span><i class="fas fa-palette lc"></i> راهنما</span>
+                <button class="toggle-leg" id="toggleLeg"><i class="fas fa-minus"></i></button>
+            </div>
+            <div class="legend-body" id="legendBody"></div>
+        </div>
     </div>
 
-    <!-- چیپ‌های روز روی نقشه -->
-    <div class="map-day-chips" id="mapDayChips"></div>
 </div>
 
+<button class="sb-toggle" id="sbToggle" title="نمایش پنل"><i class="fas fa-list"></i></button>
 <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
-<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
 
 <script>
 const MAP_PLACES = {{ places_json|safe }};
@@ -835,12 +998,15 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
     if (typeof L === 'undefined') return;
 
     const $ = id => document.getElementById(id);
-    const faNum = s => String(s).replace(/\d/g, d => '۰۱۲۳۴۵۶۷۸۹'[d]).replace('.', '٫');
-    const fmtCost = c => c === 0 ? 'رایگان' : faNum(c.toLocaleString()) + ' تومان';
+    const FA = '۰۱۲۳۴۵۶۷۸۹';
+    const faNum = s => String(s).replace(/\d/g, d => FA[d]);
+    const ORD = ['اول', 'دوم', 'سوم', 'چهارم', 'پنجم', 'ششم', 'هفتم'];
 
-    const favKey = 'dezful_tourism_favs';
-    let favs = new Set(JSON.parse(localStorage.getItem(favKey) || '[]'));
-    const saveFavs = () => localStorage.setItem(favKey, JSON.stringify([...favs]));
+    const DAY_COLORS = [
+        '#2a9d8f', '#e9a23b', '#e76f51', '#6a994e',
+        '#457b9d', '#c17c74', '#8e7cc3',
+    ];
+    const getDayColor = dayNumber => DAY_COLORS[(dayNumber - 1) % DAY_COLORS.length];
 
     const toast = $('toast');
     function showToast(msg) {
@@ -852,540 +1018,498 @@ const IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
 
     const CAT_META = {};
     MAP_PLACES.forEach(p => {
-        if (!CAT_META[p.cat]) {
-            CAT_META[p.cat] = { color: '#118b71', icon: 'fa-map-marker-alt' };
+        const catName = p.parent_cat || p.cat || 'سایر';
+        if (!CAT_META[catName]) {
+            CAT_META[catName] = { color: p.color || '#118b71', count: 0 };
         }
+        CAT_META[catName].count++;
     });
 
     let activeCats = new Set();
     let freeOnly = false, childOnly = false, favsOnly = false;
     let query = '';
+    const favKey = 'dezful_tourism_favs';
+    let favs = new Set(JSON.parse(localStorage.getItem(favKey) || '[]'));
 
     const map = L.map('tourismMap', { zoomControl: false });
-    
-    // دکمه‌های + و - در بالا سمت راست
     L.control.zoom({ position: 'topright' }).addTo(map);
-// const STADIA_API_KEY = '5ea17fd0-2af7-4a48-ab71-408ff7e7107c';
 
-// const layers = {
-//     street: L.tileLayer(`https://tiles.stadiamaps.com/tiles/alidade_smooth/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
-//         attribution: '&copy; Stadia Maps &copy; OpenStreetMap',
-//         maxZoom: 19
-//     }),
-    
-//     sat: L.tileLayer(`https://tiles.stadiamaps.com/tiles/satellite/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
-//         attribution: '&copy; Stadia Maps',
-//         maxZoom: 19
-//     }),
-    
-//     terrain: L.tileLayer(`https://tiles.stadiamaps.com/tiles/stamen_terrain/{z}/{x}/{y}{r}.jpg?api_key=${STADIA_API_KEY}`, {
-//         attribution: '&copy; Stamen Design &copy; Stadia Maps',
-//         maxZoom: 18
-//     }),
-    
-//     dark: L.tileLayer(`https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png?api_key=${STADIA_API_KEY}`, {
-//         attribution: '&copy; Stadia Maps &copy; OpenStreetMap',
-//         maxZoom: 19
-//     })
-// };
-const MAPTILER_API_KEY = 'HJ7dofOgoJi2TfcV7XkF';
-
-const layers = {
-    street: L.tileLayer(`https://tile.openstreetmap.de/{z}/{x}/{y}.png`, {
-        attribution: '&copy; OpenStreetMap contributors',
-        maxZoom: 19
-    }),
-    
-    sat: L.tileLayer(`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
-        attribution: '&copy; MapTiler',
-        maxZoom: 19
-    }),
-    
-    terrain: L.tileLayer(`https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png`, {
-        attribution: '&copy; OpenTopoMap',
-        maxZoom: 17
-    }),
-    
-    dark: L.tileLayer(`https://api.maptiler.com/maps/dark/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
-        attribution: '&copy; MapTiler',
-        maxZoom: 19
-    })
-};
+    const MAPTILER_API_KEY = 'HJ7dofOgoJi2TfcV7XkF';
+    const layers = {
+        street: L.tileLayer('https://tile.openstreetmap.de/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap', maxZoom: 19
+        }),
+        sat: L.tileLayer(`https://api.maptiler.com/maps/satellite/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
+            attribution: '&copy; MapTiler', maxZoom: 19
+        }),
+        terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenTopoMap', maxZoom: 17
+        }),
+        dark: L.tileLayer(`https://api.maptiler.com/maps/dark/{z}/{x}/{y}.png?key=${MAPTILER_API_KEY}`, {
+            attribution: '&copy; MapTiler', maxZoom: 19
+        })
+    };
+    let currentLayer = 'street';
     layers.street.addTo(map);
 
-    // زوم اولیه با نمایش تمام نقاط
-    if (MAP_PLACES.length > 0) {
-        const allPoints = MAP_PLACES.map(p => [p.lat, p.lng]);
-        map.fitBounds(L.latLngBounds(allPoints), { padding: [50, 50], maxZoom: 13 });
-    } else {
-        map.setView([32.38, 48.42], 12);
-    }
+    // ═══ 🎯 کلاستر کوچیک‌تر ═══
+    const clusterGroup = L.markerClusterGroup({
+        maxClusterRadius: 50,
+        spiderfyOnMaxZoom: true,
+        showCoverageOnHover: false,
+        zoomToBoundsOnClick: true,
+        animate: true,
+        animateAddingMarkers: true,
+        iconCreateFunction: function(cluster) {
+            const children = cluster.getAllChildMarkers();
+            const count = children.length;
+            
+            const colorCounts = {};
+            children.forEach(m => {
+                const c = m.options._catColor || '#118b71';
+                colorCounts[c] = (colorCounts[c] || 0) + 1;
+            });
+            
+            let dominantColor = '#118b71';
+            let maxCount = 0;
+            Object.entries(colorCounts).forEach(([color, cnt]) => {
+                if (cnt > maxCount) {
+                    maxCount = cnt;
+                    dominantColor = color;
+                }
+            });
+            
+            // if (Object.keys(colorCounts).length > 2) {
+            //     dominantColor = '#2a9d8f';
+            // }
+            
+            // ✅ اندازه‌های کوچیک‌تر
+            const size = count < 10 ? 30 : count < 50 ? 36 : 42;
+            const fontSize = count < 10 ? 11 : count < 50 ? 12 : 13;
+            
+            return L.divIcon({
+                html: `
+                    <div class="custom-cluster-inner" style="--c:${dominantColor}; width:${size}px; height:${size}px;">
+                        <span class="custom-cluster-num" style="font-size:${fontSize}px;">${faNum(count)}</span>
+                    </div>
+                `,
+                className: 'custom-cluster',
+                iconSize: L.point(size, size),
+                iconAnchor: L.point(size / 2, size / 2)
+            });
+        }
+    });
 
-    const cluster = L.markerClusterGroup({ maxClusterRadius: 45, showCoverageOnHover: false });
-    map.addLayer(cluster);
+    map.addLayer(clusterGroup);
 
-    function pinIcon(p, dayNumber) {
-        const meta = CAT_META[p.cat] || { color: '#118b71', icon: 'fa-map-marker-alt' };
-        const color = dayNumber ? getDayColor(dayNumber) : meta.color;
-        const icon = dayNumber ? 'fa-calendar-day' : meta.icon;
-        return L.divIcon({
-            className: 'pin-wrap',
-            html: `<div class="pin" style="background:${color}"><span><i class="fas ${icon}"></i></span></div>`,
-            iconSize: [36, 44], iconAnchor: [18, 40], popupAnchor: [0, -38]
+    function schedule(dayPlaces) {
+        let cur = 9 * 60;
+        return dayPlaces.map((p) => {
+            const s = cur, e = cur + (p.duration || 60);
+            cur = e + 30;
+            return { p, s: s % 1440, e: e % 1440 };
         });
     }
+    const faTime = m => `${faNum(Math.floor(m / 60))}:${faNum(String(m % 60).padStart(2, '0'))}`;
 
-    function getDayColor(day) {
-        const colors = ['#f4a62a', '#118b71', '#ff5050', '#2196f3', '#9c27b0', '#ff9800', '#4caf50'];
-        return colors[(day - 1) % colors.length];
-    }
+    let daysArray = [];
+    let tripPlaces = [];
 
-    function popupHtml(p) {
-        const meta = CAT_META[p.cat] || {};
-        const isFav = favs.has(p.id);
-        return `
-        <div class="map-pop">
-            <div class="map-pop-img">
-                <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
-                <span class="map-pop-badge">${p.cat}</span>
-                <button class="map-pop-fav ${isFav ? 'active' : ''}" data-id="${p.id}">
-                    <i class="fa${isFav ? 's' : 'r'} fa-heart"></i>
-                </button>
-            </div>
-            <div class="map-pop-body">
-                <h4>${p.name}</h4>
-                <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول • ${p.sub || ''}</div>
-                <p>${p.desc || p.short_description || ''}</p>
-                <div class="map-pop-meta">
-                    <span>💰 ${fmtCost(p.cost)}</span>
-                    <span>⏱️ ${faNum(p.duration)} دقیقه</span>
-                    <span>⭐ ${faNum(p.rating)}</span>
-                </div>
-                <div class="map-pop-actions">
-                    <button class="pop-action primary" data-act="route" data-lat="${p.lat}" data-lng="${p.lng}" data-name="${p.name}">
-                        <i class="fas fa-route"></i> مسیر یاب
-                    </button>
-                    <button class="pop-action outline" data-act="plan" data-id="${p.id}">
-                        <i class="fas fa-calendar-plus"></i> افزودن به برنامه
-                    </button>
-                </div>
-            </div>
-        </div>`;
-    }
-
-    function tripPopupHtml(p, day) {
-        return `
-        <div class="map-pop">
-            <div class="map-pop-img">
-                <img src="${p.image}" alt="${p.name}" onerror="this.style.display='none'">
-                <span class="map-pop-badge" style="background:${getDayColor(day)}; color:#fff;">روز ${faNum(day)}</span>
-            </div>
-            <div class="map-pop-body">
-                <h4>${p.name}</h4>
-                <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول • ${p.sub || ''}</div>
-                <p>${p.desc || p.short_description || ''}</p>
-                <div class="map-pop-meta">
-                    <span>💰 ${fmtCost(p.cost)}</span>
-                    <span>⏱️ ${faNum(p.duration)} دقیقه</span>
-                    <span>⭐ ${faNum(p.rating)}</span>
-                </div>
-                <div class="map-pop-actions">
-                    <button class="pop-action primary" data-act="route" data-lat="${p.lat}" data-lng="${p.lng}" data-name="${p.name}">
-                        <i class="fas fa-route"></i> مسیر یاب
-                    </button>
-                </div>
-            </div>
-        </div>`;
+    if (TRIP_MODE && TRIP_DATA) {
+        const daysMap = {};
+        TRIP_DATA.suggested_places.forEach(sp => {
+            const p = MAP_PLACES.find(x => x.id === sp.id);
+            if (p) {
+                const pCopy = Object.assign({}, p, { day: sp.day });
+                if (!daysMap[sp.day]) daysMap[sp.day] = [];
+                daysMap[sp.day].push(pCopy);
+                tripPlaces.push(pCopy);
+            }
+        });
+        daysArray = Object.keys(daysMap).sort((a,b)=>+a-+b).map(k => daysMap[k]);
     }
 
     const markers = new Map();
 
-    if (TRIP_MODE && TRIP_DATA) {
-        TRIP_DATA.suggested_places.forEach(sp => {
-            const p = MAP_PLACES.find(x => x.id === sp.id);
-            if (!p) return;
-            const m = L.marker([p.lat, p.lng], { icon: pinIcon(p, sp.day) });
-            m.bindPopup(tripPopupHtml(p, sp.day), { maxWidth: 300 });
-            m.on('click', () => highlightItem(p.id, false));
-            m.on('popupopen', e => {
-                const pop = e.popup.getElement();
-                pop.querySelectorAll('[data-act="route"]').forEach(btn => {
-                    btn.addEventListener('click', ev => {
-                        ev.stopPropagation();
-                        window.open(`https://www.google.com/maps/dir/${btn.dataset.lat},${btn.dataset.lng}`, '_blank');
-                    });
-                });
-            });
-            markers.set(p.id, m);
-        });
-    } else {
-        MAP_PLACES.forEach(p => {
-            const m = L.marker([p.lat, p.lng], { icon: pinIcon(p) });
-            m.bindPopup(popupHtml(p), { maxWidth: 300 });
-            m.on('click', () => highlightItem(p.id, false));
-            m.on('popupopen', e => {
-                const pop = e.popup.getElement();
-                pop.querySelectorAll('.map-pop-fav').forEach(btn => {
-                    btn.addEventListener('click', ev => {
-                        ev.stopPropagation();
-                        toggleFav(+btn.dataset.id, btn);
-                    });
-                });
-                pop.querySelectorAll('[data-act="route"]').forEach(btn => {
-                    btn.addEventListener('click', ev => {
-                        ev.stopPropagation();
-                        window.open(`https://www.google.com/maps/dir/${btn.dataset.lat},${btn.dataset.lng}`, '_blank');
-                    });
-                });
-                pop.querySelectorAll('[data-act="plan"]').forEach(btn => {
-                    btn.addEventListener('click', ev => {
-                        ev.stopPropagation();
-                        const id = +btn.dataset.id;
-                        const p = MAP_PLACES.find(x => x.id === id);
-                        showToast(`«${p.name}» به لیست سفر شما افزوده شد`);
-                        window.location.href = '/plan/';
-                    });
-                });
-            });
-            markers.set(p.id, m);
+    // ═══ ✅ پین با لیبل دائمی ═══
+    function pinIcon(p, num, color) {
+        const pinColor = color || '#118b71';
+        return L.divIcon({
+            className: 'pin-wrap',
+            html: `
+                <div class="pin" style="--c: ${pinColor};"><span>${num ? faNum(num) : ''}</span></div>
+                <div class="pin-label">${p.name}</div>
+            `,
+            iconSize: [26, 40],
+            iconAnchor: [13, 30],
+            popupAnchor: [0, -30]
         });
     }
 
-    function toggleFav(id, btn) {
-        if (favs.has(id)) {
-            favs.delete(id);
-            btn.classList.remove('active');
-            btn.innerHTML = '<i class="far fa-heart"></i>';
-            showToast('از علاقه‌مندی‌ها حذف شد');
+    function popupHtml(p, badgeText, badgeColor) {
+        const badgeStyle = badgeColor ? `background:${badgeColor}; color:#fff;` : '';
+        return `
+            <div class="map-pop">
+                <div class="map-pop-img">
+                    <img src="${p.image}" alt="${p.name}" onerror="this.parentNode.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+                    ${badgeText ? `<span class="map-pop-badge" style="${badgeStyle}">${badgeText}</span>` : ''}
+                </div>
+                <div class="map-pop-body">
+                    <h4>${p.name}</h4>
+                    <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول</div>
+                    <p>${p.desc || p.short_description || ''}</p>
+                </div>
+            </div>`;
+    }
+
+    function renderTripList() {
+        const list = $('mapList');
+        const tabs = $('plannerTabs');
+        if (!list || !tabs) return;
+
+        tabs.style.display = 'flex';
+        $('quickFiltersSection').style.display = 'none';
+        $('extraTogglesSection').style.display = 'none';
+        $('searchBox').style.display = 'none';
+
+        tabs.innerHTML =
+            `<button class="ptab ${activeDay === 'all' ? 'active' : ''}" data-tab="all">
+                <span class="t">نمای کلی</span>
+                <span class="s">همه روزها</span>
+            </button>` +
+            daysArray.map((d, i) => `
+                <button class="ptab ${activeDay !== 'all' && +activeDay === i ? 'active' : ''}" data-tab="${i}">
+                    <span class="t">روز ${ORD[i] || faNum(i+1)}</span>
+                    <span class="s">${faNum(d.length)} جاذبه</span>
+                </button>`).join('');
+
+        if (activeDay === 'all') {
+            list.innerHTML = daysArray.map((d, i) => `
+                <div class="day-group">
+                    <div class="day-group-title">روز ${faNum(i+1)} <span>${faNum(d.length)} جاذبه</span></div>
+                    ${d.map((p, idx) => cardHtml(p, idx, i)).join('')}
+                </div>`).join('');
         } else {
-            favs.add(id);
-            btn.classList.add('active');
-            btn.innerHTML = '<i class="fas fa-heart"></i>';
-            showToast('به علاقه‌مندی‌ها اضافه شد');
+            const i = +activeDay;
+            list.innerHTML = `
+                <div class="day-group">
+                    <div class="day-group-title">روز ${faNum(i+1)} <span>${faNum(daysArray[i].length)} جاذبه</span></div>
+                    ${daysArray[i].map((p, idx) => cardHtml(p, idx, i)).join('')}
+                </div>`;
         }
-        saveFavs();
-        if (favsOnly) applyFilters();
+
+        const visibleCount = activeDay === 'all' ? tripPlaces.length : daysArray[+activeDay].length;
+        $('resultCount').innerHTML = `
+            <span><i class="fas fa-route"></i> ${faNum(visibleCount)} جاذبه</span>
+            <span>${faNum(tripPlaces.filter(p=>p.cost===0).length)} رایگان</span>`;
+
+        list.querySelectorAll('.place-card').forEach(card => {
+            card.addEventListener('click', () => highlightItem(+card.dataset.id));
+        });
     }
 
-    // رندر لیست با استایل تایم‌لاین
-   function renderList(places) {
-    const list = $('mapList');
-    if (!list) return;
-    if (!places.length) {
-        list.innerHTML = '<div style="text-align:center; padding:30px 10px; color:var(--brown-light);"><i class="fas fa-search" style="font-size:28px; opacity:.3; display:block; margin-bottom:10px;"></i><p style="margin:0;">جاذبه‌ای با این فیلترها پیدا نشد</p></div>';
-        return;
-    }
-    
-    // === مرتب‌سازی بر اساس id ===
-    places = [...places].sort((a, b) => a.id - b.id);
-    
-    if (TRIP_MODE && TRIP_DATA) {
-        // حالت سفر - گروه‌بندی بر اساس روز
-        const totalDays = TRIP_DATA.duration_days;
-        let html = '';
-        
-        for (let day = 1; day <= totalDays; day++) {
-            const dayPlaces = places.filter(p => {
-                const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
-                return sp && sp.day === day;
-            });
-            
-            if (dayPlaces.length === 0) continue;
-            
-            html += `<div class="day-group">`;
-            html += `<div class="day-group-title">روز ${faNum(day)} <span>${faNum(dayPlaces.length)} جاذبه</span></div>`;
-            
-            // === مرتب‌سازی جاذبه‌های هر روز بر اساس id ===
-            dayPlaces.sort((a, b) => a.id - b.id);
-            
-            dayPlaces.forEach((p, idx) => {
-                const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
-                const dayNum = sp ? sp.day : 1;
-                
-                html += `
-                <div class="place-row">
-                    <span class="place-num">${faNum(p.id)}</span>
-                    <div class="place-card" data-id="${p.id}" style="cursor:pointer;">
-                        <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-                        <div class="pc-info">
-                            <h4>${p.name}</h4>
-                            <div class="pc-time">🕒 ${faNum(9 + idx)}:۰۰ تا ${faNum(10 + idx)}:۳۰</div>
-                            <div class="pc-meta">
-                                <span>🏷️ ${p.cat}</span>
-                                <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
-                            </div>
-                        </div>
-                        <div class="pc-side">
-                            <span class="dist-chip" style="background:${getDayColor(dayNum)}; color:#fff;">روز ${faNum(dayNum)}</span>
-                            <div class="pc-actions">
-                                <span class="pc-score">⭐ ${faNum(p.rating)}</span>
-                                <button class="icon-btn pc-more" data-id="${p.id}" title="گزینه‌ها"><i class="fas fa-ellipsis-h"></i></button>
-                            </div>
+    function cardHtml(p, idx, dayIdx) {
+        return `
+            <div class="place-row">
+                <span class="place-num">${faNum(idx + 1)}</span>
+                <div class="place-card" data-id="${p.id}">
+                    <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+                    <div class="pc-info">
+                        <h4>${p.name}</h4>
+                        <div class="pc-time">🕒 ${faTime(9*60 + idx*60)} تا ${faTime(10*60 + idx*60)}</div>
+                        <div class="pc-meta">
+                            <span>🏷️ ${p.cat || p.category || ''}</span>
+                            <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
                         </div>
                     </div>
+                </div>
+            </div>`;
+    }
+
+    function renderDefaultList(places) {
+        const list = $('mapList');
+        if (!list) return;
+
+        $('plannerTabs').style.display = 'none';
+        $('quickFiltersSection').style.display = 'block';
+        $('extraTogglesSection').style.display = 'flex';
+        $('searchBox').style.display = 'block';
+
+        if (!places.length) {
+            list.innerHTML = `
+                <div class="empty-list">
+                    <i class="fas fa-search"></i>
+                    <p>جاذبه‌ای با این فیلترها پیدا نشد</p>
                 </div>`;
-            });
-            
-            html += `</div>`;
+            $('resultCount').innerHTML = `<span>۰ جاذبه</span>`;
+            return;
         }
-        
-        list.innerHTML = html;
-    } else {
-        // حالت عادی - مرتب‌سازی بر اساس id
-        places.sort((a, b) => a.id - b.id);
-        
-        list.innerHTML = places.map(p => {
-            const meta = CAT_META[p.cat] || {};
-            return `
+
+        list.innerHTML = places.map((p, idx) => `
             <div class="place-row">
-                <span class="place-num">${faNum(p.id)}</span>
-                <div class="place-card" data-id="${p.id}" style="cursor:pointer;">
+                <span class="place-num">${faNum(idx + 1)}</span>
+                <div class="place-card" data-id="${p.id}">
                     <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
                     <div class="pc-info">
                         <h4>${p.name}</h4>
                         <div class="pc-time">🕒 ${faNum(9)}:۰۰ تا ${faNum(10)}:۳۰</div>
                         <div class="pc-meta">
-                            <span style="color:${meta.color}"><i class="fas ${meta.icon}"></i> ${p.cat}</span>
+                            <span><i class="fas fa-tag" style="color:${p.color||'#118b71'};"></i> ${p.cat || p.category || ''}</span>
                             <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
                         </div>
                     </div>
-                    <div class="pc-side">
-                        <span class="dist-chip">⭐ ${faNum(p.rating)}</span>
-                        <div class="pc-actions">
-                            <button class="icon-btn pc-more" data-id="${p.id}" title="گزینه‌ها"><i class="fas fa-ellipsis-h"></i></button>
-                        </div>
-                    </div>
                 </div>
-            </div>`;
-        }).join('');
-    }
-    
-    // رویداد کلیک روی کارت‌ها
-    list.querySelectorAll('.place-card').forEach(card => {
-        card.addEventListener('click', () => {
-            const id = +card.dataset.id;
-            if (id) highlightItem(id, true);
-        });
-    });
-    
-    // رویداد کلیک روی دکمه گزینه‌ها
-    list.querySelectorAll('.pc-more').forEach(btn => {
-        btn.addEventListener('click', e => {
-            e.stopPropagation();
-            const id = +btn.dataset.id;
-            if (id) {
-                const p = MAP_PLACES.find(x => x.id === id);
-                if (p) showToast(`گزینه‌های ${p.name}`);
-            }
-        });
-    });
-}
+            </div>`).join('');
 
-    function highlightItem(id, fly) {
-        document.querySelectorAll('.place-card').forEach(el =>
-            el.classList.toggle('active', +el.dataset.id === id));
-        const el = document.querySelector(`.place-card[data-id="${id}"]`);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        const m = markers.get(id);
-        if (!m) return;
-        if (fly) map.flyTo(m.getLatLng(), Math.max(map.getZoom(), 14), { duration: .8 });
-        setTimeout(() => cluster.zoomToShowLayer(m, () => m.openPopup()), fly ? 850 : 0);
-    }
-
-    function applyFilters() {
-        if (TRIP_MODE && TRIP_DATA) {
-            applyTripFilters();
-            return;
-        }
-        
-        const q = query.trim();
-        const visible = MAP_PLACES.filter(p =>
-            (activeCats.size === 0 || activeCats.has(p.cat)) &&
-            (!freeOnly || p.cost === 0) &&
-            (!childOnly || p.child) &&
-            (!favsOnly || favs.has(p.id)) &&
-            (!q || p.name.includes(q) || p.desc.includes(q) || p.sub.includes(q) || p.cat.includes(q))
-        );
-        cluster.clearLayers();
-        visible.forEach(p => { const m = markers.get(p.id); if (m) cluster.addLayer(m); });
-        renderList(visible);
         $('resultCount').innerHTML = `
-            <span><i class="fas fa-map-marker-alt"></i> ${faNum(visible.length)} جاذبه از ${faNum(MAP_PLACES.length)}</span>
-            <span>${faNum(visible.filter(p=>p.cost===0).length)} رایگان</span>`;
+            <span><i class="fas fa-map-marker-alt"></i> ${faNum(places.length)} جاذبه از ${faNum(MAP_PLACES.length)}</span>
+            <span>${faNum(places.filter(p=>p.cost===0).length)} رایگان</span>`;
+
+        list.querySelectorAll('.place-card').forEach(card => {
+            card.addEventListener('click', () => highlightItem(+card.dataset.id));
+        });
     }
 
-    let activeDay = 'all';
-    
-    function applyTripFilters() {
-        const q = query.trim();
-        let visible = TRIP_DATA.suggested_places
-            .map(sp => MAP_PLACES.find(p => p.id === sp.id))
-            .filter(p => p);
-        
-        if (activeDay !== 'all') {
-            visible = visible.filter(p => {
-                const sp = TRIP_DATA.suggested_places.find(sp => sp.id === p.id);
-                return sp && sp.day === activeDay;
+    function drawMap() {
+        markers.forEach(m => clusterGroup.removeLayer(m));
+        markers.clear();
+        clusterGroup.clearLayers();
+
+        const allPoints = [];
+        let placesToDraw = [];
+
+        if (TRIP_MODE && TRIP_DATA) {
+            if (activeDay === 'all') {
+                daysArray.forEach((d, i) => {
+                    const dayNum = i + 1;
+                    const color = getDayColor(dayNum);
+                    d.forEach((p, idx) => {
+                        placesToDraw.push({ p, num: idx + 1, day: dayNum, color });
+                    });
+                });
+            } else {
+                const i = +activeDay;
+                const dayNum = i + 1;
+                const color = getDayColor(dayNum);
+                daysArray[i].forEach((p, idx) => {
+                    placesToDraw.push({ p, num: idx + 1, day: dayNum, color });
+                });
+            }
+        } else {
+            const visible = getFilteredPlaces();
+            visible.forEach((p, idx) => {
+                const catName = p.parent_cat || p.cat || '';
+                const catColor = (CAT_META[catName] && CAT_META[catName].color) || p.color || '#118b71';
+                placesToDraw.push({
+                    p,
+                    num: idx + 1,
+                    day: null,
+                    color: catColor,
+                    badgeText: p.cat || '',
+                    badgeColor: catColor
+                });
             });
         }
-        
-        if (q) {
-            visible = visible.filter(p => p.name.includes(q) || p.desc.includes(q));
+
+        placesToDraw.forEach(({ p, num, day, color, badgeText, badgeColor }) => {
+            const badge = TRIP_MODE ? `روز ${faNum(day)}` : badgeText;
+            const badgeCol = TRIP_MODE ? color : badgeColor;
+            
+            const m = L.marker([p.lat, p.lng], { 
+                icon: pinIcon(p, num, color),
+                _catColor: color
+            })
+                .bindPopup(popupHtml(p, badge, badgeCol));
+            
+            clusterGroup.addLayer(m);
+            markers.set(p.id, m);
+            allPoints.push([p.lat, p.lng]);
+        });
+
+        if (allPoints.length) {
+            map.fitBounds(L.latLngBounds(allPoints), { padding: [80, 80], maxZoom: 14 });
         }
-        
-        cluster.clearLayers();
-        visible.forEach(p => { const m = markers.get(p.id); if (m) cluster.addLayer(m); });
-        renderList(visible);
-        
-        $('resultCount').innerHTML = `
-            <span><i class="fas fa-route"></i> ${faNum(visible.length)} جاذبه در ${faNum(TRIP_DATA.duration_days)} روز</span>
-            <span>${faNum(visible.filter(p=>p.cost===0).length)} رایگان</span>`;
+    }
+
+    function highlightItem(id) {
+        document.querySelectorAll('.place-card').forEach(el => {
+            el.classList.toggle('active', +el.dataset.id === id);
+        });
+        const el = document.querySelector(`.place-card[data-id="${id}"]`);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+        const m = markers.get(id);
+        if (m) {
+            clusterGroup.zoomToShowLayer(m, () => {
+                m.openPopup();
+            });
+        }
+    }
+
+    function getFilteredPlaces() {
+        const q = query.trim();
+        return MAP_PLACES.filter(p => {
+            const catName = p.parent_cat || p.cat || '';
+            if (activeCats.size > 0 && !activeCats.has(catName)) return false;
+            if (freeOnly && p.cost !== 0) return false;
+            if (childOnly && !p.child) return false;
+            if (favsOnly && !favs.has(p.id)) return false;
+            if (q && !(p.name.includes(q) || (p.desc||'').includes(q) || (p.sub||'').includes(q) || (p.cat||'').includes(q))) return false;
+            return true;
+        });
     }
 
     function buildChips() {
         const chips = $('qfChips');
         if (!chips) return;
-        chips.innerHTML = Object.entries(CAT_META).map(([cat, meta]) => {
-            const count = MAP_PLACES.filter(p => p.cat === cat).length;
-            return `<button class="qf-chip" data-cat="${cat}">
+        
+        const cats = Object.entries(CAT_META)
+            .filter(([_, meta]) => meta.count > 0)
+            .sort((a, b) => b[1].count - a[1].count);
+        
+        chips.innerHTML = cats.map(([cat, meta]) => `
+            <button class="qf-chip" data-cat="${cat}">
                 <span class="chip-dot" style="background:${meta.color}"></span>${cat}
-                <span class="chip-num">${faNum(count)}</span>
-            </button>`;
-        }).join('');
+                <span class="chip-num">${faNum(meta.count)}</span>
+            </button>
+        `).join('');
+        
         chips.querySelectorAll('.qf-chip').forEach(ch => ch.addEventListener('click', () => {
             const c = ch.dataset.cat;
             activeCats.has(c) ? activeCats.delete(c) : activeCats.add(c);
             ch.classList.toggle('active');
+            updateQfActiveCount();
             applyFilters();
         }));
     }
 
-    function buildTripDayChips() {
-        const chipsContainer = $('qfChips');
-        if (!chipsContainer) return;
-        chipsContainer.innerHTML = '';
-        
-        const allBtn = document.createElement('button');
-        allBtn.className = 'qf-chip active';
-        allBtn.innerHTML = '<i class="fas fa-calendar-alt"></i> همه روزها';
-        allBtn.addEventListener('click', () => {
-            activeDay = 'all';
-            applyTripFilters();
-            chipsContainer.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
-            allBtn.classList.add('active');
-        });
-        chipsContainer.appendChild(allBtn);
-        
-        const totalDays = TRIP_DATA.duration_days;
-        for (let day = 1; day <= totalDays; day++) {
-            const dayBtn = document.createElement('button');
-            dayBtn.className = 'qf-chip';
-            dayBtn.style.background = getDayColor(day);
-            dayBtn.style.color = '#fff';
-            dayBtn.innerHTML = `<i class="fas fa-calendar-day"></i> روز ${faNum(day)}`;
-            dayBtn.addEventListener('click', () => {
-                activeDay = day;
-                applyTripFilters();
-                chipsContainer.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
-                dayBtn.classList.add('active');
-            });
-            chipsContainer.appendChild(dayBtn);
-        }
+    // ✅ شمارنده فیلترهای فعال
+    function updateQfActiveCount() {
+        const count = activeCats.size;
+        const el = $('qfActiveCount');
+        if (el) el.textContent = count > 0 ? faNum(count) : '';
+    }
+
+    function applyFilters() {
+        if (TRIP_MODE && TRIP_DATA) return;
+        const visible = getFilteredPlaces();
+        renderDefaultList(visible);
+        drawMap();
     }
 
     function buildMapDayChips() {
-        const chipsContainer = $('mapDayChips');
-        if (!chipsContainer) return;
-        
-        chipsContainer.innerHTML = '';
-        
+        const container = $('mapDayChips');
+        if (!container) return;
+
+        if (!TRIP_MODE || !TRIP_DATA) {
+            container.classList.remove('show');
+            return;
+        }
+
+        container.classList.add('show');
+        container.innerHTML = '';
+
         const allBtn = document.createElement('button');
-        allBtn.className = 'map-chip active';
-        allBtn.innerHTML = 'همه';
+        allBtn.className = 'map-chip' + (activeDay === 'all' ? ' active' : '');
+        allBtn.textContent = 'همه';
         allBtn.addEventListener('click', () => {
             activeDay = 'all';
-            applyTripFilters();
-            chipsContainer.querySelectorAll('.map-chip').forEach(c => c.classList.remove('active'));
-            allBtn.classList.add('active');
+            renderTripList();
+            drawMap();
+            buildMapDayChips();
         });
-        chipsContainer.appendChild(allBtn);
-        
-        const totalDays = TRIP_DATA.duration_days;
-        for (let day = 1; day <= totalDays; day++) {
+        container.appendChild(allBtn);
+
+        daysArray.forEach((d, i) => {
             const dayBtn = document.createElement('button');
-            dayBtn.className = 'map-chip';
-            dayBtn.style.background = getDayColor(day);
-            dayBtn.style.color = '#fff';
-            dayBtn.innerHTML = `روز ${faNum(day)}`;
+            dayBtn.className = 'map-chip' + (activeDay !== 'all' && +activeDay === i ? ' active' : '');
+            dayBtn.textContent = `روز ${faNum(i+1)}`;
             dayBtn.addEventListener('click', () => {
-                activeDay = day;
-                applyTripFilters();
-                chipsContainer.querySelectorAll('.map-chip').forEach(c => c.classList.remove('active'));
-                dayBtn.classList.add('active');
+                activeDay = i;
+                renderTripList();
+                drawMap();
+                buildMapDayChips();
             });
-            chipsContainer.appendChild(dayBtn);
-        }
+            container.appendChild(dayBtn);
+        });
     }
 
     function buildLegend() {
-        const legendBody = $('legendBody');
-        if (!legendBody) return;
+        const legend = $('mapLegend');
+        const body = $('legendBody');
+        if (!legend || !body) return;
+
         if (TRIP_MODE && TRIP_DATA) {
-            let legendHtml = '';
-            for (let day = 1; day <= TRIP_DATA.duration_days; day++) {
-                legendHtml += `<div class="legend-item"><span class="legend-dot" style="background:${getDayColor(day)}"></span> روز ${faNum(day)}</div>`;
-            }
-            legendBody.innerHTML = legendHtml;
-        } else {
-            legendBody.innerHTML = Object.entries(CAT_META).map(([cat, m]) =>
-                `<div class="legend-item"><span class="legend-dot" style="background:${m.color}"></span>${cat}</div>`).join('');
+            legend.style.display = 'none';
+            return;
         }
+
+        legend.style.display = '';
+        const cats = Object.entries(CAT_META)
+            .filter(([_, meta]) => meta.count > 0)
+            .sort((a, b) => b[1].count - a[1].count);
+        
+        body.innerHTML = cats.map(([cat, meta]) =>
+            `<div class="legend-item">
+                <span class="legend-dot" style="background:${meta.color}"></span>
+                <span>${cat}</span>
+                <span style="margin-right:auto; color:#8b7355; font-size:10px;">${faNum(meta.count)}</span>
+            </div>`
+        ).join('');
     }
+
+    let activeDay = 'all';
+
+    document.addEventListener('click', e => {
+        const t = e.target.closest('[data-tab]');
+        if (t && t.closest('#plannerTabs')) {
+            activeDay = t.dataset.tab === 'all' ? 'all' : parseInt(t.dataset.tab, 10);
+            renderTripList();
+            drawMap();
+            buildMapDayChips();
+        }
+    });
+
+    // ═══ 🎯 فیلتر کشویی ═══
+    $('qfHeader')?.addEventListener('click', () => {
+        const section = $('quickFiltersSection');
+        const body = $('qfBody');
+        section?.classList.toggle('open');
+        body?.classList.toggle('open');
+    });
 
     const sugBox = $('searchSug');
     let searchT;
-    $('mapSearch').addEventListener('input', e => {
+    $('mapSearch')?.addEventListener('input', e => {
         clearTimeout(searchT);
         const q = e.target.value.trim();
         query = q;
-        if (!q) { sugBox.classList.remove('open'); applyFilters(); return; }
-        
-        let matches;
-        if (TRIP_MODE && TRIP_DATA) {
-            matches = TRIP_DATA.suggested_places
-                .map(sp => MAP_PLACES.find(p => p.id === sp.id))
-                .filter(p => p && (p.name.includes(q) || p.desc.includes(q) || p.cat.includes(q) || p.sub.includes(q)));
-        } else {
-            matches = MAP_PLACES.filter(p =>
-                p.name.includes(q) || p.desc.includes(q) || p.cat.includes(q) || p.sub.includes(q)
-            );
-        }
-        
-        matches = matches.slice(0, 6);
-        
+        if (!q) { sugBox?.classList.remove('open'); applyFilters(); return; }
+
+        const matches = MAP_PLACES.filter(p =>
+            p.name.includes(q) || (p.desc||'').includes(q) || (p.cat||'').includes(q) || (p.sub||'').includes(q)
+        ).slice(0, 6);
+
         if (!matches.length) {
-            sugBox.innerHTML = '<div style="padding:14px; text-align:center; color:var(--brown-light); font-size:12px;">نتیجه‌ای یافت نشد</div>';
+            if (sugBox) sugBox.innerHTML = '<div style="padding:14px; text-align:center; color:#8b7355; font-size:12px;">نتیجه‌ای یافت نشد</div>';
         } else {
-            sugBox.innerHTML = matches.map(p => {
-                const meta = CAT_META[p.cat] || {};
-                const day = TRIP_MODE && TRIP_DATA ? (TRIP_DATA.suggested_places.find(sp => sp.id === p.id)?.day || 1) : null;
-                return `<div class="sug-item" data-id="${p.id}">
-                    <i class="fas ${meta.icon}" style="color:${meta.color}"></i>
+            if (sugBox) sugBox.innerHTML = matches.map(p => `
+                <div class="sug-item" data-id="${p.id}">
+                    <i class="fas fa-map-marker-alt" style="color:${p.color||'#118b71'}"></i>
                     <div>
                         <div class="sug-name">${p.name}</div>
-                        <div class="sug-cat">${TRIP_MODE ? 'روز ' + faNum(day) : p.cat}</div>
+                        <div class="sug-cat">${p.cat || ''}</div>
                     </div>
-                </div>`;
-            }).join('');
-            sugBox.querySelectorAll('.sug-item').forEach(el => el.addEventListener('click', () => {
+                </div>`).join('');
+            sugBox?.querySelectorAll('.sug-item').forEach(el => el.addEventListener('click', () => {
                 const p = MAP_PLACES.find(x => x.id === +el.dataset.id);
-                if (p) { highlightItem(p.id, true); sugBox.classList.remove('open'); }
+                if (p) { highlightItem(p.id); sugBox.classList.remove('open'); }
             }));
         }
-        sugBox.classList.add('open');
+        sugBox?.classList.add('open');
         applyFilters();
     });
-    $('mapSearch').addEventListener('blur', () => setTimeout(() => sugBox.classList.remove('open'), 200));
+    $('mapSearch')?.addEventListener('blur', () => setTimeout(() => sugBox?.classList.remove('open'), 200));
 
     function toggleExtra(btnId) {
         const btn = $(btnId);
@@ -1395,134 +1519,106 @@ const layers = {
         btn.classList.toggle('active', !active);
         return !active;
     }
-
     if (!TRIP_MODE) {
-        const freeBtn = $('freeOnly');
-        const childBtn = $('childOnly');
-        const favBtn = $('favsOnly');
-        if (freeBtn) freeBtn.addEventListener('click', () => { freeOnly = toggleExtra('freeOnly'); applyFilters(); });
-        if (childBtn) childBtn.addEventListener('click', () => { childOnly = toggleExtra('childOnly'); applyFilters(); });
-        if (favBtn) favBtn.addEventListener('click', () => { favsOnly = toggleExtra('favsOnly'); applyFilters(); });
-    } else {
-        const extraSection = $('extraTogglesSection');
-        const quickSection = $('quickFiltersSection');
-        if (extraSection) extraSection.style.display = 'none';
-        if (quickSection) {
-            const title = quickSection.querySelector('.qf-title');
-            if (title) title.innerHTML = '<span><i class="fas fa-route"></i> روزهای سفر</span>';
-        }
+        $('freeOnly')?.addEventListener('click', () => { freeOnly = toggleExtra('freeOnly'); applyFilters(); });
+        $('childOnly')?.addEventListener('click', () => { childOnly = toggleExtra('childOnly'); applyFilters(); });
+        $('favsOnly')?.addEventListener('click', () => { favsOnly = toggleExtra('favsOnly'); applyFilters(); });
     }
 
-    const closeSb = $('closeSb');
-    const sbToggle = $('sbToggle');
-    const mapSidebar = $('mapSidebar');
-
-    if (closeSb) closeSb.addEventListener('click', () => {
-        mapSidebar.classList.add('collapsed');
-        sbToggle.classList.add('show');
-        setTimeout(() => map.invalidateSize(), 400);
-    });
-    if (sbToggle) sbToggle.addEventListener('click', () => {
-        mapSidebar.classList.remove('collapsed');
-        sbToggle.classList.remove('show');
-        setTimeout(() => map.invalidateSize(), 400);
-    });
-
-    const qfClear = $('qfClear');
-    if (qfClear) qfClear.addEventListener('click', () => {
+    $('qfClear')?.addEventListener('click', () => {
         activeCats.clear();
-        $('qfChips').querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
+        query = '';
+        if ($('mapSearch')) $('mapSearch').value = '';
+        $('qfChips')?.querySelectorAll('.qf-chip').forEach(c => c.classList.remove('active'));
+        updateQfActiveCount();
         applyFilters();
     });
 
-    let currentLayer = 'street';
     const layerBtn = $('layerBtn');
     const layerSwitcher = $('layerSwitcher');
-    if (layerBtn && layerSwitcher) {
-        layerBtn.addEventListener('click', () => layerSwitcher.classList.toggle('open'));
-        layerSwitcher.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
-            const layer = btn.dataset.layer;
-            if (layer === currentLayer) return;
-            map.removeLayer(layers[currentLayer]);
-            layers[layer].addTo(map);
-            currentLayer = layer;
-            layerSwitcher.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.layer === layer));
-            layerSwitcher.classList.remove('open');
-        }));
-    }
+    layerBtn?.addEventListener('click', () => layerSwitcher?.classList.toggle('open'));
+    layerSwitcher?.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
+        const layer = btn.dataset.layer;
+        if (layer === currentLayer) return;
+        map.removeLayer(layers[currentLayer]);
+        layers[layer].addTo(map);
+        currentLayer = layer;
+        layerSwitcher.querySelectorAll('button').forEach(b => b.classList.toggle('active', b.dataset.layer === layer));
+        layerSwitcher.classList.remove('open');
+    }));
     document.addEventListener('click', e => {
         if (!e.target.closest('#layerBtn') && !e.target.closest('#layerSwitcher')) {
-            layerSwitcher.classList.remove('open');
+            layerSwitcher?.classList.remove('open');
         }
     });
 
-    const locateBtn = $('locateBtn');
-    if (locateBtn) locateBtn.addEventListener('click', () => {
-        if (!navigator.geolocation) { showToast('مرورگر شما از موقعیت‌یابی پشتیبانی نمی‌کند'); return; }
+    $('locateBtn')?.addEventListener('click', () => {
+        if (!navigator.geolocation) { showToast('مرورگر پشتیبانی نمی‌کند'); return; }
         showToast('در حال دریافت موقعیت...');
         navigator.geolocation.getCurrentPosition(pos => {
             const { latitude, longitude } = pos.coords;
             L.marker([latitude, longitude], {
                 icon: L.divIcon({
                     className: 'pin-wrap',
-                    html: '<div class="pin" style="background:#2196f3"><span><i class="fas fa-user"></i></span></div>',
-                    iconSize: [36, 44], iconAnchor: [18, 40]
+                    html: '<div class="pin" style="--c:#2196f3"><span><i class="fas fa-user"></i></span></div>',
+                    iconSize: [26, 40], iconAnchor: [13, 36]
                 })
-            }).addTo(map).bindPopup('<div style="font-family:Vazirmatn; padding:6px; text-align:center;"><b>📍 موقعیت شما</b></div>').openPopup();
+            }).addTo(map).bindPopup('<b>📍 موقعیت شما</b>').openPopup();
             map.flyTo([latitude, longitude], 14, { duration: .8 });
-            showToast('موقعیت شما یافت شد');
-        }, () => showToast('دسترسی به موقعیت رد شد'));
+            showToast('موقعیت یافت شد');
+        }, () => showToast('دسترسی رد شد'));
     });
 
-    const fitBtn = $('fitBtn');
-    if (fitBtn) fitBtn.addEventListener('click', () => {
-        if (TRIP_MODE && TRIP_DATA) {
-            const tripPlaces = TRIP_DATA.suggested_places.map(sp => MAP_PLACES.find(p => p.id === sp.id)).filter(p => p);
-            if (tripPlaces.length) {
-                map.fitBounds(L.latLngBounds(tripPlaces.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 14 });
-            }
-        } else {
-            map.fitBounds(L.latLngBounds(MAP_PLACES.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 13 });
+    $('fitBtn')?.addEventListener('click', () => {
+        const allPoints = (TRIP_MODE ? tripPlaces : MAP_PLACES).map(p => [p.lat, p.lng]);
+        if (allPoints.length) {
+            map.fitBounds(L.latLngBounds(allPoints), { padding: [80, 80], maxZoom: 14 });
         }
     });
 
-    const backBtn = $('backToPlanBtn');
-    if (backBtn) backBtn.addEventListener('click', () => {
-        window.location.href = '/plan/';
+    const closeSb = $('closeSb');
+    const sbToggle = $('sbToggle');
+    const mapSidebar = $('mapSidebar');
+    closeSb?.addEventListener('click', () => {
+        mapSidebar.classList.add('collapsed');
+        sbToggle.classList.add('show');
+        setTimeout(() => map.invalidateSize(), 400);
+    });
+    sbToggle?.addEventListener('click', () => {
+        mapSidebar.classList.remove('collapsed');
+        sbToggle.classList.remove('show');
+        setTimeout(() => map.invalidateSize(), 400);
     });
 
-    const toggleLeg = $('toggleLeg');
-    const mapLegend = $('mapLegend');
-    if (toggleLeg && mapLegend) {
-        toggleLeg.addEventListener('click', () => {
-            mapLegend.classList.toggle('collapsed');
-            toggleLeg.innerHTML = mapLegend.classList.contains('collapsed')
-                ? '<i class="fas fa-plus"></i>' : '<i class="fas fa-minus"></i>';
-        });
-    }
+    $('toggleLeg')?.addEventListener('click', () => {
+        const leg = $('mapLegend');
+        leg?.classList.toggle('collapsed');
+        const btn = $('toggleLeg');
+        if (btn) btn.innerHTML = leg?.classList.contains('collapsed')
+            ? '<i class="fas fa-plus"></i>' : '<i class="fas fa-minus"></i>';
+    });
 
     if (TRIP_MODE && TRIP_DATA) {
-        const sidebarTitle = $('sidebarTitle');
-        const sidebarSubtitle = $('sidebarSubtitle');
-        if (sidebarTitle) sidebarTitle.innerHTML = '<i class="fas fa-route"></i> برنامه سفر شما';
-        if (sidebarSubtitle) sidebarSubtitle.textContent = `سفر ${faNum(TRIP_DATA.duration_days)} روزه - ${TRIP_DATA.interests.join('، ')}`;
-        buildTripDayChips();
+        const subtitle = $('sidebarSubtitle');
+        if (subtitle) {
+            subtitle.textContent = `${faNum(daysArray.length)} روزه - ${faNum(tripPlaces.length)} جاذبه`;
+        }
+        renderTripList();
+        drawMap();
         buildMapDayChips();
         buildLegend();
-        applyTripFilters();
-        const tripPlaces = TRIP_DATA.suggested_places.map(sp => MAP_PLACES.find(p => p.id === sp.id)).filter(p => p);
-        if (tripPlaces.length) {
-            map.fitBounds(L.latLngBounds(tripPlaces.map(p => [p.lat, p.lng])), { padding: [50, 50], maxZoom: 14 });
-        }
-        showToast(`در حال نمایش برنامه سفر شما (${faNum(TRIP_DATA.duration_days)} روز)`);
     } else {
+        const subtitle = $('sidebarSubtitle');
+        if (subtitle) subtitle.textContent = 'کشف جاذبه‌های شهر';
         buildChips();
-        buildLegend();
         applyFilters();
+        buildLegend();
     }
+
     setTimeout(() => map.invalidateSize(), 300);
 })();
 </script>
+
 <script src="{% static 'js/script.js' %}"></script>
 </body>
 </html>
