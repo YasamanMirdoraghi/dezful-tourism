@@ -33,4 +33,12 @@ urlpatterns = [
     
     # ✅ ذخیره/حذف جاذبه از علاقه‌مندی (AJAX)
     path('favorite/<slug:slug>/toggle/', views.toggle_favorite, name='toggle_favorite'),
+        # ✅ حذف سفر
+    path('trip/<int:trip_id>/delete/', views.delete_trip, name='delete_trip'),
+    
+    # ✅ حذف نظر
+    path('review/<int:review_id>/delete/', views.delete_review, name='delete_review'),
+    
+    # ✅ ویرایش پروفایل
+    path('profile/update/', views.update_profile, name='update_profile'),
 ]

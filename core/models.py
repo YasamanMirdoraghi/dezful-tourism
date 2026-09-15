@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 # ==========================================================
 class User(AbstractUser):
     phone = models.CharField(max_length=15, unique=True, null=True, blank=True)
-    avatar = models.CharField(max_length=255, null=True, blank=True)
+    avatar = models.ImageField(upload_to='avatars/', null=True, blank=True)  # ✅ تغییر: از CharField به ImageField
     role = models.CharField(max_length=10, choices=[('user', 'User'), ('admin', 'Admin')], default='user')
     is_active = models.BooleanField(default=True)
     last_login = models.DateTimeField(null=True, blank=True)
@@ -15,7 +15,6 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
-
 # ==========================================================
 # ۲. دسته‌بندی
 # ==========================================================

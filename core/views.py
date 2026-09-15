@@ -1045,3 +1045,121 @@ def dashboard_page(request):
     print("=" * 60)
     
     return render(request, 'dashboard.html', context)
+
+# ==========================================================
+# ✅ حذف سفر
+# ==========================================================
+@login_required(login_url='login')
+def delete_trip(request, trip_id):
+    """حذف سفر کاربر"""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+    
+    trip = get_object_or_404(Trip, id=trip_id, user=request.user)
+    trip.delete()
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'status': 'deleted',
+            'message': 'سفر با موفقیت حذف شد'
+        })
+    
+    messages.success(request, 'سفر با موفقیت حذف شد.')
+    return redirect('dashboard')
+
+
+# ==========================================================
+# ✅ حذف نظر
+# ==========================================================
+@login_required(login_url='login')
+def delete_review(request, review_id):
+    """حذف نظر کاربر"""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+    
+    review = get_object_or_404(Review, id=review_id, user=request.user)
+    review.delete()
+    
+    if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+        return JsonResponse({
+            'status': 'deleted',
+            'message': 'نظر با موفقیت حذف شد'
+        })
+    
+    messages.success(request, 'نظر با موفقیت حذف شد.')
+    return redirect('dashboard')
+
+
+# ==========================================================
+# ✅ ویرایش پروفایل
+# ==========================================================
+@login_required(login_url='login')
+def update_profile(request):
+    """ویرایش اطلاعات پروفایل کاربر"""
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+    
+    user = request.user
+    
+    first_name = request.POST.get('first_name', '').strip()
+    last_name = request.POST.get('last_name', '').strip()
+    email = request.POST.get('email', '').strip()
+    phone = request.POST.get('phone', '').strip()
+    
+    # ✅ بررسی ایمیل تکراری
+    if email and email != user.email:
+        if User.objects.filter(email=email).exclude(id=user.id).exists():
+            return JsonResponse({
+                'status': 'error',
+                'message': 'این ایمیل قبلاً استفاده شده است'
+            }, status=400)
+    
+    # ✅ بررسی تلفن تکراری
+    if phone and phone != user.phone:
+        if User.objects.filter(phone=phone).exclude(id=user.id).exists():
+            return JsonResponse({
+                'status': 'error',
+                'message': 'این شماره تلفن قبلاً استفاده شده است'
+            }, status=400)
+    
+    # ✅ ذخیره
+    user.first_name = first_name
+    user.last_name = last_name
+    user.email = email
+    user.phone = phone if phone else None
+    
+    # ✅ آپلود عکس پروفایل
+    if 'avatar' in request.FILES:
+        avatar_file = request.FILES['avatar']
+        # بررسی حجم فایل (حداکثر ۲ مگابایت)
+        if avatar_file.size > 2 * 1024 * 1024:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'حجم عکس نباید بیشتر از ۲ مگابایت باشد'
+            }, status=400)
+        # بررسی نوع فایل
+        if not avatar_file.content_type.startswith('image/'):
+            return JsonResponse({
+                'status': 'error',
+                'message': 'فایل باید عکس باشد'
+            }, status=400)
+        user.avatar = avatar_file
+    
+    # ✅ تغییر رمز عبور
+    new_password = request.POST.get('new_password', '').strip()
+    if new_password:
+        if len(new_password) < 6:
+            return JsonResponse({
+                'status': 'error',
+                'message': 'رمز عبور باید حداقل ۶ کاراکتر باشد'
+            }, status=400)
+        user.set_password(new_password)
+        from django.contrib.auth import update_session_auth_hash
+        update_session_auth_hash(request, user)
+    
+    user.save()
+    
+    return JsonResponse({
+        'status': 'updated',
+        'message': 'اطلاعات پروفایل با موفقیت به‌روزرسانی شد'
+    })
