@@ -240,6 +240,7 @@ class Trip(models.Model):
     budget_toman = models.BigIntegerField()
     interests = models.JSONField(default=list, blank=True)
     suggested_places = models.JSONField(default=list, blank=True)
+    daily_durations = models.JSONField(default=list, blank=True)
     suggested_routes = models.JSONField(default=list, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft')
     created_at = models.DateTimeField(auto_now_add=True)

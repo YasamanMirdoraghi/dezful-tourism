@@ -112,12 +112,11 @@ def place_detail_page(request, slug):
     avg_rating = reviews.aggregate(avg=Avg('rating'))[
         'avg'] or place.rating_avg
     gallery = place.gallery if place.gallery else []
-    
-    # ✅ چک کن آیا کاربر این جاذبه رو ذخیره کرده یا نه
+
     is_favorited = False
     if request.user.is_authenticated:
         is_favorited = UserFavorite.objects.filter(
-            user=request.user, 
+            user=request.user,
             place=place
         ).exists()
 
@@ -127,8 +126,10 @@ def place_detail_page(request, slug):
         'reviews': reviews,
         'avg_rating': round(avg_rating, 1),
         'gallery': gallery,
-        'is_favorited': is_favorited,  # ✅ جدید
+        'is_favorited': is_favorited,
     })
+
+
 # ==========================================================
 # صفحه مقالات
 # ==========================================================
@@ -323,12 +324,9 @@ def logout_view(request):
     return redirect('home')
 
 
-
 # ==========================================================
 # توابع تبدیل تاریخ
 # ==========================================================
-
-
 def jalali_to_gregorian(jy, jm, jd):
     try:
         return jdatetime.date(jy, jm, jd).togregorian()
@@ -341,6 +339,8 @@ def gregorian_to_jalali(date_obj):
         return jdatetime.date.fromgregorian(date=date_obj)
     except:
         return None
+
+
 # ==========================================================
 # صفحه برنامه‌ریز
 # ==========================================================
@@ -348,7 +348,8 @@ def plan_page(request):
     places = Place.objects.filter(is_active=True).select_related('category').annotate(
         reviews_count=Count('reviews', filter=Q(reviews__is_approved=True))
     )
-    categories = Category.objects.filter(type='attraction', parent__isnull=True).order_by('display_order', 'name')
+    categories = Category.objects.filter(
+        type='attraction', parent__isnull=True).order_by('display_order', 'name')
 
     places_json = []
     for place in places:
@@ -388,13 +389,11 @@ def plan_page(request):
     today = timezone.now().date()
 
     if request.user.is_authenticated:
-        # گرفتن همه‌ی سفرها
         all_trips = list(Trip.objects.filter(user=request.user))
 
-        # ✅ دسته‌بندی بر اساس وضعیت
-        current_trips = []   # سفرهای جاری
-        upcoming_trips = []  # سفرهای آینده
-        past_trips = []      # سفرهای گذشته
+        current_trips = []
+        upcoming_trips = []
+        past_trips = []
 
         for trip in all_trips:
             if trip.start_date <= today <= trip.end_date:
@@ -404,28 +403,19 @@ def plan_page(request):
             else:
                 past_trips.append(trip)
 
-        # ✅ مرتب‌سازی هر گروه
-        # جاری: نزدیک‌ترین به پایان (کمترین فاصله از today)
         current_trips.sort(key=lambda t: (t.end_date - today).days)
-
-        # آینده: نزدیک‌ترین به امروز (کمترین فاصله از today)
         upcoming_trips.sort(key=lambda t: (t.start_date - today).days)
-
-        # گذشته: جدیدترین‌ها اول (بزرگ‌ترین end_date)
         past_trips.sort(key=lambda t: t.end_date, reverse=True)
 
-        # ✅ ترتیب نهایی: جاری → آینده → گذشته
         sorted_trips = current_trips + upcoming_trips + past_trips
     else:
         sorted_trips = []
 
-    # ساخت user_trips با عکس و وضعیت
     user_trips = []
     for trip in sorted_trips:
         start_j = gregorian_to_jalali(trip.start_date)
         end_j = gregorian_to_jalali(trip.end_date)
 
-        # تعیین وضعیت
         if trip.start_date <= today <= trip.end_date:
             status = 'current'
         elif trip.start_date > today:
@@ -433,7 +423,6 @@ def plan_page(request):
         else:
             status = 'past'
 
-        # گرفتن عکس اولین جاذبه
         trip_image = '/static/img/asiyab-haye-abi.jpg'
         if trip.suggested_places:
             first_place_id = trip.suggested_places[0].get('id')
@@ -461,6 +450,8 @@ def plan_page(request):
         'categories_json': json.dumps(categories_json, ensure_ascii=False),
         'user_trips': user_trips,
     })
+
+
 # ==========================================================
 # ذخیره سفر (با پاسخ JSON برای AJAX)
 # ==========================================================
@@ -475,6 +466,7 @@ def save_trip(request):
             budget_str = request.POST.get('budget_toman', '')
             interests_json = request.POST.get('interests', '[]')
             suggested_places_json = request.POST.get('suggested_places', '[]')
+            daily_durations_json = request.POST.get('daily_durations', '[]')  # ✅ جدید
 
             def parse_jalali_date(date_str):
                 try:
@@ -495,6 +487,7 @@ def save_trip(request):
             interests = json.loads(interests_json) if interests_json else []
             suggested_places = json.loads(
                 suggested_places_json) if suggested_places_json else []
+            daily_durations = json.loads(daily_durations_json) if daily_durations_json else []  # ✅ جدید
 
             budget_toman = 0
             if '-' in budget_str:
@@ -518,6 +511,7 @@ def save_trip(request):
                 budget_toman=budget_toman,
                 interests=interests,
                 suggested_places=suggested_places,
+                daily_durations=daily_durations,  # ✅ جدید
                 status='planned',
             )
 
@@ -586,10 +580,14 @@ def trip_result_page(request, trip_id):
     start_jalali = gregorian_to_jalali(trip.start_date)
     end_jalali = gregorian_to_jalali(trip.end_date)
 
+    # ✅ دریافت daily_durations
+    daily_durations = trip.daily_durations or []
+
     return render(request, 'trip_result.html', {
         'trip': trip,
         'places_in_trip': places_in_trip,
         'places_json': json.dumps(places_in_trip, ensure_ascii=False),
+        'daily_durations_json': json.dumps(daily_durations),  # ✅ جدید
         'empty_categories': empty_categories,
         'low_categories': low_categories,
         'start_jalali': start_jalali,
@@ -643,6 +641,8 @@ def plan_detail_page(request, slug):
             self.interests = plan.interests or []
             self.start_date = None
             self.end_date = None
+            # ✅ برای پلن‌های آماده، همه‌ی روزها ۸ ساعت فرض می‌کنیم
+            self.daily_durations = [8] * duration_days
 
     fake_trip = FakeTrip(plan, duration_days)
 
@@ -651,6 +651,7 @@ def plan_detail_page(request, slug):
         'plan': plan,
         'places_in_trip': places_in_trip,
         'places_json': json.dumps(places_in_trip, ensure_ascii=False),
+        'daily_durations_json': json.dumps(fake_trip.daily_durations),  # ✅ جدید
         'empty_categories': [],
         'low_categories': [],
         'start_jalali': None,
@@ -735,13 +736,13 @@ def map_page(request):
         cat_color = '#118b71'
         parent_cat_name = ''
         parent_color = '#118b71'
-        
+
         try:
             cat = place.category
             if cat is not None:
                 cat_name = cat.name or ''
                 cat_color = cat.color or '#118b71'
-                
+
                 parent = cat.parent
                 if parent is not None:
                     parent_cat_name = parent.name or ''
@@ -751,7 +752,7 @@ def map_page(request):
                     parent_color = cat_color
         except Exception as e:
             print(f'⚠️ خطا در جاذبه {place.id}: {e}')
-        
+
         places_json.append({
             'id': place.id,
             'name': place.name or '',
@@ -796,9 +797,6 @@ def map_page(request):
                 'is_plan': False,
             }
 
-    # ═══════════════════════════════════════════════════════
-    # ✅ اینجا favorite_ids رو تعریف کن (قبل از return)
-    # ═══════════════════════════════════════════════════════
     favorite_ids = []
     if request.user.is_authenticated:
         favorite_ids = list(
@@ -806,7 +804,6 @@ def map_page(request):
                 user=request.user
             ).values_list('place_id', flat=True)
         )
-    print(f'❤️ User: {request.user} | Favorites: {favorite_ids}')  # ← برای دیباگ
 
     return render(request, 'map.html', {
         'places': places,
@@ -815,8 +812,9 @@ def map_page(request):
         'trip_mode': bool(trip_data),
         'is_plan_mode': is_plan_mode,
         'plan': plan_data,
-        'favorite_ids': json.dumps(favorite_ids),  # ✅ حالا تعریف شده
+        'favorite_ids': json.dumps(favorite_ids),
     })
+
 
 # ==========================================================
 # بارگذاری سفر
@@ -860,6 +858,7 @@ def submit_place_review(request, slug):
 
     return redirect('place_detail', slug=slug)
 
+
 # ==========================================================
 # ✅ ذخیره/حذف جاذبه از علاقه‌مندی‌ها (AJAX)
 # ==========================================================
@@ -867,19 +866,19 @@ def toggle_favorite(request, slug):
     """ذخیره یا حذف جاذبه از علاقه‌مندی‌های کاربر"""
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
-    
+
     if not request.user.is_authenticated:
         return JsonResponse({
             'status': 'auth_required',
             'message': 'برای ذخیره باید وارد شوید'
         }, status=401)
-    
+
     place = get_object_or_404(Place, slug=slug, is_active=True)
-    
-    favorite = UserFavorite.objects.filter(user=request.user, place=place).first()
-    
+
+    favorite = UserFavorite.objects.filter(
+        user=request.user, place=place).first()
+
     if favorite:
-        # حذف از علاقه‌مندی‌ها
         favorite.delete()
         return JsonResponse({
             'status': 'removed',
@@ -887,7 +886,6 @@ def toggle_favorite(request, slug):
             'is_favorite': False
         })
     else:
-        # اضافه به علاقه‌مندی‌ها
         UserFavorite.objects.create(user=request.user, place=place)
         return JsonResponse({
             'status': 'added',
@@ -903,51 +901,45 @@ def toggle_favorite(request, slug):
 def dashboard_page(request):
     """داشبورد کاربر با تب‌های مختلف"""
     user = request.user
-    
-    # ✅ تب فعال
+
     active_tab = request.GET.get('tab', 'trips')
     if active_tab not in ['trips', 'favorites', 'reviews', 'profile']:
         active_tab = 'trips'
-    
-    # ✅ آمار کاربر (به‌صورت لیست برای اطمینان)
+
     today = timezone.now().date()
-    
+
     all_trips_qs = Trip.objects.filter(user=user)
     all_trips = list(all_trips_qs)
     total_trips = len(all_trips)
-    
-    # سفر جاری
+
     current_trip = None
     for trip in all_trips:
         if trip.start_date <= today <= trip.end_date:
             current_trip = trip
             break
-    
-    # علاقه‌مندی‌ها
-    favorites_qs = UserFavorite.objects.filter(user=user).select_related('place', 'place__category').order_by('-created_at')
+
+    favorites_qs = UserFavorite.objects.filter(user=user).select_related(
+        'place', 'place__category').order_by('-created_at')
     favorites = list(favorites_qs)
     total_favorites = len(favorites)
-    
-    # نظرات کاربر
-    reviews_qs = Review.objects.filter(user=user).select_related('place', 'article').order_by('-created_at')
+
+    reviews_qs = Review.objects.filter(user=user).select_related(
+        'place', 'article').order_by('-created_at')
     reviews = list(reviews_qs)
     total_reviews = len(reviews)
-    
-    # ✅ سفرها با مرتب‌سازی
+
     trips_list = []
     for trip in all_trips:
         start_j = gregorian_to_jalali(trip.start_date)
         end_j = gregorian_to_jalali(trip.end_date)
-        
-        # وضعیت
+
         if trip.start_date <= today <= trip.end_date:
             status = 'current'
         elif trip.start_date > today:
             status = 'upcoming'
         else:
             status = 'past'
-        
-        # عکس
+
         trip_image = '/static/img/asiyab-haye-abi.jpg'
         if trip.suggested_places:
             first_place_id = trip.suggested_places[0].get('id')
@@ -955,7 +947,7 @@ def dashboard_page(request):
                 first_place = Place.objects.filter(id=first_place_id).first()
                 if first_place:
                     trip_image = get_place_image(first_place)
-        
+
         trips_list.append({
             'id': trip.id,
             'start_jalali': f"{start_j.year}/{start_j.month:02d}/{start_j.day:02d}" if start_j else '-',
@@ -968,14 +960,13 @@ def dashboard_page(request):
             'start_date': trip.start_date,
             'end_date': trip.end_date,
         })
-    
-    # مرتب‌سازی: جاری → آینده → گذشته
+
     trips_list.sort(key=lambda t: (
-        0 if t['status'] == 'current' else (1 if t['status'] == 'upcoming' else 2),
+        0 if t['status'] == 'current' else (
+            1 if t['status'] == 'upcoming' else 2),
         t['start_date'] if t['status'] != 'past' else -t['start_date'].toordinal()
     ))
-    
-    # فیلتر سفرها
+
     trips_filter = request.GET.get('filter', 'all')
     if trips_filter == 'current':
         trips_list = [t for t in trips_list if t['status'] == 'current']
@@ -983,8 +974,7 @@ def dashboard_page(request):
         trips_list = [t for t in trips_list if t['status'] == 'upcoming']
     elif trips_filter == 'past':
         trips_list = [t for t in trips_list if t['status'] == 'past']
-    
-    # ✅ نظرات کاربر با جزئیات
+
     reviews_list = []
     for review in reviews:
         if review.place:
@@ -1005,7 +995,7 @@ def dashboard_page(request):
             }
         else:
             continue
-        
+
         reviews_list.append({
             'id': review.id,
             'rating': review.rating,
@@ -1013,8 +1003,7 @@ def dashboard_page(request):
             'created_at': review.created_at,
             'target': target,
         })
-    
-    # ✅ علاقه‌مندی‌ها با جزئیات
+
     favorites_list = []
     for fav in favorites:
         place = fav.place
@@ -1031,55 +1020,44 @@ def dashboard_page(request):
             'cost': place.cost_toman,
             'added_at': fav.created_at,
         })
-    
-    # ✅ تبدیل تاریخ عضویت
-    join_date_jalali = gregorian_to_jalali(user.date_joined.date()) if user.date_joined else None
+
+    join_date_jalali = gregorian_to_jalali(
+        user.date_joined.date()) if user.date_joined else None
     join_date_str = f"{join_date_jalali.year}/{join_date_jalali.month:02d}/{join_date_jalali.day:02d}" if join_date_jalali else '-'
-    
-    # ✅ محبوب‌ترین دسته‌بندی کاربر
+
     favorite_categories = {}
     for fav in favorites_list:
         cat = fav['category']
         if cat:
             favorite_categories[cat] = favorite_categories.get(cat, 0) + 1
-    
+
     top_category = None
     if favorite_categories:
         top_category = max(favorite_categories.items(), key=lambda x: x[1])[0]
-    
-    # ✅ آواتار کاربر (حرف اول)
-    user_initial = (user.first_name[0] if user.first_name else user.username[0]).upper()
-    
+
+    user_initial = (
+        user.first_name[0] if user.first_name else user.username[0]).upper()
+
     context = {
         'active_tab': active_tab,
         'trips_filter': trips_filter,
-        
-        # آمار
+
         'total_trips': total_trips,
         'total_favorites': total_favorites,
         'total_reviews': total_reviews,
         'current_trip': current_trip,
         'top_category': top_category,
-        
-        # داده‌ها
+
         'trips': trips_list,
         'favorites': favorites_list,
         'reviews': reviews_list,
-        
-        # اطلاعات کاربر
+
         'user_initial': user_initial,
         'join_date': join_date_str,
     }
-    print("=" * 60)
-    print("🔍 DEBUG DASHBOARD")
-    print(f"USER: {user.username}")
-    print(f"TOTAL_TRIPS: {total_trips} (type: {type(total_trips)})")
-    print(f"TOTAL_FAVORITES: {total_favorites} (type: {type(total_favorites)})")
-    print(f"TOTAL_REVIEWS: {total_reviews} (type: {type(total_reviews)})")
-    print(f"JOIN_DATE: {join_date_str}")
-    print("=" * 60)
-    
+
     return render(request, 'dashboard.html', context)
+
 
 # ==========================================================
 # ✅ حذف سفر
@@ -1089,16 +1067,16 @@ def delete_trip(request, trip_id):
     """حذف سفر کاربر"""
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
-    
+
     trip = get_object_or_404(Trip, id=trip_id, user=request.user)
     trip.delete()
-    
+
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'status': 'deleted',
             'message': 'سفر با موفقیت حذف شد'
         })
-    
+
     messages.success(request, 'سفر با موفقیت حذف شد.')
     return redirect('dashboard')
 
@@ -1111,16 +1089,16 @@ def delete_review(request, review_id):
     """حذف نظر کاربر"""
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
-    
+
     review = get_object_or_404(Review, id=review_id, user=request.user)
     review.delete()
-    
+
     if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
         return JsonResponse({
             'status': 'deleted',
             'message': 'نظر با موفقیت حذف شد'
         })
-    
+
     messages.success(request, 'نظر با موفقیت حذف شد.')
     return redirect('dashboard')
 
@@ -1133,54 +1111,47 @@ def update_profile(request):
     """ویرایش اطلاعات پروفایل کاربر"""
     if request.method != 'POST':
         return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
-    
+
     user = request.user
-    
+
     first_name = request.POST.get('first_name', '').strip()
     last_name = request.POST.get('last_name', '').strip()
     email = request.POST.get('email', '').strip()
     phone = request.POST.get('phone', '').strip()
-    
-    # ✅ بررسی ایمیل تکراری
+
     if email and email != user.email:
         if User.objects.filter(email=email).exclude(id=user.id).exists():
             return JsonResponse({
                 'status': 'error',
                 'message': 'این ایمیل قبلاً استفاده شده است'
             }, status=400)
-    
-    # ✅ بررسی تلفن تکراری
+
     if phone and phone != user.phone:
         if User.objects.filter(phone=phone).exclude(id=user.id).exists():
             return JsonResponse({
                 'status': 'error',
                 'message': 'این شماره تلفن قبلاً استفاده شده است'
             }, status=400)
-    
-    # ✅ ذخیره
+
     user.first_name = first_name
     user.last_name = last_name
     user.email = email
     user.phone = phone if phone else None
-    
-    # ✅ آپلود عکس پروفایل
+
     if 'avatar' in request.FILES:
         avatar_file = request.FILES['avatar']
-        # بررسی حجم فایل (حداکثر ۲ مگابایت)
         if avatar_file.size > 2 * 1024 * 1024:
             return JsonResponse({
                 'status': 'error',
                 'message': 'حجم عکس نباید بیشتر از ۲ مگابایت باشد'
             }, status=400)
-        # بررسی نوع فایل
         if not avatar_file.content_type.startswith('image/'):
             return JsonResponse({
                 'status': 'error',
                 'message': 'فایل باید عکس باشد'
             }, status=400)
         user.avatar = avatar_file
-    
-    # ✅ تغییر رمز عبور
+
     new_password = request.POST.get('new_password', '').strip()
     if new_password:
         if len(new_password) < 6:
@@ -1191,29 +1162,32 @@ def update_profile(request):
         user.set_password(new_password)
         from django.contrib.auth import update_session_auth_hash
         update_session_auth_hash(request, user)
-    
+
     user.save()
-    
+
     return JsonResponse({
         'status': 'updated',
         'message': 'اطلاعات پروفایل با موفقیت به‌روزرسانی شد'
     })
+
+
+# ==========================================================
+# صفحه تست الگوریتم
+# ==========================================================
 def test_algorithm_page(request):
-    from decimal import Decimal
-    
     places = Place.objects.filter(is_active=True).select_related('category')
-    categories = Category.objects.filter(type='attraction', parent__isnull=True)
-    
+    categories = Category.objects.filter(
+        type='attraction', parent__isnull=True)
+
     places_json = []
     for place in places:
-        # ✅ تبدیل Decimal به float
         lat = float(place.latitude) if place.latitude else 32.38
         lng = float(place.longitude) if place.longitude else 48.42
         rating = float(place.rating_avg) if place.rating_avg else 3.5
         cost = int(place.cost_toman) if place.cost_toman else 0
         duration = int(place.duration_minutes) if place.duration_minutes else 60
         views = int(place.visit_count) if place.visit_count else 0
-        
+
         places_json.append({
             'id': place.id,
             'name': place.name,
@@ -1229,7 +1203,7 @@ def test_algorithm_page(request):
             'image': get_place_image(place),
             'desc': (place.short_description or place.description or '')[:200],
         })
-    
+
     categories_json = [
         {
             'id': cat.id,
@@ -1240,7 +1214,7 @@ def test_algorithm_page(request):
         }
         for cat in categories
     ]
-    
+
     return render(request, 'test_algorithm.html', {
         'places_json': json.dumps(places_json, ensure_ascii=False),
         'categories_json': json.dumps(categories_json, ensure_ascii=False),

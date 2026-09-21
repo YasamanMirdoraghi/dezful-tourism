@@ -259,9 +259,67 @@
 			margin: 4px 0 14px;
 			display: flex;
 			justify-content: space-between;
+			align-items: center;
+			gap: 8px;
+			flex-wrap: wrap;
 		}
 
-		.day-block-title span { color: var(--brown-light); font-weight: 500; font-size: 12px; }
+		.day-block-title span { 
+			color: var(--brown-light); 
+			font-weight: 500; 
+			font-size: 12px; 
+		}
+
+		/* ✅ جدید: نوار پیشرفت مدت زمان */
+		.day-duration-bar {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			width: 100%;
+			margin-top: 6px;
+			padding: 6px 10px;
+			background: rgba(17,139,113,.05);
+			border-radius: 10px;
+			font-size: 11px;
+		}
+
+		.day-duration-bar .bar-text {
+			font-weight: 700;
+			color: var(--brown-text);
+			white-space: nowrap;
+		}
+
+		.day-duration-bar .bar-track {
+			flex: 1;
+			height: 6px;
+			background: rgba(17,139,113,.12);
+			border-radius: 10px;
+			overflow: hidden;
+			position: relative;
+		}
+
+		.day-duration-bar .bar-fill {
+			height: 100%;
+			background: linear-gradient(90deg, var(--primary-green), var(--primary-green-light));
+			border-radius: 10px;
+			transition: width 0.4s ease;
+		}
+
+		.day-duration-bar .bar-fill.over {
+			background: linear-gradient(90deg, #ff5050, #ff7a5a);
+		}
+
+		.day-duration-bar .bar-percent {
+			font-weight: 800;
+			color: var(--primary-green);
+			white-space: nowrap;
+			min-width: 36px;
+			text-align: center;
+		}
+
+		.day-duration-bar .bar-percent.over {
+			color: #ff5050;
+		}
 
 		.place-row {
 			position: relative;
@@ -319,7 +377,45 @@
 
 		.pc-info { flex: 1; min-width: 0; }
 		.pc-info h4 { font-size: 15px; font-weight: 800; color: var(--brown-text); margin-bottom: 6px; }
-		.pc-time { font-size: 12px; color: var(--brown-light); margin-bottom: 6px; }
+		.pc-time { 
+			font-size: 12px; 
+			color: var(--brown-light); 
+			margin-bottom: 6px;
+			display: flex;
+			align-items: center;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+		.pc-time i {
+			color: var(--primary-green);
+			font-size: 11px;
+		}
+
+		.pc-time .duration-chip {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			background: rgba(17,139,113,.08);
+			color: var(--primary-green);
+			padding: 3px 9px;
+			border-radius: 20px;
+			font-weight: 700;
+			font-size: 11px;
+		}
+
+		.pc-time .distance-chip {
+			display: inline-flex;
+			align-items: center;
+			gap: 4px;
+			background: rgba(255,80,80,.06);
+			color: var(--brick-orange);
+			padding: 3px 9px;
+			border-radius: 20px;
+			font-weight: 700;
+			font-size: 11px;
+		}
+
 		.pc-meta { display: flex; gap: 10px; flex-wrap: wrap; font-size: 11px; color: var(--brown-light); }
 
 		/* نقشه */
@@ -606,6 +702,7 @@
 			.trip-result-header h1 { font-size: 1.6rem; }
 			.trip-actions { flex-direction: column; }
 			.trip-action-btn { justify-content: center; }
+			.day-block-title { flex-direction: column; align-items: flex-start; }
 		}
 	</style>
 </head>
@@ -874,6 +971,8 @@
 			companions: {{ trip.companions }},
 		};
 
+		const DAILY_DURATIONS = {{ daily_durations_json|safe }};
+
 		// ═══════════════════════════════════════════════════════════
 		// توابع کمکی
 		// ═══════════════════════════════════════════════════════════
@@ -963,78 +1062,97 @@
 		const daysArray = Object.keys(daysMap).sort((a, b) => +a - +b).map(k => daysMap[k]);
 
 		// ═══════════════════════════════════════════════════════════
-		// Schedule (زمان‌بندی)
+		// Schedule (فقط برای فاصله‌ها، ساعت دقیق رو نشون نمی‌دیم)
 		// ═══════════════════════════════════════════════════════════
 		function schedule(dayPlaces) {
-			let cur = 9 * 60;
 			return dayPlaces.map((p, idx) => {
-				const s = cur, e = cur + p.duration;
-				cur = e + 30;
-				if (cur > 23 * 60 + 30) cur = 9 * 60;
 				const dist = idx ? calcDistance(dayPlaces[idx - 1].lat, dayPlaces[idx - 1].lng, p.lat, p.lng) : 0;
-				return { p, s: s % 1440, e: e % 1440, dist };
+				return { p, dist };
 			});
 		}
 
 		// ═══════════════════════════════════════════════════════════
-		// Cards HTML
+		// Cards HTML — با مدت زمان پیشنهادی و فاصله
 		// ═══════════════════════════════════════════════════════════
-		function cardsHtml(dayPlaces, di) {
-			return schedule(dayPlaces).map((it, idx) => `
-				<div class="place-row">
-					<span class="place-num">${faNum(idx + 1)}</span>
-					<div class="place-card">
-						<img class="pc-img" src="${it.p.image}" alt="${it.p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-						<div class="pc-info">
-							<h4>${it.p.name}</h4>
-							<div class="pc-time">🕒 ${faTime(it.s)} تا ${faTime(it.e)}</div>
-							<div class="pc-meta">
-								<span>🏷️ ${it.p.category}</span>
-								<span>💰 ${it.p.cost === 0 ? 'رایگان' : faNum(it.p.cost.toLocaleString()) + ' تومان'}</span>
-							</div>
-						</div>
-					</div>
-				</div>`).join('');
-		}
+	function cardsHtml(dayPlaces, di) {
+    return schedule(dayPlaces).map((it, idx) => {
+        // ✅ مدت به دقیقه
+        const durationMin = it.p.duration || 60;
+
+        return `
+        <div class="place-row">
+            <span class="place-num">${faNum(idx + 1)}</span>
+            <div class="place-card">
+                <img class="pc-img" src="${it.p.image}" alt="${it.p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+                <div class="pc-info">
+                    <h4>${it.p.name}</h4>
+                    <div class="pc-time">
+                        <span class="duration-chip">
+                            <i class="fas fa-hourglass-half"></i>
+                            مدت بازدید: ${faNum(durationMin)} دقیقه
+                        </span>
+                        ${it.dist > 0 ? `
+                            <span class="distance-chip">
+                                <i class="fas fa-route"></i>
+                                ${distTxt(it.dist)} از قبلی
+                            </span>
+                        ` : ''}
+                    </div>
+                    <div class="pc-meta">
+                        <span>🏷️ ${it.p.category}</span>
+                        <span>💰 ${it.p.cost === 0 ? 'رایگان' : faNum(it.p.cost.toLocaleString()) + ' تومان'}</span>
+                    </div>
+                </div>
+            </div>
+        </div>`;
+    }).join('');
+}
+
+		// // ═══════════════════════════════════════════════════════════
+		// // محاسبه‌ی مدت زمان مصرفی روز
+		// // ═══════════════════════════════════════════════════════════
+		// function calcDayUsedMinutes(dayPlaces) {
+		// 	if (!dayPlaces.length) return 0;
+		// 	let total = 0;
+		// 	for (let i = 0; i < dayPlaces.length; i++) {
+		// 		total += (dayPlaces[i].duration || 60);
+		// 		if (i > 0) total += 30; // استراحت
+		// 	}
+		// 	total += 60; // ناهار
+		// 	return total;
+		// }
 
 		// ═══════════════════════════════════════════════════════════
 		// Render All
 		// ═══════════════════════════════════════════════════════════
 		let activeTab = 'all';
 
-		function renderAll() {
+	function renderAll() {
     const days = daysArray;
     if (!days.length) {
         document.getElementById('plannerDays').innerHTML = '<p style="text-align:center; color:#8b7355; padding:40px 10px;">هیچ جاذبه‌ای برای این برنامه ثبت نشده است.</p>';
         return;
     }
 
-    // ✅ تعیین روزهای نمایش داده شده
-    const shownDays = activeTab === 'all' 
-        ? days.map((d, i) => ({ day: d, idx: i }))
-        : [{ day: days[+activeTab], idx: +activeTab }];
-
     // ✅ Tabs - آپدیت active
     document.getElementById('plannerTabs').innerHTML =
         `<button class="ptab ${activeTab === 'all' ? 'active' : ''}" data-tab="all"><span class="t">نمای کلی</span><span class="s">همه روزها</span></button>` +
         days.map((_, i) => `<button class="ptab ${activeTab !== 'all' && +activeTab === i ? 'active' : ''}" data-tab="${i}"><span class="t">روز ${ORD[i] || faNum(i + 1)}</span><span class="s">${faNum(days[i].length)} جاذبه</span></button>`).join('');
 
-    // ✅ فقط روزهای انتخاب شده رو توی سایدبار نشون بده
-    if (activeTab === 'all') {
-        // اگه "همه" انتخاب شده، همه روزها رو نشون بده
-        document.getElementById('plannerDays').innerHTML = days.map((d, i) => `
+    // ✅ نمایش روزها (بدون نوار پیشرفت)
+    const renderDayBlock = (dayPlaces, i) => {
+        return `
             <div class="day-block">
-                <div class="day-block-title">روز ${faNum(i + 1)} <span>${faNum(d.length)} جاذبه</span></div>
-                ${cardsHtml(d, i)}
-            </div>`).join('');
-    } else {
-        // اگه یه روز خاص انتخاب شده، فقط همون روز رو نشون بده
-        const i = +activeTab;
-        document.getElementById('plannerDays').innerHTML = `
-            <div class="day-block">
-                <div class="day-block-title">روز ${faNum(i + 1)} <span>${faNum(days[i].length)} جاذبه</span></div>
-                ${cardsHtml(days[i], i)}
+                <div class="day-block-title">روز ${faNum(i + 1)} <span>${faNum(dayPlaces.length)} جاذبه</span></div>
+                ${cardsHtml(dayPlaces, i)}
             </div>`;
+    };
+
+    if (activeTab === 'all') {
+        document.getElementById('plannerDays').innerHTML = days.map((d, i) => renderDayBlock(d, i)).join('');
+    } else {
+        const i = +activeTab;
+        document.getElementById('plannerDays').innerHTML = renderDayBlock(days[i], i);
     }
 
     // ✅ Map chips - آپدیت active

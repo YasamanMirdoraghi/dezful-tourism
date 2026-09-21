@@ -44,14 +44,18 @@
 		box-shadow: 0 20px 60px rgba(0,0,0,0.5);
 		overflow: hidden;
 	">
-		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(74, 222, 128, 0.3);">
+		<div
+			style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(74, 222, 128, 0.3);">
 			<span style="color: #fff; font-weight: 900; font-size: 13px;">🐛 DEBUG LOG</span>
 			<div>
-				<button onclick="window.clearDbg && window.clearDbg()" style="background: #f59e0b; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-right: 5px;">Clear</button>
-				<button onclick="document.getElementById('debugPanel').style.display='none'" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px;">✕</button>
+				<button onclick="window.clearDbg && window.clearDbg()"
+					style="background: #f59e0b; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-right: 5px;">Clear</button>
+				<button onclick="document.getElementById('debugPanel').style.display='none'"
+					style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px;">✕</button>
 			</div>
 		</div>
-		<div id="debugContent" style="overflow-y: auto; max-height: calc(60vh - 60px); white-space: pre-wrap; line-height: 1.5;"></div>
+		<div id="debugContent"
+			style="overflow-y: auto; max-height: calc(60vh - 60px); white-space: pre-wrap; line-height: 1.5;"></div>
 	</div>
 
 	<!-- 🧪 پنل تست -->
@@ -63,61 +67,44 @@
 		box-shadow: 0 20px 60px rgba(0,0,0,0.3);
 		overflow: hidden;
 	">
-		<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #118b71;">
+		<div
+			style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid #118b71;">
 			<h3 style="margin: 0; color: #118b71; font-size: 1.3rem;">🧪 تست الگوریتم</h3>
 			<div>
-				<button id="runAllTests" style="background: #118b71; color: #fff; border: none; padding: 8px 20px; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: 800; margin-right: 8px;">🚀 اجرای همه تست‌ها</button>
-				<button onclick="document.getElementById('testPanel').style.display='none'" style="background: #ef4444; color: #fff; border: none; padding: 8px 14px; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: 800;">✕ بستن</button>
+				<button id="runAllTests"
+					style="background: #118b71; color: #fff; border: none; padding: 8px 20px; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: 800; margin-right: 8px;">🚀
+					اجرای همه تست‌ها</button>
+				<button onclick="document.getElementById('testPanel').style.display='none'"
+					style="background: #ef4444; color: #fff; border: none; padding: 8px 14px; border-radius: 12px; cursor: pointer; font-family: inherit; font-weight: 800;">✕
+					بستن</button>
 			</div>
 		</div>
 		<div id="testResults" style="overflow-y: auto; max-height: calc(85vh - 120px); padding: 4px;"></div>
 	</div>
 
 	<script>
-	// ═══════════════════════════════════════════════════════════
-	// 🐛 سیستم دیباگ
-	// ═══════════════════════════════════════════════════════════
-	(function() {
-		const STORAGE_KEY = 'dezful_debug_logs';
-		let logs = [];
-		try { logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch(e) { logs = []; }
-		
-		window.dbg = function(...args) {
-			const content = document.getElementById('debugContent');
-			if (!content) return;
-			const time = new Date().toLocaleTimeString('en-US', {hour12: false});
-			const text = args.map(a => {
-				if (a === null) return 'null';
-				if (a === undefined) return 'undefined';
-				if (typeof a === 'object') { try { return JSON.stringify(a); } catch(e) { return String(a); } }
-				return String(a);
-			}).join(' ');
-			const line = `[${time}] ${text}`;
-			logs.push(line);
-			if (logs.length > 100) logs = logs.slice(-100);
-			try { localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); } catch(e) {}
-			const div = document.createElement('div');
-			div.textContent = line;
-			div.style.padding = '2px 0';
-			if (line.includes('❌')) div.style.color = '#ef4444';
-			else if (line.includes('⚠️') || line.includes('🔒')) div.style.color = '#f59e0b';
-			else if (line.includes('✅')) div.style.color = '#4ade80';
-			content.appendChild(div);
-			content.scrollTop = content.scrollHeight;
-			console.log(...args);
-		};
-		
-		window.clearDbg = function() {
-			logs = [];
-			localStorage.removeItem(STORAGE_KEY);
-			document.getElementById('debugContent').innerHTML = '';
-		};
-		
-		function restoreLogs() {
-			const content = document.getElementById('debugContent');
-			if (!content) return;
-			content.innerHTML = '';
-			logs.forEach(line => {
+		// ═══════════════════════════════════════════════════════════
+		// 🐛 سیستم دیباگ
+		// ═══════════════════════════════════════════════════════════
+		(function () {
+			const STORAGE_KEY = 'dezful_debug_logs';
+			let logs = [];
+			try { logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch (e) { logs = []; }
+
+			window.dbg = function (...args) {
+				const content = document.getElementById('debugContent');
+				if (!content) return;
+				const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+				const text = args.map(a => {
+					if (a === null) return 'null';
+					if (a === undefined) return 'undefined';
+					if (typeof a === 'object') { try { return JSON.stringify(a); } catch (e) { return String(a); } }
+					return String(a);
+				}).join(' ');
+				const line = `[${time}] ${text}`;
+				logs.push(line);
+				if (logs.length > 100) logs = logs.slice(-100);
+				try { localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); } catch (e) { }
 				const div = document.createElement('div');
 				div.textContent = line;
 				div.style.padding = '2px 0';
@@ -125,20 +112,42 @@
 				else if (line.includes('⚠️') || line.includes('🔒')) div.style.color = '#f59e0b';
 				else if (line.includes('✅')) div.style.color = '#4ade80';
 				content.appendChild(div);
+				content.scrollTop = content.scrollHeight;
+				console.log(...args);
+			};
+
+			window.clearDbg = function () {
+				logs = [];
+				localStorage.removeItem(STORAGE_KEY);
+				document.getElementById('debugContent').innerHTML = '';
+			};
+
+			function restoreLogs() {
+				const content = document.getElementById('debugContent');
+				if (!content) return;
+				content.innerHTML = '';
+				logs.forEach(line => {
+					const div = document.createElement('div');
+					div.textContent = line;
+					div.style.padding = '2px 0';
+					if (line.includes('❌')) div.style.color = '#ef4444';
+					else if (line.includes('⚠️') || line.includes('🔒')) div.style.color = '#f59e0b';
+					else if (line.includes('✅')) div.style.color = '#4ade80';
+					content.appendChild(div);
+				});
+				content.scrollTop = content.scrollHeight;
+			}
+
+			document.addEventListener('DOMContentLoaded', () => {
+				const toggleBtn = document.getElementById('debugToggle');
+				const panel = document.getElementById('debugPanel');
+				toggleBtn.addEventListener('click', () => {
+					panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+					if (panel.style.display === 'block') restoreLogs();
+				});
+				restoreLogs();
 			});
-			content.scrollTop = content.scrollHeight;
-		}
-		
-		document.addEventListener('DOMContentLoaded', () => {
-			const toggleBtn = document.getElementById('debugToggle');
-			const panel = document.getElementById('debugPanel');
-			toggleBtn.addEventListener('click', () => {
-				panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-				if (panel.style.display === 'block') restoreLogs();
-			});
-			restoreLogs();
-		});
-	})();
+		})();
 	</script>
 
 	<nav class="navbar" id="navbar">
@@ -179,14 +188,15 @@
 				<h1><i class="fas fa-route"></i> برنامه‌ریز هوشمند سفر به دزفول</h1>
 				<p>با چند کلیک ساده، برنامه سفر اختصاصی خودت رو بساز</p>
 			</div>
-{% if not user.is_authenticated %}
-<div class="login-banner-wrapper">
-    <div class="login-banner">
-        <div class="login-banner-icon"><i class="fas fa-info"></i></div>
-        <div class="login-banner-text"><strong>توجه:</strong> برای ساخت و ذخیره برنامه، ابتدا وارد شوید.</div>
-    </div>
-</div>
-{% endif %}
+			{% if not user.is_authenticated %}
+			<div class="login-banner-wrapper">
+				<div class="login-banner">
+					<div class="login-banner-icon"><i class="fas fa-info"></i></div>
+					<div class="login-banner-text"><strong>توجه:</strong> برای ساخت و ذخیره برنامه، ابتدا وارد شوید.
+					</div>
+				</div>
+			</div>
+			{% endif %}
 			<div class="wizard" id="planWizard">
 
 				<div class="step-indicators">
@@ -197,6 +207,8 @@
 					<div class="step-item" data-step="3"><span class="step-dot"></span></div>
 					<span class="step-line"></span>
 					<div class="step-item" data-step="4"><span class="step-dot"></span></div>
+					<span class="step-line"></span>
+					<div class="step-item" data-step="5"><span class="step-dot"></span></div>
 				</div>
 				{% if user_trips %}
 				<div class="previous-trips">
@@ -205,7 +217,8 @@
 						<span class="trips-count">{{ user_trips|length }} برنامه</span>
 					</div>
 					<div class="trips-slider-wrapper">
-						<button class="trips-slider-btn trips-prev" id="tripsPrev" aria-label="قبلی"><i class="fas fa-chevron-right"></i></button>
+						<button class="trips-slider-btn trips-prev" id="tripsPrev" aria-label="قبلی"><i
+								class="fas fa-chevron-right"></i></button>
 						<div class="trips-slider-viewport" id="tripsViewport">
 							<div class="trips-slider-track" id="tripsTrack">
 								{% for trip in user_trips %}
@@ -216,12 +229,15 @@
 										{% else %}<i class="fas fa-clock"></i> پیش‌رو{% endif %}
 									</div>
 									<div class="trip-card-image">
-										<img src="{{ trip.image }}" alt="سفر" onerror="this.onerror=null; this.src='/static/img/asiyab-haye-abi.jpg';">
+										<img src="{{ trip.image }}" alt="سفر"
+											onerror="this.onerror=null; this.src='/static/img/asiyab-haye-abi.jpg';">
 									</div>
 									<div class="trip-card-info">
-										<div class="trip-card-dates">{{ trip.start_jalali }} تا {{ trip.end_jalali }}</div>
+										<div class="trip-card-dates">{{ trip.start_jalali }} تا {{ trip.end_jalali }}
+										</div>
 										<div class="trip-card-meta">
-											<span><i class="fas fa-hourglass-half"></i> {{ trip.duration_days }} روز</span>
+											<span><i class="fas fa-hourglass-half"></i> {{ trip.duration_days }}
+												روز</span>
 											<span><i class="fas fa-users"></i> {{ trip.companions }} نفر</span>
 										</div>
 									</div>
@@ -229,22 +245,27 @@
 								{% endfor %}
 							</div>
 						</div>
-						<button class="trips-slider-btn trips-next" id="tripsNext" aria-label="بعدی"><i class="fas fa-chevron-left"></i></button>
+						<button class="trips-slider-btn trips-next" id="tripsNext" aria-label="بعدی"><i
+								class="fas fa-chevron-left"></i></button>
 					</div>
 					<div class="trips-slider-dots" id="tripsDots"></div>
 				</div>
 				{% endif %}
 
 				<div class="wizard-top">
-					<h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن</h2>
+					<h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن
+					</h2>
 				</div>
 
+				<!-- ===== مرحله ۱: تاریخ سفر ===== -->
 				<div class="wz-step active" data-step="1">
 					<div class="cal-card">
 						<div class="cal-header">
-							<button class="cal-nav" id="calPrev" aria-label="ماه قبل"><i class="fas fa-chevron-right"></i></button>
+							<button class="cal-nav" id="calPrev" aria-label="ماه قبل"><i
+									class="fas fa-chevron-right"></i></button>
 							<h3 id="calTitle">فروردین ۱۴۰۵</h3>
-							<button class="cal-nav next" id="calNext" aria-label="ماه بعد"><i class="fas fa-chevron-left"></i></button>
+							<button class="cal-nav next" id="calNext" aria-label="ماه بعد"><i
+									class="fas fa-chevron-left"></i></button>
 						</div>
 						<div class="cal-weekdays">
 							<span>شنبه</span><span>یکشنبه</span><span>دوشنبه</span>
@@ -255,17 +276,66 @@
 					<div class="date-boxes">
 						<div class="date-box">
 							<div class="db-icon green"><i class="fas fa-calendar-day"></i></div>
-							<div><span class="db-label">شروع سفر</span><span class="db-value" id="dbStart">هنوز انتخاب نشده</span></div>
+							<div><span class="db-label">شروع سفر</span><span class="db-value" id="dbStart">هنوز انتخاب
+									نشده</span></div>
 						</div>
 						<div class="date-box">
 							<div class="db-icon orange"><i class="fas fa-calendar-check"></i></div>
-							<div><span class="db-label">پایان سفر</span><span class="db-value" id="dbEnd">هنوز انتخاب نشده</span></div>
+							<div><span class="db-label">پایان سفر</span><span class="db-value" id="dbEnd">هنوز انتخاب
+									نشده</span></div>
 						</div>
 					</div>
 					<div class="wz-hint" id="dateHint"></div>
 				</div>
 
+				<!-- ===== مرحله ۲: مدت زمان گردش هر روز ===== -->
 				<div class="wz-step" data-step="2">
+					<div class="duration-top">
+						<div>
+							<h3>مدت زمان گردش هر روز رو مشخص کن</h3>
+							<p>برای هر روز بگو چند ساعت می‌خوای گردش کنی</p>
+						</div>
+					</div>
+
+					<!-- ⚡ دکمه‌های تنظیم سریع + Reset -->
+					<div class="duration-presets">
+						<div class="duration-presets-label">
+							<i class="fas fa-bolt"></i> تنظیم سریع برای همه‌ی روزها:
+						</div>
+						<div class="duration-presets-buttons">
+							<button type="button" class="duration-preset-btn" data-hours="4">
+								<i class="fas fa-sun"></i> ۴ ساعت
+							</button>
+							<button type="button" class="duration-preset-btn" data-hours="6">
+								<i class="fas fa-cloud-sun"></i> ۶ ساعت
+							</button>
+							<button type="button" class="duration-preset-btn active" data-hours="8">
+								<i class="fas fa-clock"></i> ۸ ساعت
+							</button>
+							<button type="button" class="duration-preset-btn" data-hours="10">
+								<i class="fas fa-hourglass-half"></i> ۱۰ ساعت
+							</button>
+							<button type="button" class="duration-preset-btn" data-hours="12">
+								<i class="fas fa-hourglass-end"></i> ۱۲ ساعت
+							</button>
+							<button type="button" class="duration-reset-btn" id="durationResetBtn"
+								title="برگشت همه به ۸ ساعت">
+								<i class="fas fa-rotate-right"></i> Reset
+							</button>
+						</div>
+					</div>
+
+					<!-- 📅 کارت‌های روزها -->
+					<div class="duration-grid" id="durationGrid"></div>
+
+					<!-- 📊 خلاصه -->
+					<div class="duration-summary" id="durationSummary"></div>
+
+					<div class="wz-hint" id="durationHint"></div>
+				</div>
+
+				<!-- ===== مرحله ۳: علاقه‌مندی‌ها ===== -->
+				<div class="wz-step" data-step="3">
 					<div class="interest-top">
 						<div>
 							<h3>دسته‌های مورد علاقه‌ات را انتخاب کن</h3>
@@ -276,10 +346,13 @@
 					<a class="clear-link" id="clearInterests">پاک کردن انتخاب‌ها</a>
 					<div class="interest-grid">
 						{% for cat in categories %}
-						<button type="button" class="interest-card" data-value="{{ cat.name }}" data-maps="{{ cat.slug }}">
-							<span class="ic-check" style="background: {{ cat.color|default:'#118b71' }};"><i class="fas fa-check"></i></span>
+						<button type="button" class="interest-card" data-value="{{ cat.name }}"
+							data-maps="{{ cat.slug }}">
+							<span class="ic-check" style="background: {{ cat.color|default:'#118b71' }};"><i
+									class="fas fa-check"></i></span>
 							<span class="ic-emoji" style="color: {{ cat.color|default:'#118b71' }};">
-								{% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i class="fas fa-map-marker-alt"></i>{% endif %}
+								{% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i
+									class="fas fa-map-marker-alt"></i>{% endif %}
 							</span>
 							<span class="ic-label">{{ cat.name }}</span>
 						</button>
@@ -288,7 +361,8 @@
 					<div class="wz-hint" id="wzHint"></div>
 				</div>
 
-				<div class="wz-step" data-step="3">
+				<!-- ===== مرحله ۴: جزئیات سفر ===== -->
+				<div class="wz-step" data-step="4">
 					<div class="form-group">
 						<label><i class="fas fa-users"></i> تعداد مسافران</label>
 						<select id="travelersCount" class="budget-select">
@@ -303,9 +377,9 @@
 						<label><i class="fas fa-wallet"></i> بودجه تقریبی (تومان)</label>
 						<select id="budgetRange" class="budget-select">
 							<option value="0-2000000">تا ۲,۰۰۰,۰۰۰</option>
-							<option value="2000000-3000000">۲,۰۰۰,۰۰۰ تا ۳,۰۰,۰۰۰</option>
-							<option value="3000000-5000000" selected>۳,۰۰۰,۰۰۰ تا ۵,۰۰۰,۰۰</option>
-							<option value="5000000-7000000">۵,۰۰۰,۰۰۰ تا ۷,۰۰۰,۰۰</option>
+							<option value="2000000-3000000">۲,۰۰۰,۰۰۰ تا ۳,۰۰۰,۰۰۰</option>
+							<option value="3000000-5000000" selected>۳,۰۰۰,۰۰۰ تا ۵,۰۰۰,۰۰۰</option>
+							<option value="5000000-7000000">۵,۰۰۰,۰۰۰ تا ۷,۰۰۰,۰۰۰</option>
 							<option value="7000000-10000000">۷,۰۰۰,۰۰۰ تا ۱۰,۰۰۰,۰۰۰</option>
 							<option value="10000000-15000000">۱۰,۰۰۰,۰۰۰ تا ۱۵,۰۰۰,۰۰۰</option>
 							<option value="15000000-99999999">بیش از ۱۵,۰۰۰,۰۰۰</option>
@@ -321,7 +395,8 @@
 					<div id="tripDaysInfo"></div>
 				</div>
 
-				<div class="wz-step" data-step="4">
+				<!-- ===== مرحله ۵: مرور ===== -->
+				<div class="wz-step" data-step="5">
 					<div class="review-card">
 						<h3 class="rv-title">خلاصه سفر شما</h3>
 						<p class="rv-sub">قبل از ساخت برنامه، یک‌بار انتخاب‌هات رو ببین</p>
@@ -351,15 +426,18 @@
 						</div>
 						<div class="rv-row">
 							<div class="rv-icon green"><i class="fas fa-info-circle"></i></div>
-							<div><span class="rv-label">جزئیات</span><span class="rv-value" id="rvDetails">-</span></div>
+							<div><span class="rv-label">جزئیات</span><span class="rv-value" id="rvDetails">-</span>
+							</div>
 						</div>
 					</div>
 					<div class="review-note">اگر همه‌چیز درست است، «ساخت برنامه» را بزن.</div>
 				</div>
 
 				<div class="wizard-actions">
-					<button type="button" class="wz-prev" id="wizPrev" style="visibility: hidden;"><i class="fas fa-arrow-right"></i> مرحله قبل</button>
-					<button type="button" class="wz-next" id="wizNext">مرحله بعد <i class="fas fa-arrow-left"></i></button>
+					<button type="button" class="wz-prev" id="wizPrev" style="visibility: hidden;"><i
+							class="fas fa-arrow-right"></i> مرحله قبل</button>
+					<button type="button" class="wz-next" id="wizNext">مرحله بعد <i
+							class="fas fa-arrow-left"></i></button>
 				</div>
 			</div>
 		</div>
@@ -375,6 +453,7 @@
 		<input type="hidden" name="budget_toman" id="saveBudgetToman">
 		<input type="hidden" name="interests" id="saveInterests">
 		<input type="hidden" name="suggested_places" id="saveSuggestedPlaces">
+		<input type="hidden" name="daily_durations" id="saveDailyDurations">
 	</form>
 
 	<footer class="footer">
@@ -412,11 +491,15 @@
 	<button class="scroll-top" id="scrollTop"><i class="fas fa-chevron-up"></i></button>
 	<script src="https://cdn.jsdelivr.net/npm/jalaali-js@1.2.0/dist/jalaali.min.js"></script>
 	<script>
+		// ═══════════════════════════════════════════════════════════
+		// دریافت داده‌های اولیه از سمت سرور (Django)
+		// ═══════════════════════════════════════════════════════════
 		window.REAL_PLACES = {{ places_json | safe }};
 		window.CATEGORIES = {{ categories_json | safe }};
 
 		(function () {
 			'use strict';
+
 			if (!document.getElementById('planWizard')) return;
 
 			function dbg(...args) {
@@ -424,16 +507,19 @@
 				else console.log(...args);
 			}
 
-			// ═══ سیاست هر جاذبه ═══
+			// ═══════════════════════════════════════════════════════════
+			// 🎯 بخش ۱: سیاست هر جاذبه (Place Policy)
+			// ═══════════════════════════════════════════════════════════
 			function getPlacePolicy(place) {
 				const d = place.duration || 60;
 				if (d >= 360) return { type: 'full_day', maxCompanions: 1, label: '🔒 روز کامل' };
 				if (d >= 240) return { type: 'large', maxCompanions: 2, label: '🔒 بزرگ' };
 				if (d >= 180) return { type: 'medium', maxCompanions: 3, label: '⏱️ متوسط' };
-				if (d >= 90)  return { type: 'small', maxCompanions: 4, label: '📦 کوچیک' };
+				if (d >= 90) return { type: 'small', maxCompanions: 4, label: '📦 کوچیک' };
 				return { type: 'tiny', maxCompanions: 5, label: '📦 خیلی کوچیک' };
 			}
 
+			// لاگ اولیه
 			setTimeout(() => {
 				dbg('══════════════════════════════════════');
 				dbg('📋 لیست جاذبه‌ها بر اساس مدت (نزولی):');
@@ -445,14 +531,27 @@
 				dbg('══════════════════════════════════════');
 			}, 300);
 
+			// ═══════════════════════════════════════════════════════════
+			// ⚙️ بخش ۲: تنظیمات کلی (CONFIG)
+			// ═══════════════════════════════════════════════════════════
 			const CONFIG = {
 				center: { lat: 32.3833, lng: 48.4000 },
 				maxTripDays: 7,
 				dailyTimeMinutes: 8 * 60,
 				breakTimeMinutes: 30,
 				knnMultiplier: 5,
-				cbf: { baseSimilarity: 0.35, weightedScore: 0.65 },
-				fuzzyBase: { interest: 30, budget: 20, child: 15, duration: 15, popularity: 10, rating: 10 },
+				cbf: {
+					baseSimilarity: 0.35,
+					weightedScore: 0.65
+				},
+				fuzzyBase: {
+					interest: 30,
+					budget: 20,
+					child: 15,
+					duration: 15,
+					popularity: 10,
+					rating: 10
+				},
 				fuzzyRules: {
 					shortTrip: { interest: +15, popularity: -5 },
 					longTrip: { duration: +8, rating: +5 },
@@ -461,12 +560,19 @@
 					withChild: { child: +15, duration: +5 }
 				},
 				ga: {
-					popSize: 60, generations: 100, eliteCount: 5,
-					crossoverRate: 0.85, mutationRate: 0.25, tournamentSize: 5,
+					popSize: 60,
+					generations: 100,
+					eliteCount: 5,
+					crossoverRate: 0.85,
+					mutationRate: 0.25,
+					tournamentSize: 5,
 					earlyStopPatience: 20
 				}
 			};
 
+			// ═══════════════════════════════════════════════════════════
+			// 📅 بخش ۳: توابع تقویم جلالی
+			// ═══════════════════════════════════════════════════════════
 			const div = (a, b) => ~~(a / b);
 			const mod = (a, b) => a - ~~(a / b) * b;
 
@@ -521,9 +627,11 @@
 			}
 
 			const jalMonthLen = (jy, jm) => jm <= 6 ? 31 : jm <= 11 ? 30 : (jalCal(jy).leap === 0 ? 30 : 29);
+
 			const FA = '۰۱۲۳۴۵۶۷۸۹';
 			const faNum = s => String(s).replace(/\d/g, d => FA[d]);
 			const pad2 = n => String(n).padStart(2, '0');
+
 			const MONTHS = ['فروردین', 'اردیبهشت', 'خرداد', 'تیر', 'مرداد', 'شهریور', 'مهر', 'آبان', 'آذر', 'دی', 'بهمن', 'اسفند'];
 			const WDAYS = ['شنبه', 'یکشنبه', 'دوشنبه', 'سه‌شنبه', 'چهارشنبه', 'پنجشنبه', 'جمعه'];
 
@@ -574,6 +682,9 @@
 			const fmtFull = j => `${WDAYS[jWeekday(j.jy, j.jm, j.jd)]} ${faNum(j.jy)}/${faNum(pad2(j.jm))}/${faNum(pad2(j.jd))}`;
 			const fmtShort = j => `${faNum(j.jy)}/${faNum(pad2(j.jm))}/${faNum(pad2(j.jd))}`;
 
+			// ═══════════════════════════════════════════════════════════
+			// 📐 بخش ۴: توابع فاصله
+			// ═══════════════════════════════════════════════════════════
 			function calcDistance(lat1, lng1, lat2, lng2) {
 				const R = 6371, dLat = (lat2 - lat1) * Math.PI / 180, dLng = (lng2 - lng1) * Math.PI / 180;
 				const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
@@ -586,9 +697,17 @@
 				return Math.sqrt(sum);
 			}
 
+			// ═══════════════════════════════════════════════════════════
+			// 📅 بخش ۵: تقویم تعاملی
+			// ═══════════════════════════════════════════════════════════
 			const $ = id => document.getElementById(id);
 			const calGrid = $('calGrid'), calTitle = $('calTitle'), calPrev = $('calPrev'), calNext = $('calNext');
-			let viewY = TODAY.jy, viewM = TODAY.jm, tripStart = null, tripEnd = null;
+			let viewY = TODAY.jy, viewM = TODAY.jm;
+			let tripStart = null, tripEnd = null;
+
+			// ✅ متغیر مدت زمان‌ها
+			let dailyDurations = {};   // { dayIndex: hours }
+			const DEFAULT_DURATION = 8;  // پیش‌فرض ۸ ساعت
 
 			function safeView() {
 				if (!Number.isFinite(viewY) || !Number.isFinite(viewM) || viewM < 1 || viewM > 12 || viewY < 1300) {
@@ -606,34 +725,47 @@
 				safeView();
 				calTitle.textContent = `${MONTHS[viewM - 1]} ${faNum(viewY)}`;
 				calGrid.innerHTML = '';
+
 				const firstWd = jWeekday(viewY, viewM, 1);
 				const len = jalMonthLen(viewY, viewM);
+
 				for (let i = 0; i < firstWd; i++) calGrid.appendChild(cellEmpty());
+
 				for (let d = 1; d <= len; d++) {
 					const jdn = j2d(viewY, viewM, d);
 					const btn = document.createElement('button');
 					btn.type = 'button';
 					btn.className = 'cal-day';
 					btn.textContent = faNum(d);
+
 					if (jWeekday(viewY, viewM, d) === 6) btn.classList.add('friday');
 					if (jdn === TODAY.jdn) btn.classList.add('today');
 					if (jdn < TODAY.jdn) btn.disabled = true;
+
 					if (tripStart && jdn === tripStart.jdn) btn.classList.add('range-start');
 					if (tripEnd && jdn === tripEnd.jdn) btn.classList.add('range-end');
 					if (tripStart && tripEnd && jdn > tripStart.jdn && jdn < tripEnd.jdn) btn.classList.add('in-range');
+
 					btn.addEventListener('click', () => onDayClick({ jy: viewY, jm: viewM, jd: d, jdn }));
 					calGrid.appendChild(btn);
 				}
+
 				const trail = (7 - ((firstWd + len) % 7)) % 7;
 				for (let i = 0; i < trail; i++) calGrid.appendChild(cellEmpty());
+
 				calPrev.disabled = (viewY * 12 + viewM) <= (TODAY.jy * 12 + TODAY.jm);
 				calNext.disabled = (viewY * 12 + viewM) >= (MAXJ.jy * 12 + MAXJ.jm);
 			}
 
 			function onDayClick(d) {
 				$('dateHint').textContent = '';
-				if (!tripStart || (tripStart && tripEnd)) { tripStart = d; tripEnd = null; }
-				else if (d.jdn < tripStart.jdn) { tripStart = d; tripEnd = null; }
+
+				if (!tripStart || (tripStart && tripEnd)) {
+					tripStart = d; tripEnd = null;
+				}
+				else if (d.jdn < tripStart.jdn) {
+					tripStart = d; tripEnd = null;
+				}
 				else {
 					if (d.jdn - tripStart.jdn + 1 > CONFIG.maxTripDays) {
 						$('dateHint').textContent = `برنامه سفر حداکثر ${faNum(CONFIG.maxTripDays)} روز پشتیبانی می‌شود.`;
@@ -641,6 +773,10 @@
 					}
 					tripEnd = d;
 				}
+
+				// ✅ ریست مدت زمان‌ها وقتی تاریخ عوض می‌شه
+				dailyDurations = {};
+
 				renderCalendar();
 				updateDateBoxes();
 			}
@@ -652,9 +788,175 @@
 
 			calPrev.addEventListener('click', () => { safeView(); viewM--; if (viewM < 1) { viewM = 12; viewY--; } renderCalendar(); });
 			calNext.addEventListener('click', () => { safeView(); viewM++; if (viewM > 12) { viewM = 1; viewY++; } renderCalendar(); });
+
 			renderCalendar();
 
+			// ═══════════════════════════════════════════════════════════
+			// ⏱️ بخش ۶: مدت زمان گردش هر روز
+			// ═══════════════════════════════════════════════════════════
+			function renderDurations() {
+				const container = document.getElementById('durationGrid');
+				if (!container || !tripStart || !tripEnd) return;
+
+				const totalDays = tripEnd.jdn - tripStart.jdn + 1;
+				container.innerHTML = '';
+
+				for (let d = 0; d < totalDays; d++) {
+					const jdn = tripStart.jdn + d;
+					const jDate = d2j(jdn);
+					const weekday = WDAYS[jWeekday(jDate.jy, jDate.jm, jDate.jd)];
+
+					if (dailyDurations[d] === undefined) {
+						dailyDurations[d] = DEFAULT_DURATION;
+					}
+
+					const card = document.createElement('div');
+					card.className = 'duration-card';
+
+					card.innerHTML = `
+                    <div class="duration-card-header">
+                        <div class="duration-day-info">
+                            <div class="duration-day-icon">
+                                <i class="fas fa-calendar-day"></i>
+                            </div>
+                            <div class="duration-day-text">
+                                <strong>روز ${faNum(d + 1)}</strong>
+                                <small>${weekday} ${fmtShort(jDate)}</small>
+                            </div>
+                        </div>
+                        <div class="duration-value" id="durVal-${d}">
+                            <strong>${faNum(dailyDurations[d])}</strong>
+                            <small>ساعت</small>
+                        </div>
+                    </div>
+                    <div class="duration-slider-wrap">
+                        <input
+                            type="range"
+                            class="duration-slider"
+                            min="0.5"
+                            max="24"
+                            step="0.5"
+                            value="${dailyDurations[d]}"
+                            data-day="${d}"
+                            id="durSlider-${d}"
+                        >
+                        <div class="duration-marks">
+                            <span>۰.۵</span>
+                            <span>۶</span>
+                            <span>۱۲</span>
+                            <span>۱۸</span>
+                            <span>۲۴</span>
+                        </div>
+                    </div>
+                `;
+
+					container.appendChild(card);
+				}
+
+				updateDurationSummary();
+
+				// ست کردن درصد اولیه‌ی پر شدن اسلایدرها
+				setTimeout(() => {
+					container.querySelectorAll('.duration-slider').forEach(slider => {
+						const day = parseInt(slider.dataset.day);
+						const min = parseFloat(slider.min);
+						const max = parseFloat(slider.max);
+						const percent = ((dailyDurations[day] - min) / (max - min)) * 100;
+						slider.style.setProperty('--fill-percent', percent + '%');
+
+						slider.addEventListener('input', handleDurationChange);
+					});
+				}, 0);
+			}
+
+			function handleDurationChange(e) {
+				const day = parseInt(e.target.dataset.day);
+				const value = parseFloat(e.target.value);
+
+				dailyDurations[day] = value;
+
+				// ✅ رنگ پر شدن اسلایدر
+				const slider = e.target;
+				const min = parseFloat(slider.min);
+				const max = parseFloat(slider.max);
+				const percent = ((value - min) / (max - min)) * 100;
+				slider.style.setProperty('--fill-percent', percent + '%');
+
+				const valEl = document.getElementById(`durVal-${day}`);
+				if (valEl) {
+					valEl.querySelector('strong').textContent = faNum(value);
+				}
+
+				// حذف active از preset ها
+				document.querySelectorAll('.duration-preset-btn').forEach(b => b.classList.remove('active'));
+
+				updateDurationSummary();
+			}
+
+			function updateDurationSummary() {
+				const summary = document.getElementById('durationSummary');
+				if (!summary) return;
+
+				const values = Object.values(dailyDurations);
+				const total = values.reduce((s, v) => s + v, 0);
+				const avg = values.length > 0 ? Math.round(total / values.length * 10) / 10 : 0;
+
+				summary.innerHTML = `
+                <div class="duration-summary-text">
+                    <i class="fas fa-clock"></i>
+                    <span>مجموع گردش: <strong>${faNum(total)}</strong> ساعت در <strong>${faNum(values.length)}</strong> روز</span>
+                </div>
+                <div class="duration-summary-total">
+                    <i class="fas fa-chart-line"></i>
+                    میانگین: ${faNum(avg)} ساعت/روز
+                </div>
+            `;
+			}
+
+			// ═══ دکمه‌های تنظیم سریع ═══
+			function initDurationPresets() {
+				document.querySelectorAll('.duration-preset-btn').forEach(btn => {
+					btn.addEventListener('click', () => {
+						const hours = parseFloat(btn.dataset.hours);
+
+						// همه‌ی روزها رو به این مقدار تنظیم کن
+						Object.keys(dailyDurations).forEach(d => {
+							dailyDurations[d] = hours;
+						});
+
+						// آپدیت active
+						document.querySelectorAll('.duration-preset-btn').forEach(b => b.classList.remove('active'));
+						btn.classList.add('active');
+
+						// رندر مجدد
+						renderDurations();
+					});
+				});
+
+				// ✅ دکمه‌ی Reset
+				const resetBtn = document.getElementById('durationResetBtn');
+				if (resetBtn) {
+					resetBtn.addEventListener('click', () => {
+						Object.keys(dailyDurations).forEach(d => {
+							dailyDurations[d] = DEFAULT_DURATION;
+						});
+
+						// حذف active از همه
+						document.querySelectorAll('.duration-preset-btn').forEach(b => b.classList.remove('active'));
+						// active روی ۸ ساعت
+						document.querySelector('.duration-preset-btn[data-hours="8"]')?.classList.add('active');
+
+						renderDurations();
+						dbg('🔄 Reset شد به ۸ ساعت');
+					});
+				}
+			}
+
+			// ═══════════════════════════════════════════════════════════
+			// 🎨 بخش ۷: علاقه‌مندی‌ها
+			// ═══════════════════════════════════════════════════════════
 			const interestBtns = [...document.querySelectorAll('.interest-card')];
+
 			interestBtns.forEach(b => b.addEventListener('click', () => {
 				b.classList.toggle('selected');
 				updateIntCount();
@@ -670,16 +972,29 @@
 				interestBtns.forEach(b => b.classList.remove('selected'));
 				updateIntCount();
 			});
+
 			updateIntCount();
 
-			const TITLES = { 1: 'تاریخ سفرت رو مشخص کن', 2: 'علایقت رو مشخص کن', 3: 'جزئیات سفر رو وارد کن', 4: 'مرور برنامه سفر' };
+			// ═══════════════════════════════════════════════════════════
+			// 🧭 بخش ۸: ویزارد
+			// ═══════════════════════════════════════════════════════════
+			const TITLES = {
+				1: 'تاریخ سفرت رو مشخص کن',
+				2: 'مدت زمان گردش هر روز',
+				3: 'علایقت رو مشخص کن',
+				4: 'جزئیات سفر رو وارد کن',
+				5: 'مرور برنامه سفر'
+			};
 			let wizStep = 1;
 
 			function goWiz(n) {
 				wizStep = n;
 				$('wzHint').textContent = '';
+				if ($('durationHint')) $('durationHint').textContent = '';
+
 				document.querySelectorAll('.wz-step').forEach(s => s.classList.toggle('active', +s.dataset.step === n));
 				$('wizTitle').textContent = TITLES[n];
+
 				const stepItems = document.querySelectorAll('.step-item');
 				const stepLines = document.querySelectorAll('.step-line');
 				stepItems.forEach(el => {
@@ -692,20 +1007,32 @@
 					if (i + 1 < n) el.classList.add('done');
 					else el.classList.remove('done');
 				});
+
 				$('wizPrev').style.visibility = n === 1 ? 'hidden' : 'visible';
+
 				const next = $('wizNext');
-				next.innerHTML = n === 4 ? 'ساخت برنامه <i class="fas fa-magic"></i>' : 'مرحله بعد <i class="fas fa-arrow-left"></i>';
-				next.classList.toggle('submit', n === 4);
-				if (n === 3 && tripStart && tripEnd) {
+				next.innerHTML = n === 5 ? 'ساخت برنامه <i class="fas fa-magic"></i>' : 'مرحله بعد <i class="fas fa-arrow-left"></i>';
+				next.classList.toggle('submit', n === 5);
+
+				if (n === 4 && tripStart && tripEnd) {
 					$('tripDaysInfo').innerHTML = `<i class="fas fa-calendar-check"></i> مدت سفر شما: ${faNum(tripEnd.jdn - tripStart.jdn + 1)} روز`;
 				}
-				if (n === 4) buildReview();
+
+				// ✅ رندر مدت زمان‌ها در مرحله ۲
+				if (n === 2) {
+					renderDurations();
+					initDurationPresets();
+				}
+
+				if (n === 5) buildReview();
+
 				document.getElementById('planWizard').scrollIntoView({ behavior: 'smooth', block: 'start' });
 			}
 
 			$('wizPrev').addEventListener('click', () => goWiz(Math.max(1, wizStep - 1)));
+
 			$('wizNext').addEventListener('click', () => {
-				if (wizStep === 4 && !window.isUserAuthenticated()) {
+				if (wizStep === 5 && !window.isUserAuthenticated()) {
 					window.showLoginModal({
 						title: 'برای ساخت برنامه اول وارد شو!',
 						message: 'برای ساختن برنامه سفر شخصی، لازمه اول وارد حساب کاربری خودت بشی.',
@@ -713,12 +1040,35 @@
 					});
 					return;
 				}
-				if (wizStep === 1 && (!tripStart || !tripEnd)) { $('dateHint').textContent = 'لطفاً روز شروع و پایان سفر را انتخاب کنید.'; return; }
-				if (wizStep === 2 && !interestBtns.some(b => b.classList.contains('selected'))) { $('wzHint').textContent = 'لطفاً حداقل یک دسته‌بندی انتخاب کنید.'; return; }
-				if (wizStep < 4) goWiz(wizStep + 1);
+
+				// اعتبارسنجی مرحله ۱
+				if (wizStep === 1 && (!tripStart || !tripEnd)) {
+					$('dateHint').textContent = 'لطفاً روز شروع و پایان سفر را انتخاب کنید.';
+					return;
+				}
+
+				// اعتبارسنجی مرحله ۲
+				if (wizStep === 2) {
+					const totalDays = tripEnd.jdn - tripStart.jdn + 1;
+					const allSet = Object.keys(dailyDurations).length === totalDays &&
+						Object.values(dailyDurations).every(v => v >= 0.5);
+					if (!allSet) {
+						$('durationHint').textContent = 'لطفاً مدت زمان گردش هر روز را مشخص کنید.';
+						return;
+					}
+				}
+
+				// اعتبارسنجی مرحله ۳
+				if (wizStep === 3 && !interestBtns.some(b => b.classList.contains('selected'))) {
+					$('wzHint').textContent = 'لطفاً حداقل یک دسته‌بندی انتخاب کنید.';
+					return;
+				}
+
+				if (wizStep < 5) goWiz(wizStep + 1);
 				else submitPlan();
 			});
 
+			// ═══ ساخت خلاصه ═══
 			function buildReview() {
 				const sel = interestBtns.filter(b => b.classList.contains('selected'));
 				$('rvStart').textContent = fmtShort(tripStart);
@@ -726,11 +1076,44 @@
 				$('rvDays').textContent = `${faNum(tripEnd.jdn - tripStart.jdn + 1)} روز`;
 				$('rvIntCount').textContent = faNum(sel.length);
 				$('rvChips').innerHTML = sel.map(b => `<span class="rv-chip">${b.querySelector('.ic-emoji').textContent} ${b.querySelector('.ic-label').textContent}</span>`).join('');
+
 				const trav = $('travelersCount'), bud = $('budgetRange');
 				const child = document.querySelector('input[name="hasChild"]:checked').value === 'true';
 				$('rvDetails').textContent = `${trav.options[trav.selectedIndex].text} • بودجه: ${bud.options[bud.selectedIndex].text} • ${child ? 'کودک همراه' : 'بدون کودک'}`;
+
+				// ✅ اضافه کردن خلاصه‌ی مدت زمان‌ها
+				const totalHours = Object.values(dailyDurations).reduce((s, v) => s + v, 0);
+
+				const reviewCard = document.querySelector('.review-card');
+				const existingDurationRow = reviewCard.querySelector('.duration-summary-row');
+				if (existingDurationRow) existingDurationRow.remove();
+
+				const tempDiv = document.createElement('div');
+				tempDiv.className = 'duration-summary-row';
+				tempDiv.innerHTML = `
+                <div class="rv-row" style="border-top: 1px solid rgba(17,139,113,.08); padding-top: 14px; margin-top: 4px;">
+                    <div class="rv-icon" style="background: rgba(17,139,113,.1); color: var(--primary-green);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div>
+                        <span class="rv-label">مدت گردش هر روز</span>
+                        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;">
+                            ${Object.entries(dailyDurations).map(([day, hours]) =>
+					`<span class="rv-chip" style="font-size: 12px;">روز ${faNum(+day + 1)}: ${faNum(hours)} ساعت</span>`
+				).join('')}
+                        </div>
+                        <div style="margin-top: 10px; font-size: 13px; color: var(--primary-green); font-weight: 800;">
+                            مجموع: ${faNum(totalHours)} ساعت گردش
+                        </div>
+                    </div>
+                </div>
+            `;
+				reviewCard.appendChild(tempDiv);
 			}
 
+			// ═══════════════════════════════════════════════════════════
+			// 🧠 بخش ۹: الگوریتم‌ها
+			// ═══════════════════════════════════════════════════════════
 			const REAL_PLACES = window.REAL_PLACES || [];
 			const CATEGORIES_DATA = window.CATEGORIES || [];
 			const ALL_CATEGORIES = CATEGORIES_DATA.map(c => c.name);
@@ -755,6 +1138,7 @@
 				const budMem = membershipBudget(budgetMax / 1_000_000);
 				const w = { ...CONFIG.fuzzyBase };
 				const R = CONFIG.fuzzyRules;
+
 				w.interest += durMem.short * R.shortTrip.interest;
 				w.popularity += durMem.short * R.shortTrip.popularity;
 				w.duration += durMem.long * R.longTrip.duration;
@@ -764,6 +1148,7 @@
 				w.interest += budMem.high * R.highBudget.interest;
 				w.rating += budMem.high * R.highBudget.rating;
 				if (hasChild) { w.child += R.withChild.child; w.duration += R.withChild.duration; }
+
 				Object.keys(w).forEach(k => { if (w[k] < 0.5) w[k] = 0.5; });
 				const total = Object.values(w).reduce((a, b) => a + b, 0);
 				Object.keys(w).forEach(k => { w[k] = (w[k] / total) * 100; });
@@ -819,12 +1204,15 @@
 					popularity: fuzzyWeights.popularity / 100,
 					rating: fuzzyWeights.rating / 100
 				};
+
 				return places.map(place => {
 					const placeVec = buildPlaceVector(place);
 					const baseSim = cosineSimilarity(userVec, placeVec);
 					let score = 0;
+
 					const interestMatch = userPrefs.interests.includes(place.category) ? 1 : 0;
 					score += interestMatch * w.interest;
+
 					const budgetMax = userPrefs.budgetMax;
 					let budgetScore;
 					if (place.cost === 0) budgetScore = 1;
@@ -833,19 +1221,24 @@
 					else if (place.cost <= budgetMax) budgetScore = 0.4;
 					else budgetScore = 0.1;
 					score += budgetScore * w.budget;
+
 					if (userPrefs.hasChild) score += (place.is_child_friendly ? 1 : 0) * w.child;
 					else score += 0.5 * w.child;
+
 					let durScore;
 					if (place.duration <= 60) durScore = 1;
 					else if (place.duration <= 90) durScore = 0.8;
 					else if (place.duration <= 120) durScore = 0.6;
 					else durScore = 0.3;
 					score += durScore * w.duration;
+
 					const reviewsCount = place.views || 0;
 					const rating = place.rating || 3.5;
 					const popScore = Math.min((reviewsCount / 20) * 0.6 + (rating / 5) * 0.4, 1);
 					score += popScore * w.popularity;
+
 					score += Math.min(rating / 5, 1) * w.rating;
+
 					const finalScore01 = baseSim * CONFIG.cbf.baseSimilarity + score * CONFIG.cbf.weightedScore;
 					return { ...place, similarity: baseSim, weightedScore: score, score: Math.round(finalScore01 * 100) };
 				});
@@ -853,101 +1246,228 @@
 
 			function knnSelection(scoredPlaces, userPrefs, fuzzyWeights, durationDays, budgetMax) {
 				const budgetFiltered = scoredPlaces.filter(p => p.cost === 0 || p.cost <= budgetMax * 1.2);
+
 				const userVec = buildUserVector(userPrefs, fuzzyWeights);
 				const withDistance = budgetFiltered.map(place => {
 					const placeVec = buildPlaceVector(place);
 					return { ...place, featureDistance: euclideanDistance(userVec, placeVec) };
 				});
+
 				const K = Math.min(withDistance.length, durationDays * CONFIG.knnMultiplier);
+
 				const interestMatched = withDistance.filter(p => userPrefs.interests.includes(p.category)).sort((a, b) => a.featureDistance - b.featureDistance);
 				const others = withDistance.filter(p => !userPrefs.interests.includes(p.category)).sort((a, b) => a.featureDistance - b.featureDistance);
+
 				return [...interestMatched, ...others].slice(0, K);
 			}
 
-			// ═══════════════════════════════════════════════════════════
-			// assignLargePlaces
-			// ═══════════════════════════════════════════════════════════
-			function assignLargePlaces(places, daysCount, userInterests, logFn) {
-				const DAILY_TIME = 8 * 60;
-				const LUNCH_TIME = 60;
+			// ═══ assignLargePlaces — Round-Robin + اولویت تنوع دسته‌بندی ═══
+			function assignLargePlaces(places, daysCount, userInterests, dailyDurations, logFn) {
 				const BREAK_TIME = 30;
-				
+				const LUNCH_TIME = 60;
+
 				const fullDayPlaces = places.filter(p => getPlacePolicy(p).type === 'full_day');
 				const otherPlaces = places.filter(p => getPlacePolicy(p).type !== 'full_day');
-				
+
 				if (logFn) {
-					logFn(`🔒 جاذبه‌های «روز کامل» (${fullDayPlaces.length}): ${fullDayPlaces.map(p => `${p.name}(${p.duration}د)`).join(', ') || 'هیچ'}`);
-					logFn(`📦 بقیه‌ی جاذبه‌ها (${otherPlaces.length}): ${otherPlaces.map(p => `${p.name}(${p.duration}د)`).join(', ') || 'هیچ'}`);
+					logFn(`🔒 روزکامل: ${fullDayPlaces.length} | بقیه: ${otherPlaces.length}`);
 				}
-				
+
 				if (places.length === 0) return null;
-				
+
+				// ═══ تعیین اسلات‌های روزکامل ═══
 				let maxFullDaySlots;
 				if (daysCount === 1) maxFullDaySlots = 0;
 				else if (daysCount === 2) maxFullDaySlots = 1;
 				else maxFullDaySlots = Math.floor(daysCount / 2);
-				
+
 				const actualFullDayCount = Math.min(fullDayPlaces.length, maxFullDaySlots);
-				
-				if (logFn) {
-					logFn(`📊 روزها: ${daysCount} | حداکثر اسلات روزکامل: ${maxFullDaySlots} | استفاده می‌کنیم: ${actualFullDayCount}`);
-				}
-				
+
+				// ═══ انتخاب بهترین روزکامل‌ها ═══
 				fullDayPlaces.sort((a, b) => (b.score || 0) - (a.score || 0));
 				const selectedFullDay = fullDayPlaces.slice(0, actualFullDayCount);
-				
+
+				// ═══ ساخت آرایه‌ی روزها ═══
 				const assignment = Array.from({ length: daysCount }, () => []);
+
 				selectedFullDay.sort((a, b) => (b.duration || 60) - (a.duration || 60));
-				
 				if (actualFullDayCount === 1 && daysCount >= 2) {
 					assignment[0].push(selectedFullDay[0]);
-					if (logFn) logFn(`   📍 روز 1: ${selectedFullDay[0].name} (${selectedFullDay[0].duration}د)`);
 				} else {
 					selectedFullDay.forEach((p, i) => {
 						const dayIdx = Math.floor(i * daysCount / actualFullDayCount);
 						assignment[dayIdx].push(p);
-						if (logFn) logFn(`   📍 روز ${dayIdx + 1}: ${p.name} (${p.duration}د)`);
 					});
 				}
-				
-				otherPlaces.sort((a, b) => (b.score || 0) - (a.score || 0));
-				
+
+				// ═══════════════════════════════════════════════════════════
+				// 🎨 مرحله ۱: Round-Robin برای تنوع دسته‌بندی
+				// ═══════════════════════════════════════════════════════════
+				const byCat = {};
 				otherPlaces.forEach(p => {
+					const cat = p.category || 'سایر';
+					if (!byCat[cat]) byCat[cat] = [];
+					byCat[cat].push(p);
+				});
+
+				Object.values(byCat).forEach(arr => arr.sort((a, b) => (b.score || 0) - (a.score || 0)));
+
+				const catOrder = [
+					...userInterests.filter(c => byCat[c]),
+					...Object.keys(byCat).filter(c => !userInterests.includes(c))
+				];
+
+				if (logFn) logFn(`🎨 ترتیب دسته‌ها: ${catOrder.join(' → ')}`);
+
+				// ═══ Round-Robin: یکی از هر دسته، تکرار ═══
+				const roundRobinPlaces = [];
+				let hasMore = true;
+				let round = 0;
+				while (hasMore) {
+					hasMore = false;
+					for (const cat of catOrder) {
+						if (byCat[cat] && byCat[cat][round]) {
+							roundRobinPlaces.push(byCat[cat][round]);
+							hasMore = true;
+						}
+					}
+					round++;
+				}
+
+				if (logFn) {
+					logFn(`🔄 Round-Robin: ${roundRobinPlaces.slice(0, 10).map(p => `${p.name}(${p.category})`).join(' → ')}`);
+				}
+
+				// ═══════════════════════════════════════════════════════════
+				// 🎯 مرحله ۲: تخصیص با اولویت تنوع، بعد تعادل، بعد فاصله
+				// ═══════════════════════════════════════════════════════════
+				roundRobinPlaces.forEach((p, idx) => {
 					const placeTime = (p.duration || 60) + BREAK_TIME;
 					let bestDay = -1;
-					let minTime = Infinity;
-					
+					let bestScore = -Infinity;
+
 					assignment.forEach((day, i) => {
+						const userDayMinutes = ((dailyDurations && dailyDurations[i]) || DEFAULT_DURATION) * 60;
+
 						let dayTime = day.reduce((s, x) => s + (x.duration || 60) + BREAK_TIME, 0);
 						if (day.length > 0) dayTime += LUNCH_TIME;
-						
+
+						// چک maxCompanions
 						const mainPlace = day[0];
 						if (mainPlace) {
 							const mainPolicy = getPlacePolicy(mainPlace);
 							const companionCount = day.length - 1;
 							if (companionCount >= mainPolicy.maxCompanions) return;
 						}
-						
+
+						// چک سقف زمانی
 						const newTime = dayTime + placeTime;
-						if (newTime <= DAILY_TIME && dayTime < minTime) {
-							minTime = dayTime;
+						if (newTime > userDayMinutes) return;
+
+						// ═══ محاسبه‌ی امتیاز ═══
+						let score = 0;
+
+						// 🥇 اولویت ۱: تنوع دسته (بالاترین وزن)
+						const sameCatCount = day.filter(x => x.category === p.category).length;
+						score -= sameCatCount * 100;
+
+						// 🥈 اولویت ۲: تعادل زمانی
+						const dayUsedRatio = dayTime / userDayMinutes;
+						score += (1 - dayUsedRatio) * 50;
+
+						// 🥉 اولویت ۳: فاصله (کمترین وزن)
+						if (day.length > 0) {
+							const minDist = Math.min(...day.map(existing =>
+								calcDistance(p.lat, p.lng, existing.lat, existing.lng)
+							));
+
+							if (minDist < 2) score += 15;
+							else if (minDist < 5) score += 8;
+							else if (minDist < 10) score += 3;
+							else if (minDist > 15) score -= 20;
+							else score -= minDist;
+						}
+
+						if (score > bestScore) {
+							bestScore = score;
 							bestDay = i;
 						}
 					});
-					
+
+					// Fallback: اگه هیچ روزی جا نشد، فقط چک زمانی
+					if (bestDay === -1) {
+						let minUsed = Infinity;
+						assignment.forEach((day, i) => {
+							const userDayMinutes = ((dailyDurations && dailyDurations[i]) || DEFAULT_DURATION) * 60;
+							let dayTime = day.reduce((s, x) => s + (x.duration || 60) + BREAK_TIME, 0);
+							if (day.length > 0) dayTime += LUNCH_TIME;
+
+							const newTime = dayTime + placeTime;
+							if (newTime <= userDayMinutes && dayTime < minUsed) {
+								minUsed = dayTime;
+								bestDay = i;
+							}
+						});
+					}
+
 					if (bestDay !== -1) {
 						assignment[bestDay].push(p);
-						if (logFn) logFn(`   ➕ ${p.name} (${p.duration}د) → روز ${bestDay + 1}`);
+						if (logFn) logFn(`   ➕ ${p.name} (${p.category}، ${p.duration}د) → روز ${bestDay + 1}`);
 					} else {
 						if (logFn) logFn(`   ❌ ${p.name} (${p.duration}د) جا نشد`);
 					}
 				});
-				
-				return assignment;
+
+				// ═══════════════════════════════════════════════════════════
+				// 🎨 مرحله ۳: مرتب‌سازی نهایی هر روز با Round-Robin
+				// ═══════════════════════════════════════════════════════════
+				const finalAssignment = assignment.map(day => {
+					if (day.length <= 1) return day;
+
+					const fullDay = day.filter(p => getPlacePolicy(p).type === 'full_day');
+					const rest = day.filter(p => getPlacePolicy(p).type !== 'full_day');
+
+					const restByCat = {};
+					rest.forEach(p => {
+						const cat = p.category || 'سایر';
+						if (!restByCat[cat]) restByCat[cat] = [];
+						restByCat[cat].push(p);
+					});
+
+					const restCats = [
+						...userInterests.filter(c => restByCat[c]),
+						...Object.keys(restByCat).filter(c => !userInterests.includes(c))
+					];
+
+					const sortedRest = [];
+					let more = true;
+					let r = 0;
+					while (more) {
+						more = false;
+						for (const cat of restCats) {
+							if (restByCat[cat] && restByCat[cat][r]) {
+								sortedRest.push(restByCat[cat][r]);
+								more = true;
+							}
+						}
+						r++;
+					}
+
+					return [...fullDay, ...sortedRest];
+				});
+
+				if (logFn) {
+					logFn('📋 چیدمان نهایی:');
+					finalAssignment.forEach((day, i) => {
+						logFn(`   روز ${i + 1}: ${day.map(p => `${p.name}(${p.category})`).join(' → ') || 'خالی'}`);
+					});
+				}
+
+				return finalAssignment;
 			}
 
-			// ═══ GA (ساده‌شده برای تست) ═══
 			const SEP = -1;
+
 			function splitChromosome(chromosome) {
 				const days = [[]];
 				for (const x of chromosome) {
@@ -964,13 +1484,13 @@
 				const LUNCH_TIME = 60;
 				const nonEmptyDays = days.filter(d => d.length > 0);
 				if (nonEmptyDays.length === 0) return 0;
-				
+
 				let totalScore = 0, totalPlacesCount = 0;
 				for (const day of nonEmptyDays) {
 					for (const idx of day) { totalScore += places[idx].score; totalPlacesCount++; }
 				}
 				const scoreNorm = Math.min((totalPlacesCount > 0 ? totalScore / totalPlacesCount : 0) / 100, 1);
-				
+
 				let totalTimeOverflow = 0;
 				for (const day of nonEmptyDays) {
 					let dayTime = 0, lastPlace = null;
@@ -985,7 +1505,7 @@
 					if (dayTime > DAILY_TIME) totalTimeOverflow += ((dayTime - DAILY_TIME) / DAILY_TIME) ** 2 * 100;
 				}
 				const timeOverflowNorm = Math.min(totalTimeOverflow / (nonEmptyDays.length * 100), 1);
-				
+
 				return (scoreNorm - timeOverflowNorm * 0.45 + 1) * 50;
 			}
 
@@ -993,7 +1513,7 @@
 				const n = places.length;
 				if (n === 0) return [];
 				if (daysCount <= 1) return [places];
-				
+
 				function randomChromosome() {
 					const indices = Array.from({ length: n }, (_, i) => i);
 					for (let i = n - 1; i > 0; i--) {
@@ -1020,10 +1540,11 @@
 						bestFitnessEver = fits[genBestIdx];
 						bestEver = [...population[genBestIdx]];
 					}
+
 					const sortedIdx = fits.map((_, i) => i).sort((a, b) => fits[b] - fits[a]);
 					const newPop = [];
 					for (let i = 0; i < 5; i++) newPop.push([...population[sortedIdx[i]]]);
-					
+
 					while (newPop.length < 60) {
 						const p1 = population[Math.floor(Math.random() * 60)];
 						const p2 = population[Math.floor(Math.random() * 60)];
@@ -1031,6 +1552,7 @@
 					}
 					population = newPop;
 				}
+
 				const bestDays = splitChromosome(bestEver);
 				return bestDays.map(day => day.map(idx => places[idx])).filter(d => d.length > 0);
 			}
@@ -1042,68 +1564,69 @@
 					logFn(`🚀 شروع پیشنهاد سفر`);
 					logFn(`   علاقه‌مندی‌ها: ${interests.join(', ')}`);
 				}
-				
+
 				const budgetMax = Number(options.budgetStr.split('-')[1]) || 5_000_000;
 				const duration = Math.min(CONFIG.maxTripDays, options.duration || 3);
 				const hasChild = options.hasChild || false;
-				
+				const dailyDurations = options.dailyDurations || null;
+
 				if (logFn) logFn(`   مدت: ${duration} روز | بودجه: ${budgetMax.toLocaleString()} | کودک: ${hasChild ? 'بله' : 'خیر'}`);
-				
+				if (logFn && dailyDurations) logFn(`   مدت گردش روزانه: ${dailyDurations.join(', ')} ساعت`);
+
 				const fuzzyWeights = getFuzzyWeights(duration, hasChild, budgetMax);
 				const userPrefs = { interests, budgetMax, hasChild };
-				
+
 				const scoredPlaces = cbfScoring(REAL_PLACES, userPrefs, fuzzyWeights);
 				const knnSelected = knnSelection(scoredPlaces, userPrefs, fuzzyWeights, duration, budgetMax);
-				
+
 				if (logFn) logFn(`✅ CBF+KNN انتخاب کرد: ${knnSelected.length} جاذبه`);
-				
 				if (knnSelected.length === 0) return [];
-				
-				const lockedAssignment = assignLargePlaces(knnSelected, duration, interests, logFn);
-				
+
+				const lockedAssignment = assignLargePlaces(knnSelected, duration, interests, dailyDurations, logFn);
 				if (lockedAssignment) return lockedAssignment.filter(d => d.length > 0);
-				
+
 				const days = geneticAlgorithm(knnSelected, duration);
 				return days.filter(d => d.length > 0);
 			}
 
 			// ═══════════════════════════════════════════════════════════
-			// 🧪 تست الگوریتم (داخل همین صفحه)
+			// 🧪 بخش ۱۰: تست الگوریتم
 			// ═══════════════════════════════════════════════════════════
-			window.runAllTests = function() {
+			window.runAllTests = function () {
 				const resultsDiv = document.getElementById('testResults');
 				resultsDiv.innerHTML = '';
-				
+
 				const scenarios = [
-					{ days: 1, budget: '2000000-5000000', child: false, label: '۱ روز، بدون کودک' },
-					{ days: 2, budget: '2000000-5000000', child: false, label: '۲ روز، بدون کودک' },
-					{ days: 2, budget: '2000000-5000000', child: true,  label: '۲ روز، با کودک' },
-					{ days: 3, budget: '5000000-10000000', child: false, label: '۳ روز، بدون کودک' },
-					{ days: 4, budget: '5000000-10000000', child: true,  label: '۴ روز، با کودک' },
-					{ days: 5, budget: '10000000-15000000', child: false, label: '۵ روز، بدون کودک' },
-					{ days: 7, budget: '15000000-99999999', child: false, label: '۷ روز، بدون کودک' }
+					{ days: 1, budget: '2000000-5000000', child: false, label: '۱ روز، بدون کودک', durations: [8] },
+					{ days: 2, budget: '2000000-5000000', child: false, label: '۲ روز، بدون کودک', durations: [8, 8] },
+					{ days: 2, budget: '2000000-5000000', child: true, label: '۲ روز، با کودک', durations: [6, 8] },
+					{ days: 3, budget: '5000000-10000000', child: false, label: '۳ روز، بدون کودک', durations: [8, 8, 8] },
+					{ days: 3, budget: '5000000-10000000', child: false, label: '۳ روز، مدت متفاوت', durations: [4, 8, 12] },
+					{ days: 4, budget: '5000000-10000000', child: true, label: '۴ روز، با کودک', durations: [6, 6, 8, 8] },
+					{ days: 5, budget: '10000000-15000000', child: false, label: '۵ روز، بدون کودک', durations: [8, 8, 8, 8, 8] },
+					{ days: 7, budget: '15000000-99999999', child: false, label: '۷ روز، بدون کودک', durations: [8, 8, 8, 8, 8, 8, 8] }
 				];
-				
+
 				const allInterests = CATEGORIES_DATA.map(c => c.name);
-				
+
 				scenarios.forEach((s, idx) => {
 					const logs = [];
 					const logFn = msg => logs.push(msg);
-					
+
 					const days = getRecommendations(allInterests, {
 						budgetStr: s.budget,
 						duration: s.days,
-						hasChild: s.child
+						hasChild: s.child,
+						dailyDurations: s.durations
 					}, logFn);
-					
-					// ═══ اعتبارسنجی ═══
+
 					const issues = [];
 					const seenPlaces = new Set();
 					let totalPlaces = 0;
 					let overflowCount = 0;
 					let emptyCount = 0;
 					let companionViolations = 0;
-					
+
 					days.forEach((day, dayIdx) => {
 						let dayTime = 0, lastPlace = null;
 						day.forEach((p, i) => {
@@ -1116,113 +1639,119 @@
 							lastPlace = p;
 						});
 						if (day.length > 0) dayTime += 60;
-						
-						if (dayTime > 8 * 60) { overflowCount++; issues.push(`⚠️ سرریز: روز ${dayIdx+1} = ${Math.round(dayTime/60)} ساعت`); }
-						if (day.length === 0) { emptyCount++; issues.push(`⚠️ روز ${dayIdx+1} خالیه`); }
-						
+
+						const userDayMin = (s.durations[dayIdx] || 8) * 60;
+
+						if (dayTime > userDayMin) {
+							overflowCount++;
+							issues.push(`⚠️ سرریز: روز ${dayIdx + 1} = ${Math.round(dayTime / 60 * 10) / 10} ساعت (مجاز: ${s.durations[dayIdx]} ساعت)`);
+						}
+						if (day.length === 0) { emptyCount++; issues.push(`⚠️ روز ${dayIdx + 1} خالیه`); }
+
 						if (day.length > 0) {
 							const mainPolicy = getPlacePolicy(day[0]);
 							if (day.length - 1 > mainPolicy.maxCompanions) {
 								companionViolations++;
-								issues.push(`⚠️ maxCompanions نقض: روز ${dayIdx+1}`);
+								issues.push(`⚠️ maxCompanions نقض: روز ${dayIdx + 1}`);
 							}
 						}
 					});
-					
-					// ═══ نمایش ═══
+
 					const isPass = issues.length === 0;
 					const hasWarn = issues.some(i => i.includes('⚠️'));
 					const borderColor = isPass ? '#4caf50' : (hasWarn ? '#f59e0b' : '#ff5050');
 					const bgColor = isPass ? '#e8f5e9' : (hasWarn ? '#fff8e1' : '#ffebee');
-					
+
 					let daysHtml = '';
 					days.forEach((day, i) => {
 						let dayTime = day.reduce((s, x) => s + (x.duration || 60) + 30, 0);
 						if (day.length > 0) dayTime += 60;
-						const isOver = dayTime > 8 * 60;
+						const userDayMin = (s.durations[i] || 8) * 60;
+						const isOver = dayTime > userDayMin;
 						daysHtml += `
-							<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(17,139,113,0.15);font-size:0.82rem;">
-								<span><strong>روز ${faNum(i+1)}:</strong> ${day.map(p => p.name).join(' + ') || '—'}</span>
-								<span style="font-weight:800;color:${isOver ? '#ff5050' : '#4caf50'};">${faNum(Math.round(dayTime/60*10)/10)} ساعت ${isOver ? '⚠️' : '✅'}</span>
-							</div>`;
+                        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px dashed rgba(17,139,113,0.15);font-size:0.82rem;">
+                            <span><strong>روز ${faNum(i + 1)} (${s.durations[i]}س):</strong> ${day.map(p => p.name).join(' + ') || '—'}</span>
+                            <span style="font-weight:800;color:${isOver ? '#ff5050' : '#4caf50'};">${faNum(Math.round(dayTime / 60 * 10) / 10)} ساعت ${isOver ? '⚠️' : '✅'}</span>
+                        </div>`;
 					});
-					
+
 					const card = document.createElement('div');
 					card.style.cssText = `
-						background: #fff;
-						border-radius: 16px;
-						padding: 18px;
-						margin-bottom: 14px;
-						box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-						border-right: 5px solid ${borderColor};
-					`;
-					
+                    background: #fff;
+                    border-radius: 16px;
+                    padding: 18px;
+                    margin-bottom: 14px;
+                    box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+                    border-right: 5px solid ${borderColor};
+                `;
+
 					card.innerHTML = `
-						<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
-							<div style="font-size:1.05rem;font-weight:900;color:#4a3a2a;">
-								🧪 تست ${faNum(idx+1)}: ${s.label}
-							</div>
-							<div style="display:flex;gap:8px;flex-wrap:wrap;">
-								<span style="background:#2196f3;color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;">${faNum(s.days)} روز</span>
-								<span style="background:#2196f3;color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;">${s.child ? '👶 با کودک' : 'بدون کودک'}</span>
-								<span style="background:${borderColor};color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;">
-									${isPass ? '✅ PASS' : (hasWarn ? '⚠️ WARN' : '❌ FAIL')}
-								</span>
-							</div>
-						</div>
-						
-						<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:12px;">
-							<div style="background:#f0faf6;padding:10px;border-radius:10px;text-align:center;">
-								<div style="font-size:1.3rem;font-weight:900;color:#118b71;">${faNum(days.length)}</div>
-								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">روز</div>
-							</div>
-							<div style="background:#f0faf6;padding:10px;border-radius:10px;text-align:center;">
-								<div style="font-size:1.3rem;font-weight:900;color:#118b71;">${faNum(totalPlaces)}</div>
-								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">جاذبه</div>
-							</div>
-							<div style="background:${overflowCount > 0 ? '#fff0f0' : '#f0faf6'};padding:10px;border-radius:10px;text-align:center;">
-								<div style="font-size:1.3rem;font-weight:900;color:${overflowCount > 0 ? '#ff5050' : '#118b71'};">${faNum(overflowCount)}</div>
-								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">سرریز</div>
-							</div>
-							<div style="background:${emptyCount > 0 ? '#fff0f0' : '#f0faf6'};padding:10px;border-radius:10px;text-align:center;">
-								<div style="font-size:1.3rem;font-weight:900;color:${emptyCount > 0 ? '#ff5050' : '#118b71'};">${faNum(emptyCount)}</div>
-								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">خالی</div>
-							</div>
-							<div style="background:${companionViolations > 0 ? '#fff0f0' : '#f0faf6'};padding:10px;border-radius:10px;text-align:center;">
-								<div style="font-size:1.3rem;font-weight:900;color:${companionViolations > 0 ? '#ff5050' : '#118b71'};">${faNum(companionViolations)}</div>
-								<div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">نقض همراه</div>
-							</div>
-						</div>
-						
-						${issues.length > 0 ? `
-							<div style="background:${bgColor};padding:12px;border-radius:10px;margin-bottom:10px;font-size:0.78rem;direction:rtl;">
-								<strong style="color:${borderColor};">🔍 مشکلات:</strong><br>
-								${issues.map(i => `• ${i}`).join('<br>')}
-							</div>
-						` : ''}
-						
-						<div style="background:#fbfaf7;padding:12px;border-radius:10px;">
-							<strong style="font-size:0.85rem;color:#118b71;">📋 چیدمان:</strong>
-							${daysHtml || '<span style="color:#8b7355;">هیچ جاذبه‌ای پیدا نشد</span>'}
-						</div>
-						
-						<details style="margin-top:10px;">
-							<summary style="cursor:pointer;font-size:0.8rem;color:#8b7355;font-weight:700;">🔍 نمایش لاگ کامل</summary>
-							<pre style="background:#1a2a2a;color:#4ade80;padding:12px;border-radius:10px;font-size:0.7rem;direction:ltr;text-align:left;overflow-x:auto;max-height:300px;margin-top:8px;">${logs.join('\n')}</pre>
-						</details>
-					`;
-					
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+                        <div style="font-size:1.05rem;font-weight:900;color:#4a3a2a;">
+                            🧪 تست ${faNum(idx + 1)}: ${s.label}
+                        </div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <span style="background:#2196f3;color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;">${faNum(s.days)} روز</span>
+                            <span style="background:#9c27b0;color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;">مدت: ${s.durations.map(d => faNum(d)).join('/')} ساعت</span>
+                            <span style="background:${borderColor};color:#fff;padding:4px 12px;border-radius:20px;font-size:0.72rem;font-weight:800;">
+                                ${isPass ? '✅ PASS' : (hasWarn ? '⚠️ WARN' : '❌ FAIL')}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px;margin-bottom:12px;">
+                        <div style="background:#f0faf6;padding:10px;border-radius:10px;text-align:center;">
+                            <div style="font-size:1.3rem;font-weight:900;color:#118b71;">${faNum(days.length)}</div>
+                            <div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">روز</div>
+                        </div>
+                        <div style="background:#f0faf6;padding:10px;border-radius:10px;text-align:center;">
+                            <div style="font-size:1.3rem;font-weight:900;color:#118b71;">${faNum(totalPlaces)}</div>
+                            <div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">جاذبه</div>
+                        </div>
+                        <div style="background:${overflowCount > 0 ? '#fff0f0' : '#f0faf6'};padding:10px;border-radius:10px;text-align:center;">
+                            <div style="font-size:1.3rem;font-weight:900;color:${overflowCount > 0 ? '#ff5050' : '#118b71'};">${faNum(overflowCount)}</div>
+                            <div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">سرریز</div>
+                        </div>
+                        <div style="background:${emptyCount > 0 ? '#fff0f0' : '#f0faf6'};padding:10px;border-radius:10px;text-align:center;">
+                            <div style="font-size:1.3rem;font-weight:900;color:${emptyCount > 0 ? '#ff5050' : '#118b71'};">${faNum(emptyCount)}</div>
+                            <div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">خالی</div>
+                        </div>
+                        <div style="background:${companionViolations > 0 ? '#fff0f0' : '#f0faf6'};padding:10px;border-radius:10px;text-align:center;">
+                            <div style="font-size:1.3rem;font-weight:900;color:${companionViolations > 0 ? '#ff5050' : '#118b71'};">${faNum(companionViolations)}</div>
+                            <div style="font-size:0.7rem;color:#6c5b49;font-weight:700;">نقض همراه</div>
+                        </div>
+                    </div>
+
+                    ${issues.length > 0 ? `
+                        <div style="background:${bgColor};padding:12px;border-radius:10px;margin-bottom:10px;font-size:0.78rem;direction:rtl;">
+                            <strong style="color:${borderColor};">🔍 مشکلات:</strong><br>
+                            ${issues.map(i => `• ${i}`).join('<br>')}
+                        </div>
+                    ` : ''}
+
+                    <div style="background:#fbfaf7;padding:12px;border-radius:10px;">
+                        <strong style="font-size:0.85rem;color:#118b71;">📋 چیدمان:</strong>
+                        ${daysHtml || '<span style="color:#8b7355;">هیچ جاذبه‌ای پیدا نشد</span>'}
+                    </div>
+
+                    <details style="margin-top:10px;">
+                        <summary style="cursor:pointer;font-size:0.8rem;color:#8b7355;font-weight:700;">🔍 نمایش لاگ کامل</summary>
+                        <pre style="background:#1a2a2a;color:#4ade80;padding:12px;border-radius:10px;font-size:0.7rem;direction:ltr;text-align:left;overflow-x:auto;max-height:300px;margin-top:8px;">${logs.join('\n')}</pre>
+                    </details>
+                `;
+
 					resultsDiv.appendChild(card);
 				});
 			};
 
-			// اتصال دکمه‌ها
 			document.getElementById('testToggle').addEventListener('click', () => {
 				document.getElementById('testPanel').style.display = 'block';
 			});
 			document.getElementById('runAllTests').addEventListener('click', window.runAllTests);
 
-			// ═══ ذخیره سفر ═══
+			// ═══════════════════════════════════════════════════════════
+			// 💾 بخش ۱۱: ذخیره سفر
+			// ═══════════════════════════════════════════════════════════
 			function submitPlan() {
 				if (!window.isUserAuthenticated()) {
 					window.showLoginModal({
@@ -1232,15 +1761,24 @@
 					});
 					return;
 				}
+
 				const sel = interestBtns.filter(b => b.classList.contains('selected'));
 				if (!sel.length) { alert('لطفاً حداقل یک علاقه‌مندی انتخاب کنید.'); return; }
 				if (!tripStart || !tripEnd) { alert('لطفاً تاریخ سفر را انتخاب کنید.'); return; }
 
+				// ✅ آماده‌سازی آرایه‌ی مدت زمان‌ها
+				const totalDays = tripEnd.jdn - tripStart.jdn + 1;
+				const dailyDurationsArr = [];
+				for (let d = 0; d < totalDays; d++) {
+					dailyDurationsArr.push(dailyDurations[d] || DEFAULT_DURATION);
+				}
+
 				const cats = [...new Set(sel.map(b => b.dataset.value))];
 				const days = getRecommendations(cats, {
 					budgetStr: $('budgetRange').value,
-					duration: tripEnd.jdn - tripStart.jdn + 1,
-					hasChild: document.querySelector('input[name="hasChild"]:checked').value === 'true'
+					duration: totalDays,
+					hasChild: document.querySelector('input[name="hasChild"]:checked').value === 'true',
+					dailyDurations: dailyDurationsArr,
 				});
 
 				if (!days.length) { alert('جاذبه‌ای پیدا نشد؛ انتخاب‌ها را تغییر دهید.'); return; }
@@ -1248,11 +1786,12 @@
 				const form = $('saveTripForm');
 				$('saveStartDate').value = `${tripStart.jy}/${pad2(tripStart.jm)}/${pad2(tripStart.jd)}`;
 				$('saveEndDate').value = `${tripEnd.jy}/${pad2(tripEnd.jm)}/${pad2(tripEnd.jd)}`;
-				$('saveDurationDays').value = tripEnd.jdn - tripStart.jdn + 1;
+				$('saveDurationDays').value = totalDays;
 				$('saveCompanions').value = $('travelersCount').value;
 				$('saveHasChildren').value = document.querySelector('input[name="hasChild"]:checked').value;
 				$('saveBudgetToman').value = $('budgetRange').value;
 				$('saveInterests').value = JSON.stringify(cats);
+				$('saveDailyDurations').value = JSON.stringify(dailyDurationsArr);
 
 				const placesData = days.map((dayPlaces, dayIndex) =>
 					dayPlaces.map(p => ({
@@ -1284,43 +1823,57 @@
 					});
 			}
 
+			// ═══════════════════════════════════════════════════════════
+			// ⬆️ بخش ۱۲: اسکرول به بالا
+			// ═══════════════════════════════════════════════════════════
 			const scrollBtn = document.getElementById('scrollTop');
 			if (scrollBtn) {
 				window.addEventListener('scroll', () => scrollBtn.classList.toggle('visible', window.scrollY > 400));
 				scrollBtn.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
 			}
 
+			// ═══════════════════════════════════════════════════════════
+			// 🍔 بخش ۱۳: منوی موبایل
+			// ═══════════════════════════════════════════════════════════
 			const hamburger = document.getElementById('hamburgerBtn');
 			const navLinks = document.getElementById('navLinks');
 			const overlay = document.getElementById('menuOverlay');
 			const closeBtn = document.getElementById('closeMenuBtn');
+
 			function toggleMenu() {
 				const isOpen = navLinks.classList.toggle('active');
 				overlay.classList.toggle('active', isOpen);
 				document.body.style.overflow = isOpen ? 'hidden' : '';
 			}
+
 			if (hamburger) hamburger.addEventListener('click', toggleMenu);
 			if (closeBtn) closeBtn.addEventListener('click', e => { e.stopPropagation(); if (navLinks.classList.contains('active')) toggleMenu(); });
 			if (overlay) overlay.addEventListener('click', () => { if (navLinks.classList.contains('active')) toggleMenu(); });
 		})();
 
-		// اسلایدر سفرهای اخیر
+		// ═══════════════════════════════════════════════════════════
+		// 🎠 بخش ۱۴: اسلایدر سفرهای اخیر
+		// ═══════════════════════════════════════════════════════════
 		(function () {
 			const track = document.getElementById('tripsTrack');
 			const viewport = document.getElementById('tripsViewport');
 			const prevBtn = document.getElementById('tripsPrev');
 			const nextBtn = document.getElementById('tripsNext');
 			const dotsContainer = document.getElementById('tripsDots');
+
 			if (!track || !viewport || !prevBtn || !nextBtn || !dotsContainer) return;
 			const slides = track.querySelectorAll('.trip-card');
 			if (slides.length === 0) return;
+
 			let currentIndex = 0;
+
 			function getVisibleCount() {
 				const w = window.innerWidth;
 				if (w >= 1200) return 3;
 				if (w >= 700) return 2;
 				return 1;
 			}
+
 			function updateLayout() {
 				const visible = getVisibleCount();
 				const total = slides.length;
@@ -1334,13 +1887,14 @@
 				updateDots(maxIdx);
 				updateButtons(maxIdx);
 			}
+
 			function updateTransform() {
-				const visible = getVisibleCount();
 				const cardWidth = slides[0].getBoundingClientRect().width;
 				const gap = 12;
 				const offset = currentIndex * (cardWidth + gap);
 				track.style.transform = `translateX(${offset}px)`;
 			}
+
 			function updateDots(maxIdx) {
 				dotsContainer.innerHTML = '';
 				if (maxIdx === 0) return;
@@ -1352,10 +1906,12 @@
 					dotsContainer.appendChild(btn);
 				}
 			}
+
 			function updateButtons(maxIdx) {
 				prevBtn.disabled = currentIndex === 0;
 				nextBtn.disabled = currentIndex >= maxIdx;
 			}
+
 			prevBtn.addEventListener('click', () => {
 				if (currentIndex > 0) { currentIndex--; const maxIdx = slides.length - getVisibleCount(); updateTransform(); updateDots(maxIdx); updateButtons(maxIdx); }
 			});
@@ -1363,11 +1919,13 @@
 				const maxIdx = slides.length - getVisibleCount();
 				if (currentIndex < maxIdx) { currentIndex++; updateTransform(); updateDots(maxIdx); updateButtons(maxIdx); }
 			});
+
 			let resizeTimer;
 			window.addEventListener('resize', () => {
 				clearTimeout(resizeTimer);
 				resizeTimer = setTimeout(() => { currentIndex = 0; updateLayout(); }, 200);
 			});
+
 			updateLayout();
 		})();
 	</script>
