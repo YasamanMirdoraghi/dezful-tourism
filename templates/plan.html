@@ -875,7 +875,6 @@
 
 				dailyDurations[day] = value;
 
-				// ✅ رنگ پر شدن اسلایدر
 				const slider = e.target;
 				const min = parseFloat(slider.min);
 				const max = parseFloat(slider.max);
@@ -887,7 +886,6 @@
 					valEl.querySelector('strong').textContent = faNum(value);
 				}
 
-				// حذف active از preset ها
 				document.querySelectorAll('.duration-preset-btn').forEach(b => b.classList.remove('active'));
 
 				updateDurationSummary();
@@ -919,16 +917,13 @@
 					btn.addEventListener('click', () => {
 						const hours = parseFloat(btn.dataset.hours);
 
-						// همه‌ی روزها رو به این مقدار تنظیم کن
 						Object.keys(dailyDurations).forEach(d => {
 							dailyDurations[d] = hours;
 						});
 
-						// آپدیت active
 						document.querySelectorAll('.duration-preset-btn').forEach(b => b.classList.remove('active'));
 						btn.classList.add('active');
 
-						// رندر مجدد
 						renderDurations();
 					});
 				});
@@ -941,9 +936,7 @@
 							dailyDurations[d] = DEFAULT_DURATION;
 						});
 
-						// حذف active از همه
 						document.querySelectorAll('.duration-preset-btn').forEach(b => b.classList.remove('active'));
-						// active روی ۸ ساعت
 						document.querySelector('.duration-preset-btn[data-hours="8"]')?.classList.add('active');
 
 						renderDurations();
@@ -1018,7 +1011,6 @@
 					$('tripDaysInfo').innerHTML = `<i class="fas fa-calendar-check"></i> مدت سفر شما: ${faNum(tripEnd.jdn - tripStart.jdn + 1)} روز`;
 				}
 
-				// ✅ رندر مدت زمان‌ها در مرحله ۲
 				if (n === 2) {
 					renderDurations();
 					initDurationPresets();
@@ -1041,13 +1033,11 @@
 					return;
 				}
 
-				// اعتبارسنجی مرحله ۱
 				if (wizStep === 1 && (!tripStart || !tripEnd)) {
 					$('dateHint').textContent = 'لطفاً روز شروع و پایان سفر را انتخاب کنید.';
 					return;
 				}
 
-				// اعتبارسنجی مرحله ۲
 				if (wizStep === 2) {
 					const totalDays = tripEnd.jdn - tripStart.jdn + 1;
 					const allSet = Object.keys(dailyDurations).length === totalDays &&
@@ -1058,7 +1048,6 @@
 					}
 				}
 
-				// اعتبارسنجی مرحله ۳
 				if (wizStep === 3 && !interestBtns.some(b => b.classList.contains('selected'))) {
 					$('wzHint').textContent = 'لطفاً حداقل یک دسته‌بندی انتخاب کنید.';
 					return;
@@ -1081,7 +1070,6 @@
 				const child = document.querySelector('input[name="hasChild"]:checked').value === 'true';
 				$('rvDetails').textContent = `${trav.options[trav.selectedIndex].text} • بودجه: ${bud.options[bud.selectedIndex].text} • ${child ? 'کودک همراه' : 'بدون کودک'}`;
 
-				// ✅ اضافه کردن خلاصه‌ی مدت زمان‌ها
 				const totalHours = Object.values(dailyDurations).reduce((s, v) => s + v, 0);
 
 				const reviewCard = document.querySelector('.review-card');
@@ -1261,7 +1249,9 @@
 				return [...interestMatched, ...others].slice(0, K);
 			}
 
-			// ═══ assignLargePlaces — Round-Robin + اولویت تنوع دسته‌بندی ═══
+			// ═══════════════════════════════════════════════════════════
+			// 🚀 assignLargePlaces — Round-Robin + اولویت تنوع
+			// ═══════════════════════════════════════════════════════════
 			function assignLargePlaces(places, daysCount, userInterests, dailyDurations, logFn) {
 				const BREAK_TIME = 30;
 				const LUNCH_TIME = 60;
@@ -1275,7 +1265,6 @@
 
 				if (places.length === 0) return null;
 
-				// ═══ تعیین اسلات‌های روزکامل ═══
 				let maxFullDaySlots;
 				if (daysCount === 1) maxFullDaySlots = 0;
 				else if (daysCount === 2) maxFullDaySlots = 1;
@@ -1283,11 +1272,9 @@
 
 				const actualFullDayCount = Math.min(fullDayPlaces.length, maxFullDaySlots);
 
-				// ═══ انتخاب بهترین روزکامل‌ها ═══
 				fullDayPlaces.sort((a, b) => (b.score || 0) - (a.score || 0));
 				const selectedFullDay = fullDayPlaces.slice(0, actualFullDayCount);
 
-				// ═══ ساخت آرایه‌ی روزها ═══
 				const assignment = Array.from({ length: daysCount }, () => []);
 
 				selectedFullDay.sort((a, b) => (b.duration || 60) - (a.duration || 60));
@@ -1300,9 +1287,7 @@
 					});
 				}
 
-				// ═══════════════════════════════════════════════════════════
-				// 🎨 مرحله ۱: Round-Robin برای تنوع دسته‌بندی
-				// ═══════════════════════════════════════════════════════════
+				// ═══ مرحله ۱: Round-Robin ═══
 				const byCat = {};
 				otherPlaces.forEach(p => {
 					const cat = p.category || 'سایر';
@@ -1319,7 +1304,6 @@
 
 				if (logFn) logFn(`🎨 ترتیب دسته‌ها: ${catOrder.join(' → ')}`);
 
-				// ═══ Round-Robin: یکی از هر دسته، تکرار ═══
 				const roundRobinPlaces = [];
 				let hasMore = true;
 				let round = 0;
@@ -1338,9 +1322,7 @@
 					logFn(`🔄 Round-Robin: ${roundRobinPlaces.slice(0, 10).map(p => `${p.name}(${p.category})`).join(' → ')}`);
 				}
 
-				// ═══════════════════════════════════════════════════════════
-				// 🎯 مرحله ۲: تخصیص با اولویت تنوع، بعد تعادل، بعد فاصله
-				// ═══════════════════════════════════════════════════════════
+				// ═══ مرحله ۲: تخصیص با اولویت تنوع ═══
 				roundRobinPlaces.forEach((p, idx) => {
 					const placeTime = (p.duration || 60) + BREAK_TIME;
 					let bestDay = -1;
@@ -1352,7 +1334,6 @@
 						let dayTime = day.reduce((s, x) => s + (x.duration || 60) + BREAK_TIME, 0);
 						if (day.length > 0) dayTime += LUNCH_TIME;
 
-						// چک maxCompanions
 						const mainPlace = day[0];
 						if (mainPlace) {
 							const mainPolicy = getPlacePolicy(mainPlace);
@@ -1360,14 +1341,12 @@
 							if (companionCount >= mainPolicy.maxCompanions) return;
 						}
 
-						// چک سقف زمانی
 						const newTime = dayTime + placeTime;
 						if (newTime > userDayMinutes) return;
 
-						// ═══ محاسبه‌ی امتیاز ═══
 						let score = 0;
 
-						// 🥇 اولویت ۱: تنوع دسته (بالاترین وزن)
+						// 🥇 اولویت ۱: تنوع دسته
 						const sameCatCount = day.filter(x => x.category === p.category).length;
 						score -= sameCatCount * 100;
 
@@ -1375,7 +1354,7 @@
 						const dayUsedRatio = dayTime / userDayMinutes;
 						score += (1 - dayUsedRatio) * 50;
 
-						// 🥉 اولویت ۳: فاصله (کمترین وزن)
+						// 🥉 اولویت ۳: فاصله
 						if (day.length > 0) {
 							const minDist = Math.min(...day.map(existing =>
 								calcDistance(p.lat, p.lng, existing.lat, existing.lng)
@@ -1394,7 +1373,6 @@
 						}
 					});
 
-					// Fallback: اگه هیچ روزی جا نشد، فقط چک زمانی
 					if (bestDay === -1) {
 						let minUsed = Infinity;
 						assignment.forEach((day, i) => {
@@ -1418,9 +1396,7 @@
 					}
 				});
 
-				// ═══════════════════════════════════════════════════════════
-				// 🎨 مرحله ۳: مرتب‌سازی نهایی هر روز با Round-Robin
-				// ═══════════════════════════════════════════════════════════
+				// ═══ مرحله ۳: مرتب‌سازی نهایی هر روز ═══
 				const finalAssignment = assignment.map(day => {
 					if (day.length <= 1) return day;
 
@@ -1766,7 +1742,6 @@
 				if (!sel.length) { alert('لطفاً حداقل یک علاقه‌مندی انتخاب کنید.'); return; }
 				if (!tripStart || !tripEnd) { alert('لطفاً تاریخ سفر را انتخاب کنید.'); return; }
 
-				// ✅ آماده‌سازی آرایه‌ی مدت زمان‌ها
 				const totalDays = tripEnd.jdn - tripStart.jdn + 1;
 				const dailyDurationsArr = [];
 				for (let d = 0; d < totalDays; d++) {
