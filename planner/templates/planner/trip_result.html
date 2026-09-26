@@ -1,0 +1,193 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_plan_mode %}{{ plan.name }}{% else %}برنامه سفر شما{% endif %} | سفر به دزفول{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'css/pages/trip-result.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<script>
+    window.PLACES_IN_TRIP = {{ places_json|safe }};
+    window.IS_PLAN_MODE = {{ is_plan_mode|yesno:"true,false" }};
+</script>
+
+<section class="trip-result-page">
+    <div class="container">
+
+        <!-- Header -->
+        <div class="trip-result-header">
+            {% if is_plan_mode %}
+            <span class="badge"><i class="fas fa-star"></i> پلن پیشنهادی</span>
+            <h1>{{ plan.name }}</h1>
+            <p>{{ plan.description }}</p>
+            {% else %}
+            <span class="badge"><i class="fas fa-check-circle"></i> برنامه شما آماده شد</span>
+            <h1>سفر شما به دزفول</h1>
+            <p>برنامه‌ای که هوش مصنوعی بر اساس سلیقه‌ات ساخته</p>
+            {% endif %}
+        </div>
+
+        <!-- Info Cards -->
+        <div class="trip-result-info">
+            <div class="trip-info-card">
+                <div class="info-icon green"><i class="fas fa-calendar-check"></i></div>
+                <div>
+                    <div class="info-label">
+                        {% if is_plan_mode %}مدت پلن{% else %}تاریخ سفر{% endif %}
+                    </div>
+                    <div class="info-value">
+                        {% if is_plan_mode %}
+                            {{ trip.duration_days }} روز
+                        {% else %}
+                            {% if start_jalali %}{{ start_jalali.year }}/{{ start_jalali.month }}/{{ start_jalali.day }}{% endif %}
+                            تا
+                            {% if end_jalali %}{{ end_jalali.year }}/{{ end_jalali.month }}/{{ end_jalali.day }}{% endif %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="trip-info-card">
+                <div class="info-icon orange"><i class="fas fa-hourglass-half"></i></div>
+                <div>
+                    <div class="info-label">مدت سفر</div>
+                    <div class="info-value">{{ trip.duration_days }} روز</div>
+                </div>
+            </div>
+            <div class="trip-info-card">
+                <div class="info-icon pink"><i class="fas fa-users"></i></div>
+                <div>
+                    <div class="info-label">همراهان</div>
+                    <div class="info-value">{{ trip.companions }} نفر</div>
+                </div>
+            </div>
+            <div class="trip-info-card">
+                <div class="info-icon blue"><i class="fas fa-map-marked-alt"></i></div>
+                <div>
+                    <div class="info-label">تعداد جاذبه‌ها</div>
+                    <div class="info-value">{{ places_in_trip|length }} مورد</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Warnings -->
+        {% if not is_plan_mode %}
+            {% if empty_categories or low_categories %}
+            <div class="plan-warnings-box">
+                <div class="pw-header">
+                    <i class="fas fa-info-circle"></i>
+                    <span>توجه به نکات زیر برنامه شما رو بهتر می‌کنه</span>
+                </div>
+                <div class="pw-body">
+                    {% for lc in low_categories %}
+                    <div class="pw-item pw-warn">
+                        <span class="pw-icon"><i class="fas fa-exclamation-triangle"></i></span>
+                        <div>
+                            <strong>«{{ lc.name }}»</strong>
+                            <span>
+                                فقط <b>{{ lc.count }}</b> جاذبه در این دسته داریم.
+                                برای تکمیل برنامه، جاذبه‌های مشابه از دسته‌های دیگر اضافه شدند.
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+
+                    {% for ec in empty_categories %}
+                    <div class="pw-item pw-error">
+                        <span class="pw-icon"><i class="fas fa-times-circle"></i></span>
+                        <div>
+                            <strong>«{{ ec }}»</strong>
+                            <span>
+                                در حال حاضر هیچ جاذبه‌ای در این دسته ثبت نشده است.
+                                برنامه شما بر اساس سایر علاقه‌مندی‌ها ساخته شد.
+                            </span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        {% endif %}
+
+        <!-- Main Layout -->
+        <div class="trip-result-layout">
+
+            <!-- Sidebar -->
+            <div class="trip-result-sidebar">
+                <div class="planner-hero">
+                    <div class="ph-title">
+                        <img src="{% static 'img/slide4.jpg' %}" alt="" class="ph-thumb">
+                        <div>
+                            <h3>{% if is_plan_mode %}{{ plan.name }}{% else %}دزفول{% endif %}</h3>
+                            <span>{{ trip.duration_days }} روز - {{ trip.companions }} نفر</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="planner-tabs" id="plannerTabs"></div>
+                <div class="planner-days" id="plannerDays"></div>
+            </div>
+
+            <!-- Map -->
+            <div class="trip-result-map-wrap">
+                <div id="resultMap"></div>
+                <div class="map-day-chips" id="mapDayChips"></div>
+
+                <button class="map-layer-btn" id="mapLayerBtn" title="لایه‌های نقشه">
+                    <i class="fas fa-layer-group"></i>
+                </button>
+
+                <div class="layer-switcher" id="layerSwitcher">
+                    <button data-layer="street" class="active"><i class="fas fa-road"></i> خیابان</button>
+                    <button data-layer="sat"><i class="fas fa-satellite"></i> ماهواره</button>
+                    <button data-layer="terrain"><i class="fas fa-mountain"></i> زمین</button>
+                    <button data-layer="dark"><i class="fas fa-moon"></i> شب</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Actions -->
+        <div class="trip-actions">
+            {% if not is_plan_mode %}
+            <a href="{% url 'planner:plan' %}" class="trip-action-btn secondary">
+                <i class="fas fa-plus-circle"></i> برنامه جدید
+            </a>
+            {% else %}
+            <a href="{% url 'planner:plan' %}" class="trip-action-btn secondary">
+                <i class="fas fa-magic"></i> ساخت برنامه شخصی
+            </a>
+            {% endif %}
+
+            {% if is_plan_mode %}
+            <a href="{% url 'core:map' %}?plan={{ plan.id }}" class="trip-action-btn primary">
+                <i class="fas fa-map"></i> مشاهده روی نقشه کامل
+            </a>
+            {% elif trip.id %}
+            <a href="{% url 'core:map' %}?trip={{ trip.id }}" class="trip-action-btn primary">
+                <i class="fas fa-map"></i> مشاهده روی نقشه کامل
+            </a>
+            {% else %}
+            <a href="{% url 'core:map' %}" class="trip-action-btn primary">
+                <i class="fas fa-map"></i> مشاهده روی نقشه کامل
+            </a>
+            {% endif %}
+
+            <button class="trip-action-btn orange" onclick="window.print()">
+                <i class="fas fa-print"></i> چاپ برنامه
+            </button>
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}
+
+{% block legacy_js %}{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,50 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}سفر به دزفول{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}سیستم هوشمند پیشنهاددهنده‌ی گردشگری ویژه‌ی شهرستان دزفول{% endblock %}">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+
+<body class="{% block body_class %}{% endblock %}"
+      data-user-authenticated="{% if user.is_authenticated %}true{% else %}false{% endif %}"
+      {% block body_data %}{% endblock %}>
+
+    {% block navbar %}
+        {% include 'partials/navbar.html' %}
+    {% endblock %}
+
+    {% block messages %}
+        {% include 'partials/messages.html' %}
+    {% endblock %}
+
+    <main class="{% block main_class %}{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block footer %}
+        {% include 'partials/footer.html' %}
+    {% endblock %}
+
+    {% include 'partials/scroll_top.html' %}
+
+    {# ═══ JavaScript سراسری ═══ #}
+    <script type="module" src="{% static 'js/main.js' %}"></script>
+
+    {# ═══ JavaScript اختصاصی هر صفحه ═══ #}
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

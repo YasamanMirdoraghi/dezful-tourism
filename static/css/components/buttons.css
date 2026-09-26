@@ -1,0 +1,43 @@
+/* ═══════════════════════════════════════════════════════════
+   buttons.css — دکمه‌ها (کپی از style.css)
+   ═══════════════════════════════════════════════════════════ */
+
+.btn-outline {
+    border: 2px solid var(--primary-green);
+    color: var(--primary-green);
+    padding: 8px 20px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: 0.2s;
+    background: transparent;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-outline:hover {
+    background: var(--primary-green);
+    color: #fff;
+}
+
+.btn-primary {
+    background: var(--primary-green);
+    color: #fff;
+    padding: 8px 22px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    border: 2px solid var(--primary-green);
+    transition: 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-primary:hover {
+    background: var(--primary-green-light);
+    border-color: var(--primary-green-light);
+}

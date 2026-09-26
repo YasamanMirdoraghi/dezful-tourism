@@ -1,0 +1,12 @@
+
+
+{% if messages %}
+<div class="messages-stack">
+    {% for message in messages %}
+    <div class="site-message {{ message.tags }}">
+        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'error' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}

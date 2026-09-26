@@ -1,0 +1,199 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ثبت‌نام | سفر به دزفول{% endblock %}
+
+{% block body_class %}register-page{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/register.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="register-bg"></div>
+
+<header class="navbar" id="navbar">
+    <div class="logo">
+        <i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
+    </div>
+
+    <ul class="nav-links" id="navLinks">
+        <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> خانه</a>
+        <a href="{% url 'planner:plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+        <a href="{% url 'places:attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+        <a href="{% url 'core:map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+        <a href="{% url 'articles:articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+        <a href="{% url 'core:contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
+    </ul>
+
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+        <span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
+        <a href="{% url 'accounts:logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn-primary"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+        <a href="{% url 'accounts:login' %}" class="btn-outline"><i class="fas fa-sign-in-alt"></i> ورود</a>
+        {% endif %}
+    </div>
+
+    <button class="hamburger" id="hamburgerBtn" aria-label="منو">
+        <i class="fas fa-bars"></i>
+    </button>
+</header>
+
+<main class="register-main">
+    <div class="register-main-inner">
+        <div class="register-container">
+            <div class="register-info">
+
+                <h2 class="register-headline">
+                    به خانواده سفر به <br> <span>دزفول خوش آمدید!</span>
+                </h2>
+
+                <p class="register-desc">
+                    اینجا، تاریخ و طبیعت در کنار هم، تجربه‌های فراموش‌نشدنی<br>
+                    برای شما می‌سازند...
+                </p>
+
+                <div class="register-features">
+                    <div class="register-feature">
+                        <div class="register-feature-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <span>جاذبه‌های<br>گردشگری و تاریخی</span>
+                    </div>
+                    <div class="register-feature">
+                        <div class="register-feature-icon"><i class="fas fa-mountain"></i></div>
+                        <span>طبیعت بکر<br>و زیبا</span>
+                    </div>
+                    <div class="register-feature">
+                        <div class="register-feature-icon"><i class="fas fa-shield-alt"></i></div>
+                        <span>تجربه سفر<br>امن و راحت</span>
+                    </div>
+                    <div class="register-feature">
+                        <div class="register-feature-icon"><i class="fas fa-heart"></i></div>
+                        <span>پشتیبانی<br>همیشه همراه</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="register-card">
+
+                <div class="register-card-header">
+                    <div class="register-icon-top">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h2 class="register-title">ثبت‌نام در سفر به دزفول</h2>
+                    <p class="register-subtitle">
+                        برای شروع یک سفر هیجان‌انگیز، اطلاعات خود را وارد کنید.
+                    </p>
+                </div>
+
+                {% if messages %}
+                <div style="margin-bottom: 14px;">
+                    {% for message in messages %}
+                    <div class="site-message {{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="register-success-msg">
+                    <i class="fas fa-check-circle"></i>
+                    <span>به جمع ما بپیوندید و از امکانات ویژه بهره‌مند شوید.</span>
+                </div>
+
+                <form method="post" class="register-form">
+                    {% csrf_token %}
+
+                    <div class="register-form-row">
+                        <div class="register-field">
+                            <label><i class="fas fa-user"></i> نام <span class="required">*</span></label>
+                            <div class="register-input-wrap">
+                                <input name="first_name" value="{{ request.POST.first_name|default:'' }}" required placeholder="نام خود را وارد کنید">
+                            </div>
+                        </div>
+                        <div class="register-field">
+                            <label><i class="fas fa-user"></i> نام خانوادگی</label>
+                            <div class="register-input-wrap">
+                                <input name="last_name" value="{{ request.POST.last_name|default:'' }}" placeholder="نام خانوادگی خود را وارد کنید">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="register-form-row">
+                        <div class="register-field">
+                            <label><i class="fas fa-envelope"></i> ایمیل <span class="required">*</span></label>
+                            <div class="register-input-wrap">
+                                <input type="email" name="email" value="{{ request.POST.email|default:'' }}" placeholder="example@domain.com">
+                            </div>
+                        </div>
+                        <div class="register-field">
+                            <label><i class="fas fa-phone"></i> شماره موبایل</label>
+                            <div class="register-input-wrap">
+                                <input name="phone" value="{{ request.POST.phone|default:'' }}" placeholder="۰۹۲۳۴۵۶۷۸۹">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="register-field">
+                        <label><i class="fas fa-at"></i> نام کاربری <span class="required">*</span></label>
+                        <div class="register-input-wrap">
+                            <input name="username" value="{{ request.POST.username|default:'' }}" required placeholder="نام کاربری خود را وارد کنید">
+                        </div>
+                    </div>
+
+                    <div class="register-form-row">
+                        <div class="register-field">
+                            <label><i class="fas fa-lock"></i> رمز عبور <span class="required">*</span></label>
+                            <div class="register-input-wrap">
+                                <input type="password" name="password" id="password" required placeholder="رمز عبور را وارد کنید">
+                                <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                    <i class="fas fa-eye" id="password-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="register-field">
+                            <label><i class="fas fa-shield-halved"></i> تکرار رمز عبور <span class="required">*</span></label>
+                            <div class="register-input-wrap">
+                                <input type="password" name="password2" id="password2" required placeholder="رمز عبور را دوباره وارد کنید">
+                                <button type="button" class="password-toggle" onclick="togglePassword('password2')">
+                                    <i class="fas fa-eye" id="password2-icon"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="register-submit" type="submit">
+                        <span>ثبت‌نام</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                </form>
+
+                <div class="register-divider">یا</div>
+
+                <p class="register-switch">
+                    قبلاً ثبت‌نام کرده‌اید؟ <a href="{% url 'accounts:login' %}">وارد شوید</a>
+                </p>
+
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<div class="register-deco-logo">
+    <i class="fas fa-heart"></i>
+    <span>دزفول، شهر دزفول</span>
+</div>
+
+{% endblock %}
+{% block legacy_js %}{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% endblock %}

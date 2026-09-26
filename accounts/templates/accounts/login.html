@@ -1,0 +1,166 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}ورود | سفر به دزفول{% endblock %}
+
+{% block body_class %}login-page{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/login.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="login-bg"></div>
+
+<header class="navbar" id="navbar">
+    <div class="logo">
+        <i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
+    </div>
+
+    <ul class="nav-links" id="navLinks">
+        <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> خانه</a>
+        <a href="{% url 'planner:plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
+        <a href="{% url 'places:attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
+        <a href="{% url 'core:map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
+        <a href="{% url 'articles:articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
+        <a href="{% url 'core:contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
+    </ul>
+
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+        <span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
+        <a href="{% url 'accounts:logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn-primary"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
+        <a href="{% url 'accounts:login' %}" class="btn-outline"><i class="fas fa-sign-in-alt"></i> ورود</a>
+        {% endif %}
+    </div>
+
+    <button class="hamburger" id="hamburgerBtn" aria-label="منو">
+        <i class="fas fa-bars"></i>
+    </button>
+</header>
+
+<main class="login-main">
+    <div class="login-main-inner">
+        <div class="login-container">
+            <div class="login-info">
+
+                <h2 class="login-headline">
+                    دوباره به <br> <span>دزفول برگرد!</span>
+                </h2>
+
+                <p class="login-desc">
+                    وارد حساب خود شو و سفرهای ذخیره‌شده و برنامه‌های شخصی‌ات را ادامه بده...
+                </p>
+
+                <div class="login-features">
+                    <div class="login-feature">
+                        <div class="login-feature-icon"><i class="fas fa-route"></i></div>
+                        <span>ادامه سفرهای<br>ذخیره‌شده</span>
+                    </div>
+                    <div class="login-feature">
+                        <div class="login-feature-icon"><i class="fas fa-heart"></i></div>
+                        <span>جاذبه‌های<br>موردعلاقه</span>
+                    </div>
+                    <div class="login-feature">
+                        <div class="login-feature-icon"><i class="fas fa-history"></i></div>
+                        <span>تاریخچه<br>برنامه‌ها</span>
+                    </div>
+                    <div class="login-feature">
+                        <div class="login-feature-icon"><i class="fas fa-user-circle"></i></div>
+                        <span>پروفایل<br>شخصی</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="login-card">
+
+                <div class="login-card-header">
+                    <div class="login-icon-top">
+                        <i class="fas fa-sign-in-alt"></i>
+                    </div>
+                    <h2 class="login-title">ورود به حساب کاربری</h2>
+                    <p class="login-subtitle">
+                        خوش برگشتی! نام کاربری و رمز عبورت را وارد کن.
+                    </p>
+                </div>
+
+                {% if messages %}
+                <div style="margin-bottom: 14px;">
+                    {% for message in messages %}
+                    <div class="site-message {{ message.tags }}">
+                        <i class="fas fa-{% if message.tags == 'success' %}check-circle{% else %}exclamation-circle{% endif %}"></i>
+                        {{ message }}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <div class="login-success-msg">
+                    <i class="fas fa-check-circle"></i>
+                    <span>خوشحالیم که دوباره می‌بینیمت!</span>
+                </div>
+
+                <form method="post" class="login-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="next" value="{{ next }}">
+
+                    {% if form.errors %}
+                    <div class="site-message error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        نام کاربری یا رمز عبور اشتباه است!
+                    </div>
+                    {% endif %}
+
+                    <div class="login-field">
+                        <label><i class="fas fa-user"></i> نام کاربری <span class="required">*</span></label>
+                        <div class="login-input-wrap">
+                            <input name="username" required autofocus placeholder="نام کاربری خود را وارد کنید">
+                        </div>
+                    </div>
+
+                    <div class="login-field">
+                        <label><i class="fas fa-lock"></i> رمز عبور <span class="required">*</span></label>
+                        <div class="login-input-wrap">
+                            <input type="password" name="password" id="password" required placeholder="رمز عبور را وارد کنید">
+                            <button type="button" class="password-toggle" onclick="togglePassword('password')">
+                                <i class="fas fa-eye" id="password-icon"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button class="login-submit" type="submit">
+                        <span>ورود به حساب</span>
+                        <i class="fas fa-arrow-left"></i>
+                    </button>
+                </form>
+
+                <div class="login-divider">یا</div>
+
+                <p class="login-switch">
+                    حساب نداری؟ <a href="{% url 'accounts:register' %}">ثبت‌نام کن</a>
+                </p>
+
+            </div>
+
+        </div>
+    </div>
+</main>
+
+<div class="login-deco-logo">
+    <i class="fas fa-heart"></i>
+    <span>دزفول، شهر دزفول</span>
+</div>
+
+{% endblock %}
+
+{% block legacy_js %}{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% endblock %}

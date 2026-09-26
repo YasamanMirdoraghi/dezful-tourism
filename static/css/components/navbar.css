@@ -1,0 +1,361 @@
+/* ═══════════════════════════════════════════════════════════
+   navbar.css — نوبار + منوی موبایل + همبرگر
+   ═══════════════════════════════════════════════════════════ */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background-color: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.05);
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.logo {
+    font-size: 24px;
+    font-weight: 900;
+    color: var(--primary-green);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    animation: logoFloat 3s ease-in-out infinite;
+    cursor: default;
+}
+
+.logo i {
+    color: var(--brick-orange);
+    display: inline-block;
+    animation: iconRotate 4s ease-in-out infinite;
+}
+
+.logo span {
+    color: var(--brick-orange);
+}
+
+.nav-links {
+    display: flex;
+    gap: 32px;
+    font-weight: 500;
+    font-size: 16px;
+    align-items: center;
+}
+
+.nav-links a {
+    position: relative;
+    padding: 6px 0;
+    color: var(--brown-text);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+    opacity: 0;
+    animation: slideDown 0.5s ease forwards;
+}
+
+.nav-links a:nth-child(1) { animation-delay: 0.05s; }
+.nav-links a:nth-child(2) { animation-delay: 0.10s; }
+.nav-links a:nth-child(3) { animation-delay: 0.15s; }
+.nav-links a:nth-child(4) { animation-delay: 0.20s; }
+.nav-links a:nth-child(5) { animation-delay: 0.25s; }
+
+.nav-links a::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-green-light);
+    transition: width 0.3s ease;
+}
+
+.nav-links a:hover::after {
+    width: 100%;
+}
+
+.nav-links a:hover {
+    color: var(--primary-green);
+    text-shadow: 0 0 8px rgba(17, 139, 113, 0.2);
+}
+
+.nav-links a i {
+    transition: transform 0.3s ease;
+}
+
+.nav-links a:hover i {
+    transform: scale(1.2) rotate(-8deg);
+}
+
+.nav-links a.active {
+    color: var(--primary-green);
+    font-weight: 700;
+}
+
+.nav-links a.active::after {
+    width: 100%;
+}
+
+/* دکمه‌های ثبت‌نام و ورود */
+.auth-buttons {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.btn-outline {
+    border: 2px solid var(--primary-green);
+    color: var(--primary-green);
+    padding: 8px 20px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    transition: 0.2s;
+    background: transparent;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-outline:hover {
+    background: var(--primary-green);
+    color: #fff;
+}
+
+.btn-primary {
+    background: var(--primary-green);
+    color: #fff;
+    padding: 8px 22px;
+    border-radius: 40px;
+    font-weight: 700;
+    font-size: 14px;
+    border: 2px solid var(--primary-green);
+    transition: 0.2s;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.btn-primary:hover {
+    background: var(--primary-green-light);
+    border-color: var(--primary-green-light);
+}
+
+/* ═══ نمایش لینک پروفایل (nav-user) ═══ */
+.nav-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 30px;
+    background: rgba(17, 139, 113, 0.06);
+    color: var(--primary-green);
+    font-weight: 700;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    border: 1.5px solid transparent;
+}
+
+.nav-user:hover {
+    background: rgba(17, 139, 113, 0.12);
+    border-color: var(--primary-green);
+    transform: translateY(-2px);
+    color: var(--primary-green);
+}
+
+.nav-user i {
+    font-size: 16px;
+}
+
+/* دکمه همبرگری */
+.hamburger {
+    display: none;
+    font-size: 26px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--brown-text);
+    transition: transform 0.3s ease;
+    padding: 4px;
+    z-index: 1001;
+}
+
+.hamburger:hover {
+    transform: scale(1.1);
+}
+
+/* المان‌های موبایل (در حالت پیش‌فرض مخفی) */
+.auth-mobile,
+.close-menu-btn {
+    display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   ریسپانسیو — موبایل
+   ═══════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+
+    .hamburger {
+        display: block;
+    }
+
+    .auth-buttons .btn-outline,
+    .auth-buttons .btn-primary,
+    .auth-buttons .nav-user {
+        display: none;
+    }
+
+    .nav-links {
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        align-items: stretch;
+        background: rgba(255, 255, 255, 0.98);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 75%;
+        max-width: 340px;
+        height: 100vh;
+        padding: 80px 24px 30px;
+        box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
+        transform: translateX(100%);
+        transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        z-index: 999;
+        overflow-y: auto;
+        border-left: 1px solid rgba(0, 0, 0, 0.04);
+    }
+
+    .nav-links.active {
+        transform: translateX(0);
+    }
+
+    .nav-links .close-menu-btn {
+        display: flex;
+        position: absolute;
+        top: 16px;
+        left: 20px;
+        background: none;
+        border: none;
+        font-size: 28px;
+        color: var(--brown-text);
+        cursor: pointer;
+        padding: 4px;
+        transition: 0.2s;
+        z-index: 10;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+    }
+
+    .nav-links .close-menu-btn:hover {
+        transform: rotate(90deg);
+    }
+
+    .nav-links a {
+        padding: 14px 0;
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--brown-text);
+        border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+        animation: none;
+        opacity: 1;
+    }
+
+    .nav-links a::after {
+        display: none;
+    }
+
+    .nav-links a:hover {
+        color: var(--primary-green);
+    }
+
+    .nav-links a:last-child {
+        border-bottom: none;
+    }
+
+    .nav-links a.active {
+        color: var(--primary-green);
+        font-weight: 700;
+        border-right: 3px solid var(--primary-green);
+        padding-right: 10px;
+    }
+
+    .nav-links .auth-mobile {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-top: 16px;
+        padding-top: 12px;
+        border-top: 2px solid rgba(17, 139, 113, 0.08);
+    }
+
+    .nav-links .auth-mobile a {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        width: 100%;
+        padding: 8px 0;
+        font-size: 14px;
+        font-weight: 700;
+        border-radius: 40px;
+        text-decoration: none;
+        border-bottom: none;
+        transition: 0.2s;
+    }
+
+    .nav-links .auth-mobile .btn-outline-mobile {
+        border: 2px solid var(--primary-green);
+        color: var(--primary-green);
+        background: transparent;
+    }
+
+    .nav-links .auth-mobile .btn-outline-mobile:hover {
+        background: var(--primary-green);
+        color: #fff;
+    }
+
+    .nav-links .auth-mobile .btn-primary-mobile {
+        background: var(--primary-green);
+        color: #fff;
+        border: 2px solid var(--primary-green);
+    }
+
+    .nav-links .auth-mobile .btn-primary-mobile:hover {
+        background: var(--primary-green-light);
+        border-color: var(--primary-green-light);
+    }
+
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.35);
+        backdrop-filter: blur(2px);
+        z-index: 998;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+}

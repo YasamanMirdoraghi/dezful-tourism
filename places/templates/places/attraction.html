@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}جاذبه‌های گردشگری دزفول{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/attraction.css' %}">
+{% endblock %}
+
+{% block content %}
+
+{# داده‌های جاذبه‌ها برای JS #}
+<script>
+    window.PLACES_DATA = {{ places_json|safe }};
+</script>
+
+<!-- اسلایدر مجله -->
+<section class="section-magazine-slider" id="magazineSlider"
+    style="background-image: url('{% static 'img/slide1.webp' %}'); background-size: cover; background-position: center; background-attachment: fixed; transition: background-image 0.8s ease;">
+    <div class="container">
+        <div class="slider-header">
+            <span class="slider-title">
+                <i class="fas fa-newspaper"></i>
+                مجله <span class="highlight">جاذبه‌های</span> دزفول
+            </span>
+        </div>
+        <div class="slider-container-mag" id="sliderContainerMag">
+            <div class="slides-track-mag" id="slidesTrackMag">
+                {% for place in places|slice:":6" %}
+                <div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                    <div class="slide-bg-blur" style="background-image: url('{% static 'img/' %}{{ place.slug }}.jpg');"></div>
+                    <div class="slide-image-mag">
+                        <img src="{% static 'img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}"
+                            style="width:100%; height:100%; object-fit:cover;"
+                            onerror="this.onerror=null; this.src='{% static 'img/' %}{{ place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+                    </div>
+
+                    <div class="slide-content-mag">
+                        <span class="slide-badge-mag">{{ place.category.name|default:'جاذبه' }}</span>
+                        <h2 class="slide-title-mag">{{ place.name }}</h2>
+                        <p class="slide-desc-mag">
+                            {% if place.short_description %}
+                            {{ place.short_description }}
+                            {% else %}
+                            مطالعه این جاذبه را به شما پیشنهاد می‌کنیم.
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'places:place_detail' place.slug %}" class="slide-link-mag">
+                            مشاهده جزئیات
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="slide-mag active">
+                    <div class="slide-content-mag">
+                        <span class="slide-badge-mag">جاذبه</span>
+                        <h2 class="slide-title-mag">جاذبه‌ای یافت نشد</h2>
+                        <p class="slide-desc-mag">به زودی جاذبه‌های جدید اضافه می‌شوند.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="slider-footer-mag">
+            <div class="slide-list-horizontal-mag" id="slideListHorizontalMag">
+                {% for place in places|slice:":6" %}
+                <div class="list-item-h-mag {% if forloop.first %}active-item-h-mag{% endif %}"
+                    data-index="{{ forloop.counter0 }}">
+                    <div class="list-item-h-top-mag">
+                        <span class="list-item-h-title-mag">{{ place.name|truncatechars:25 }}</span>
+                    </div>
+                    <div class="list-item-h-progress-mag">
+                        <div class="progress-fill-h-mag" id="progress-h-mag-{{ forloop.counter0 }}"
+                            style="width: 0%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="attractions-main">
+    <div class="container">
+        <div class="attractions-layout">
+
+            <aside class="filter-sidebar" id="filterSidebar">
+                <div class="filter-sidebar-header">
+                    <h3><i class="fas fa-sliders-h"></i> فیلترها</h3>
+                    <button class="clear-all-btn d-none" id="clearAllBtn">
+                        حذف فیلترها
+                    </button>
+                </div>
+
+                <div class="sidebar-search">
+                    <input type="text" id="searchInput" placeholder="جستجو در جاذبه‌ها ...">
+                    <i class="fas fa-search"></i>
+                </div>
+
+                <div id="treeFilters">
+                    {% for cat in categories %}
+                    <details class="filter-group" {% if forloop.first %}open{% endif %}>
+                        <summary class="filter-group-title">
+                            {{ cat.name }}
+                        </summary>
+                        <div class="filter-sub-group">
+                            {% for child in cat.children.all %}
+                            <label class="filter-item">
+                                <input type="checkbox" data-filter="subcategory" value="{{ child.name }}">
+                                {{ child.name }}
+                                <span class="count">{{ child.places.count }}</span>
+                            </label>
+                            {% empty %}
+                            <label class="filter-item">
+                                <input type="checkbox" data-filter="category" value="{{ cat.name }}">
+                                {{ cat.name }}
+                                <span class="count">{{ cat.places.count }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </details>
+                    {% endfor %}
+                </div>
+
+                <details class="filter-group" open>
+                    <summary class="filter-group-title">هزینه ورودی</summary>
+                    <div class="filter-sub-group">
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="cost" value="free"> رایگان
+                            <span class="count" id="freeCount"></span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="cost" value="paid"> دارای هزینه
+                            <span class="count" id="paidCount"></span>
+                        </label>
+                    </div>
+                </details>
+
+            </aside>
+
+            <div class="attractions-grid-section">
+                <div class="attractions-grid-header">
+                    <h2>جاذبه‌های گردشگری دزفول</h2>
+                    <span id="resultCount"></span>
+                </div>
+
+                <div class="attractions-grid" id="attractionsGrid"></div>
+
+                <div class="pagination" id="paginationContainer"></div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block legacy_js %}{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% endblock %}

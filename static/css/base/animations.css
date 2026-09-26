@@ -1,0 +1,21 @@
+/* ═══════════════════════════════════════════════════════════
+   animations.css — انیمیشن‌های عمومی (از style.css)
+   ═══════════════════════════════════════════════════════════ */
+
+@keyframes logoFloat {
+    0%   { transform: translateY(0) scale(1); }
+    50%  { transform: translateY(-4px) scale(1.02); }
+    100% { transform: translateY(0) scale(1); }
+}
+
+@keyframes iconRotate {
+    0%   { transform: rotate(0deg); }
+    25%  { transform: rotate(-8deg); }
+    75%  { transform: rotate(8deg); }
+    100% { transform: rotate(0deg); }
+}
+
+@keyframes slideDown {
+    0%   { opacity: 0; transform: translateY(-20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}

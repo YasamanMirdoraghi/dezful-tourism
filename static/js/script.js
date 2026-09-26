@@ -1,381 +1,381 @@
-// ==========================================================
-// سیستم هوشمند پیشنهاددهنده گردشگری دزفول
-// فایل: script.js
-// دانشگاه صنعتی جندی شاپور دزفول - پروژه کارشناسی
-// ==========================================================
+// // ==========================================================
+// // سیستم هوشمند پیشنهاددهنده گردشگری دزفول
+// // فایل: script.js
+// // دانشگاه صنعتی جندی شاپور دزفول - پروژه کارشناسی
+// // ==========================================================
 
-// ----- مدیریت منوی همبرگری -----
-const hamburger = document.getElementById('hamburgerBtn');
-const navLinks = document.getElementById('navLinks');
-const overlay = document.getElementById('menuOverlay');
-const closeBtn = document.getElementById('closeMenuBtn');
+// // ----- مدیریت منوی همبرگری -----
+// const hamburger = document.getElementById('hamburgerBtn');
+// const navLinks = document.getElementById('navLinks');
+// const overlay = document.getElementById('menuOverlay');
+// const closeBtn = document.getElementById('closeMenuBtn');
 
-function toggleMenu() {
-	const isOpen = navLinks.classList.toggle('active');
-	overlay.classList.toggle('active', isOpen);
-	document.body.style.overflow = isOpen ? 'hidden' : '';
-}
+// function toggleMenu() {
+// 	const isOpen = navLinks.classList.toggle('active');
+// 	overlay.classList.toggle('active', isOpen);
+// 	document.body.style.overflow = isOpen ? 'hidden' : '';
+// }
 
-if (hamburger) hamburger.addEventListener('click', toggleMenu);
-if (closeBtn) closeBtn.addEventListener('click', e => {
-	e.stopPropagation();
-	if (navLinks.classList.contains('active')) toggleMenu();
-});
-if (overlay) overlay.addEventListener('click', () => {
-	if (navLinks.classList.contains('active')) toggleMenu();
-});
+// if (hamburger) hamburger.addEventListener('click', toggleMenu);
+// if (closeBtn) closeBtn.addEventListener('click', e => {
+// 	e.stopPropagation();
+// 	if (navLinks.classList.contains('active')) toggleMenu();
+// });
+// if (overlay) overlay.addEventListener('click', () => {
+// 	if (navLinks.classList.contains('active')) toggleMenu();
+// });
 
-// بستن خودکار منو هنگام کلیک روی لینک‌ها در موبایل
-document.querySelectorAll('.nav-links a').forEach(link => {
-	link.addEventListener('click', function (e) {
-		if (window.innerWidth <= 768) {
-			document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
-			this.classList.add('active');
-			if (navLinks.classList.contains('active')) toggleMenu();
-		}
-	});
-});
+// // بستن خودکار منو هنگام کلیک روی لینک‌ها در موبایل
+// document.querySelectorAll('.nav-links a').forEach(link => {
+// 	link.addEventListener('click', function (e) {
+// 		if (window.innerWidth <= 768) {
+// 			document.querySelectorAll('.nav-links a').forEach(l => l.classList.remove('active'));
+// 			this.classList.add('active');
+// 			if (navLinks.classList.contains('active')) toggleMenu();
+// 		}
+// 	});
+// });
 
-// ----- اسکرول هدر -----
-const navbar = document.getElementById('navbar');
-if (navbar) {
-	window.addEventListener('scroll', function () {
-		navbar.style.background = window.scrollY > 50 ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.95)';
-		navbar.style.boxShadow = window.scrollY > 50 ? '0 4px 30px rgba(0, 0, 0, 0.08)' : '0 2px 20px rgba(0, 0, 0, 0.05)';
-	});
-}
+// // ----- اسکرول هدر -----
+// const navbar = document.getElementById('navbar');
+// if (navbar) {
+// 	window.addEventListener('scroll', function () {
+// 		navbar.style.background = window.scrollY > 50 ? 'rgba(255, 255, 255, 0.98)' : 'rgba(255, 255, 255, 0.95)';
+// 		navbar.style.boxShadow = window.scrollY > 50 ? '0 4px 30px rgba(0, 0, 0, 0.08)' : '0 2px 20px rgba(0, 0, 0, 0.05)';
+// 	});
+// }
 
-// ==========================================================
-// بخش اسلایدر اصلی هیرو
-// ==========================================================
-const slides = document.querySelectorAll('.slider-slide');
-const dots = document.querySelectorAll('.dot-nav');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const sliderContainer = document.getElementById('sliderContainer');
+// // ==========================================================
+// // بخش اسلایدر اصلی هیرو
+// // ==========================================================
+// const slides = document.querySelectorAll('.slider-slide');
+// const dots = document.querySelectorAll('.dot-nav');
+// const prevBtn = document.getElementById('prevBtn');
+// const nextBtn = document.getElementById('nextBtn');
+// const sliderContainer = document.getElementById('sliderContainer');
 
-if (slides.length > 0 && dots.length > 0 && prevBtn && nextBtn && sliderContainer) {
-	let currentIndex = 0, slideInterval;
+// if (slides.length > 0 && dots.length > 0 && prevBtn && nextBtn && sliderContainer) {
+// 	let currentIndex = 0, slideInterval;
 
-	function goToSlide(index) {
-		slides.forEach(s => s.classList.remove('active'));
-		dots.forEach(d => d.classList.remove('active'));
-		slides[index].classList.add('active');
-		dots[index].classList.add('active');
-		currentIndex = index;
-	}
+// 	function goToSlide(index) {
+// 		slides.forEach(s => s.classList.remove('active'));
+// 		dots.forEach(d => d.classList.remove('active'));
+// 		slides[index].classList.add('active');
+// 		dots[index].classList.add('active');
+// 		currentIndex = index;
+// 	}
 
-	function nextSlide() { goToSlide((currentIndex + 1) % slides.length); }
-	function prevSlide() { goToSlide((currentIndex - 1 + slides.length) % slides.length); }
+// 	function nextSlide() { goToSlide((currentIndex + 1) % slides.length); }
+// 	function prevSlide() { goToSlide((currentIndex - 1 + slides.length) % slides.length); }
 
-	nextBtn.addEventListener('click', () => { nextSlide(); resetInterval(); });
-	prevBtn.addEventListener('click', () => { prevSlide(); resetInterval(); });
-	dots.forEach(dot => dot.addEventListener('click', function () {
-		goToSlide(parseInt(this.dataset.index));
-		resetInterval();
-	}));
+// 	nextBtn.addEventListener('click', () => { nextSlide(); resetInterval(); });
+// 	prevBtn.addEventListener('click', () => { prevSlide(); resetInterval(); });
+// 	dots.forEach(dot => dot.addEventListener('click', function () {
+// 		goToSlide(parseInt(this.dataset.index));
+// 		resetInterval();
+// 	}));
 
-	function startInterval() { slideInterval = setInterval(nextSlide, 5000); }
-	function resetInterval() { clearInterval(slideInterval); startInterval(); }
+// 	function startInterval() { slideInterval = setInterval(nextSlide, 5000); }
+// 	function resetInterval() { clearInterval(slideInterval); startInterval(); }
 
-	startInterval();
-	sliderContainer.addEventListener('mouseenter', () => clearInterval(slideInterval));
-	sliderContainer.addEventListener('mouseleave', startInterval);
-}
+// 	startInterval();
+// 	sliderContainer.addEventListener('mouseenter', () => clearInterval(slideInterval));
+// 	sliderContainer.addEventListener('mouseleave', startInterval);
+// }
 
-// ==========================================================
-// انیمیشن شمارنده آمار (Intersection Observer)
-// ==========================================================
-const statNumbers = document.querySelectorAll('.stat-number');
-if (statNumbers.length > 0) {
-	const counterObserver = new IntersectionObserver((entries) => {
-		entries.forEach(entry => {
-			if (entry.isIntersecting) {
-				const target = parseFloat(entry.target.dataset.target);
-				const isDecimal = target % 1 !== 0;
-				const step = isDecimal ? 0.1 : Math.max(1, target / 60);
-				let current = 0;
+// // ==========================================================
+// // انیمیشن شمارنده آمار (Intersection Observer)
+// // ==========================================================
+// const statNumbers = document.querySelectorAll('.stat-number');
+// if (statNumbers.length > 0) {
+// 	const counterObserver = new IntersectionObserver((entries) => {
+// 		entries.forEach(entry => {
+// 			if (entry.isIntersecting) {
+// 				const target = parseFloat(entry.target.dataset.target);
+// 				const isDecimal = target % 1 !== 0;
+// 				const step = isDecimal ? 0.1 : Math.max(1, target / 60);
+// 				let current = 0;
 
-				const updateCounter = () => {
-					current += step;
-					if (current >= target) {
-						entry.target.textContent = isDecimal ? target.toFixed(1) : Math.floor(target);
-						return;
-					}
-					entry.target.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
-					requestAnimationFrame(updateCounter);
-				};
+// 				const updateCounter = () => {
+// 					current += step;
+// 					if (current >= target) {
+// 						entry.target.textContent = isDecimal ? target.toFixed(1) : Math.floor(target);
+// 						return;
+// 					}
+// 					entry.target.textContent = isDecimal ? current.toFixed(1) : Math.floor(current);
+// 					requestAnimationFrame(updateCounter);
+// 				};
 
-				updateCounter();
-				counterObserver.unobserve(entry.target);
-			}
-		});
-	}, { threshold: 0.5 });
+// 				updateCounter();
+// 				counterObserver.unobserve(entry.target);
+// 			}
+// 		});
+// 	}, { threshold: 0.5 });
 
-	statNumbers.forEach(num => counterObserver.observe(num));
-}
+// 	statNumbers.forEach(num => counterObserver.observe(num));
+// }
 
-// ==========================================================
-// عملکرد اسلایدرهای کارتی (Responsive)
-// ==========================================================
-function initCardSlider(trackId, prevId, nextId) {
-	const track = document.getElementById(trackId);
-	const prevBtn = document.getElementById(prevId);
-	const nextBtn = document.getElementById(nextId);
+// // ==========================================================
+// // عملکرد اسلایدرهای کارتی (Responsive)
+// // ==========================================================
+// function initCardSlider(trackId, prevId, nextId) {
+// 	const track = document.getElementById(trackId);
+// 	const prevBtn = document.getElementById(prevId);
+// 	const nextBtn = document.getElementById(nextId);
 
-	if (!track || !prevBtn || !nextBtn) return;
+// 	if (!track || !prevBtn || !nextBtn) return;
 
-	const slides = track.querySelectorAll('.card-slide');
-	const totalSlides = slides.length;
-	if (totalSlides === 0) return;
+// 	const slides = track.querySelectorAll('.card-slide');
+// 	const totalSlides = slides.length;
+// 	if (totalSlides === 0) return;
 
-	let currentIndex = 0;
+// 	let currentIndex = 0;
 
-	function getVisibleCount() {
-		const width = window.innerWidth;
-		if (width >= 1200) return 5;
-		if (width >= 768) return 3;
-		if (width >= 480) return 2;
-		return 1;
-	}
+// 	function getVisibleCount() {
+// 		const width = window.innerWidth;
+// 		if (width >= 1200) return 5;
+// 		if (width >= 768) return 3;
+// 		if (width >= 480) return 2;
+// 		return 1;
+// 	}
 
-	let visibleCount = getVisibleCount();
-	const maxIndex = Math.max(0, totalSlides - visibleCount);
+// 	let visibleCount = getVisibleCount();
+// 	const maxIndex = Math.max(0, totalSlides - visibleCount);
 
-	function updateSlide() {
-		const slideWidth = slides[0]?.offsetWidth || 0;
-		const gap = 24;
-		track.style.transform = `translateX(${currentIndex * (slideWidth + gap)}px)`;
-	}
+// 	function updateSlide() {
+// 		const slideWidth = slides[0]?.offsetWidth || 0;
+// 		const gap = 24;
+// 		track.style.transform = `translateX(${currentIndex * (slideWidth + gap)}px)`;
+// 	}
 
-	function nextSlide() {
-		currentIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
-		updateSlide();
-	}
+// 	function nextSlide() {
+// 		currentIndex = currentIndex < maxIndex ? currentIndex + 1 : 0;
+// 		updateSlide();
+// 	}
 
-	function prevSlide() {
-		currentIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
-		updateSlide();
-	}
+// 	function prevSlide() {
+// 		currentIndex = currentIndex > 0 ? currentIndex - 1 : maxIndex;
+// 		updateSlide();
+// 	}
 
-	nextBtn.addEventListener('click', nextSlide);
-	prevBtn.addEventListener('click', prevSlide);
+// 	nextBtn.addEventListener('click', nextSlide);
+// 	prevBtn.addEventListener('click', prevSlide);
 
-	let resizeTimeout;
-	window.addEventListener('resize', () => {
-		clearTimeout(resizeTimeout);
-		resizeTimeout = setTimeout(() => {
-			const newVisibleCount = getVisibleCount();
-			const newMaxIndex = Math.max(0, totalSlides - newVisibleCount);
-			if (currentIndex > newMaxIndex) currentIndex = newMaxIndex;
-			visibleCount = newVisibleCount;
-			updateSlide();
-		}, 200);
-	});
+// 	let resizeTimeout;
+// 	window.addEventListener('resize', () => {
+// 		clearTimeout(resizeTimeout);
+// 		resizeTimeout = setTimeout(() => {
+// 			const newVisibleCount = getVisibleCount();
+// 			const newMaxIndex = Math.max(0, totalSlides - newVisibleCount);
+// 			if (currentIndex > newMaxIndex) currentIndex = newMaxIndex;
+// 			visibleCount = newVisibleCount;
+// 			updateSlide();
+// 		}, 200);
+// 	});
 
-	setTimeout(updateSlide, 100);
-}
+// 	setTimeout(updateSlide, 100);
+// }
 
-// راه‌اندازی اسلایدرهای کارتی
-initCardSlider('plansTrack', 'plansPrev', 'plansNext');
-initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
+// // راه‌اندازی اسلایدرهای کارتی
+// initCardSlider('plansTrack', 'plansPrev', 'plansNext');
+// initCardSlider('attractionsTrack', 'attractionsPrev', 'attractionsNext');
 
-// ==========================================================
-// اسلایدر مجله گردشگری (با پس‌زمینه متغیر)
-// ==========================================================
-(function () {
-	const slidesTrack = document.getElementById('slidesTrackMag');
-	const listContainer = document.getElementById('slideListHorizontalMag');
-	const sliderContainer = document.getElementById('sliderContainerMag');
-	const magazineSlider = document.getElementById('magazineSlider');
+// // ==========================================================
+// // اسلایدر مجله گردشگری (با پس‌زمینه متغیر)
+// // ==========================================================
+// (function () {
+// 	const slidesTrack = document.getElementById('slidesTrackMag');
+// 	const listContainer = document.getElementById('slideListHorizontalMag');
+// 	const sliderContainer = document.getElementById('sliderContainerMag');
+// 	const magazineSlider = document.getElementById('magazineSlider');
 
-	if (!slidesTrack || !listContainer || !sliderContainer) return;
+// 	if (!slidesTrack || !listContainer || !sliderContainer) return;
 
-	const slides = slidesTrack.querySelectorAll('.slide-mag');
-	const totalSlides = slides.length;
-	if (totalSlides === 0) return;
+// 	const slides = slidesTrack.querySelectorAll('.slide-mag');
+// 	const totalSlides = slides.length;
+// 	if (totalSlides === 0) return;
 
-	let currentIndex = 0;
-	let autoSlideInterval, progressInterval;
+// 	let currentIndex = 0;
+// 	let autoSlideInterval, progressInterval;
 
-	function changeBackground(index) {
-		if (magazineSlider && slides[index]) {
-			const img = slides[index].querySelector('.slide-image-mag img');
+// 	function changeBackground(index) {
+// 		if (magazineSlider && slides[index]) {
+// 			const img = slides[index].querySelector('.slide-image-mag img');
 
-			if (img) {
-				if (img.complete) {
-					magazineSlider.style.backgroundImage = `url('${img.src}')`;
-				} else {
-					img.onload = function () {
-						magazineSlider.style.backgroundImage = `url('${img.src}')`;
-					};
-				}
-			}
-		}
-	}
+// 			if (img) {
+// 				if (img.complete) {
+// 					magazineSlider.style.backgroundImage = `url('${img.src}')`;
+// 				} else {
+// 					img.onload = function () {
+// 						magazineSlider.style.backgroundImage = `url('${img.src}')`;
+// 					};
+// 				}
+// 			}
+// 		}
+// 	}
 
-	function goToSlide(index) {
-		if (index < 0) index = totalSlides - 1;
-		if (index >= totalSlides) index = 0;
-		currentIndex = index;
+// 	function goToSlide(index) {
+// 		if (index < 0) index = totalSlides - 1;
+// 		if (index >= totalSlides) index = 0;
+// 		currentIndex = index;
 
-		slidesTrack.style.transform = `translateX(-${index * 100}%)`;
+// 		slidesTrack.style.transform = `translateX(-${index * 100}%)`;
 
-		slides.forEach((el, i) => {
-			el.classList.toggle('active', i === index);
-		});
+// 		slides.forEach((el, i) => {
+// 			el.classList.toggle('active', i === index);
+// 		});
 
-		listContainer.querySelectorAll('.list-item-h-mag').forEach((el, i) => {
-			el.classList.toggle('active-item-h-mag', i === index);
-		});
+// 		listContainer.querySelectorAll('.list-item-h-mag').forEach((el, i) => {
+// 			el.classList.toggle('active-item-h-mag', i === index);
+// 		});
 
-		changeBackground(index);
+// 		changeBackground(index);
 
-		resetProgress();
-		startProgress();
-	}
+// 		resetProgress();
+// 		startProgress();
+// 	}
 
-	function resetProgress() {
-		if (progressInterval) clearInterval(progressInterval);
-		listContainer.querySelectorAll('.progress-fill-h-mag').forEach(el => {
-			el.style.width = '0%';
-		});
-	}
+// 	function resetProgress() {
+// 		if (progressInterval) clearInterval(progressInterval);
+// 		listContainer.querySelectorAll('.progress-fill-h-mag').forEach(el => {
+// 			el.style.width = '0%';
+// 		});
+// 	}
 
-	function startProgress() {
-		let width = 0;
-		const fill = document.getElementById(`progress-h-mag-${currentIndex}`);
-		if (!fill) return;
+// 	function startProgress() {
+// 		let width = 0;
+// 		const fill = document.getElementById(`progress-h-mag-${currentIndex}`);
+// 		if (!fill) return;
 
-		progressInterval = setInterval(() => {
-			width += 0.6;
-			if (width >= 100) {
-				width = 100;
-				fill.style.width = '100%';
-				clearInterval(progressInterval);
-				goToSlide((currentIndex + 1) % totalSlides);
-			} else {
-				fill.style.width = width + '%';
-			}
-		}, 40);
-	}
+// 		progressInterval = setInterval(() => {
+// 			width += 0.6;
+// 			if (width >= 100) {
+// 				width = 100;
+// 				fill.style.width = '100%';
+// 				clearInterval(progressInterval);
+// 				goToSlide((currentIndex + 1) % totalSlides);
+// 			} else {
+// 				fill.style.width = width + '%';
+// 			}
+// 		}, 40);
+// 	}
 
-	function resetAutoSlide() {
-		if (autoSlideInterval) clearInterval(autoSlideInterval);
-		autoSlideInterval = setInterval(() => {
-			goToSlide((currentIndex + 1) % totalSlides);
-		}, 6500);
-	}
+// 	function resetAutoSlide() {
+// 		if (autoSlideInterval) clearInterval(autoSlideInterval);
+// 		autoSlideInterval = setInterval(() => {
+// 			goToSlide((currentIndex + 1) % totalSlides);
+// 		}, 6500);
+// 	}
 
-	listContainer.querySelectorAll('.list-item-h-mag').forEach((item, index) => {
-		item.addEventListener('click', function () {
-			const idx = parseInt(this.dataset.index, 10);
-			if (idx !== currentIndex) {
-				goToSlide(idx);
-				resetAutoSlide();
-			}
-		});
-	});
+// 	listContainer.querySelectorAll('.list-item-h-mag').forEach((item, index) => {
+// 		item.addEventListener('click', function () {
+// 			const idx = parseInt(this.dataset.index, 10);
+// 			if (idx !== currentIndex) {
+// 				goToSlide(idx);
+// 				resetAutoSlide();
+// 			}
+// 		});
+// 	});
 
-	goToSlide(0);
-	resetAutoSlide();
+// 	goToSlide(0);
+// 	resetAutoSlide();
 
-	window.addEventListener('resize', function () {
-		slidesTrack.style.transition = 'none';
-		slidesTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
-		requestAnimationFrame(() => {
-			slidesTrack.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-		});
-	});
-})();
+// 	window.addEventListener('resize', function () {
+// 		slidesTrack.style.transition = 'none';
+// 		slidesTrack.style.transform = `translateX(-${currentIndex * 100}%)`;
+// 		requestAnimationFrame(() => {
+// 			slidesTrack.style.transition = 'transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+// 		});
+// 	});
+// })();
 
-// ----- دکمه اسکرول به بالا -----
-const scrollBtn = document.getElementById('scrollTop');
-if (scrollBtn) {
-	window.addEventListener('scroll', function () { scrollBtn.classList.toggle('visible', window.scrollY > 400); });
-	scrollBtn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
-}
+// // ----- دکمه اسکرول به بالا -----
+// const scrollBtn = document.getElementById('scrollTop');
+// if (scrollBtn) {
+// 	window.addEventListener('scroll', function () { scrollBtn.classList.toggle('visible', window.scrollY > 400); });
+// 	scrollBtn.addEventListener('click', function () { window.scrollTo({ top: 0, behavior: 'smooth' }); });
+// }
 
-function getCookie(name) {
-	let cookieValue = null;
-	if (document.cookie && document.cookie !== '') {
-		const cookies = document.cookie.split(';');
-		for (let i = 0; i < cookies.length; i++) {
-			const cookie = cookies[i].trim();
-			if (cookie.substring(0, name.length + 1) === (name + '=')) {
-				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-				break;
-			}
-		}
-	}
-	return cookieValue;
-}
+// function getCookie(name) {
+// 	let cookieValue = null;
+// 	if (document.cookie && document.cookie !== '') {
+// 		const cookies = document.cookie.split(';');
+// 		for (let i = 0; i < cookies.length; i++) {
+// 			const cookie = cookies[i].trim();
+// 			if (cookie.substring(0, name.length + 1) === (name + '=')) {
+// 				cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+// 				break;
+// 			}
+// 		}
+// 	}
+// 	return cookieValue;
+// }
 
-// ═══════════════════════════════════════════════════════════
-// Toast
-// ═══════════════════════════════════════════════════════════
-function showToast(message, type = 'success') {
-	const toast = document.getElementById('customToast');
-	const toastText = document.getElementById('customToastText');
-	const toastIcon = toast.querySelector('.custom-toast-icon i');
+// // ═══════════════════════════════════════════════════════════
+// // Toast
+// // ═══════════════════════════════════════════════════════════
+// function showToast(message, type = 'success') {
+// 	const toast = document.getElementById('customToast');
+// 	const toastText = document.getElementById('customToastText');
+// 	const toastIcon = toast.querySelector('.custom-toast-icon i');
 
-	toastText.textContent = message;
-	toast.classList.remove('success', 'error', 'info');
-	toast.classList.add(type);
+// 	toastText.textContent = message;
+// 	toast.classList.remove('success', 'error', 'info');
+// 	toast.classList.add(type);
 
-	if (type === 'success') toastIcon.className = 'fas fa-check';
-	else if (type === 'error') toastIcon.className = 'fas fa-exclamation-circle';
-	else if (type === 'info') toastIcon.className = 'fas fa-info-circle';
+// 	if (type === 'success') toastIcon.className = 'fas fa-check';
+// 	else if (type === 'error') toastIcon.className = 'fas fa-exclamation-circle';
+// 	else if (type === 'info') toastIcon.className = 'fas fa-info-circle';
 
-	toast.classList.add('show');
-	clearTimeout(window._toastTimeout);
-	window._toastTimeout = setTimeout(() => {
-		toast.classList.remove('show');
-	}, 2500);
-}
+// 	toast.classList.add('show');
+// 	clearTimeout(window._toastTimeout);
+// 	window._toastTimeout = setTimeout(() => {
+// 		toast.classList.remove('show');
+// 	}, 2500);
+// }
 
-// ═══════════════════════════════════════════════════════════
-// حذف از ذخیره‌شده‌ها
-// ═══════════════════════════════════════════════════════════
-document.querySelectorAll('.dash-fav-remove').forEach(btn => {
-	btn.addEventListener('click', async function (e) {
-		e.preventDefault();
-		e.stopPropagation();
+// // ═══════════════════════════════════════════════════════════
+// // حذف از ذخیره‌شده‌ها
+// // ═══════════════════════════════════════════════════════════
+// document.querySelectorAll('.dash-fav-remove').forEach(btn => {
+// 	btn.addEventListener('click', async function (e) {
+// 		e.preventDefault();
+// 		e.stopPropagation();
 
-		const slug = this.dataset.slug;
-		const card = this.closest('.dash-fav-card');
+// 		const slug = this.dataset.slug;
+// 		const card = this.closest('.dash-fav-card');
 
-		if (!confirm('این جاذبه از ذخیره‌شده‌ها حذف بشه؟')) return;
+// 		if (!confirm('این جاذبه از ذخیره‌شده‌ها حذف بشه؟')) return;
 
-		try {
-			const response = await fetch(`/favorite/${slug}/toggle/`, {
-				method: 'POST',
-				headers: {
-					'X-CSRFToken': getCookie('csrftoken'),
-					'X-Requested-With': 'XMLHttpRequest'
-				}
-			});
+// 		try {
+// 			const response = await fetch(`/favorite/${slug}/toggle/`, {
+// 				method: 'POST',
+// 				headers: {
+// 					'X-CSRFToken': getCookie('csrftoken'),
+// 					'X-Requested-With': 'XMLHttpRequest'
+// 				}
+// 			});
 
-			const data = await response.json();
+// 			const data = await response.json();
 
-			if (data.status === 'removed') {
-				card.style.transition = 'all 0.3s ease';
-				card.style.opacity = '0';
-				card.style.transform = 'scale(0.9)';
-				setTimeout(() => {
-					card.remove();
-					showToast('از ذخیره‌شده‌ها حذف شد', 'success');
+// 			if (data.status === 'removed') {
+// 				card.style.transition = 'all 0.3s ease';
+// 				card.style.opacity = '0';
+// 				card.style.transform = 'scale(0.9)';
+// 				setTimeout(() => {
+// 					card.remove();
+// 					showToast('از ذخیره‌شده‌ها حذف شد', 'success');
 
-					if (document.querySelectorAll('.dash-fav-card').length === 0) {
-						setTimeout(() => location.reload(), 800);
-					}
-				}, 300);
-			} else {
-				showToast('خطا در حذف', 'error');
-			}
-		} catch (err) {
-			console.error(err);
-			showToast('خطا در ارتباط با سرور', 'error');
-		}
-	});
-});
+// 					if (document.querySelectorAll('.dash-fav-card').length === 0) {
+// 						setTimeout(() => location.reload(), 800);
+// 					}
+// 				}, 300);
+// 			} else {
+// 				showToast('خطا در حذف', 'error');
+// 			}
+// 		} catch (err) {
+// 			console.error(err);
+// 			showToast('خطا در ارتباط با سرور', 'error');
+// 		}
+// 	});
+// });

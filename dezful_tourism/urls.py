@@ -5,10 +5,16 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('core.urls')),  
+
+    # اپ‌های ماژولار
+    path('', include('core.urls')),
+    path('accounts/', include('accounts.urls')),
+    path('places/', include('places.urls')),
+    path('articles/', include('articles.urls')),
+    path('planner/', include('planner.urls')),
 ]
 
-# برای نمایش عکس‌ها در حالت توسعه
+# نمایش عکس‌ها در حالت توسعه
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

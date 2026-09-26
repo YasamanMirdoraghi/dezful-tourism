@@ -25,10 +25,15 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'core',  # اپ خودت
     'import_export',
+    
+    # اپ‌های ماژولار خودت
+    'core',
+    'accounts',   # 🆕 جدید
+    'places',     # 🆕 جدید
+    'planner',    # 🆕 جدید
+    'articles',   # 🆕 جدید
 ]
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -66,10 +71,10 @@ WSGI_APPLICATION = 'dezful_tourism.wsgi.application'
 # ==========================================================
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',  # ← تغییر به PostgreSQL
-        'NAME': 'dezful_tourism_db',      # ← اسم دیتابیسی که توی pgAdmin ساختی
-        'USER': 'postgres',               # ← کاربر پیش‌فرض
-        'PASSWORD': 'Yasaman123',             # ← پسورد خودت رو بذار (همونی که موقع نصب PostgreSQL دادی)
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'dezful_tourism_db_new',   # ← فقط این خط تغییر کرد
+        'USER': 'postgres',
+        'PASSWORD': 'Yasaman123',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -114,8 +119,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # ==========================================================
 # مدل کاربر سفارشی
 # ==========================================================
-AUTH_USER_MODEL = 'core.User'
+AUTH_USER_MODEL = 'accounts.User'
 
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+LOGIN_URL = 'accounts:login'
+LOGIN_REDIRECT_URL = 'core:home'
+LOGOUT_REDIRECT_URL = 'core:home'

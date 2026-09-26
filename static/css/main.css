@@ -1,0 +1,16 @@
+/* ═══════════════════════════════════════════════════════════
+   main.css — نقطه ورود همه‌ی CSS ها
+   ═══════════════════════════════════════════════════════════ */
+
+/* Base */
+@import url('base/variables.css');
+@import url('base/reset.css');
+@import url('base/animations.css');
+
+/* Components */
+@import url('components/navbar.css');
+@import url('components/footer.css');
+@import url('components/buttons.css');
+@import url('components/messages.css');
+@import url('components/scroll-top.css');
+@import url('components/magazine-slider.css');

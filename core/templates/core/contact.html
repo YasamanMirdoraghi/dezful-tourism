@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}تماس با ما | سفر به دزفول{% endblock %}
+{% block meta_description %}پیشنهاد، انتقاد یا سوالی درباره سفر به دزفول دارید؟ پیام خود را برای ما ارسال کنید.{% endblock %}
+
+{% block main_class %}contact-page{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/contact.css' %}">
+{% endblock %}
+
+{% block legacy_js %}{% endblock %}
+
+{% block content %}
+<div class="container">
+
+    <div class="page-heading">
+        <span class="heading-kicker">
+            <i class="fas fa-paper-plane"></i> ارتباط با ما
+        </span>
+        <h1>با ما در <span>تماس باشید</span></h1>
+        <p>پیشنهاد، انتقاد یا سوالی درباره سفر به دزفول دارید؟ پیام خود را برای ما ارسال کنید.</p>
+    </div>
+
+    <div class="contact-layout">
+
+        <section class="contact-info-card">
+            <div class="contact-img">
+                <img src="{% static 'img/ContactUs.png' %}" alt="دستیار هوشمند">
+            </div>
+
+            <div class="contact-title">
+                <i class="fas fa-headset"></i>
+                <h2>کنار شما هستیم</h2>
+            </div>
+
+            <p>تیم «سفر به دزفول» برای بهتر شدن تجربه گردشگری شما آماده شنیدن نظرات و پیشنهادهاست.</p>
+
+            <div class="contact-item">
+                <span><i class="fas fa-location-dot"></i></span>
+                <div>
+                    <b>محدوده فعالیت</b>
+                    <small>شهرستان دزفول</small>
+                </div>
+            </div>
+
+            <div class="contact-item">
+                <span><i class="fas fa-envelope"></i></span>
+                <div>
+                    <b>ایمیل</b>
+                    <small>info@dezful-tourism.ir</small>
+                </div>
+            </div>
+
+            <div class="contact-item">
+                <span><i class="fas fa-clock"></i></span>
+                <div>
+                    <b>پاسخ‌گویی</b>
+                    <small>در اولین فرصت ممکن</small>
+                </div>
+            </div>
+        </section>
+
+        <section class="form-card">
+            <div class="form-card-head">
+                <span>فرم تماس</span>
+                <h2>ارسال پیام</h2>
+                <p>فرم زیر را پر کنید تا در سریع‌ترین زمان پاسخ شما را بدهیم.</p>
+            </div>
+
+            <form method="post" class="smart-form">
+                {% csrf_token %}
+
+                <div class="form-grid">
+                    <label>
+                        <span>نام و نام خانوادگی</span>
+                        <div class="input-wrap">
+                            <i class="fas fa-user"></i>
+                            <input name="name" required
+                                   value="{{ request.POST.name|default:'' }}"
+                                   placeholder="مثلاً یاسمن فرهی">
+                        </div>
+                    </label>
+
+                    <label>
+                        <span>ایمیل</span>
+                        <div class="input-wrap">
+                            <i class="fas fa-envelope"></i>
+                            <input type="email" name="email" required
+                                   value="{{ request.POST.email|default:'' }}"
+                                   placeholder="example@email.com">
+                        </div>
+                    </label>
+
+                    <label>
+                        <span>شماره تماس</span>
+                        <div class="input-wrap">
+                            <i class="fas fa-phone"></i>
+                            <input name="phone"
+                                   value="{{ request.POST.phone|default:'' }}"
+                                   placeholder="اختیاری">
+                        </div>
+                    </label>
+
+                    <label>
+                        <span>موضوع</span>
+                        <div class="input-wrap">
+                            <i class="fas fa-tag"></i>
+                            <input name="subject" required
+                                   value="{{ request.POST.subject|default:'' }}"
+                                   placeholder="موضوع پیام">
+                        </div>
+                    </label>
+                </div>
+
+                <label class="full-field">
+                    <span>متن پیام</span>
+                    <div class="input-wrap textarea-wrap">
+                        <i class="fas fa-comment-dots"></i>
+                        <textarea name="message" required placeholder="پیام خود را بنویسید...">{{ request.POST.message|default:'' }}</textarea>
+                    </div>
+                </label>
+
+                <button class="form-submit" type="submit">
+                    <span>ارسال پیام</span>
+                    <i class="fas fa-arrow-left"></i>
+                </button>
+            </form>
+        </section>
+
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% endblock %}

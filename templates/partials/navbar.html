@@ -1,0 +1,86 @@
+{% load static %}
+<div class="overlay" id="menuOverlay"></div>
+
+<header class="navbar" id="navbar">
+
+    <a href="{% url 'core:home' %}" class="logo">
+        <i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
+    </a>
+
+    <nav class="nav-links" id="navLinks">
+        <button class="close-menu-btn" id="closeMenuBtn" aria-label="بستن منو">
+            <i class="fas fa-times"></i>
+        </button>
+
+        <a href="{% url 'core:home' %}"
+           class="{% if request.resolver_match.namespace == 'core' and request.resolver_match.url_name == 'home' %}active{% endif %}">
+            <i class="fas fa-home"></i> خانه
+        </a>
+
+        <a href="{% url 'planner:plan' %}"
+           class="{% if request.resolver_match.namespace == 'planner' and request.resolver_match.url_name == 'plan' %}active{% endif %}">
+            <i class="fas fa-calendar-check"></i> برنامه‌ریز
+        </a>
+
+        <a href="{% url 'places:attraction' %}"
+           class="{% if request.resolver_match.namespace == 'places' and request.resolver_match.url_name == 'attraction' %}active{% endif %}">
+            <i class="fas fa-landmark"></i> جاذبه‌ها
+        </a>
+
+        <a href="{% url 'core:map' %}"
+           class="{% if request.resolver_match.namespace == 'core' and request.resolver_match.url_name == 'map' %}active{% endif %}">
+            <i class="fas fa-map"></i> نقشه گردشگری
+        </a>
+
+        <a href="{% url 'articles:articles' %}"
+           class="{% if request.resolver_match.namespace == 'articles' %}active{% endif %}">
+            <i class="fas fa-newspaper"></i> مقالات
+        </a>
+
+        <a href="{% url 'core:contact' %}"
+           class="{% if request.resolver_match.namespace == 'core' and request.resolver_match.url_name == 'contact' %}active{% endif %}">
+            <i class="fas fa-headset"></i> تماس با ما
+        </a>
+
+        <div class="auth-mobile">
+            {% if user.is_authenticated %}
+            <a href="{% url 'accounts:dashboard' %}" class="btn-outline-mobile">
+                <i class="fas fa-user-circle"></i> داشبورد من
+            </a>
+            <a href="{% url 'accounts:logout' %}" class="btn-outline-mobile">
+                <i class="fas fa-sign-out-alt"></i> خروج
+            </a>
+            {% else %}
+            <a href="{% url 'accounts:register' %}" class="btn-outline-mobile">
+                <i class="fas fa-user-plus"></i> ثبت‌نام
+            </a>
+            <a href="{% url 'accounts:login' %}" class="btn-primary-mobile">
+                <i class="fas fa-sign-in-alt"></i> ورود
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="auth-buttons">
+        {% if user.is_authenticated %}
+        <a href="{% url 'accounts:dashboard' %}" class="nav-user" title="داشبورد من">
+            <i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}
+        </a>
+        <a href="{% url 'accounts:logout' %}" class="btn-outline">
+            <i class="fas fa-sign-out-alt"></i> خروج
+        </a>
+        {% else %}
+        <a href="{% url 'accounts:register' %}" class="btn-outline">
+            <i class="fas fa-user-plus"></i> ثبت‌نام
+        </a>
+        <a href="{% url 'accounts:login' %}" class="btn-primary">
+            <i class="fas fa-sign-in-alt"></i> ورود
+        </a>
+        {% endif %}
+
+        <button class="hamburger" id="hamburgerBtn" aria-label="منو">
+            <i class="fas fa-bars"></i>
+        </button>
+    </div>
+
+</header>

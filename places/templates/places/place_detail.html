@@ -1,0 +1,250 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ place.name }} | سفر به دزفول{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="{% static 'css/pages/place-detail.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<main class="place-detail-main">
+    <div class="container">
+
+        <!-- هدر جاذبه -->
+        <section class="place-hero">
+            <img src="{% static 'img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}"
+                onerror="this.onerror=null; this.src='{% static 'img/' %}{{ place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+            <div class="place-hero-overlay">
+                <h1 class="place-hero-title">{{ place.name }}</h1>
+                <div class="place-hero-meta">
+                    <span><i class="fas fa-tag"></i> {{ place.category.name }}</span>
+                    <span><i class="fas fa-star"></i> {{ avg_rating }}</span>
+                    <span><i class="fas fa-map-marker-alt"></i> دزفول</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- دکمه‌های اقدام -->
+        <div class="place-actions">
+            {% if user.is_authenticated %}
+            <button type="button"
+                    class="place-action-btn primary favorite-btn {% if is_favorited %}favorited{% endif %}"
+                    data-slug="{{ place.slug }}"
+                    id="favoriteBtn">
+                <i class="{% if is_favorited %}fas{% else %}far{% endif %} fa-heart"></i>
+                <span>{% if is_favorited %}ذخیره شد{% else %}ذخیره جاذبه{% endif %}</span>
+            </button>
+            {% else %}
+            <button type="button"
+                    class="place-action-btn primary"
+                    onclick="showLoginModal({title: 'برای ذخیره اول وارد شو!', message: 'برای ذخیره این جاذبه در لیست موردعلاقه‌ها، لطفاً ابتدا وارد حساب کاربری خودت شو یا ثبت‌نام کن.'})">
+                <i class="far fa-heart"></i>
+                <span>ذخیره جاذبه</span>
+            </button>
+            {% endif %}
+
+            <button class="place-action-btn outline" onclick="window.print()">
+                <i class="fas fa-print"></i> چاپ
+            </button>
+            <button class="place-action-btn outline" data-share>
+                <i class="fas fa-share-alt"></i> اشتراک‌گذاری
+            </button>
+        </div>
+
+        <!-- اطلاعات جاذبه -->
+        <div class="place-info-grid">
+            <div class="place-info-card">
+                <i class="fas fa-wallet"></i>
+                <strong>{% if place.cost_toman == 0 %}رایگان{% else %}{{ place.cost_toman }} تومان{% endif %}</strong>
+                <span>هزینه ورودی</span>
+            </div>
+            <div class="place-info-card">
+                <i class="fas fa-clock"></i>
+                <strong>{{ place.duration_minutes }} دقیقه</strong>
+                <span>مدت بازدید</span>
+            </div>
+            <div class="place-info-card">
+                <i class="fas fa-hourglass-half"></i>
+                <strong>{{ place.opening_hours|default:'۸ تا ۲۰' }}</strong>
+                <span>ساعت کاری</span>
+            </div>
+            <div class="place-info-card">
+                <i class="fas fa-child"></i>
+                <strong>{% if place.is_child_friendly %}بله{% else %}خیر{% endif %}</strong>
+                <span>مناسب کودکان</span>
+            </div>
+        </div>
+
+        <!-- محتوا و سایدبار -->
+        <div class="place-detail-layout">
+
+            <div class="place-content">
+                <h2>درباره {{ place.name }}</h2>
+                <p>{{ place.description|default:place.short_description }}</p>
+
+                <h2 style="margin-top: 30px;">گالری تصاویر</h2>
+         <div class="place-gallery">
+            {% if gallery %}
+            {% for img in gallery %}
+            <img src="{% static 'img/Gallery-img/' %}{{ img }}" alt="{{ place.name }}" onclick="openLightbox(this.src)">
+            {% endfor %}
+            {% else %}
+            <img src="{% static 'img/Gallery-img/' %}{{ place.slug }}.jpg" alt="{{ place.name }}"
+              onclick="openLightbox(this.src)">
+            <img src="{% static 'img/Gallery-img/shavi-waterfall1.webp' %}" alt="{{ place.name }}"
+              onclick="openLightbox(this.src)">
+            <img src="{% static 'img/Gallery-img/slide2.jpg' %}" alt="{{ place.name }}"
+              onclick="openLightbox(this.src)">
+            {% endif %}
+          </div>
+                <div class="place-map-section">
+                    <h2><i class="fas fa-map-marked-alt"></i> موقعیت روی نقشه</h2>
+                    <div id="placeMap"
+                         data-lat="{{ place.latitude|default:32.38 }}"
+                         data-lng="{{ place.longitude|default:48.42 }}"
+                         data-name="{{ place.name }}"></div>
+                </div>
+            </div>
+
+            <aside class="place-sidebar">
+                <div class="place-sidebar-card">
+                    <h3><i class="fas fa-info-circle"></i> اطلاعات سریع</h3>
+                    <div style="display: flex; flex-direction: column; gap: 10px;">
+                        {% if place.address %}
+                        <div>
+                            <i class="fas fa-map-marker-alt" style="color: var(--primary-green);"></i>
+                            <strong>آدرس:</strong> {{ place.address }}
+                        </div>
+                        {% endif %}
+
+                        {% if place.phone %}
+                        <div>
+                            <i class="fas fa-phone" style="color: var(--primary-green);"></i>
+                            <strong>تلفن:</strong> {{ place.phone }}
+                        </div>
+                        {% endif %}
+
+                        {% if place.contact_info %}
+                        <div>
+                            <i class="fas fa-link" style="color: var(--primary-green);"></i>
+                            <strong>راه ارتباطی:</strong> {{ place.contact_info }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="place-sidebar-card">
+                    <h3><i class="fas fa-star"></i> امتیاز کاربران</h3>
+                    <div style="text-align: center;">
+                        <div style="font-size: 3rem; font-weight: 900; color: var(--brown-text);">{{ avg_rating }}</div>
+                        <div style="color: #f4b400; font-size: 1.2rem; margin-bottom: 10px;">★★★★★</div>
+                        <div style="font-size: 0.85rem; color: var(--brown-light);">از {{ reviews.count }} نظر</div>
+                    </div>
+                </div>
+
+                <div class="place-sidebar-card">
+                    <h3><i class="fas fa-clock"></i> بهترین زمان بازدید</h3>
+                    <p style="font-size: 0.9rem; color: var(--brown-light);">{{ place.best_visit_time|default:'بهترین زمان بازدید صبح زود یا عصر است.' }}</p>
+                </div>
+            </aside>
+        </div>
+
+        <!-- نظرات کاربران -->
+        <div class="place-reviews">
+            <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i class="fas fa-comments"></i> نظرات کاربران</h2>
+            <div style="background: #fff; border-radius: 20px; padding: 20px; box-shadow: var(--shadow-sm);">
+                {% for review in reviews %}
+                <div class="review-item">
+                    <div class="review-avatar">{{ review.user.username|first|upper }}</div>
+                    <div class="review-content">
+                        <div class="review-header">
+                            <strong>{{ review.user.username }}</strong>
+                            <span>{{ review.created_at|timesince }} پیش</span>
+                        </div>
+                        <div class="review-stars">
+                            {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}
+                        </div>
+                        <p class="review-text">{{ review.comment }}</p>
+                    </div>
+                </div>
+                {% empty %}
+                <p style="text-align: center; color: var(--brown-light); padding: 20px;">هنوز نظری ثبت نشده است.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- فرم ثبت نظر -->
+        <div class="place-review-form">
+            <h3><i class="fas fa-pen"></i> نظرت رو بنویس</h3>
+
+            {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'places:submit_place_review' place.slug %}">
+                {% csrf_token %}
+
+                <div class="rating-input">
+                    <label>امتیاز:</label>
+                    <div class="stars">
+                        <input type="radio" name="rating" value="5" id="star5" checked>
+                        <label for="star5">★</label>
+                        <input type="radio" name="rating" value="4" id="star4">
+                        <label for="star4">★</label>
+                        <input type="radio" name="rating" value="3" id="star3">
+                        <label for="star3">★</label>
+                        <input type="radio" name="rating" value="2" id="star2">
+                        <label for="star2">★</label>
+                        <input type="radio" name="rating" value="1" id="star1">
+                        <label for="star1">★</label>
+                    </div>
+                </div>
+
+                <textarea name="comment" rows="4" placeholder="تجربه‌ات رو بنویس..." required></textarea>
+
+                <button type="submit" class="submit-review-btn">
+                    <i class="fas fa-paper-plane"></i> ثبت نظر
+                </button>
+            </form>
+            {% else %}
+            <div class="login-required">
+                <p>برای ثبت نظر، لطفاً <a href="{% url 'accounts:login' %}?next={{ request.path }}">وارد</a> شو.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- جاذبه‌های مرتبط -->
+        {% if related_places %}
+        <div class="related-places">
+            <h2 style="font-size: 1.5rem; font-weight: 900; color: var(--brown-text); margin-bottom: 20px;"><i class="fas fa-link"></i> جاذبه‌های مرتبط</h2>
+            <div class="related-places-grid">
+                {% for related_place in related_places %}
+                <a href="{% url 'places:place_detail' related_place.slug %}" class="related-place-card">
+                    <img src="{% static 'img/' %}{{ related_place.slug }}.jpg" alt="{{ related_place.name }}"
+                        onerror="this.onerror=null; this.src='{% static 'img/' %}{{ related_place.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ related_place.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+                    <div class="card-body">
+                        <h4>{{ related_place.name }}</h4>
+                        <p>{{ related_place.short_description|truncatewords:10 }}</p>
+                    </div>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</main>
+
+<div class="custom-toast" id="customToast">
+    <div class="custom-toast-icon"><i class="fas fa-check"></i></div>
+    <div class="custom-toast-text" id="customToastText">لینک کپی شد!</div>
+</div>
+
+{% endblock %}
+
+{% block legacy_js %}{% endblock %}
+
+{% block extra_js %}
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% endblock %}

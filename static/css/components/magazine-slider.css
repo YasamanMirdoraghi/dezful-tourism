@@ -1,0 +1,466 @@
+/* ═══════════════════════════════════════════════════════════
+   magazine-slider.css — اسلایدر مجله (مشترک همه صفحات)
+   ═══════════════════════════════════════════════════════════ */
+
+/* ===== کانتینر اصلی ===== */
+.section-magazine-slider {
+    padding: 40px 0 30px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    transition: background-image 0.8s ease;
+    position: relative;
+    min-height: 700px;
+}
+
+.section-magazine-slider::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 0;
+}
+
+.section-magazine-slider .container {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== هدر اسلایدر ===== */
+.slider-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px 20px 20px;
+    flex-wrap: wrap;
+    gap: 12px;
+    position: relative;
+    z-index: 5;
+}
+
+.slider-title {
+    color: #fff;
+    font-size: 2rem;
+    font-weight: 900;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.slider-title i {
+    color: #ff5050;
+}
+
+.slider-title .highlight {
+    color: #f4d03f;
+}
+
+.view-all-btn {
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 8px 28px;
+    border-radius: 40px;
+    font-size: 0.9rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    font-family: inherit;
+    white-space: nowrap;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.view-all-btn:hover {
+    background: #118b71;
+    border-color: #118b71;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(17, 139, 113, 0.3);
+}
+
+.view-all-btn i {
+    transition: transform 0.3s ease;
+}
+
+.view-all-btn:hover i {
+    transform: translateX(-4px);
+}
+
+/* ===== کانتینر اسلایدها ===== */
+.slider-container-mag {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.slides-track-mag {
+    display: flex;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    will-change: transform;
+    direction: ltr;
+}
+
+/* ===== هر اسلاید ===== */
+.slide-mag {
+    flex: 0 0 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 40px 50px;
+    gap: 70px;
+    position: relative;
+    flex-shrink: 0;
+    direction: rtl;
+    overflow: hidden;
+    border-radius: 20px;
+}
+
+.slide-mag::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* ===== پس‌زمینه محو ===== */
+.slide-bg-blur {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    filter: blur(25px) brightness(0.5);
+    transform: scale(1.15);
+    z-index: 0;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+}
+
+.slide-mag.active .slide-bg-blur {
+    opacity: 1;
+}
+
+/* ===== محتوای متنی ===== */
+.slide-content-mag {
+    flex: 1 1 60%;
+    color: #fff;
+    opacity: 0;
+    transform: translateY(80px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    z-index: 2;
+    position: relative;
+}
+
+.slide-mag.active .slide-content-mag {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.3s;
+}
+
+.slide-badge-mag {
+    display: inline-block;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(12px);
+    padding: 6px 22px;
+    border-radius: 50px;
+    font-size: 13px;
+    font-weight: 600;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    margin-bottom: 14px;
+}
+
+.slide-title-mag {
+    font-size: 2.8rem;
+    font-weight: 900;
+    line-height: 1.15;
+    margin-bottom: 10px;
+    text-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+}
+
+.slide-desc-mag {
+    font-size: 1.05rem;
+    opacity: 0.95;
+    line-height: 1.8;
+    font-weight: 300;
+    max-width: 90%;
+    margin-top: 15px;
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.2);
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-height: 5.4em;
+    max-height: 5.4em;
+}
+
+.slide-link-mag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 18px;
+    color: #fff;
+    font-weight: 700;
+    text-decoration: none;
+    border-bottom: 2px solid rgba(255, 255, 255, 0.4);
+    padding-bottom: 6px;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    width: fit-content;
+    font-size: 1rem;
+}
+
+.slide-link-mag:hover {
+    border-bottom-color: #fff;
+    gap: 14px;
+    transform: translateX(-4px);
+}
+
+/* ===== تصویر اسلاید ===== */
+.slide-image-mag {
+    flex: 0 0 auto;
+    width: 690px;
+    height: 450px;
+    overflow: hidden;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    z-index: 2;
+    position: relative;
+    opacity: 0;
+    transform: scale(0.9) translateX(30px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+    border-radius: 16px;
+}
+
+.slide-mag.active .slide-image-mag {
+    opacity: 1;
+    transform: scale(1) translateX(0);
+    transition-delay: 0.4s;
+}
+
+.slide-image-mag img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* ===== لیست پایین ===== */
+.slider-footer-mag {
+    padding: 20px 20px 10px 20px;
+    position: relative;
+    z-index: 5;
+}
+
+.slide-list-horizontal-mag {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+.list-item-h-mag {
+    position: relative;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    flex: 1;
+    min-width: 150px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.list-item-h-mag:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+}
+
+.list-item-h-mag.active-item-h-mag {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+}
+
+.list-item-h-top-mag {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-item-h-title-mag {
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.2);
+}
+
+.list-item-h-progress-mag {
+    width: 100%;
+    height: 3px;
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.progress-fill-h-mag {
+    height: 100%;
+    width: 0%;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #f4a62a, #ff6b35);
+    transition: width 0.1s linear;
+}
+
+/* ===== ریسپانسیو ===== */
+@media (max-width: 992px) {
+    .slider-container-mag {
+        height: 480px;
+    }
+
+    .slide-mag {
+        padding: 30px 35px;
+        gap: 30px;
+    }
+
+    .slide-title-mag {
+        font-size: 2.2rem;
+    }
+
+    .slide-image-mag {
+        width: 400px;
+        height: 300px;
+    }
+
+    .slider-title {
+        font-size: 1.6rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .slider-container-mag {
+        height: auto;
+        min-height: 440px;
+    }
+
+    .slide-mag {
+        flex-direction: column-reverse;
+        padding: 20px 20px;
+        gap: 16px;
+        justify-content: flex-start;
+        align-items: stretch;
+    }
+
+    .slide-content-mag {
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .slide-title-mag {
+        font-size: 1.8rem;
+    }
+
+    .slide-desc-mag {
+        font-size: 0.85rem;
+        max-width: 100%;
+    }
+
+    .slide-image-mag {
+        flex: 0 0 auto;
+        width: 100%;
+        height: 200px;
+        border-radius: 16px;
+    }
+
+    .slide-mag::before {
+        background: linear-gradient(to top, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0.1) 60%, transparent 100%);
+    }
+
+    .slider-title {
+        font-size: 1.3rem;
+    }
+
+    .view-all-btn {
+        font-size: 0.75rem;
+        padding: 6px 16px;
+    }
+
+    .list-item-h-mag {
+        min-width: 100px;
+        padding: 8px 12px;
+    }
+
+    .list-item-h-title-mag {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 500px) {
+    .section-magazine-slider {
+        padding: 20px 0 15px;
+        min-height: 400px;
+    }
+
+    .slider-container-mag {
+        min-height: 360px;
+    }
+
+    .slide-mag {
+        padding: 12px 14px;
+    }
+
+    .slide-title-mag {
+        font-size: 1.4rem;
+    }
+
+    .slide-desc-mag {
+        font-size: 0.75rem;
+    }
+
+    .slide-badge-mag {
+        font-size: 10px;
+        padding: 3px 14px;
+        margin-bottom: 8px;
+    }
+
+    .slide-image-mag {
+        height: 140px;
+    }
+
+    .slider-title {
+        font-size: 1.1rem;
+    }
+
+    .view-all-btn {
+        font-size: 0.7rem;
+        padding: 4px 12px;
+    }
+
+    .list-item-h-mag {
+        min-width: 60px;
+        padding: 6px 8px;
+    }
+
+    .list-item-h-title-mag {
+        font-size: 0.65rem;
+    }
+
+    .list-item-h-progress-mag {
+        height: 3px;
+    }
+
+    .slide-list-horizontal-mag {
+        gap: 6px;
+    }
+}

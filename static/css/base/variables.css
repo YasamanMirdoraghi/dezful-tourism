@@ -1,0 +1,20 @@
+/* ═══════════════════════════════════════════════════════════
+   variables.css — متغیرهای CSS (از style.css)
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+    --primary-green: #118b71;
+    --primary-green-light: #2a9d8f;
+    --primary-green-dark: #0d6b56;
+    --brick-orange: #ff5050;
+    --brick-orange-light: #ff7a5a;
+    --brown-text: #4a3a2a;
+    --brown-light: #8b7355;
+    --cream-bg: #f5efe6;
+    --shadow-sm: 0 4px 20px rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.08);
+    --shadow-lg: 0 30px 70px rgba(0, 0, 0, 0.12);
+    --radius: 24px;
+    --radius-sm: 16px;
+    --transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}

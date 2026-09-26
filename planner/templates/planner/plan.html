@@ -1,0 +1,350 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}برنامه‌ریز هوشمند سفر به دزفول{% endblock %}
+
+{% block body_class %}page-plan{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/plan.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<!-- پنل دیباگ -->
+<button id="debugToggle" title="نمایش دیباگ">🐛</button>
+
+<div id="debugPanel">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(74, 222, 128, 0.3);">
+        <span style="color: #fff; font-weight: 900; font-size: 13px;">🐛 DEBUG LOG</span>
+        <div>
+            <button onclick="window.clearDbg && window.clearDbg()" style="background: #f59e0b; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-right: 5px;">Clear</button>
+            <button onclick="document.getElementById('debugPanel').style.display='none'" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px;">✕</button>
+        </div>
+    </div>
+    <div id="debugContent" style="overflow-y: auto; max-height: calc(60vh - 60px); white-space: pre-wrap; line-height: 1.5;"></div>
+</div>
+
+<script>
+    window.REAL_PLACES = {{ places_json|safe }};
+    window.CATEGORIES = {{ categories_json|safe }};
+</script>
+
+<!-- محتوای برنامه‌ریز -->
+<section class="plan-section">
+    <div class="container">
+        <div class="plan-header">
+            <h1><i class="fas fa-route"></i> برنامه‌ریز هوشمند سفر به دزفول</h1>
+            <p>با چند کلیک ساده، برنامه سفر اختصاصی خودت رو بساز</p>
+        </div>
+
+        {% if not user.is_authenticated %}
+        <div class="login-banner-wrapper">
+            <div class="login-banner">
+                <div class="login-banner-icon"><i class="fas fa-info"></i></div>
+                <div class="login-banner-text"><strong>توجه:</strong> برای ساخت و ذخیره برنامه، ابتدا وارد شوید.</div>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="wizard" id="planWizard">
+
+            <div class="step-indicators">
+                <div class="step-item active" data-step="1"><span class="step-dot"></span></div>
+                <span class="step-line"></span>
+                <div class="step-item" data-step="2"><span class="step-dot"></span></div>
+                <span class="step-line"></span>
+                <div class="step-item" data-step="3"><span class="step-dot"></span></div>
+                <span class="step-line"></span>
+                <div class="step-item" data-step="4"><span class="step-dot"></span></div>
+                <span class="step-line"></span>
+                <div class="step-item" data-step="5"><span class="step-dot"></span></div>
+            </div>
+
+            {% if user_trips %}
+            <div class="previous-trips">
+                <div class="previous-trips-header">
+                    <h3><i class="fas fa-history"></i> برنامه‌های شما</h3>
+                    <span class="trips-count">{{ user_trips|length }} برنامه</span>
+                </div>
+                <div class="trips-slider-wrapper">
+                    <button class="trips-slider-btn trips-prev" id="tripsPrev" aria-label="قبلی"><i class="fas fa-chevron-right"></i></button>
+                    <div class="trips-slider-viewport" id="tripsViewport">
+                        <div class="trips-slider-track" id="tripsTrack">
+                            {% for trip in user_trips %}
+                            <a href="{% url 'planner:trip_result' trip.id %}" class="trip-card trip-{{ trip.status }}">
+                                <div class="trip-status-badge">
+                                    {% if trip.status == 'current' %}<i class="fas fa-bolt"></i> در حال سفر
+                                    {% elif trip.status == 'past' %}<i class="fas fa-check"></i> به پایان رسیده
+                                    {% else %}<i class="fas fa-clock"></i> پیش‌رو{% endif %}
+                                </div>
+                                <div class="trip-card-image">
+                                    <img src="{{ trip.image }}" alt="سفر" onerror="this.onerror=null; this.src='/static/img/asiyab-haye-abi.jpg';">
+                                </div>
+                                <div class="trip-card-info">
+                                    <div class="trip-card-dates">{{ trip.start_jalali }} تا {{ trip.end_jalali }}</div>
+                                    <div class="trip-card-meta">
+                                        <span><i class="fas fa-hourglass-half"></i> {{ trip.duration_days }} روز</span>
+                                        <span><i class="fas fa-users"></i> {{ trip.companions }} نفر</span>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <button class="trips-slider-btn trips-next" id="tripsNext" aria-label="بعدی"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="trips-slider-dots" id="tripsDots"></div>
+            </div>
+            {% endif %}
+
+            <div class="wizard-top">
+                <h2 id="wizTitle" style="text-align: center; width: 100%; font-size: 20px;">تاریخ سفرت رو مشخص کن</h2>
+            </div>
+
+            <!-- ═══ مرحله ۱: تاریخ سفر ═══ -->
+            <div class="wz-step active" data-step="1">
+                <div class="cal-card">
+                    <div class="cal-header">
+                        <button class="cal-nav" id="calPrev" aria-label="ماه قبل"><i class="fas fa-chevron-right"></i></button>
+                        <h3 id="calTitle">فروردین ۱۴۰۵</h3>
+                        <button class="cal-nav next" id="calNext" aria-label="ماه بعد"><i class="fas fa-chevron-left"></i></button>
+                    </div>
+                    <div class="cal-weekdays">
+                        <span>شنبه</span><span>یکشنبه</span><span>دوشنبه</span>
+                        <span>سه‌شنبه</span><span>چهارشنبه</span><span>پنجشنبه</span><span>جمعه</span>
+                    </div>
+                    <div class="cal-grid" id="calGrid"></div>
+                </div>
+                <div class="date-boxes">
+                    <div class="date-box">
+                        <div class="db-icon green"><i class="fas fa-calendar-day"></i></div>
+                        <div><span class="db-label">شروع سفر</span><span class="db-value" id="dbStart">هنوز انتخاب نشده</span></div>
+                    </div>
+                    <div class="date-box">
+                        <div class="db-icon orange"><i class="fas fa-calendar-check"></i></div>
+                        <div><span class="db-label">پایان سفر</span><span class="db-value" id="dbEnd">هنوز انتخاب نشده</span></div>
+                    </div>
+                </div>
+                <div class="wz-hint" id="dateHint"></div>
+            </div>
+
+            <!-- ═══ مرحله ۲: مدت زمان گردش روزانه ═══ -->
+            <div class="wz-step" data-step="2">
+                <div class="duration-top">
+                    <div>
+                        <h3>مدت زمان گردش هر روز رو مشخص کن</h3>
+                        <p>برای هر روز بگو چند ساعت می‌خوای گردش کنی</p>
+                    </div>
+                </div>
+
+                <div class="duration-presets">
+                    <div class="duration-presets-label">
+                        <i class="fas fa-bolt"></i> تنظیم سریع برای همه‌ی روزها:
+                    </div>
+                   <div class="duration-presets-buttons">
+    <button type="button" class="duration-preset-btn" data-hours="3">۳ ساعت</button>
+    <button type="button" class="duration-preset-btn" data-hours="5">۵ ساعت</button>
+    <button type="button" class="duration-preset-btn active" data-hours="8">۸ ساعت</button>
+    <button type="button" class="duration-preset-btn" data-hours="10">۱۰ ساعت</button>
+    <button type="button" class="duration-preset-btn" data-hours="12">۱۲ ساعت</button>
+    <button type="button" class="duration-reset-btn" id="durationResetBtn" title="برگشت همه به ۸ ساعت">Reset</button>
+</div>
+                </div>
+
+                <div class="duration-grid" id="durationGrid"></div>
+                <div class="duration-summary" id="durationSummary"></div>
+                <div class="wz-hint" id="durationHint"></div>
+            </div>
+
+            <!-- ═══ مرحله ۳: علاقه‌مندی‌ها ═══ -->
+            <div class="wz-step" data-step="3">
+                <div class="interest-top">
+                    <div>
+                        <h3>دسته‌های مورد علاقه‌ات را انتخاب کن</h3>
+                        <p>هر چندتا که دوست داری — می‌تونی چند مورد انتخاب کنی</p>
+                    </div>
+                    <span class="interest-count" id="interestCount">۰ از {{ categories.count }}</span>
+                </div>
+                <a class="clear-link" id="clearInterests">پاک کردن انتخاب‌ها</a>
+                <div class="interest-grid">
+                    {% for cat in categories %}
+                    <button type="button" class="interest-card" data-value="{{ cat.name }}" data-maps="{{ cat.slug }}">
+                        <span class="ic-check" style="background: {{ cat.color|default:'#118b71' }};"><i class="fas fa-check"></i></span>
+                        <span class="ic-emoji" style="color: {{ cat.color|default:'#118b71' }};">
+                            {% if cat.icon %}<i class="fas {{ cat.icon }}"></i>{% else %}<i class="fas fa-map-marker-alt"></i>{% endif %}
+                        </span>
+                        <span class="ic-label">{{ cat.name }}</span>
+                    </button>
+                    {% endfor %}
+                </div>
+                <div class="wz-hint" id="wzHint"></div>
+            </div>
+
+            <!-- ═══ مرحله ۴: جزئیات سفر ═══ -->
+            <div class="wz-step" data-step="4">
+                <div class="form-group">
+                    <label><i class="fas fa-users"></i> تعداد مسافران</label>
+                    <select id="travelersCount" class="budget-select">
+                        <option value="1">۱ نفر</option>
+                        <option value="2" selected>۲ نفر</option>
+                        <option value="3">۳ نفر</option>
+                        <option value="4">۴ نفر</option>
+                        <option value="5+">۵+ نفر</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-wallet"></i> بودجه تقریبی (تومان)</label>
+                    <select id="budgetRange" class="budget-select">
+                        <option value="0-2000000">تا ۲,۰۰۰,۰۰۰</option>
+                        <option value="2000000-3000000">۲,۰۰۰,۰۰۰ تا ۳,۰۰۰,۰۰۰</option>
+                        <option value="3000000-5000000" selected>۳,۰۰۰,۰۰۰ تا ۵,۰۰۰,۰۰۰</option>
+                        <option value="5000000-7000000">۵,۰۰۰,۰۰۰ تا ۷,۰۰۰,۰۰۰</option>
+                        <option value="7000000-10000000">۷,۰۰۰,۰۰۰ تا ۱۰,۰۰۰,۰۰۰</option>
+                        <option value="10000000-15000000">۱۰,۰۰۰,۰۰۰ تا ۱۵,۰۰۰,۰۰۰</option>
+                        <option value="15000000-99999999">بیش از ۱۵,۰۰۰,۰۰۰</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-child"></i> آیا کودک همراه دارید؟</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="hasChild" value="false" checked> خیر</label>
+                        <label><input type="radio" name="hasChild" value="true"> بله</label>
+                    </div>
+                </div>
+                <div id="tripDaysInfo"></div>
+            </div>
+
+            <!-- ═══ مرحله ۵: مرور ═══ -->
+            <div class="wz-step" data-step="5">
+                <div class="review-card">
+                    <h3 class="rv-title">خلاصه سفر شما</h3>
+                    <p class="rv-sub">قبل از ساخت برنامه، یک‌بار انتخاب‌هات رو ببین</p>
+                    <div class="rv-row">
+                        <div class="rv-icon blue"><i class="fas fa-map-marker-alt"></i></div>
+                        <div><span class="rv-label">مقصد</span><span class="rv-value">دزفول</span></div>
+                    </div>
+                    <div class="rv-row">
+                        <div class="rv-icon pink"><i class="fas fa-calendar-alt"></i></div>
+                        <div>
+                            <span class="rv-label">تاریخ سفر</span>
+                            <div class="rv-dates">
+                                <span class="rv-date" id="rvStart">-</span>
+                                <span>تا</span>
+                                <span class="rv-date" id="rvEnd">-</span>
+                                <span class="rv-daychip" id="rvDays">-</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rv-row">
+                        <div class="rv-icon yellow"><i class="fas fa-heart"></i></div>
+                        <div>
+                            <span class="rv-label">علاقه‌مندی‌ها</span>
+                            <span class="rv-value"><span id="rvIntCount">-</span> مورد</span>
+                            <div class="rv-chips" id="rvChips" style="margin-top: 8px;"></div>
+                        </div>
+                    </div>
+                    <div class="rv-row">
+                        <div class="rv-icon green"><i class="fas fa-info-circle"></i></div>
+                        <div><span class="rv-label">جزئیات</span><span class="rv-value" id="rvDetails">-</span></div>
+                    </div>
+                </div>
+                <div class="review-note">اگر همه‌چیز درست است، «ساخت برنامه» را بزن.</div>
+            </div>
+
+            <div class="wizard-actions">
+                <button type="button" class="wz-prev" id="wizPrev" style="visibility: hidden;"><i class="fas fa-arrow-right"></i> مرحله قبل</button>
+                <button type="button" class="wz-next" id="wizNext">مرحله بعد <i class="fas fa-arrow-left"></i></button>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- فرم مخفی ذخیره -->
+<form method="post" action="{% url 'planner:save_trip' %}" id="saveTripForm" style="display:none;">
+    {% csrf_token %}
+    <input type="hidden" name="start_date" id="saveStartDate">
+    <input type="hidden" name="end_date" id="saveEndDate">
+    <input type="hidden" name="duration_days" id="saveDurationDays">
+    <input type="hidden" name="companions" id="saveCompanions">
+    <input type="hidden" name="has_children" id="saveHasChildren">
+    <input type="hidden" name="budget_toman" id="saveBudgetToman">
+    <input type="hidden" name="interests" id="saveInterests">
+    <input type="hidden" name="suggested_places" id="saveSuggestedPlaces">
+    <input type="hidden" name="daily_durations" id="saveDailyDurations">
+</form>
+
+{% endblock %}
+
+{% block legacy_js %}{% endblock %}
+
+{% block extra_js %}
+<script>
+    (function () {
+        const STORAGE_KEY = 'dezful_debug_logs';
+        let logs = [];
+        try { logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch (e) { logs = []; }
+
+        window.dbg = function (...args) {
+            const content = document.getElementById('debugContent');
+            if (!content) return;
+            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
+            const text = args.map(a => {
+                if (a === null) return 'null';
+                if (a === undefined) return 'undefined';
+                if (typeof a === 'object') { try { return JSON.stringify(a); } catch (e) { return String(a); } }
+                return String(a);
+            }).join(' ');
+            const line = `[${time}] ${text}`;
+            logs.push(line);
+            if (logs.length > 100) logs = logs.slice(-100);
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); } catch (e) { }
+            const div = document.createElement('div');
+            div.textContent = line;
+            div.style.padding = '2px 0';
+            if (line.includes('❌')) div.style.color = '#ef4444';
+            else if (line.includes('⚠️') || line.includes('🔒')) div.style.color = '#f59e0b';
+            else if (line.includes('✅')) div.style.color = '#4ade80';
+            content.appendChild(div);
+            content.scrollTop = content.scrollHeight;
+            console.log(...args);
+        };
+
+        window.clearDbg = function () {
+            logs = [];
+            localStorage.removeItem(STORAGE_KEY);
+            document.getElementById('debugContent').innerHTML = '';
+        };
+
+        function restoreLogs() {
+            const content = document.getElementById('debugContent');
+            if (!content) return;
+            content.innerHTML = '';
+            logs.forEach(line => {
+                const div = document.createElement('div');
+                div.textContent = line;
+                div.style.padding = '2px 0';
+                if (line.includes('❌')) div.style.color = '#ef4444';
+                else if (line.includes('⚠️') || line.includes('🔒')) div.style.color = '#f59e0b';
+                else if (line.includes('✅')) div.style.color = '#4ade80';
+                content.appendChild(div);
+            });
+            content.scrollTop = content.scrollHeight;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('debugToggle');
+            const panel = document.getElementById('debugPanel');
+            if (toggleBtn && panel) {
+                toggleBtn.addEventListener('click', () => {
+                    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+                    if (panel.style.display === 'block') restoreLogs();
+                });
+            }
+            restoreLogs();
+        });
+    })();
+</script>
+
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% endblock %}

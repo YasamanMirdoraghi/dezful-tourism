@@ -1,0 +1,39 @@
+/* ═══════════════════════════════════════════════════════════
+   messages.css — پیام‌های Django
+   ═══════════════════════════════════════════════════════════ */
+
+.messages-stack {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+
+.site-message {
+    padding: 15px 20px;
+    border-radius: 12px;
+    margin-bottom: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.site-message.success {
+    background: rgba(17, 139, 113, 0.1);
+    color: var(--primary-green);
+    border: 1px solid rgba(17, 139, 113, 0.18);
+}
+
+.site-message.error {
+    background: rgba(255, 80, 80, 0.1);
+    color: var(--brick-orange);
+    border: 1px solid rgba(255, 80, 80, 0.18);
+}
+
+.site-message.info,
+.site-message.warning {
+    background: rgba(33, 150, 243, 0.08);
+    color: #1976d2;
+    border: 1px solid rgba(33, 150, 243, 0.18);
+}

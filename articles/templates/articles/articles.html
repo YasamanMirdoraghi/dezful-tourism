@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}مقالات گردشگری دزفول | سفر به دزفول{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/pages/articles.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<script>
+    window.ARTICLES_DATA = {{ articles_json|safe }};
+</script>
+
+<!-- اسلایدر مجله -->
+<section class="section-magazine-slider" id="magazineSlider">
+    <div class="container">
+        <div class="slider-header">
+            <span class="slider-title">
+                <i class="fas fa-newspaper"></i>
+                مجله <span class="highlight">مقالات</span> دزفول
+            </span>
+        </div>
+        <div class="slider-container-mag" id="sliderContainerMag">
+            <div class="slides-track-mag" id="slidesTrackMag">
+                {% for article in articles|slice:":6" %}
+                <div class="slide-mag {% if forloop.first %}active{% endif %}" data-index="{{ forloop.counter0 }}">
+                    <div class="slide-bg-blur" style="background-image: url('{% static 'img/' %}{{ article.slug }}.jpg');"></div>
+                    <div class="slide-image-mag">
+                        <img src="{% static 'img/' %}{{ article.slug }}.jpg" alt="{{ article.title }}"
+                            style="width:100%; height:100%; object-fit:cover;"
+                            onerror="this.onerror=null; this.src='{% static 'img/' %}{{ article.slug }}.png'; this.onerror=function(){this.src='{% static 'img/' %}{{ article.slug }}.jpeg'; this.onerror=function(){this.src='{% static 'img/' %}{{ article.slug }}.webp'; this.onerror=function(){this.src='{% static 'img/asiyab-haye-abi.jpg' %}';};};};">
+                    </div>
+
+                    <div class="slide-content-mag">
+                        <span class="slide-badge-mag">{{ article.category.name|default:'مقاله' }}</span>
+                        <h2 class="slide-title-mag">{{ article.title }}</h2>
+                        <p class="slide-desc-mag">
+                            {% if article.excerpt %}
+                            {{ article.excerpt|truncatewords:20 }}
+                            {% else %}
+                            مطالعه این مقاله را به شما پیشنهاد می‌کنیم.
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'articles:article_detail' article.slug %}" class="slide-link-mag">
+                            مطالعه مقاله
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="slide-mag active">
+                    <div class="slide-content-mag">
+                        <span class="slide-badge-mag">مقاله</span>
+                        <h2 class="slide-title-mag">مقاله‌ای یافت نشد</h2>
+                        <p class="slide-desc-mag">به زودی مقالات جدید اضافه می‌شوند.</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="slider-footer-mag">
+            <div class="slide-list-horizontal-mag" id="slideListHorizontalMag">
+                {% for article in articles|slice:":6" %}
+                <div class="list-item-h-mag {% if forloop.first %}active-item-h-mag{% endif %}"
+                    data-index="{{ forloop.counter0 }}">
+                    <div class="list-item-h-top-mag">
+                        <span class="list-item-h-title-mag">{{ article.title|truncatechars:25 }}</span>
+                    </div>
+                    <div class="list-item-h-progress-mag">
+                        <div class="progress-fill-h-mag" id="progress-h-mag-{{ forloop.counter0 }}"
+                            style="width: 0%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="articles-main">
+    <div class="container">
+        <div class="articles-layout">
+
+            <aside class="filter-sidebar" id="filterSidebar">
+                <div class="filter-sidebar-header">
+                    <h3><i class="fas fa-sliders-h"></i> فیلترها</h3>
+                    <button class="clear-all-btn d-none" id="clearAllBtn">
+                        حذف فیلترها
+                    </button>
+                </div>
+
+                <div class="sidebar-search">
+                    <input type="text" id="searchInput" placeholder="جستجو در مقالات ...">
+                    <i class="fas fa-search"></i>
+                </div>
+
+                <details class="filter-group" open>
+                    <summary class="filter-group-title">مرتب‌سازی بر اساس</summary>
+                    <div class="filter-sub-group">
+                        <label class="filter-item">
+                            <input type="radio" name="sort-by" value="newest" checked> جدیدترین
+                        </label>
+                        <label class="filter-item">
+                            <input type="radio" name="sort-by" value="popular"> محبوب‌ترین
+                        </label>
+                        <label class="filter-item">
+                            <input type="radio" name="sort-by" value="views"> پربازدیدترین
+                        </label>
+                        <label class="filter-item">
+                            <input type="radio" name="sort-by" value="shortest"> کوتاه‌ترین مطالعه
+                        </label>
+                    </div>
+                </details>
+
+                <details class="filter-group" open>
+                    <summary class="filter-group-title">دسته‌بندی</summary>
+                    <div class="filter-sub-group">
+                        {% for cat in categories %}
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="category" value="{{ cat.name }}">
+                            {{ cat.name }}
+                            <span class="count">{{ cat.articles.count }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </details>
+
+                <details class="filter-group">
+                    <summary class="filter-group-title">نویسنده</summary>
+                    <div class="filter-sub-group">
+                        {% for author, count in author_counts.items %}
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="author" value="{{ author }}">
+                            {{ author }}
+                            <span class="count">{{ count }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                </details>
+
+                <details class="filter-group">
+                    <summary class="filter-group-title">زمان مطالعه</summary>
+                    <div class="filter-sub-group">
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="duration" value="short">
+                            کوتاه (زیر ۵ دقیقه)
+                            <span class="count">{{ short_count }}</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="duration" value="medium">
+                            متوسط (۵ تا ۱۰ دقیقه)
+                            <span class="count">{{ medium_count }}</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="duration" value="long">
+                            بلند (بالای ۱۰ دقیقه)
+                            <span class="count">{{ long_count }}</span>
+                        </label>
+                    </div>
+                </details>
+
+                <details class="filter-group">
+                    <summary class="filter-group-title">تاریخ انتشار</summary>
+                    <div class="filter-sub-group">
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="date" value="month">
+                            این ماه
+                            <span class="count">{{ month_count }}</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="date" value="three-months">
+                            ۳ ماه اخیر
+                            <span class="count">{{ three_months_count }}</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="date" value="six-months">
+                            ۶ ماه اخیر
+                            <span class="count">{{ six_months_count }}</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="date" value="year">
+                            یک سال اخیر
+                            <span class="count">{{ year_count }}</span>
+                        </label>
+                    </div>
+                </details>
+
+                <details class="filter-group">
+                    <summary class="filter-group-title">محبوبیت</summary>
+                    <div class="filter-sub-group">
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="featured" value="popular">
+                            پربازدید
+                            <span class="count">{{ popular_count }}</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="featured" value="featured">
+                            ویژه
+                            <span class="count">{{ featured_count }}</span>
+                        </label>
+                        <label class="filter-item">
+                            <input type="checkbox" data-filter="featured" value="new">
+                            جدید
+                            <span class="count">{{ new_count }}</span>
+                        </label>
+                    </div>
+                </details>
+
+            </aside>
+
+            <div class="articles-grid-section">
+                <div class="articles-grid-header">
+                    <h2>مقالات گردشگری دزفول</h2>
+                    <div class="articles-header-actions">
+                        <span id="resultCount"></span>
+                    </div>
+                </div>
+
+                <div class="articles-grid" id="articlesGrid"></div>
+
+                <div class="pagination" id="paginationContainer"></div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block legacy_js %}{% endblock %}
+
+{% block extra_js %}
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% endblock %}

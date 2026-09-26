@@ -1,45 +1,10 @@
 from django.urls import path
-from django.contrib.auth import views as auth_views
 from . import views
-from django.views.generic import RedirectView
+
+app_name = 'core'
 
 urlpatterns = [
     path('', views.home, name='home'),
-    path('attraction/', views.attraction_page, name='attraction'),
-    path('place/<slug:slug>/', views.place_detail_page, name='place_detail'),
-    path('articles/', views.articles_page, name='articles'),
-    path('articles/<slug:slug>/', views.article_detail_page, name='article_detail'),
-    path('articles/<slug:slug>/review/', views.submit_review, name='submit_review'),
-    path('map/', views.map_page, name='map'),
-    path('plan/', views.plan_page, name='plan'),
-    path('plan/save/', views.save_trip, name='save_trip'),
-    path('plan/<int:trip_id>/load/', views.load_trip, name='load_trip'),
     path('contact/', views.contact_page, name='contact'),
-    path('place/<slug:slug>/review/', views.submit_place_review, name='submit_place_review'),
-
-    # ===== مسیرهای احراز هویت =====
-    path('login/', auth_views.LoginView.as_view(template_name='login.html'), name='login'),
-    path('logout/', views.logout_view, name='logout'),
-    path('register/', views.register_page, name='register'),
-
-    # ✅ صفحه نتیجه سفر
-    path('result/<int:trip_id>/', views.trip_result_page, name='trip_result'),
-
-    # ✅ جدید: صفحه جزئیات پلن پیشنهادی
-    path('plan/<slug:slug>/', views.plan_detail_page, name='plan_detail'),
-    
-    # ✅ داشبورد کاربر
-    path('dashboard/', views.dashboard_page, name='dashboard'),
-    
-    # ✅ ذخیره/حذف جاذبه از علاقه‌مندی (AJAX)
-    path('favorite/<slug:slug>/toggle/', views.toggle_favorite, name='toggle_favorite'),
-        # ✅ حذف سفر
-    path('trip/<int:trip_id>/delete/', views.delete_trip, name='delete_trip'),
-    
-    # ✅ حذف نظر
-    path('review/<int:review_id>/delete/', views.delete_review, name='delete_review'),
-    
-    # ✅ ویرایش پروفایل
-    path('profile/update/', views.update_profile, name='update_profile'),
-    path('test-algorithm/', views.test_algorithm_page, name='test_algorithm'),
+    path('map/', views.map_page, name='map'),
 ]

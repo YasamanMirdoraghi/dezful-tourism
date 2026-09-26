@@ -1,0 +1,139 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}نقشه گردشگری دزفول | سفر به دزفول{% endblock %}
+
+{% block body_class %}page-map{% endblock %}
+
+{% block footer %}{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css">
+<link rel="stylesheet" href="{% static 'css/pages/map.css' %}">
+{% endblock %}
+
+{% block content %}
+
+<div class="map-layout">
+
+    <aside class="map-sidebar" id="mapSidebar">
+        <div class="planner-hero">
+            <button class="close-sb" id="closeSb" title="بستن"><i class="fas fa-times"></i></button>
+            <div class="ph-title">
+                <img src="{% static 'img/slide4.jpg' %}" alt="" class="ph-thumb">
+                <div>
+                    <h3 id="sidebarTitle">
+                        {% if is_plan_mode %}{{ plan.name }}{% elif trip_mode %}برنامه سفر شما{% else %}دزفول{% endif %}
+                    </h3>
+                    <span id="sidebarSubtitle">
+                        {% if trip_mode %}{{ trip.duration_days|default:'' }} روز{% else %}کشف جاذبه‌های شهر{% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="smart-search" id="searchBox" style="display:none;">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="mapSearch" placeholder="جستجو در جاذبه‌ها...">
+            <div class="search-suggestions" id="searchSug"></div>
+        </div>
+
+        <div class="planner-tabs" id="plannerTabs" style="display:none;"></div>
+
+        <div class="quick-filters" id="quickFiltersSection" style="display:none;">
+            <div class="qf-header" id="qfHeader">
+                <span class="qf-header-title">
+                    <i class="fas fa-filter"></i>
+                    <span>فیلتر سریع</span>
+                    <span class="qf-active-count" id="qfActiveCount"></span>
+                </span>
+                <span class="qf-toggle-icon">
+                    <i class="fas fa-chevron-down"></i>
+                </span>
+            </div>
+            <div class="qf-body" id="qfBody">
+                <div class="qf-actions">
+                    <span class="qf-actions-label">دسته‌بندی‌ها</span>
+                    <span class="qf-clear" id="qfClear">پاک کردن</span>
+                </div>
+                <div class="qf-chips" id="qfChips"></div>
+            </div>
+        </div>
+
+        <div class="extra-toggles" id="extraTogglesSection" style="display:none;">
+            <button class="et-btn" id="freeOnly" data-active="false">
+                <i class="fas fa-gift"></i><span>فقط رایگان</span>
+            </button>
+            <button class="et-btn" id="childOnly" data-active="false">
+                <i class="fas fa-child"></i><span>خانوادگی</span>
+            </button>
+            <button class="et-btn" id="favsOnly" data-active="false">
+                <i class="fas fa-heart"></i><span>علاقه‌مندی</span>
+            </button>
+        </div>
+
+        <div class="result-count" id="resultCount"></div>
+        <div class="map-list" id="mapList"></div>
+    </aside>
+
+    <div class="map-viewport">
+        <div id="tourismMap"></div>
+        <div class="map-day-chips" id="mapDayChips"></div>
+
+        <div class="map-controls">
+            <button class="mc-btn locate" id="locateBtn" title="موقعیت من">
+                <i class="fas fa-location-crosshairs"></i>
+            </button>
+            <button class="mc-btn route" id="routeBtn" title="نمایش/مخفی مسیر" style="display:none;">
+                <i class="fas fa-route"></i>
+            </button>
+            <button class="mc-btn" id="layerBtn" title="لایه نقشه">
+                <i class="fas fa-layer-group"></i>
+            </button>
+            <button class="mc-btn" id="fitBtn" title="نمایش همه">
+                <i class="fas fa-expand"></i>
+            </button>
+        </div>
+
+        <div class="layer-switcher" id="layerSwitcher">
+            <button data-layer="street" class="active"><i class="fas fa-road"></i> خیابان</button>
+            <button data-layer="sat"><i class="fas fa-satellite"></i> ماهواره</button>
+            <button data-layer="terrain"><i class="fas fa-mountain"></i> زمین</button>
+            <button data-layer="dark"><i class="fas fa-moon"></i> شب</button>
+        </div>
+
+        <div class="map-legend" id="mapLegend">
+            <div class="legend-title">
+                <span><i class="fas fa-palette lc"></i> راهنما</span>
+                <button class="toggle-leg" id="toggleLeg"><i class="fas fa-minus"></i></button>
+            </div>
+            <div class="legend-body" id="legendBody"></div>
+        </div>
+    </div>
+
+</div>
+
+<button class="sb-toggle" id="sbToggle" title="نمایش پنل"><i class="fas fa-list"></i></button>
+<div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toastMsg"></span></div>
+
+{% endblock %}
+
+{% block legacy_js %}{% endblock %}
+
+{% block extra_js %}
+<script>
+    window.MAP_PLACES = {{ places_json|safe }};
+    window.TRIP_DATA = {{ trip_json|default:'null'|safe }};
+    window.TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
+    window.IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
+    window.FAVORITE_IDS = {{ favorite_ids|default:'[]'|safe }};
+</script>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
+<script type="module" src="{% static 'js/main.js' %}"></script>
+{% endblock %}

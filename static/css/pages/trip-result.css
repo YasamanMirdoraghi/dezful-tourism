@@ -1,0 +1,807 @@
+/* ═══════════════════════════════════════════════════════════
+   trip-result.css — صفحه‌ی نتیجه‌ی سفر
+   ═══════════════════════════════════════════════════════════ */
+
+.trip-result-page {
+    min-height: 100vh;
+    background: var(--cream-bg);
+    padding: 30px 0 60px;
+}
+
+/* ═══ هدر ═══ */
+.trip-result-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.trip-result-header .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    color: #fff;
+    padding: 6px 20px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 12px;
+}
+
+.trip-result-header h1 {
+    font-size: 2.2rem;
+    color: var(--brown-text);
+    margin-bottom: 8px;
+    font-weight: 900;
+}
+
+.trip-result-header p {
+    color: var(--brown-light);
+    font-size: 15px;
+}
+
+/* ═══ کارت‌های اطلاعات ═══ */
+.trip-result-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.trip-info-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 18px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.trip-info-card .info-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #fff;
+    flex-shrink: 0;
+}
+
+.trip-info-card .info-icon.green { background: linear-gradient(135deg, #118b71, #2a9d8f); }
+.trip-info-card .info-icon.orange { background: linear-gradient(135deg, #f4a62a, #ff7a5a); }
+.trip-info-card .info-icon.pink { background: linear-gradient(135deg, #e04444, #ff7a5a); }
+.trip-info-card .info-icon.blue { background: linear-gradient(135deg, #2196f3, #64b5f6); }
+
+.trip-info-card .info-label {
+    font-size: 12px;
+    color: var(--brown-light);
+    margin-bottom: 4px;
+}
+
+.trip-info-card .info-value {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--brown-text);
+}
+
+/* ═══ جعبه‌ی هشدارها ═══ */
+.plan-warnings-box {
+    background: #fff;
+    border-radius: 16px;
+    padding: 0;
+    margin-bottom: 24px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    border: 1px solid rgba(244, 166, 42, 0.2);
+}
+
+.pw-header {
+    background: linear-gradient(135deg, #fef9e7, #fff4d6);
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #8b6914;
+    font-size: 14px;
+    font-weight: 800;
+}
+
+.pw-header > i {
+    color: #f4a62a;
+    font-size: 18px;
+}
+
+.pw-header > span {
+    flex: 1;
+}
+
+.pw-body {
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.pw-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 14px;
+    border-radius: 12px;
+    font-size: 13px;
+    line-height: 1.8;
+    border-right: 3px solid transparent;
+}
+
+.pw-item.pw-warn {
+    background: rgba(244, 166, 42, 0.06);
+    border-right-color: #f4a62a;
+}
+
+.pw-item.pw-error {
+    background: rgba(255, 80, 80, 0.05);
+    border-right-color: #ff5050;
+}
+
+.pw-item .pw-icon {
+    flex: 0 0 28px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+}
+
+.pw-item.pw-warn .pw-icon {
+    background: rgba(244, 166, 42, 0.15);
+    color: #d68f1d;
+}
+
+.pw-item.pw-error .pw-icon {
+    background: rgba(255, 80, 80, 0.12);
+    color: #e04444;
+}
+
+.pw-item strong {
+    display: block;
+    margin-bottom: 3px;
+    color: var(--brown-text);
+    font-size: 13px;
+}
+
+.pw-item span {
+    color: var(--brown-light);
+    font-size: 12px;
+}
+
+.pw-item b {
+    color: var(--primary-green);
+    font-weight: 800;
+}
+
+/* ═══ لایوت اصلی ═══ */
+.trip-result-layout {
+    display: grid;
+    grid-template-columns: 1fr 1.2fr;
+    gap: 24px;
+    align-items: start;
+}
+
+/* ═══ سایدبار ═══ */
+.trip-result-sidebar {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.planner-hero {
+    background-image: url('/static/img/slide4.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 130px;
+    position: relative;
+    flex-shrink: 0;
+}
+
+.planner-hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.75), rgba(0, 0, 0, 0.05) 60%);
+}
+
+.ph-title {
+    position: absolute;
+    bottom: 14px;
+    right: 16px;
+    left: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #fff;
+    z-index: 2;
+}
+
+.ph-thumb {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 2px solid rgba(255, 255, 255, 0.6);
+}
+
+.ph-title h3 {
+    font-size: 18px;
+    font-weight: 900;
+    margin: 0;
+}
+
+.ph-title span {
+    font-size: 11px;
+    opacity: 0.9;
+}
+
+/* ═══ تب‌های روزها ═══ */
+.planner-tabs {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding: 8px 14px;
+    border-bottom: 1px solid #f0f0f0;
+    background: #fff;
+    flex-shrink: 0;
+}
+
+.planner-tabs::-webkit-scrollbar {
+    height: 4px;
+}
+
+.planner-tabs::-webkit-scrollbar-thumb {
+    background: rgba(17, 139, 113, 0.3);
+    border-radius: 10px;
+}
+
+.ptab {
+    flex: 0 0 auto;
+    text-align: center;
+    padding: 10px 16px 12px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-family: inherit;
+    border-bottom: 3px solid transparent;
+    color: var(--brown-light);
+    transition: 0.2s;
+}
+
+.ptab .t {
+    display: block;
+    font-weight: 800;
+    font-size: 14px;
+}
+
+.ptab .s {
+    display: block;
+    font-size: 11px;
+    margin-top: 3px;
+    opacity: 0.8;
+}
+
+.ptab.active {
+    color: var(--brick-orange);
+    border-bottom-color: var(--brick-orange);
+}
+
+.ptab:hover:not(.active) {
+    color: var(--brown-text);
+}
+
+/* ═══ لیست روزها ═══ */
+.planner-days {
+    padding: 16px 16px 26px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.planner-days::-webkit-scrollbar {
+    width: 6px;
+}
+
+.planner-days::-webkit-scrollbar-thumb {
+    background: rgba(17, 139, 113, 0.35);
+    border-radius: 10px;
+}
+
+.day-block {
+    margin-bottom: 26px;
+}
+
+.day-block-title {
+    font-size: 13px;
+    font-weight: 800;
+    color: var(--brown-text);
+    margin: 4px 0 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.day-block-title span {
+    color: var(--brown-light);
+    font-weight: 500;
+    font-size: 12px;
+}
+
+/* ═══ کارت‌های مکان (تایم‌لاین) ═══ */
+.place-row {
+    position: relative;
+    padding-right: 46px;
+    margin-bottom: 16px;
+}
+
+.place-row::before {
+    content: '';
+    position: absolute;
+    right: 15px;
+    top: 36px;
+    bottom: -14px;
+    border-right: 2px dashed rgba(255, 80, 80, 0.3);
+}
+
+.place-row:last-child::before {
+    display: none;
+}
+
+.place-num {
+    position: absolute;
+    right: 0;
+    top: 12px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid var(--brick-orange);
+    color: var(--brick-orange);
+    background: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 800;
+    z-index: 1;
+}
+
+.place-card {
+    display: flex;
+    gap: 12px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.05);
+}
+
+.pc-img {
+    width: 76px;
+    height: 76px;
+    border-radius: 12px;
+    object-fit: cover;
+    flex: 0 0 76px;
+    background: #f0f0f0;
+}
+
+.pc-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.pc-info h4 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--brown-text);
+    margin-bottom: 6px;
+}
+
+.pc-time {
+    font-size: 12px;
+    color: var(--brown-light);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.pc-time i {
+    color: var(--primary-green);
+    font-size: 11px;
+}
+
+.pc-time .duration-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(17, 139, 113, 0.08);
+    color: var(--primary-green);
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+.pc-time .distance-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(255, 80, 80, 0.06);
+    color: var(--brick-orange);
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 700;
+    font-size: 11px;
+}
+
+.pc-meta {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    font-size: 11px;
+    color: var(--brown-light);
+}
+
+/* ═══ نقشه ═══ */
+.trip-result-map-wrap {
+    background: #fff;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.06);
+    position: relative;
+    height: 80vh;
+    position: sticky;
+    top: 90px;
+}
+
+#resultMap {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+}
+
+/* ═══ چیپ‌های روز روی نقشه ═══ */
+.map-day-chips {
+    position: absolute;
+    bottom: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 8px;
+    z-index: 1000;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 6px 10px;
+    border-radius: 40px;
+    backdrop-filter: blur(6px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    overflow-x: auto;
+    max-width: 92%;
+}
+
+.map-chip {
+    border: 1px solid #e5e5e5;
+    background: #fff;
+    color: var(--brown-text);
+    border-radius: 30px;
+    padding: 7px 16px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: 0.2s;
+}
+
+.map-chip:hover:not(.active) {
+    background: rgba(17, 139, 113, 0.06);
+    border-color: var(--primary-green);
+}
+
+.map-chip.active {
+    background: var(--primary-green);
+    color: #fff;
+    border-color: var(--primary-green);
+}
+
+/* ═══ دکمه‌ی لایه‌ها ═══ */
+.map-layer-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    z-index: 800;
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--brown-text);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    transition: 0.2s;
+}
+
+.map-layer-btn:hover {
+    color: var(--primary-green);
+    transform: scale(1.06);
+}
+
+.map-layer-btn.active {
+    background: var(--primary-green);
+    color: #fff;
+}
+
+.layer-switcher {
+    position: absolute;
+    top: 12px;
+    right: 62px;
+    z-index: 800;
+    background: #fff;
+    border-radius: 14px;
+    padding: 8px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.layer-switcher.open {
+    display: flex;
+}
+
+.layer-switcher button {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--brown-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: 0.15s;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.layer-switcher button:hover {
+    background: rgba(17, 139, 113, 0.08);
+}
+
+.layer-switcher button.active {
+    background: var(--primary-green);
+    color: #fff;
+}
+
+.layer-switcher button i {
+    font-size: 14px;
+    width: 16px;
+    text-align: center;
+}
+
+/* ═══ پین‌های نقشه ═══ */
+.pin-wrap {
+    background: transparent;
+    border: none;
+}
+
+.pin {
+    width: 28px;
+    height: 28px;
+    background: var(--brick-orange);
+    border: 3px solid #fff;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.pin span {
+    transform: rotate(45deg);
+    color: #fff;
+    font-weight: 800;
+    font-size: 12px;
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+.pin-label {
+    position: absolute;
+    top: 34px;
+    left: 50%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+    font-size: 11px;
+    font-weight: 800;
+    color: #2b2b2b;
+    font-family: 'Vazirmatn', sans-serif;
+    text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff, 0 0 6px #fff;
+    pointer-events: none;
+}
+
+/* ═══ پاپ‌آپ نقشه ═══ */
+.leaflet-popup-content-wrapper {
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+    overflow: hidden;
+}
+
+.leaflet-popup-content {
+    margin: 0 !important;
+    width: 250px !important;
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+.map-pop {
+    direction: rtl;
+    background: #fff;
+}
+
+.map-pop-img {
+    height: 120px;
+    background: #e8e8e8;
+    position: relative;
+}
+
+.map-pop-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.map-pop-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: rgba(255, 255, 255, 0.92);
+    color: var(--primary-green);
+    border-radius: 20px;
+    padding: 3px 12px;
+    font-size: 10px;
+    font-weight: 800;
+}
+
+.map-pop-body {
+    padding: 12px 14px 14px;
+}
+
+.map-pop-body h4 {
+    font-size: 15px;
+    font-weight: 800;
+    color: var(--brown-text);
+    margin-bottom: 6px;
+}
+
+.map-pop-loc {
+    font-size: 11px;
+    color: var(--brown-light);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-bottom: 8px;
+}
+
+.map-pop-loc i {
+    color: var(--brick-orange);
+}
+
+.map-pop-body p {
+    font-size: 11px;
+    color: var(--brown-light);
+    line-height: 1.8;
+    margin: 0;
+}
+
+/* ═══ دکمه‌های اقدام ═══ */
+.trip-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.trip-action-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.25s;
+    text-decoration: none;
+    border: none;
+}
+
+.trip-action-btn.primary {
+    background: linear-gradient(135deg, var(--primary-green), var(--primary-green-light));
+    color: #fff;
+    box-shadow: 0 8px 25px rgba(17, 139, 113, 0.25);
+}
+
+.trip-action-btn.primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(17, 139, 113, 0.35);
+}
+
+.trip-action-btn.secondary {
+    background: #fff;
+    color: var(--primary-green);
+    border: 2px solid var(--primary-green);
+}
+
+.trip-action-btn.secondary:hover {
+    background: var(--primary-green);
+    color: #fff;
+}
+
+.trip-action-btn.orange {
+    background: linear-gradient(135deg, #f4a62a, #ff7a5a);
+    color: #fff;
+    box-shadow: 0 8px 25px rgba(244, 166, 42, 0.25);
+}
+
+.trip-action-btn.orange:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 30px rgba(244, 166, 42, 0.35);
+}
+
+/* ═══ ریسپانسیو ═══ */
+@media (max-width: 992px) {
+    .trip-result-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .trip-result-map-wrap {
+        height: 500px;
+        position: relative;
+        top: 0;
+    }
+
+    .trip-result-sidebar {
+        max-height: none;
+    }
+}
+
+@media (max-width: 600px) {
+    .trip-result-header h1 {
+        font-size: 1.6rem;
+    }
+
+    .trip-actions {
+        flex-direction: column;
+    }
+
+    .trip-action-btn {
+        justify-content: center;
+    }
+
+    .day-block-title {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
