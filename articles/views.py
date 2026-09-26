@@ -115,8 +115,12 @@ def article_detail_page(request, slug):
 def submit_review(request, slug):
     if request.method == 'POST':
         article = get_object_or_404(Article, slug=slug, is_published=True)
-        comment = request.POST.get('comment')
+        comment = request.POST.get('comment', '').strip()
         rating = request.POST.get('rating', 5)
+
+        if not comment:
+            messages.error(request, 'لطفاً متن نظر را وارد کنید.')
+            return redirect('articles:article_detail', slug=slug)
 
         if request.user.is_authenticated:
             Review.objects.create(
@@ -129,6 +133,6 @@ def submit_review(request, slug):
         else:
             messages.error(request, 'برای ثبت نظر ابتدا وارد شوید.')
 
-        return redirect('article_detail', slug=slug)
+        return redirect('articles:article_detail', slug=slug)
 
-    return redirect('article_detail', slug=slug)
+    return redirect('articles:article_detail', slug=slug)

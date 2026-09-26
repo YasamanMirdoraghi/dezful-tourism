@@ -213,19 +213,62 @@
                     <i class="fas fa-sign-in-alt"></i> ورود به حساب
                 </span>
             </button>
+            {% else %}
+            <form method="post" action="{% url 'articles:submit_review' article.slug %}" class="comment-form-card">
+                {% csrf_token %}
+                <div class="form-icon"><i class="far fa-comment-dots"></i></div>
+                <h3>تجربه‌ات را با ما به اشتراک بگذار</h3>
+                <p>نظرت درباره این مقاله چیه؟</p>
+
+                <!-- امتیاز با ۵ ستاره خالی -->
+                <div class="rating-input">
+                    <span class="rating-input-label">امتیاز تو:</span>
+                    <div class="star-rating">
+                        <input type="radio" name="rating" value="5" id="star-5">
+                        <label for="star-5" title="عالی"><i class="fas fa-star"></i></label>
+
+                        <input type="radio" name="rating" value="4" id="star-4">
+                        <label for="star-4" title="خوب"><i class="fas fa-star"></i></label>
+
+                        <input type="radio" name="rating" value="3" id="star-3">
+                        <label for="star-3" title="متوسط"><i class="fas fa-star"></i></label>
+
+                        <input type="radio" name="rating" value="2" id="star-2">
+                        <label for="star-2" title="ضعیف"><i class="fas fa-star"></i></label>
+
+                        <input type="radio" name="rating" value="1" id="star-1" checked>
+                        <label for="star-1" title="خیلی ضعیف"><i class="fas fa-star"></i></label>
+                    </div>
+                </div>
+
+                <textarea name="comment" placeholder="نظر خودت را بنویس..." required></textarea>
+                <button type="submit">
+                    <i class="fas fa-paper-plane"></i> ثبت نظر
+                </button>
+            </form>
             {% endif %}
             <div class="comments-list">
                 {% for review in reviews %}
                 <article class="comment-item">
                     <div class="comment-avatar">{{ review.user.username|first|upper }}</div>
-                    <div>
+                    <div class="comment-body">
                         <div class="comment-head">
                             <strong>{{ review.user.username }}</strong>
-                            <span>{{ review.created_at|timesince }} پیش</span>
+                            <span class="comment-time">{{ review.created_at|timesince }} پیش</span>
+                            <span class="comment-stars" title="{{ review.rating }} از ۵">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= review.rating %}
+                                        <i class="fas fa-star"></i>
+                                    {% else %}
+                                        <i class="far fa-star"></i>
+                                    {% endif %}
+                                {% endfor %}
+                                <em>{{ review.rating }}.۰</em>
+                            </span>
                         </div>
                         <p>{{ review.comment }}</p>
                         <div class="comment-actions">
-                            <span>♡ {{ review.likes_count }}</span>
+                            <span>♡ {{ review.likes_count|default:0 }}</span>
                             <button>پاسخ</button>
                         </div>
                     </div>

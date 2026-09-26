@@ -977,7 +977,7 @@
     box-shadow: 0 0 0 4px rgba(17, 139, 113, 0.07);
 }
 
-.comment-form-card button {
+.comment-form-card button[type="submit"] {
     margin-top: 12px;
     width: 100%;
     border: 0;
@@ -993,15 +993,71 @@
     font-family: 'Vazirmatn', sans-serif;
 }
 
-.comment-form-card button:hover {
+.comment-form-card button[type="submit"]:hover {
     background: var(--primary-green-dark);
     transform: translateY(-2px);
 }
 
-.comment-form-card button i {
+.comment-form-card button[type="submit"] i {
     margin-right: 5px;
 }
 
+/* ═══ امتیازدهی با ستاره ═══ */
+.rating-input {
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    background: #fbfaf7;
+    border: 1px solid rgba(74, 58, 42, 0.08);
+    border-radius: 14px;
+}
+
+.rating-input-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: var(--brown-text);
+    margin-bottom: 10px;
+}
+
+/* ═══ ستاره‌ها ═══ */
+.star-rating {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+    gap: 6px;
+    direction: ltr;
+}
+
+.star-rating input[type="radio"] {
+    display: none;
+}
+
+.star-rating label {
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: #d8d3cb;
+    transition: color 0.2s ease, transform 0.15s ease;
+    line-height: 1;
+    padding: 2px;
+}
+
+.star-rating label:hover {
+    transform: scale(1.15);
+}
+
+/* ستاره‌ی هاور شده + همه‌ی ستاره‌های قبلش (توی DOM) */
+.star-rating label:hover,
+.star-rating label:hover ~ label,
+.star-rating input[type="radio"]:checked ~ label {
+    color: #f4b400;
+}
+
+/* حالت هاور کل کانتینر: ستاره‌های قبل از هاور، پر بمونن */
+.star-rating:hover input[type="radio"]:checked ~ label {
+    color: #f4b400;
+}
+
+/* ═══ لیست نظرات ═══ */
 .comments-list {
     display: flex;
     flex-direction: column;
@@ -1010,55 +1066,114 @@
 
 .comment-item {
     display: grid;
-    grid-template-columns: 44px 1fr;
+    grid-template-columns: 48px 1fr;
     gap: 14px;
-    padding: 22px;
+    padding: 20px 22px;
     background: #fff;
     border-radius: 20px;
     border: 1px solid rgba(74, 58, 42, 0.06);
     box-shadow: 0 6px 22px rgba(0, 0, 0, 0.035);
+    transition: box-shadow 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
+}
+
+.comment-item:hover {
+    border-color: rgba(17, 139, 113, 0.15);
+    box-shadow: 0 10px 30px rgba(17, 139, 113, 0.07);
+    transform: translateY(-2px);
 }
 
 .comment-avatar {
-    width: 44px;
-    height: 44px;
+    width: 48px;
+    height: 48px;
     border-radius: 14px;
     background: linear-gradient(135deg, #dff0ea, #c5e3d8);
     display: grid;
     place-items: center;
     color: var(--primary-green);
     font-weight: 900;
+    font-size: 1rem;
 }
 
+.comment-body {
+    min-width: 0;
+}
+
+/* ═══ هدر نظر: نام + زمان + ستاره ═══ */
 .comment-head {
     display: flex;
     align-items: center;
-    gap: 9px;
-    margin-bottom: 8px;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
 }
 
 .comment-head strong {
-    font-size: 0.82rem;
+    font-size: 0.85rem;
     color: var(--brown-text);
+    font-weight: 800;
 }
 
-.comment-head span {
+.comment-time {
     font-size: 0.66rem;
     color: var(--brown-light);
+    background: #f6f2ec;
+    padding: 3px 9px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* ═══ ستاره‌های امتیاز نظر ═══ */
+.comment-stars {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-right: auto;
+    padding: 3px 9px;
+    background: #fffaf0;
+    border: 1px solid rgba(244, 180, 0, 0.2);
+    border-radius: 20px;
+    font-size: 0.68rem;
+    line-height: 1;
+}
+
+.comment-stars i {
+    color: #f4b400;
+    font-size: 0.7rem;
+}
+
+.comment-stars i.far {
+    color: #ddd;
+}
+
+.comment-stars em {
+    font-style: normal;
+    font-weight: 900;
+    color: #c29013;
+    margin-right: 4px;
+    font-size: 0.7rem;
+    direction: ltr;
 }
 
 .comment-item p {
-    font-size: 0.78rem;
-    line-height: 1.9;
+    font-size: 0.82rem;
+    line-height: 2;
     color: #6c5b49;
+    margin: 0 0 10px;
 }
 
 .comment-actions {
     display: flex;
     gap: 15px;
-    margin-top: 10px;
     font-size: 0.68rem;
     color: var(--brown-light);
+    padding-top: 10px;
+    border-top: 1px dashed rgba(74, 58, 42, 0.08);
+}
+
+.comment-actions span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .comment-actions button {
@@ -1066,7 +1181,13 @@
     background: none;
     color: var(--primary-green);
     font: inherit;
+    font-weight: 700;
     cursor: pointer;
+    transition: color 0.2s ease;
+}
+
+.comment-actions button:hover {
+    color: var(--primary-green-dark);
 }
 
 .no-comments {
@@ -1184,6 +1305,10 @@
     .article-related-slider { gap: 9px; }
     .article-related-nav { width: 42px; height: 42px; flex-basis: 42px; border-radius: 14px; }
     .article-related-viewport { mask-image: none; margin: 0; padding: 12px 4px 22px; }
+    .star-rating label { font-size: 1.6rem; }
+    .comment-item { grid-template-columns: 40px 1fr; padding: 16px; }
+    .comment-avatar { width: 40px; height: 40px; font-size: 0.9rem; }
+    .comment-stars { font-size: 0.62rem; padding: 2px 7px; }
 }
 
 @media (max-width: 480px) {
@@ -1195,4 +1320,7 @@
     .article-heading { font-size: 1.35rem; }
     .article-paragraph { font-size: 0.9rem; }
     .article-related-section, .article-comments-section { padding-top: 55px; padding-bottom: 60px; }
+    .star-rating label { font-size: 1.5rem; }
+    .comment-head { gap: 6px; }
+    .comment-stars { margin-right: 0; }
 }
