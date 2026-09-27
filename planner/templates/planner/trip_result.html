@@ -13,6 +13,7 @@
 <script>
     window.PLACES_IN_TRIP = {{ places_json|safe }};
     window.IS_PLAN_MODE = {{ is_plan_mode|yesno:"true,false" }};
+    window.MATCHED_HISTORICAL_ROUTES = {{ matched_routes_json|default:'[]'|safe }};
 </script>
 
 <section class="trip-result-page">
@@ -179,6 +180,115 @@
                 <i class="fas fa-print"></i> چاپ برنامه
             </button>
         </div>
+
+        {# ═══════════════════════════════════════════════════════════ #}
+        {# 🆕 بخش مسیرهای تاریخی منطبق #}
+        {# ═══════════════════════════════════════════════════════════ #}
+        {% if matched_routes %}
+        <section class="historical-routes-section">
+            <div class="hr-header">
+                <div class="hr-header-icon">
+                    <i class="fas fa-walking"></i>
+                </div>
+                <div class="hr-header-text">
+                    <span class="hr-kicker">پیشنهاد ویژه</span>
+                    <h2>مسیرهای تاریخی پیاده‌روی!</h2>
+                    <p>برنامه‌ی سفرت از نزدیکی این مسیرهای تاریخی می‌گذره. می‌تونی پیاده قدم بزنی و بافت قدیم دزفول رو ببینی.</p>
+                </div>
+            </div>
+
+            <div class="hr-cards">
+                {% for route in matched_routes %}
+                <div class="hr-card">
+                    <div class="hr-card-badge">
+                        <i class="fas fa-route"></i>
+                        {{ route.matched_stops_count }} از {{ route.total_stops }} ایستگاه
+                    </div>
+
+                    <h3 class="hr-card-title">{{ route.name }}</h3>
+
+                    {% if route.description %}
+                    <p class="hr-card-desc">{{ route.description|truncatewords:25 }}</p>
+                    {% endif %}
+
+                    {% if route.historical_significance %}
+                    <div class="hr-card-significance">
+                        <i class="fas fa-landmark"></i>
+                        <span>{{ route.historical_significance|truncatewords:20 }}</span>
+                    </div>
+                    {% endif %}
+
+                    <div class="hr-card-meta">
+                        <span>
+                            <i class="fas fa-clock"></i>
+                            {{ route.duration_minutes }} دقیقه
+                        </span>
+                        <span>
+                            <i class="fas fa-shoe-prints"></i>
+                            {{ route.distance_km }} کیلومتر
+                        </span>
+                        {% if route.is_scenic %}
+                        <span class="hr-scenic">
+                            <i class="fas fa-camera"></i>
+                            منظره‌دار
+                        </span>
+                        {% endif %}
+                    </div>
+
+                    {# ═══ ایستگاه‌های باکیفیت منطبق ═══ #}
+                    {% if route.quality_matches %}
+                    <div class="hr-card-stops">
+                        <div class="hr-stops-label">
+                            <i class="fas fa-map-pin"></i>
+                            ایستگاه‌های نزدیک به برنامه‌ی تو:
+                        </div>
+                        <div class="hr-stops-list">
+                            {% for stop in route.quality_matches %}
+                            <div class="hr-stop-chip">
+                                <span class="hr-stop-num">{{ forloop.counter }}</span>
+                                <span>{{ stop.stop_name }}</span>
+                                {% if stop.distance_meters is not None %}
+                                <small>{{ stop.distance_meters }} متر</small>
+                                {% endif %}
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <div class="hr-card-actions">
+                        {% if is_plan_mode %}
+                        <a href="{% url 'core:map' %}?route={{ route.id }}&plan={{ plan.id }}"
+                           class="hr-btn primary">
+                            <i class="fas fa-map"></i>
+                            مشاهده روی نقشه
+                        </a>
+                        {% elif trip.id %}
+                        <a href="{% url 'core:map' %}?route={{ route.id }}&trip={{ trip.id }}"
+                           class="hr-btn primary">
+                            <i class="fas fa-map"></i>
+                            مشاهده روی نقشه
+                        </a>
+                        {% else %}
+                        <a href="{% url 'core:map' %}?route={{ route.id }}"
+                           class="hr-btn primary">
+                            <i class="fas fa-map"></i>
+                            مشاهده روی نقشه
+                        </a>
+                        {% endif %}
+
+                        <button type="button"
+                                class="hr-btn secondary"
+                                data-route-id="{{ route.id }}">
+                            <i class="fas fa-draw-polygon"></i>
+                            نمایش روی همین نقشه
+                        </button>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endif %}
 
     </div>
 </section>

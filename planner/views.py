@@ -8,11 +8,13 @@ from django.utils.text import Truncator
 from datetime import timedelta
 import json
 import jdatetime
-
+from django.http import JsonResponse
 from .models import Trip, Plan, PlanAttraction, Route, RouteStop
 from places.models import Place, Category
 from places.utils import get_place_image
 from core.utils import gregorian_to_jalali
+from .services.route_matcher import find_matching_historical_routes
+from django.http import JsonResponse
 
 
 # ==========================================================
@@ -213,7 +215,7 @@ def save_trip(request):
 
 # ==========================================================
 # صفحه نتیجه سفر شخصی
-# ==========================================================
+
 def trip_result_page(request, trip_id):
     trip = get_object_or_404(Trip, id=trip_id)
 
@@ -236,6 +238,9 @@ def trip_result_page(request, trip_id):
                 'day': item.get('day', 1),
                 'score': item.get('score', 0),
             })
+
+    # ═══ 🆕 تطبیق مسیرهای تاریخی ═══
+    matched_routes = find_matching_historical_routes(places_in_trip)
 
     interests = trip.interests or []
     empty_categories = []
@@ -264,9 +269,10 @@ def trip_result_page(request, trip_id):
         'start_jalali': start_jalali,
         'end_jalali': end_jalali,
         'is_plan_mode': False,
+        # 🆕
+        'matched_routes': matched_routes,
+        'matched_routes_json': json.dumps(matched_routes, ensure_ascii=False),
     })
-
-
 # ==========================================================
 # صفحه نتیجه پلن پیشنهادی
 # ==========================================================
@@ -316,6 +322,9 @@ def plan_detail_page(request, slug):
 
     fake_trip = FakeTrip(plan, duration_days)
 
+    # ═══ 🆕 تطبیق مسیرهای تاریخی ═══
+    matched_routes = find_matching_historical_routes(places_in_trip)
+
     return render(request, 'planner/trip_result.html', {
         'trip': fake_trip,
         'plan': plan,
@@ -327,8 +336,10 @@ def plan_detail_page(request, slug):
         'start_jalali': None,
         'end_jalali': None,
         'is_plan_mode': True,
+        # 🆕
+        'matched_routes': matched_routes,
+        'matched_routes_json': json.dumps(matched_routes, ensure_ascii=False),
     })
-
 
 # ==========================================================
 # بارگذاری سفر
@@ -413,4 +424,75 @@ def test_algorithm_page(request):
     return render(request, 'planner/test_algorithm.html', {
         'places_json': json.dumps(places_json, ensure_ascii=False),
         'categories_json': json.dumps(categories_json, ensure_ascii=False),
+    })
+
+def test_route_matcher(request):
+    """تست موقت — بعداً حذفش کن"""
+    from planner.services.route_matcher import find_matching_historical_routes
+    import json
+
+    trip_places = [
+        {'id': 16, 'name': 'مسجد جامع دزفول', 'lat': 32.381739, 'lng': 48.399004},
+        {'id': 18, 'name': 'پل قدیم دزفول', 'lat': 32.380907, 'lng': 48.391487},
+        {'id': 10, 'name': 'بازار قدیم دزفول', 'lat': 32.383718, 'lng': 48.398862},
+        {'id': 17, 'name': 'حمام کرناسیون دزفول', 'lat': 32.381568, 'lng': 48.393057},
+        {'id': 19, 'name': 'خانه تیزنو دزفول', 'lat': 32.383742, 'lng': 48.395764},
+    ]
+
+    results = find_matching_historical_routes(trip_places)
+
+    # خروجی ساده و خوانا
+    output = []
+    output.append(f"🎯 تعداد مسیرهای منطبق: {len(results)}")
+    output.append("=" * 60)
+
+    for r in results:
+        output.append(f"\n✅ {r['name']}")
+        output.append(f"   {r['matched_stops_count']}/{r['total_stops']} ایستگاه منطبق")
+        for s in r['matched_stops']:
+            output.append(
+                f"   • {s['stop_name']} → {s['matched_place_name']}"
+                f"  [{s['match_type']}]  sim={s['name_similarity']}  dist={s['distance_meters']}m"
+            )
+
+    return JsonResponse({'output': output, 'count': len(results)})
+# ═══════════════════════════════════════════════════════════
+# API: گرفتن ایستگاه‌های یک مسیر
+# ═══════════════════════════════════════════════════════════
+def route_stops_api(request, route_id):
+    try:
+        route = Route.objects.get(id=route_id, is_active=True)
+    except Route.DoesNotExist:
+        return JsonResponse(
+            {'status': 'error', 'message': 'مسیر یافت نشد'},
+            status=404
+        )
+
+    stops = route.stops.all().order_by('stop_order')
+
+    stops_data = [
+        {
+            'id': s.id,
+            'name': s.stop_name,
+            'order': s.stop_order,
+            'lat': float(s.latitude) if s.latitude else None,
+            'lng': float(s.longitude) if s.longitude else None,
+            'note': s.note or '',
+        }
+        for s in stops
+        if s.latitude and s.longitude
+    ]
+
+    return JsonResponse({
+        'status': 'ok',
+        'route': {
+            'id': route.id,
+            'name': route.name,
+            'slug': route.slug,
+            'description': route.description or '',
+            'historical_significance': route.historical_significance or '',
+            'duration_minutes': route.duration_minutes,
+            'distance_km': float(route.distance_km) if route.distance_km else 0,
+        },
+        'stops': stops_data,
     })

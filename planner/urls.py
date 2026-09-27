@@ -24,4 +24,6 @@ urlpatterns = [
 
     # تست الگوریتم
     path('test-algorithm/', views.test_algorithm_page, name='test_algorithm'),
+    path('test-route-matcher/', views.test_route_matcher, name='test_route_matcher'),
+    path('api/route/<int:route_id>/stops/', views.route_stops_api, name='route_stops_api'),
 ]

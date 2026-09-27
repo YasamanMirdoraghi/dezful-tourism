@@ -141,6 +141,9 @@
     window.TRIP_MODE = {{ trip_mode|yesno:'true,false' }};
     window.IS_PLAN_MODE = {{ is_plan_mode|yesno:'true,false' }};
     window.FAVORITE_IDS = {{ favorite_ids|default:'[]'|safe }};
+
+    // 🆕 مسیر تاریخی
+    window.HISTORICAL_ROUTE = {{ historical_route_json|default:'null'|safe }};
 </script>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>

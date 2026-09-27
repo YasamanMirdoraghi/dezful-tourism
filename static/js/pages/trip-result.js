@@ -5,13 +5,12 @@
 import { faNum, pad2, $ } from '../utils/index.js';
 
 export function initTripResult() {
-    // ⭐ از document.getElementById استفاده کن (چون $ نیاز به # داره)
     const mapEl = document.getElementById('resultMap');
     if (!mapEl) return;
 
-    // ═══ داده‌ها از window ═══
     const PLACES_IN_TRIP = window.PLACES_IN_TRIP || [];
     const IS_PLAN_MODE = window.IS_PLAN_MODE || false;
+    const MATCHED_ROUTES = window.MATCHED_HISTORICAL_ROUTES || [];
 
     if (!PLACES_IN_TRIP.length) return;
 
@@ -30,6 +29,10 @@ export function initTripResult() {
     let mapInstance = null;
     let currentLayer = 'street';
     let mapLayers = null;
+
+    // 🆕 لایه‌ی مسیر تاریخی
+    let historicalRouteLayer = null;
+    let activeHistoricalRouteId = null;
 
     // ═══ محاسبه فاصله ═══
     function calcDistance(lat1, lng1, lat2, lng2) {
@@ -84,7 +87,6 @@ export function initTripResult() {
 
     function renderAll() {
         const days = daysArray;
-        // ⭐ این هم عوض شد
         const plannerDays = document.getElementById('plannerDays');
         if (!plannerDays) return;
 
@@ -93,7 +95,6 @@ export function initTripResult() {
             return;
         }
 
-        // ⭐ این هم عوض شد
         const plannerTabs = document.getElementById('plannerTabs');
         if (plannerTabs) {
             plannerTabs.innerHTML =
@@ -115,7 +116,6 @@ export function initTripResult() {
             plannerDays.innerHTML = renderDayBlock(days[i], i);
         }
 
-        // ⭐ این هم عوض شد
         const mapDayChips = document.getElementById('mapDayChips');
         if (mapDayChips) {
             mapDayChips.innerHTML =
@@ -145,9 +145,125 @@ export function initTripResult() {
         };
     }
 
+    // ═══════════════════════════════════════════════════════════
+    // 🆕 رسم مسیر تاریخی روی نقشه
+    // ═══════════════════════════════════════════════════════════
+    function drawHistoricalRoute(routeId) {
+        if (!mapInstance) return;
+
+        // پاک کردن لایه‌ی قبلی
+        if (historicalRouteLayer) {
+            mapInstance.removeLayer(historicalRouteLayer);
+            historicalRouteLayer = null;
+        }
+
+        const route = MATCHED_ROUTES.find(r => r.id === routeId);
+        if (!route || !route.all_stops || route.all_stops.length < 2) {
+            return;
+        }
+
+        const coords = route.all_stops
+            .filter(s => s.lat && s.lng)
+            .map(s => [s.lat, s.lng]);
+
+        if (coords.length < 2) return;
+
+        historicalRouteLayer = L.layerGroup().addTo(mapInstance);
+
+        // ═══ خط قرمز نقطه‌چین (هاله‌ی سفید) ═══
+        L.polyline(coords, {
+            color: '#ffffff',
+            weight: 10,
+            opacity: 0.4,
+            lineCap: 'round',
+        }).addTo(historicalRouteLayer).bringToBack();
+
+        // ═══ خط اصلی قرمز ═══
+        L.polyline(coords, {
+            color: '#e74c3c',
+            weight: 5,
+            opacity: 0.9,
+            dashArray: '10, 8',
+            lineCap: 'round',
+            lineJoin: 'round',
+        }).addTo(historicalRouteLayer);
+
+        // ═══ مارکر ایستگاه‌ها ═══
+        route.all_stops.forEach((stop, idx) => {
+            if (!stop.lat || !stop.lng) return;
+
+            const marker = L.marker([stop.lat, stop.lng], {
+                icon: L.divIcon({
+                    className: 'historical-stop-marker',
+                    html: `<div class="hist-stop-pin"><span>${faNum(idx + 1)}</span></div>`,
+                    iconSize: [22, 22],
+                    iconAnchor: [11, 11],
+                })
+            })
+            .addTo(historicalRouteLayer)
+            .bindPopup(`
+                <div style="direction: rtl; font-family: Vazirmatn, sans-serif; padding: 6px;">
+                    <strong style="color: #e74c3c; display: block; margin-bottom: 6px;">
+                        <i class="fas fa-map-pin"></i> ایستگاه ${faNum(idx + 1)}
+                    </strong>
+                    <span style="font-size: 14px; font-weight: 700; color: #4a3a2a;">${stop.name}</span>
+                    ${stop.note ? `<br><small style="color: #888; font-size: 11px;">${stop.note}</small>` : ''}
+                </div>
+            `);
+        });
+
+        activeHistoricalRouteId = routeId;
+
+        // نمایش پیام
+        showRouteToast(`مسیر «${route.name}» روی نقشه نمایش داده شد`);
+    }
+
+    function clearHistoricalRoute() {
+        if (historicalRouteLayer && mapInstance) {
+            mapInstance.removeLayer(historicalRouteLayer);
+            historicalRouteLayer = null;
+        }
+        activeHistoricalRouteId = null;
+    }
+
+    // 🆕 اتصال دکمه‌های «نمایش روی همین نقشه»
+    document.querySelectorAll('.hr-btn.secondary[data-route-id]').forEach(btn => {
+        btn.addEventListener('click', function () {
+            const routeId = parseInt(this.dataset.routeId, 10);
+
+            if (activeHistoricalRouteId === routeId) {
+                clearHistoricalRoute();
+                this.innerHTML = '<i class="fas fa-draw-polygon"></i> نمایش روی همین نقشه';
+                showRouteToast('مسیر از روی نقشه پاک شد');
+            } else {
+                // همه دکمه‌ها رو ریست کن
+                document.querySelectorAll('.hr-btn.secondary[data-route-id]').forEach(b => {
+                    b.innerHTML = '<i class="fas fa-draw-polygon"></i> نمایش روی همین نقشه';
+                });
+                drawHistoricalRoute(routeId);
+                this.innerHTML = '<i class="fas fa-times"></i> مخفی کردن مسیر';
+            }
+        });
+    });
+
+    // ═══ Toast مسیر ═══
+    function showRouteToast(msg) {
+        let toast = document.getElementById('routeToast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'routeToast';
+            toast.className = 'route-toast';
+            toast.innerHTML = `<i class="fas fa-route"></i><span class="route-toast-text"></span>`;
+            document.body.appendChild(toast);
+        }
+        toast.querySelector('.route-toast-text').textContent = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => toast.classList.remove('show'), 2800);
+    }
+
     function showOnMap() {
         if (typeof L === 'undefined') return;
-        // ⭐ این هم عوض شد
         if (!document.getElementById('resultMap')) return;
 
         if (mapInstance) {
@@ -211,6 +327,11 @@ export function initTripResult() {
             daysArray.forEach((d, i) => drawDay(d, i));
         } else if (daysArray[+activeTab]) {
             drawDay(daysArray[+activeTab], +activeTab);
+        }
+
+        // 🆕 اگه مسیر تاریخی فعال بود، دوباره رسمش کن
+        if (activeHistoricalRouteId) {
+            drawHistoricalRoute(activeHistoricalRouteId);
         }
 
         if (all.length) {

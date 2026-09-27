@@ -2,13 +2,14 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.db.models import Count, Avg
 from datetime import datetime, timedelta
+from django.http import JsonResponse
 import json
 import os
 
-from django.utils.text import Truncator   # 👈 این خط رو اضافه کن
+from django.utils.text import Truncator
 
 from places.models import Place, Category, Review
-from planner.models import Plan
+from planner.models import Plan, Route
 from articles.models import Article
 from places.utils import get_place_image
 from .models import Contact
@@ -20,15 +21,11 @@ from .models import Contact
 def home(request):
     from accounts.models import User
 
-    # ═══════════════════════════════════════════════════════════
-    # جاذبه‌های ویژه — متن‌ها کوتاه شده
-    # ═══════════════════════════════════════════════════════════
     featured_places_qs = Place.objects.filter(is_active=True).select_related('category')[:12]
 
     featured_places = []
     for place in featured_places_qs:
         desc = place.short_description or place.description or ''
-        # حداکثر 20 کلمه
         desc = Truncator(desc).words(20, truncate=' …')
 
         featured_places.append({
@@ -44,15 +41,11 @@ def home(request):
             'rating_avg': place.rating_avg,
         })
 
-    # ═══════════════════════════════════════════════════════════
-    # پلن‌ها — متن‌ها کوتاه شده
-    # ═══════════════════════════════════════════════════════════
     plans_qs = Plan.objects.filter(is_active=True)[:8]
 
     plans = []
     for plan in plans_qs:
         desc = plan.description or ''
-        # حداکثر 15 کلمه
         desc = Truncator(desc).words(15, truncate=' …')
 
         plans.append({
@@ -65,9 +58,6 @@ def home(request):
             'estimated_cost': plan.estimated_cost,
         })
 
-    # ═══════════════════════════════════════════════════════════
-    # مقالات — متن‌ها کوتاه شده
-    # ═══════════════════════════════════════════════════════════
     featured_articles_qs = Article.objects.filter(
         is_published=True
     ).order_by('-created_at')[:6]
@@ -75,7 +65,6 @@ def home(request):
     featured_articles = []
     for article in featured_articles_qs:
         excerpt = article.excerpt or ''
-        # حداکثر 15 کلمه
         excerpt = Truncator(excerpt).words(15, truncate=' …')
 
         featured_articles.append({
@@ -88,9 +77,6 @@ def home(request):
             'views': article.views,
         })
 
-    # ═══════════════════════════════════════════════════════════
-    # آمار
-    # ═══════════════════════════════════════════════════════════
     places_count = Place.objects.filter(is_active=True).count()
     users_count = User.objects.filter(is_active=True).count()
     plans_count = Plan.objects.filter(is_active=True).count()
@@ -112,7 +98,7 @@ def home(request):
 
 
 # ==========================================================
-# صفحه تماس با ما — بدون تغییر
+# صفحه تماس با ما
 # ==========================================================
 def contact_page(request):
     if request.method == 'POST':
@@ -137,21 +123,52 @@ def contact_page(request):
 
 
 # ==========================================================
-# صفحه نقشه گردشگری — بدون تغییر
+# صفحه نقشه گردشگری
 # ==========================================================
 def map_page(request):
-    from planner.models import Trip, PlanAttraction
+    from planner.models import Trip, PlanAttraction, Route
     from accounts.models import UserFavorite
 
     places = Place.objects.filter(is_active=True)
 
     trip_id = request.GET.get('trip')
     plan_id = request.GET.get('plan')
+    route_id = request.GET.get('route')          # 🆕
 
     trip_data = None
     trip_days = {}
     is_plan_mode = False
     plan_data = None
+    historical_route_data = None                  # 🆕
+
+    # ═══ 🆕 گرفتن مسیر تاریخی ═══
+    if route_id:
+        try:
+            hist_route = Route.objects.get(id=route_id, is_active=True)
+            stops = hist_route.stops.all().order_by('stop_order')
+            historical_route_data = {
+                'id': hist_route.id,
+                'name': hist_route.name,
+                'slug': hist_route.slug,
+                'description': hist_route.description or '',
+                'historical_significance': hist_route.historical_significance or '',
+                'duration_minutes': hist_route.duration_minutes,
+                'distance_km': float(hist_route.distance_km) if hist_route.distance_km else 0,
+                'stops': [
+                    {
+                        'id': s.id,
+                        'name': s.stop_name,
+                        'order': s.stop_order,
+                        'lat': float(s.latitude) if s.latitude else None,
+                        'lng': float(s.longitude) if s.longitude else None,
+                        'note': s.note or '',
+                    }
+                    for s in stops
+                    if s.latitude and s.longitude
+                ],
+            }
+        except Route.DoesNotExist:
+            pass
 
     if trip_id:
         try:
@@ -295,4 +312,7 @@ def map_page(request):
         'is_plan_mode': is_plan_mode,
         'plan': plan_data,
         'favorite_ids': json.dumps(favorite_ids),
+        # 🆕
+        'historical_route': historical_route_data,
+        'historical_route_json': json.dumps(historical_route_data, ensure_ascii=False) if historical_route_data else None,
     })

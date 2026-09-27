@@ -19,6 +19,7 @@ export function initMap() {
     const TRIP_MODE = window.TRIP_MODE || false;
     const IS_PLAN_MODE = window.IS_PLAN_MODE || false;
     const FAVORITE_IDS = window.FAVORITE_IDS || [];
+    const HISTORICAL_ROUTE = window.HISTORICAL_ROUTE || null;
 
     const ORD = ['اول', 'دوم', 'سوم', 'چهارم', 'پنجم', 'ششم', 'هفتم'];
 
@@ -59,8 +60,8 @@ export function initMap() {
     let tripPlaces = [];
 
     // ═══ کش ترتیب بهینه برای هر روز ═══
-    const optimizedOrders = {};      // { dayIndex: orderedPlaces[] }
-    const optimizingPromises = {};   // { dayIndex: Promise }
+    const optimizedOrders = {};
+    const optimizingPromises = {};
 
     // ═══ نقشه ═══
     const map = L.map('tourismMap', {
@@ -133,6 +134,297 @@ export function initMap() {
 
     const markers = new Map();
 
+    // ═══════════════════════════════════════════════════════════
+    // 🆕 مسیر تاریخی — مسیریابی پیاده‌روی واقعی (OSRM foot)
+    // ═══════════════════════════════════════════════════════════
+    let historicalRouteLayer = null;
+    let historicalStopMarkers = [];
+    let activeHistoricalRoute = null;
+    let activeHistoricalLine = null;
+
+    // 🎨 استایل خط قرمز نقطه‌چین
+    const HIST_ROUTE_STYLE = {
+        color: '#e74c3c',
+        weight: 5,
+        opacity: 0.9,
+        dashArray: '10, 8',
+        lineCap: 'round',
+        lineJoin: 'round'
+    };
+
+    function drawHistoricalRoute() {
+        if (!HISTORICAL_ROUTE || !HISTORICAL_ROUTE.stops || HISTORICAL_ROUTE.stops.length < 2) return;
+
+        clearHistoricalRoute();
+
+        historicalRouteLayer = L.layerGroup().addTo(map);
+        historicalStopMarkers = [];
+
+        // ═══ نقاط ایستگاه‌ها ═══
+        const stopPoints = HISTORICAL_ROUTE.stops
+            .filter(s => s.lat && s.lng)
+            .map(s => L.latLng(s.lat, s.lng));
+
+        if (stopPoints.length < 2) return;
+
+        // ═══ مارکر ایستگاه‌ها ═══
+        HISTORICAL_ROUTE.stops.forEach((stop, idx) => {
+            if (!stop.lat || !stop.lng) return;
+
+            const marker = L.marker([stop.lat, stop.lng], {
+                icon: L.divIcon({
+                    className: 'historical-stop-marker',
+                    html: `<div class="hist-stop-pin"><span>${faNum(idx + 1)}</span></div>`,
+                    iconSize: [24, 24],
+                    iconAnchor: [12, 12],
+                })
+            })
+            .addTo(historicalRouteLayer)
+            .bindPopup(`
+                <div style="direction: rtl; font-family: Vazirmatn, sans-serif; padding: 6px; min-width: 180px;">
+                    <div style="color: #e74c3c; font-weight: 800; margin-bottom: 6px; font-size: 13px;">
+                        <i class="fas fa-map-pin"></i> ایستگاه ${faNum(idx + 1)}
+                    </div>
+                    <div style="font-size: 14px; font-weight: 700; color: #4a3a2a;">${stop.name}</div>
+                    ${stop.note ? `<div style="font-size: 11px; color: #8b7355; margin-top: 4px;">${stop.note}</div>` : ''}
+                </div>
+            `);
+
+            historicalStopMarkers.push(marker);
+        });
+
+        // ═══ 🚶 مسیریابی پیاده با OSRM foot ═══
+        showHistRouteLoading(true);
+
+        activeHistoricalRoute = L.Routing.control({
+            waypoints: stopPoints,
+            routeWhileDragging: false,
+            addWaypoints: false,
+            fitSelectedRoutes: false,
+            show: false,
+            lineOptions: {
+                styles: [{
+                    ...HIST_ROUTE_STYLE,
+                    outline: false
+                }],
+                extendToWaypoints: true,
+                missingRouteTolerance: 0
+            },
+            createMarker: () => null,
+            router: L.Routing.osrmv1({
+                serviceUrl: 'https://router.project-osrm.org/route/v1',
+                profile: 'foot'
+            })
+        }).addTo(map);
+
+        activeHistoricalRoute.on('routesfound', (e) => {
+            showHistRouteLoading(false);
+
+            e.routes.forEach(route => {
+                if (route.coordinates) {
+                    if (activeHistoricalLine) {
+                        try { map.removeLayer(activeHistoricalLine); } catch (_) {}
+                    }
+
+                    // هاله‌ی سفید
+                    L.polyline(route.coordinates, {
+                        color: '#ffffff',
+                        weight: 10,
+                        opacity: 0.5,
+                        lineCap: 'round',
+                        interactive: false
+                    }).addTo(historicalRouteLayer).bringToBack();
+
+                    // خط قرمز نقطه‌چین
+                    activeHistoricalLine = L.polyline(route.coordinates, {
+                        ...HIST_ROUTE_STYLE,
+                        interactive: false
+                    }).addTo(historicalRouteLayer);
+                }
+            });
+
+            const totalKm = e.routes[0]?.summary?.totalDistance / 1000;
+            if (totalKm && !isNaN(totalKm)) {
+                console.log(`🚶 مسافت پیاده‌روی مسیر تاریخی: ${totalKm.toFixed(2)} کیلومتر`);
+            }
+
+            setTimeout(() => {
+                map.fitBounds(L.latLngBounds(stopPoints), { padding: [60, 60], maxZoom: 15 });
+            }, 200);
+        });
+
+        activeHistoricalRoute.on('routingerror', () => {
+            showHistRouteLoading(false);
+            console.warn('⚠️ خطا در مسیریابی پیاده — خط مستقیم رسم می‌شود');
+
+            const coords = stopPoints.map(p => [p.lat, p.lng]);
+
+            L.polyline(coords, {
+                color: '#ffffff', weight: 10, opacity: 0.5, lineCap: 'round'
+            }).addTo(historicalRouteLayer).bringToBack();
+
+            L.polyline(coords, {
+                ...HIST_ROUTE_STYLE
+            }).addTo(historicalRouteLayer);
+
+            setTimeout(() => {
+                map.fitBounds(L.latLngBounds(stopPoints), { padding: [60, 60], maxZoom: 15 });
+            }, 200);
+        });
+
+        // ═══ هدر سایدبار ═══
+        const titleEl = $id('sidebarTitle');
+        const subtitleEl = $id('sidebarSubtitle');
+        if (titleEl) titleEl.textContent = HISTORICAL_ROUTE.name;
+        if (subtitleEl) {
+            subtitleEl.textContent = `🚶 مسیر تاریخی • ${faNum(HISTORICAL_ROUTE.duration_minutes)} دقیقه • ${HISTORICAL_ROUTE.distance_km} کیلومتر`;
+        }
+
+        showHistoricalRouteBanner(HISTORICAL_ROUTE);
+    }
+
+    function showHistRouteLoading(show) {
+        let loading = $id('histRouteLoading');
+        if (show) {
+            if (!loading) {
+                loading = document.createElement('div');
+                loading.id = 'histRouteLoading';
+                loading.className = 'hist-route-loading';
+                loading.innerHTML = `
+                    <div class="hrl-spinner"></div>
+                    <span>در حال محاسبه‌ی مسیر پیاده‌روی...</span>
+                `;
+                document.body.appendChild(loading);
+            }
+            loading.classList.add('show');
+        } else if (loading) {
+            loading.classList.remove('show');
+        }
+    }
+
+    function clearHistoricalRoute() {
+        if (activeHistoricalRoute) {
+            try { map.removeControl(activeHistoricalRoute); } catch (_) {}
+            activeHistoricalRoute = null;
+        }
+
+        if (activeHistoricalLine) {
+            try { map.removeLayer(activeHistoricalLine); } catch (_) {}
+            activeHistoricalLine = null;
+        }
+
+        map.eachLayer(layer => {
+            if (layer instanceof L.Polyline &&
+                layer.options &&
+                (layer.options.className === 'leaflet-routing-line' ||
+                 layer.options.className === 'leaflet-routing-line-shadow')) {
+                map.removeLayer(layer);
+            }
+        });
+
+        if (historicalRouteLayer) {
+            try { map.removeLayer(historicalRouteLayer); } catch (_) {}
+            historicalRouteLayer = null;
+        }
+
+        historicalStopMarkers = [];
+        showHistRouteLoading(false);
+    }
+
+    function showHistoricalRouteBanner(route) {
+        const old = $id('histRouteBanner');
+        if (old) old.remove();
+
+        const sidebar = $id('mapSidebar');
+        if (!sidebar) return;
+
+        const searchBox = $id('searchBox');
+        const banner = document.createElement('div');
+        banner.id = 'histRouteBanner';
+        banner.className = 'hist-route-banner';
+        banner.innerHTML = `
+            <div class="hrb-header">
+                <i class="fas fa-walking"></i>
+                <div>
+                    <strong>مسیر تاریخی فعال (پیاده)</strong>
+                    <span>${route.name}</span>
+                </div>
+                <button class="hrb-close" title="بستن" onclick="window.clearHistRoute()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            ${route.historical_significance ? `
+            <div class="hrb-desc">
+                <i class="fas fa-landmark"></i>
+                <span>${route.historical_significance}</span>
+            </div>` : ''}
+            <div class="hrb-meta">
+                <span><i class="fas fa-clock"></i> ${faNum(route.duration_minutes)} دقیقه</span>
+                <span><i class="fas fa-shoe-prints"></i> ${route.distance_km} km</span>
+                <span><i class="fas fa-map-pin"></i> ${faNum(route.stops.length)} ایستگاه</span>
+            </div>
+        `;
+
+        if (searchBox && searchBox.nextSibling) {
+            sidebar.insertBefore(banner, searchBox.nextSibling);
+        } else {
+            sidebar.appendChild(banner);
+        }
+
+        const list = $id('mapList');
+        if (list) {
+            list.innerHTML = `
+                <div class="day-group">
+                    <div class="day-group-title" style="color: #e74c3c;">
+                        <span><i class="fas fa-route"></i> ایستگاه‌های مسیر تاریخی</span>
+                        <span>${faNum(route.stops.length)} ایستگاه</span>
+                    </div>
+                    ${route.stops.map((stop, idx) => `
+                        <div class="place-row">
+                            <span class="place-num" style="border-color: #e74c3c; color: #e74c3c;">${faNum(idx + 1)}</span>
+                            <div class="place-card" data-hist-stop="${idx}">
+                                <div class="pc-info">
+                                    <h4>${stop.name}</h4>
+                                    ${stop.note ? `<div class="pc-time"><i class="fas fa-info-circle"></i> ${stop.note}</div>` : ''}
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            list.querySelectorAll('[data-hist-stop]').forEach(card => {
+                card.addEventListener('click', () => {
+                    const idx = +card.dataset.histStop;
+                    const stop = route.stops[idx];
+                    if (stop && stop.lat && stop.lng) {
+                        map.flyTo([stop.lat, stop.lng], 16, { duration: 0.8 });
+                        if (historicalStopMarkers[idx]) {
+                            historicalStopMarkers[idx].openPopup();
+                        }
+                    }
+                });
+            });
+        }
+    }
+
+    window.clearHistRoute = function () {
+        clearHistoricalRoute();
+        const banner = $id('histRouteBanner');
+        if (banner) banner.remove();
+
+        if (TRIP_MODE && TRIP_DATA) {
+            renderTripList();
+            drawMap();
+        } else {
+            applyFilters();
+        }
+
+        const url = new URL(window.location.href);
+        url.searchParams.delete('route');
+        window.history.replaceState({}, '', url.toString());
+    };
+
     // ═══ Pin Icon ═══
     function pinIcon(p, num, color) {
         const pinColor = color || '#118b71';
@@ -166,7 +458,6 @@ export function initMap() {
     // 🧭 موتور مسیریابی — Brute Force (بهینه‌ی قطعی)
     // ═══════════════════════════════════════════════════════════
 
-    /** فاصله‌ی هوایی (Haversine) — برای fallback */
     function haversine(lat1, lng1, lat2, lng2) {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -177,7 +468,6 @@ export function initMap() {
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    /** ماتریس فاصله‌ی واقعی جاده‌ای با OSRM Table API */
     async function buildDistanceMatrix(places) {
         if (places.length < 2) return [[0]];
 
@@ -189,7 +479,6 @@ export function initMap() {
             if (!res.ok) throw new Error('OSRM table failed');
             const data = await res.json();
             if (!data.distances) throw new Error('No distances in response');
-            // متر → کیلومتر
             return data.distances.map(row => row.map(d => d / 1000));
         } catch (err) {
             console.warn('⚠️ OSRM Table در دسترس نیست، از فاصله هوایی استفاده می‌شود');
@@ -206,7 +495,6 @@ export function initMap() {
         }
     }
 
-    /** مجموع طول مسیر بر اساس ترتیب داده‌شده */
     function routeCost(order, matrix) {
         let total = 0;
         for (let i = 0; i < order.length - 1; i++) {
@@ -215,10 +503,6 @@ export function initMap() {
         return total;
     }
 
-    /**
-     * تولید تمام جایگشت‌های یک آرایه (Heap's Algorithm)
-     * پیچیدگی: O(n!)
-     */
     function* permutations(arr) {
         const a = [...arr];
         const n = a.length;
@@ -243,16 +527,10 @@ export function initMap() {
         }
     }
 
-    /**
-     * 🎯 پیدا کردن کوتاه‌ترین مسیر با Brute Force
-     * تا ۷ نقطه = ۵,۰۴۰ حالت = بهینه‌ی قطعی
-     * برای n > ۸ از الگوریتم تقریبی استفاده می‌شود (محدودیت UI)
-     */
     function optimizeRoute(places, matrix) {
         const n = places.length;
         if (n <= 2) return places.map((_, i) => i);
 
-        // سقف امن برای UI: بیش از ۸ نقطه = بهینه‌ی قطعی کند می‌شود
         if (n > 8) {
             console.warn(`⚠️ ${n} نقطه زیاد است، از Nearest Neighbor استفاده می‌شود`);
             return heuristicFallback(matrix);
@@ -274,7 +552,6 @@ export function initMap() {
         return bestOrder;
     }
 
-    /** الگوریتم جایگزین اضطراری برای n > 8 — Nearest Neighbor */
     function heuristicFallback(matrix) {
         const n = matrix.length;
         const visited = new Array(n).fill(false);
@@ -298,20 +575,8 @@ export function initMap() {
         return order;
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // 🎯 کش ترتیب بهینه — محاسبه‌ی یک‌بار برای هر روز
-    // ═══════════════════════════════════════════════════════════
-
-    /**
-     * محاسبه و کش ترتیب بهینه برای یک روز خاص
-     * @param {number} dayIdx - ایندکس روز (0-based)
-     * @returns {Promise<Array>} آرایه‌ی مرتب‌شده‌ی جاذبه‌ها
-     */
     async function getOptimizedOrder(dayIdx) {
-        // اگر قبلاً محاسبه شده، برگردان
         if (optimizedOrders[dayIdx]) return optimizedOrders[dayIdx];
-
-        // اگر در حال محاسبه است، همان Promise را برگردان
         if (optimizingPromises[dayIdx]) return optimizingPromises[dayIdx];
 
         const places = daysArray[dayIdx];
@@ -329,7 +594,7 @@ export function initMap() {
                 return ordered;
             } catch (err) {
                 console.error('❌ خطا در بهینه‌سازی ترتیب:', err);
-                optimizedOrders[dayIdx] = places; // fallback به ترتیب اصلی
+                optimizedOrders[dayIdx] = places;
                 return places;
             } finally {
                 delete optimizingPromises[dayIdx];
@@ -339,20 +604,18 @@ export function initMap() {
         return optimizingPromises[dayIdx];
     }
 
-    /** پاک کردن کش (مثلاً وقتی داده‌ها تغییر کرد) */
     function clearOptimizedOrders() {
         Object.keys(optimizedOrders).forEach(k => delete optimizedOrders[k]);
         Object.keys(optimizingPromises).forEach(k => delete optimizingPromises[k]);
     }
 
     // ═══════════════════════════════════════════════════════════
-    // 🎨 رسم مسیر — نقطه‌چین مشکی باریک
+    // 🎨 رسم مسیر سفر — نقطه‌چین مشکی باریک (driving)
     // ═══════════════════════════════════════════════════════════
 
     let activeRoute = null;
     let activeRouteLine = null;
 
-    // ⚫ نقطه‌چین مشکی باریک
     const ROUTE_STYLE = {
         color: '#000000',
         weight: 3,
@@ -362,10 +625,6 @@ export function initMap() {
         lineJoin: 'round'
     };
 
-    /**
-     * 🎨 رسم مسیر با ترتیب از پیش بهینه‌شده
-     * @param {Array} orderedPlaces - آرایه‌ی جاذبه‌ها به ترتیب بهینه
-     */
     async function drawRouteWithOrder(orderedPlaces) {
         clearRoute();
 
@@ -410,7 +669,6 @@ export function initMap() {
                 });
                 if (loadingEl) loadingEl.style.display = 'none';
 
-                // 📊 نمایش مجموع مسافت در کنسول
                 const totalKm = e.routes[0]?.summary?.totalDistance / 1000;
                 if (totalKm && !isNaN(totalKm)) {
                     console.log(`🚗 مسافت کل روز: ${totalKm.toFixed(2)} کیلومتر`);
@@ -427,9 +685,6 @@ export function initMap() {
         }
     }
 
-    /**
-     * 🔁 نسخه‌ی قبلی drawRoute — با محاسبه‌ی مجدد (نگه داشته شده برای fallback)
-     */
     async function drawRoute(placesList) {
         if (!placesList || placesList.length < 2) return;
         const matrix = await buildDistanceMatrix(placesList);
@@ -447,7 +702,6 @@ export function initMap() {
             try { map.removeLayer(activeRouteLine); } catch (_) {}
             activeRouteLine = null;
         }
-        // پاک‌سازی خطوط باقی‌مانده‌ی OSRM
         map.eachLayer(layer => {
             if (layer instanceof L.Polyline &&
                 layer.options &&
@@ -612,7 +866,6 @@ export function initMap() {
                 const i = +activeDay;
                 const dayNum = i + 1;
                 const color = getDayColor(dayNum);
-                // اطمینان از آماده بودن ترتیب بهینه
                 const ordered = optimizedOrders[i] || await getOptimizedOrder(i);
                 ordered.forEach((p, idx) => {
                     placesToDraw.push({ p, num: idx + 1, day: dayNum, color });
@@ -643,13 +896,10 @@ export function initMap() {
             allPoints.push([p.lat, p.lng]);
         });
 
-        // 🚗 رسم مسیر بهینه — فقط در trip mode و یک روز خاص
         if (TRIP_MODE && TRIP_DATA && activeDay !== 'all') {
             const i = +activeDay;
             const ordered = optimizedOrders[i] || await getOptimizedOrder(i);
-            // رندر مجدد لیست با ترتیب بهینه (اگر تازه محاسبه شد)
             renderTripList();
-            // رسم مسیر با ترتیب بهینه
             drawRouteWithOrder(ordered);
         }
 
@@ -980,7 +1230,6 @@ export function initMap() {
             rb.classList.add('active');
         }
 
-        // 🚀 پیش‌محاسبه‌ی ترتیب بهینه برای همه‌ی روزها (موازی)
         Promise.all(daysArray.map((_, i) => getOptimizedOrder(i)))
             .then(() => {
                 console.log('✅ ترتیب بهینه همه‌ی روزها آماده شد');
@@ -1001,6 +1250,11 @@ export function initMap() {
         buildChips();
         applyFilters();
         buildLegend();
+    }
+
+    // 🆕 رسم مسیر تاریخی اگه توی URL بود
+    if (HISTORICAL_ROUTE) {
+        setTimeout(() => drawHistoricalRoute(), 500);
     }
 
     setTimeout(() => map.invalidateSize(), 300);

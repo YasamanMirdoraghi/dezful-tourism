@@ -805,3 +805,397 @@
         align-items: flex-start;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════
+   🆕 بخش مسیرهای تاریخی منطبق
+   ═══════════════════════════════════════════════════════════ */
+
+.historical-routes-section {
+    margin-top: 40px;
+    padding: 32px 28px;
+    background: linear-gradient(135deg, #fff5f5 0%, #ffeaea 100%);
+    border-radius: 24px;
+    border: 2px solid rgba(231, 76, 60, 0.15);
+    box-shadow: 0 8px 30px rgba(231, 76, 60, 0.08);
+}
+
+/* ═══ هدر ═══ */
+.hr-header {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px dashed rgba(231, 76, 60, 0.25);
+}
+
+.hr-header-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 18px;
+    background: linear-gradient(135deg, #e74c3c, #ff6b5b);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    flex-shrink: 0;
+    box-shadow: 0 8px 22px rgba(231, 76, 60, 0.35);
+}
+
+.hr-header-text {
+    flex: 1;
+}
+
+.hr-kicker {
+    display: inline-block;
+    background: rgba(231, 76, 60, 0.12);
+    color: #c0392b;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 6px;
+}
+
+.hr-header-text h2 {
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: #4a3a2a;
+    margin-bottom: 6px;
+}
+
+.hr-header-text p {
+    font-size: 0.88rem;
+    color: #8b7355;
+    line-height: 1.8;
+}
+
+/* ═══ کارت‌ها ═══ */
+.hr-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+    gap: 18px;
+}
+
+.hr-card {
+    background: #fff;
+    border-radius: 18px;
+    padding: 22px;
+    border: 1px solid rgba(231, 76, 60, 0.12);
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.hr-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #e74c3c, #ff6b5b);
+}
+
+.hr-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 36px rgba(231, 76, 60, 0.15);
+    border-color: rgba(231, 76, 60, 0.3);
+}
+
+.hr-card-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(231, 76, 60, 0.1);
+    color: #c0392b;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 5px 12px;
+    border-radius: 20px;
+    margin-bottom: 12px;
+}
+
+.hr-card-title {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: #4a3a2a;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.hr-card-desc {
+    font-size: 0.83rem;
+    line-height: 1.85;
+    color: #6c5b49;
+    margin-bottom: 14px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.hr-card-significance {
+    display: flex;
+    gap: 8px;
+    padding: 10px 12px;
+    background: rgba(231, 76, 60, 0.04);
+    border-right: 3px solid #e74c3c;
+    border-radius: 10px;
+    font-size: 0.78rem;
+    color: #8b7355;
+    line-height: 1.7;
+    margin-bottom: 14px;
+}
+
+.hr-card-significance i {
+    color: #e74c3c;
+    margin-top: 3px;
+    flex-shrink: 0;
+}
+
+/* ═══ متادیتا ═══ */
+.hr-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 14px;
+    border-bottom: 1px dashed rgba(231, 76, 60, 0.15);
+}
+
+.hr-card-meta > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #8b7355;
+    background: #fbfaf7;
+    padding: 5px 11px;
+    border-radius: 20px;
+}
+
+.hr-card-meta > span i {
+    color: #e74c3c;
+}
+
+.hr-card-meta .hr-scenic {
+    background: rgba(244, 166, 42, 0.1);
+    color: #c29013;
+}
+
+.hr-card-meta .hr-scenic i {
+    color: #f4a62a;
+}
+
+/* ═══ ایستگاه‌های منطبق ═══ */
+.hr-card-stops {
+    margin-bottom: 16px;
+}
+
+.hr-stops-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: #4a3a2a;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hr-stops-label i {
+    color: #e74c3c;
+}
+
+.hr-stops-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.hr-stop-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fbfaf7;
+    border: 1px solid rgba(231, 76, 60, 0.12);
+    border-radius: 20px;
+    padding: 5px 12px 5px 6px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #4a3a2a;
+}
+
+.hr-stop-chip small {
+    font-size: 0.62rem;
+    color: #e74c3c;
+    font-weight: 800;
+    background: rgba(231, 76, 60, 0.08);
+    padding: 2px 7px;
+    border-radius: 10px;
+}
+
+.hr-stop-num {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #e74c3c;
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.65rem;
+    font-weight: 900;
+    flex-shrink: 0;
+}
+
+/* ═══ دکمه‌ها ═══ */
+.hr-card-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.hr-btn {
+    flex: 1;
+    min-width: 130px;
+    padding: 11px 16px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 800;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    transition: all 0.25s ease;
+    text-decoration: none;
+    border: none;
+}
+
+.hr-btn.primary {
+    background: linear-gradient(135deg, #e74c3c, #ff6b5b);
+    color: #fff;
+    box-shadow: 0 6px 18px rgba(231, 76, 60, 0.28);
+}
+
+.hr-btn.primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 26px rgba(231, 76, 60, 0.4);
+}
+
+.hr-btn.secondary {
+    background: #fff;
+    color: #e74c3c;
+    border: 2px solid #e74c3c;
+}
+
+.hr-btn.secondary:hover {
+    background: #e74c3c;
+    color: #fff;
+}
+
+/* ═══ ریسپانسیو بخش مسیرهای تاریخی ═══ */
+@media (max-width: 768px) {
+    .historical-routes-section {
+        padding: 22px 16px;
+    }
+
+    .hr-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .hr-header-text h2 {
+        font-size: 1.2rem;
+    }
+
+    .hr-cards {
+        grid-template-columns: 1fr;
+    }
+
+    .hr-card-actions {
+        flex-direction: column;
+    }
+}
+/* ═══════════════════════════════════════════════════════════
+   🆕 پین ایستگاه‌های تاریخی روی نقشه
+   ═══════════════════════════════════════════════════════════ */
+.historical-stop-marker {
+    background: transparent;
+    border: none;
+}
+
+.hist-stop-pin {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #e74c3c;
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 10px rgba(231, 76, 60, 0.5);
+    animation: histPinPulse 2s ease-in-out infinite;
+}
+
+@keyframes histPinPulse {
+    0%, 100% {
+        box-shadow: 0 3px 10px rgba(231, 76, 60, 0.5);
+    }
+    50% {
+        box-shadow: 0 3px 20px rgba(231, 76, 60, 0.85), 0 0 0 6px rgba(231, 76, 60, 0.15);
+    }
+}
+
+.hist-stop-pin span {
+    color: #fff;
+    font-size: 10px;
+    font-weight: 900;
+    font-family: 'Vazirmatn', sans-serif;
+    line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🆕 Toast مسیر تاریخی
+   ═══════════════════════════════════════════════════════════ */
+.route-toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 22px;
+    background: #fff;
+    border-radius: 14px;
+    box-shadow: 0 10px 40px rgba(231, 76, 60, 0.25);
+    border: 2px solid rgba(231, 76, 60, 0.25);
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    direction: rtl;
+}
+
+.route-toast.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.route-toast i {
+    color: #e74c3c;
+    font-size: 18px;
+}
+
+.route-toast-text {
+    font-size: 0.88rem;
+    font-weight: 700;
+    color: #4a3a2a;
+}

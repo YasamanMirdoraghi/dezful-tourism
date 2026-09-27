@@ -1237,3 +1237,384 @@ body.page-map {
 @keyframes routeSpin { 
     to { transform: rotate(360deg); } 
 }
+
+/* ═══════════════════════════════════════════════════════════
+   🆕 بنر مسیر تاریخی در سایدبار نقشه
+   ═══════════════════════════════════════════════════════════ */
+.hist-route-banner {
+    background: linear-gradient(135deg, #fff5f5, #ffeaea);
+    border-bottom: 2px solid rgba(231, 76, 60, 0.2);
+    padding: 14px 16px;
+    animation: slideDownBanner 0.4s ease;
+}
+
+@keyframes slideDownBanner {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.hrb-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.hrb-header > i {
+    color: #e74c3c;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.hrb-header > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.hrb-header strong {
+    font-size: 12px;
+    color: #c0392b;
+    font-weight: 900;
+}
+
+.hrb-header span {
+    font-size: 13px;
+    font-weight: 800;
+    color: #4a3a2a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hrb-close {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: none;
+    cursor: pointer;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+
+.hrb-close:hover {
+    background: #e74c3c;
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+.hrb-desc {
+    display: flex;
+    gap: 6px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: #6c5b49;
+}
+
+.hrb-desc i {
+    color: #e74c3c;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.hrb-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.hrb-meta > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #8b7355;
+}
+
+.hrb-meta > span i {
+    color: #e74c3c;
+    font-size: 10px;
+}
+
+/* ═══ پین ایستگاه تاریخی روی نقشه ═══ */
+.historical-stop-marker {
+    background: transparent;
+    border: none;
+}
+
+.hist-stop-pin {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #e74c3c;
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 12px rgba(231, 76, 60, 0.5);
+    animation: histPinPulse 2s ease-in-out infinite;
+}
+
+@keyframes histPinPulse {
+    0%, 100% { box-shadow: 0 3px 12px rgba(231, 76, 60, 0.5); }
+    50% { box-shadow: 0 3px 20px rgba(231, 76, 60, 0.85), 0 0 0 6px rgba(231, 76, 60, 0.15); }
+}
+
+.hist-stop-pin span {
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    font-family: 'Vazirmatn', sans-serif;
+    line-height: 1;
+}
+/* ═══════════════════════════════════════════════════════════
+   🆕 بنر مسیر تاریخی در سایدبار نقشه
+   ═══════════════════════════════════════════════════════════ */
+.hist-route-banner {
+    background: linear-gradient(135deg, #fff5f5, #ffeaea);
+    border-bottom: 2px solid rgba(231, 76, 60, 0.2);
+    padding: 14px 16px;
+    animation: slideDownBanner 0.4s ease;
+}
+
+@keyframes slideDownBanner {
+    from { transform: translateY(-100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.hrb-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.hrb-header > i {
+    color: #e74c3c;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.hrb-header > div {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.hrb-header strong {
+    font-size: 12px;
+    color: #c0392b;
+    font-weight: 900;
+}
+
+.hrb-header span {
+    font-size: 13px;
+    font-weight: 800;
+    color: #4a3a2a;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hrb-close {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: rgba(231, 76, 60, 0.1);
+    color: #e74c3c;
+    border: none;
+    cursor: pointer;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.2s;
+    flex-shrink: 0;
+}
+
+.hrb-close:hover {
+    background: #e74c3c;
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+.hrb-desc {
+    display: flex;
+    gap: 6px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    font-size: 11px;
+    line-height: 1.7;
+    color: #6c5b49;
+}
+
+.hrb-desc i {
+    color: #e74c3c;
+    margin-top: 2px;
+    flex-shrink: 0;
+}
+
+.hrb-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.hrb-meta > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #fff;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    color: #8b7355;
+}
+
+.hrb-meta > span i {
+    color: #e74c3c;
+    font-size: 10px;
+}
+
+/* ═══ پین ایستگاه تاریخی روی نقشه ═══ */
+.historical-stop-marker {
+    background: transparent;
+    border: none;
+}
+
+.hist-stop-pin {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    background: #e74c3c;
+    border: 3px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 3px 12px rgba(231, 76, 60, 0.5);
+    animation: histPinPulse 2s ease-in-out infinite;
+}
+
+@keyframes histPinPulse {
+    0%, 100% { box-shadow: 0 3px 12px rgba(231, 76, 60, 0.5); }
+    50% { box-shadow: 0 3px 20px rgba(231, 76, 60, 0.85), 0 0 0 6px rgba(231, 76, 60, 0.15); }
+}
+
+.hist-stop-pin span {
+    color: #fff;
+    font-size: 11px;
+    font-weight: 900;
+    font-family: 'Vazirmatn', sans-serif;
+    line-height: 1;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   🆕 لودینگ مسیریابی پیاده
+   ═══════════════════════════════════════════════════════════ */
+.hist-route-loading {
+    position: fixed;
+    top: 90px;
+    left: 50%;
+    transform: translateX(-50%) translateY(-120px);
+    background: rgba(255, 255, 255, 0.98);
+    backdrop-filter: blur(10px);
+    padding: 14px 22px;
+    border-radius: 16px;
+    box-shadow: 0 12px 40px rgba(231, 76, 60, 0.25);
+    border: 2px solid rgba(231, 76, 60, 0.2);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    z-index: 2000;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    direction: rtl;
+    font-family: 'Vazirmatn', sans-serif;
+}
+
+.hist-route-loading.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
+.hrl-spinner {
+    width: 22px;
+    height: 22px;
+    border: 3px solid rgba(231, 76, 60, 0.15);
+    border-top-color: #e74c3c;
+    border-radius: 50%;
+    animation: hrlSpin 0.8s linear infinite;
+    flex-shrink: 0;
+}
+
+@keyframes hrlSpin {
+    to { transform: rotate(360deg); }
+}
+
+.hist-route-loading span {
+    font-size: 13px;
+    font-weight: 800;
+    color: #4a3a2a;
+}
+/* ═══════════════════════════════════════════════════════════
+   🆕 چیپ مسیر تاریخی در نوار پایین نقشه
+   ═══════════════════════════════════════════════════════════ */
+#mapDayChips .map-chip.map-chip-historical {
+    background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+    border: 1.5px solid #e74c3c;
+    color: #e74c3c;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+}
+
+#mapDayChips .map-chip.map-chip-historical i {
+    font-size: 12px;
+}
+
+#mapDayChips .map-chip.map-chip-historical:hover:not(.active) {
+    background: #ffe0e0;
+    border-color: #e74c3c;
+    transform: translateY(-1px);
+}
+
+#mapDayChips .map-chip.map-chip-historical.active {
+    background: linear-gradient(135deg, #e74c3c, #ff6b5b);
+    color: #fff;
+    border-color: #e74c3c;
+    box-shadow: 0 4px 14px rgba(231, 76, 60, 0.4);
+}
+
+#mapDayChips .map-chip.map-chip-historical.active i {
+    animation: walkPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes walkPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+}
