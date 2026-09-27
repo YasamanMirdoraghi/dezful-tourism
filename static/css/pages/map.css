@@ -1182,3 +1182,58 @@ body.page-map {
         font-size: 11px;
     }
 }
+
+/* ═══ مسیر نقطه‌چین مشکی باریک ═══ */
+.leaflet-routing-container,
+.leaflet-routing-alt,
+.leaflet-routing-error {
+    display: none !important;
+}
+
+.leaflet-overlay-pane svg path.leaflet-interactive {
+    stroke: #000000 !important;
+    stroke-width: 3 !important;
+    stroke-dasharray: 6, 10 !important;
+    stroke-linecap: round !important;
+    fill: none !important;
+    opacity: 0.85 !important;
+}
+
+.leaflet-routing-line,
+.leaflet-routing-line-shadow {
+    stroke: #000000 !important;
+    stroke-width: 3 !important;
+    stroke-dasharray: 6, 10 !important;
+    opacity: 0.85 !important;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* ═══ مسیر نقطه‌چین مشکی باریک ═══ */
+.leaflet-routing-container,
+.leaflet-routing-alt,
+.leaflet-routing-geocoders,
+.leaflet-routing-error {
+    display: none !important;
+}
+
+.leaflet-overlay-pane svg path.leaflet-interactive {
+    stroke: #000000 !important;
+    stroke-width: 3 !important;
+    stroke-dasharray: 6, 10 !important;
+    stroke-linecap: round !important;
+    fill: none !important;
+    opacity: 0.85 !important;
+}
+
+.leaflet-routing-line,
+.leaflet-routing-line-shadow {
+    stroke: #000000 !important;
+    stroke-width: 3 !important;
+    stroke-dasharray: 6, 10 !important;
+    opacity: 0.85 !important;
+}
+
+@keyframes routeSpin { 
+    to { transform: rotate(360deg); } 
+}

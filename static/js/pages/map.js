@@ -1,17 +1,16 @@
 // ═══════════════════════════════════════════════════════════
 // pages/map.js — نقشه‌ی گردشگری تعاملی
+// مسیریابی: Brute Force (بهینه‌ی قطعی تا ۷ جاذبه)
 // ═══════════════════════════════════════════════════════════
 
 import { faNum } from '../utils/index.js';
 
-// ⭐ تابع کمکی برای گرفتن عنصر
 const $id = (id) => document.getElementById(id);
 
 /**
  * راه‌اندازی صفحه‌ی نقشه
  */
 export function initMap() {
-    // ⭐ اینجا اصلاح شد: getElementById
     const mapEl = document.getElementById('tourismMap');
     if (!mapEl || typeof L === 'undefined') return;
 
@@ -54,11 +53,14 @@ export function initMap() {
     let freeOnly = false, childOnly = false, favsOnly = false;
     let query = '';
     let favs = new Set(FAVORITE_IDS || []);
-    let activeRoute = null;
     let routeEnabled = true;
     let activeDay = 'all';
     let daysArray = [];
     let tripPlaces = [];
+
+    // ═══ کش ترتیب بهینه برای هر روز ═══
+    const optimizedOrders = {};      // { dayIndex: orderedPlaces[] }
+    const optimizingPromises = {};   // { dayIndex: Promise }
 
     // ═══ نقشه ═══
     const map = L.map('tourismMap', {
@@ -160,59 +162,222 @@ export function initMap() {
         </div>`;
     }
 
-    // ═══ محاسبه فاصله ═══
-    function calculateDistance(lat1, lng1, lat2, lng2) {
+    // ═══════════════════════════════════════════════════════════
+    // 🧭 موتور مسیریابی — Brute Force (بهینه‌ی قطعی)
+    // ═══════════════════════════════════════════════════════════
+
+    /** فاصله‌ی هوایی (Haversine) — برای fallback */
+    function haversine(lat1, lng1, lat2, lng2) {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLng = (lng2 - lng1) * Math.PI / 180;
-        const a = Math.sin(dLat / 2) ** 2 + Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+        const a = Math.sin(dLat / 2) ** 2 +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLng / 2) ** 2;
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
-    // ═══ Nearest Neighbor ═══
-    function nearestNeighbor(places) {
-        if (places.length <= 2) return [...places];
+    /** ماتریس فاصله‌ی واقعی جاده‌ای با OSRM Table API */
+    async function buildDistanceMatrix(places) {
+        if (places.length < 2) return [[0]];
 
-        const unvisited = [...places];
-        const ordered = [];
-
-        let current = unvisited.shift();
-        ordered.push(current);
-
-        while (unvisited.length > 0) {
-            let nearestIdx = 0;
-            let nearestDist = Infinity;
-
-            for (let i = 0; i < unvisited.length; i++) {
-                const dist = calculateDistance(current.lat, current.lng, unvisited[i].lat, unvisited[i].lng);
-                if (dist < nearestDist) {
-                    nearestDist = dist;
-                    nearestIdx = i;
-                }
-            }
-
-            current = unvisited.splice(nearestIdx, 1)[0];
-            ordered.push(current);
-        }
-
-        return ordered;
-    }
-
-    // ═══ رسم مسیر ═══
-    function drawRoute(placesList, color) {
-        if (activeRoute) {
-            map.removeControl(activeRoute);
-            activeRoute = null;
-        }
-
-        if (!routeEnabled) return;
-        if (!placesList || placesList.length < 2) return;
-
-        const orderedPlaces = nearestNeighbor(placesList);
-        const waypoints = orderedPlaces.map(p => L.latLng(p.lat, p.lng));
-        const routeColor = color || '#118b71';
+        const coords = places.map(p => `${p.lng},${p.lat}`).join(';');
+        const url = `https://router.project-osrm.org/table/v1/driving/${coords}?annotations=distance`;
 
         try {
+            const res = await fetch(url);
+            if (!res.ok) throw new Error('OSRM table failed');
+            const data = await res.json();
+            if (!data.distances) throw new Error('No distances in response');
+            // متر → کیلومتر
+            return data.distances.map(row => row.map(d => d / 1000));
+        } catch (err) {
+            console.warn('⚠️ OSRM Table در دسترس نیست، از فاصله هوایی استفاده می‌شود');
+            const n = places.length;
+            const m = Array.from({ length: n }, () => new Array(n).fill(0));
+            for (let i = 0; i < n; i++) {
+                for (let j = i + 1; j < n; j++) {
+                    const d = haversine(places[i].lat, places[i].lng, places[j].lat, places[j].lng);
+                    m[i][j] = d;
+                    m[j][i] = d;
+                }
+            }
+            return m;
+        }
+    }
+
+    /** مجموع طول مسیر بر اساس ترتیب داده‌شده */
+    function routeCost(order, matrix) {
+        let total = 0;
+        for (let i = 0; i < order.length - 1; i++) {
+            total += matrix[order[i]][order[i + 1]];
+        }
+        return total;
+    }
+
+    /**
+     * تولید تمام جایگشت‌های یک آرایه (Heap's Algorithm)
+     * پیچیدگی: O(n!)
+     */
+    function* permutations(arr) {
+        const a = [...arr];
+        const n = a.length;
+        const c = new Array(n).fill(0);
+        yield [...a];
+
+        let i = 0;
+        while (i < n) {
+            if (c[i] < i) {
+                if (i % 2 === 0) {
+                    [a[0], a[i]] = [a[i], a[0]];
+                } else {
+                    [a[c[i]], a[i]] = [a[i], a[c[i]]];
+                }
+                yield [...a];
+                c[i]++;
+                i = 0;
+            } else {
+                c[i] = 0;
+                i++;
+            }
+        }
+    }
+
+    /**
+     * 🎯 پیدا کردن کوتاه‌ترین مسیر با Brute Force
+     * تا ۷ نقطه = ۵,۰۴۰ حالت = بهینه‌ی قطعی
+     * برای n > ۸ از الگوریتم تقریبی استفاده می‌شود (محدودیت UI)
+     */
+    function optimizeRoute(places, matrix) {
+        const n = places.length;
+        if (n <= 2) return places.map((_, i) => i);
+
+        // سقف امن برای UI: بیش از ۸ نقطه = بهینه‌ی قطعی کند می‌شود
+        if (n > 8) {
+            console.warn(`⚠️ ${n} نقطه زیاد است، از Nearest Neighbor استفاده می‌شود`);
+            return heuristicFallback(matrix);
+        }
+
+        const indices = Array.from({ length: n }, (_, i) => i);
+        let bestOrder = null;
+        let bestCost = Infinity;
+
+        for (const perm of permutations(indices)) {
+            const cost = routeCost(perm, matrix);
+            if (cost < bestCost) {
+                bestCost = cost;
+                bestOrder = perm;
+            }
+        }
+
+        console.log(`🎯 Brute Force: ${n} نقطه → ${bestCost.toFixed(2)} کیلومتر (بهینه‌ی قطعی)`);
+        return bestOrder;
+    }
+
+    /** الگوریتم جایگزین اضطراری برای n > 8 — Nearest Neighbor */
+    function heuristicFallback(matrix) {
+        const n = matrix.length;
+        const visited = new Array(n).fill(false);
+        const order = [0];
+        visited[0] = true;
+
+        for (let step = 1; step < n; step++) {
+            const last = order[order.length - 1];
+            let best = -1;
+            let bestDist = Infinity;
+            for (let j = 0; j < n; j++) {
+                if (!visited[j] && matrix[last][j] < bestDist) {
+                    bestDist = matrix[last][j];
+                    best = j;
+                }
+            }
+            if (best === -1) break;
+            order.push(best);
+            visited[best] = true;
+        }
+        return order;
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 🎯 کش ترتیب بهینه — محاسبه‌ی یک‌بار برای هر روز
+    // ═══════════════════════════════════════════════════════════
+
+    /**
+     * محاسبه و کش ترتیب بهینه برای یک روز خاص
+     * @param {number} dayIdx - ایندکس روز (0-based)
+     * @returns {Promise<Array>} آرایه‌ی مرتب‌شده‌ی جاذبه‌ها
+     */
+    async function getOptimizedOrder(dayIdx) {
+        // اگر قبلاً محاسبه شده، برگردان
+        if (optimizedOrders[dayIdx]) return optimizedOrders[dayIdx];
+
+        // اگر در حال محاسبه است، همان Promise را برگردان
+        if (optimizingPromises[dayIdx]) return optimizingPromises[dayIdx];
+
+        const places = daysArray[dayIdx];
+        if (!places || places.length < 2) {
+            optimizedOrders[dayIdx] = places || [];
+            return optimizedOrders[dayIdx];
+        }
+
+        optimizingPromises[dayIdx] = (async () => {
+            try {
+                const matrix = await buildDistanceMatrix(places);
+                const order = optimizeRoute(places, matrix);
+                const ordered = order.map(i => places[i]);
+                optimizedOrders[dayIdx] = ordered;
+                return ordered;
+            } catch (err) {
+                console.error('❌ خطا در بهینه‌سازی ترتیب:', err);
+                optimizedOrders[dayIdx] = places; // fallback به ترتیب اصلی
+                return places;
+            } finally {
+                delete optimizingPromises[dayIdx];
+            }
+        })();
+
+        return optimizingPromises[dayIdx];
+    }
+
+    /** پاک کردن کش (مثلاً وقتی داده‌ها تغییر کرد) */
+    function clearOptimizedOrders() {
+        Object.keys(optimizedOrders).forEach(k => delete optimizedOrders[k]);
+        Object.keys(optimizingPromises).forEach(k => delete optimizingPromises[k]);
+    }
+
+    // ═══════════════════════════════════════════════════════════
+    // 🎨 رسم مسیر — نقطه‌چین مشکی باریک
+    // ═══════════════════════════════════════════════════════════
+
+    let activeRoute = null;
+    let activeRouteLine = null;
+
+    // ⚫ نقطه‌چین مشکی باریک
+    const ROUTE_STYLE = {
+        color: '#000000',
+        weight: 3,
+        opacity: 0.85,
+        dashArray: '6, 10',
+        lineCap: 'round',
+        lineJoin: 'round'
+    };
+
+    /**
+     * 🎨 رسم مسیر با ترتیب از پیش بهینه‌شده
+     * @param {Array} orderedPlaces - آرایه‌ی جاذبه‌ها به ترتیب بهینه
+     */
+    async function drawRouteWithOrder(orderedPlaces) {
+        clearRoute();
+
+        if (!routeEnabled) return;
+        if (!orderedPlaces || orderedPlaces.length < 2) return;
+
+        const loadingEl = $id('routeLoading');
+        if (loadingEl) loadingEl.style.display = 'flex';
+
+        try {
+            const waypoints = orderedPlaces.map(p => L.latLng(p.lat, p.lng));
+
             activeRoute = L.Routing.control({
                 waypoints: waypoints,
                 routeWhileDragging: false,
@@ -220,26 +385,76 @@ export function initMap() {
                 fitSelectedRoutes: false,
                 show: false,
                 lineOptions: {
-                    styles: [{ color: routeColor, weight: 5, opacity: 0.85, dashArray: '8, 8' }],
+                    styles: [ROUTE_STYLE],
                     extendToWaypoints: true,
                     missingRouteTolerance: 0
                 },
-                createMarker: function () { return null; },
+                createMarker: () => null,
                 router: L.Routing.osrmv1({
                     serviceUrl: 'https://router.project-osrm.org/route/v1',
                     profile: 'driving'
                 })
             }).addTo(map);
+
+            activeRoute.on('routesfound', (e) => {
+                e.routes.forEach(route => {
+                    if (route.coordinates) {
+                        if (activeRouteLine) {
+                            try { map.removeLayer(activeRouteLine); } catch (_) {}
+                        }
+                        activeRouteLine = L.polyline(route.coordinates, {
+                            ...ROUTE_STYLE,
+                            interactive: false
+                        }).addTo(map);
+                    }
+                });
+                if (loadingEl) loadingEl.style.display = 'none';
+
+                // 📊 نمایش مجموع مسافت در کنسول
+                const totalKm = e.routes[0]?.summary?.totalDistance / 1000;
+                if (totalKm && !isNaN(totalKm)) {
+                    console.log(`🚗 مسافت کل روز: ${totalKm.toFixed(2)} کیلومتر`);
+                }
+            });
+
+            activeRoute.on('routingerror', () => {
+                if (loadingEl) loadingEl.style.display = 'none';
+            });
+
         } catch (err) {
-            console.error('❌ خطا در مسیریابی:', err);
+            console.error('❌ خطا در رسم مسیر:', err);
+            if (loadingEl) loadingEl.style.display = 'none';
         }
+    }
+
+    /**
+     * 🔁 نسخه‌ی قبلی drawRoute — با محاسبه‌ی مجدد (نگه داشته شده برای fallback)
+     */
+    async function drawRoute(placesList) {
+        if (!placesList || placesList.length < 2) return;
+        const matrix = await buildDistanceMatrix(placesList);
+        const order = optimizeRoute(placesList, matrix);
+        const orderedPlaces = order.map(i => placesList[i]);
+        return drawRouteWithOrder(orderedPlaces);
     }
 
     function clearRoute() {
         if (activeRoute) {
-            map.removeControl(activeRoute);
+            try { map.removeControl(activeRoute); } catch (_) {}
             activeRoute = null;
         }
+        if (activeRouteLine) {
+            try { map.removeLayer(activeRouteLine); } catch (_) {}
+            activeRouteLine = null;
+        }
+        // پاک‌سازی خطوط باقی‌مانده‌ی OSRM
+        map.eachLayer(layer => {
+            if (layer instanceof L.Polyline &&
+                layer.options &&
+                layer.options.className === 'leaflet-routing-line') {
+                map.removeLayer(layer);
+            }
+        });
     }
 
     // ═══ Card HTML ═══
@@ -290,17 +505,21 @@ export function initMap() {
                 </button>`).join('');
 
         if (activeDay === 'all') {
-            list.innerHTML = daysArray.map((d, i) => `
-                <div class="day-group">
-                    <div class="day-group-title">روز ${faNum(i + 1)} <span>${faNum(d.length)} جاذبه</span></div>
-                    ${d.map((p, idx) => cardHtml(p, idx, i)).join('')}
-                </div>`).join('');
+            list.innerHTML = daysArray.map((d, i) => {
+                const ordered = optimizedOrders[i] || d;
+                return `
+                    <div class="day-group">
+                        <div class="day-group-title">روز ${faNum(i + 1)} <span>${faNum(d.length)} جاذبه</span></div>
+                        ${ordered.map((p, idx) => cardHtml(p, idx, i)).join('')}
+                    </div>`;
+            }).join('');
         } else {
             const i = +activeDay;
+            const ordered = optimizedOrders[i] || daysArray[i];
             list.innerHTML = `
                 <div class="day-group">
                     <div class="day-group-title">روز ${faNum(i + 1)} <span>${faNum(daysArray[i].length)} جاذبه</span></div>
-                    ${daysArray[i].map((p, idx) => cardHtml(p, idx, i)).join('')}
+                    ${ordered.map((p, idx) => cardHtml(p, idx, i)).join('')}
                 </div>`;
         }
 
@@ -370,7 +589,7 @@ export function initMap() {
     }
 
     // ═══ Draw Map ═══
-    function drawMap() {
+    async function drawMap() {
         markers.forEach(m => clusterGroup.removeLayer(m));
         markers.clear();
         clusterGroup.clearLayers();
@@ -384,7 +603,8 @@ export function initMap() {
                 daysArray.forEach((d, i) => {
                     const dayNum = i + 1;
                     const color = getDayColor(dayNum);
-                    d.forEach((p, idx) => {
+                    const ordered = optimizedOrders[i] || d;
+                    ordered.forEach((p, idx) => {
                         placesToDraw.push({ p, num: idx + 1, day: dayNum, color });
                     });
                 });
@@ -392,7 +612,9 @@ export function initMap() {
                 const i = +activeDay;
                 const dayNum = i + 1;
                 const color = getDayColor(dayNum);
-                daysArray[i].forEach((p, idx) => {
+                // اطمینان از آماده بودن ترتیب بهینه
+                const ordered = optimizedOrders[i] || await getOptimizedOrder(i);
+                ordered.forEach((p, idx) => {
                     placesToDraw.push({ p, num: idx + 1, day: dayNum, color });
                 });
             }
@@ -421,9 +643,14 @@ export function initMap() {
             allPoints.push([p.lat, p.lng]);
         });
 
+        // 🚗 رسم مسیر بهینه — فقط در trip mode و یک روز خاص
         if (TRIP_MODE && TRIP_DATA && activeDay !== 'all') {
             const i = +activeDay;
-            drawRoute(daysArray[i], getDayColor(i + 1));
+            const ordered = optimizedOrders[i] || await getOptimizedOrder(i);
+            // رندر مجدد لیست با ترتیب بهینه (اگر تازه محاسبه شد)
+            renderTripList();
+            // رسم مسیر با ترتیب بهینه
+            drawRouteWithOrder(ordered);
         }
 
         if (allPoints.length) {
@@ -515,10 +742,10 @@ export function initMap() {
         const allBtn = document.createElement('button');
         allBtn.className = 'map-chip' + (activeDay === 'all' ? ' active' : '');
         allBtn.textContent = 'همه';
-        allBtn.addEventListener('click', () => {
+        allBtn.addEventListener('click', async () => {
             activeDay = 'all';
             renderTripList();
-            drawMap();
+            await drawMap();
             buildMapDayChips();
         });
         container.appendChild(allBtn);
@@ -527,10 +754,11 @@ export function initMap() {
             const dayBtn = document.createElement('button');
             dayBtn.className = 'map-chip' + (activeDay !== 'all' && +activeDay === i ? ' active' : '');
             dayBtn.textContent = `روز ${faNum(i + 1)}`;
-            dayBtn.addEventListener('click', () => {
+            dayBtn.addEventListener('click', async () => {
                 activeDay = i;
+                await getOptimizedOrder(i);
                 renderTripList();
-                drawMap();
+                await drawMap();
                 buildMapDayChips();
             });
             container.appendChild(dayBtn);
@@ -566,12 +794,15 @@ export function initMap() {
     }
 
     // ═══ Event: Tabs ═══
-    document.addEventListener('click', e => {
+    document.addEventListener('click', async e => {
         const t = e.target.closest('[data-tab]');
         if (t && t.closest('#plannerTabs')) {
             activeDay = t.dataset.tab === 'all' ? 'all' : parseInt(t.dataset.tab, 10);
+            if (activeDay !== 'all') {
+                await getOptimizedOrder(+activeDay);
+            }
             renderTripList();
-            drawMap();
+            await drawMap();
             buildMapDayChips();
         }
     });
@@ -650,13 +881,14 @@ export function initMap() {
     });
 
     // ═══ Event: Route toggle ═══
-    $id('routeBtn')?.addEventListener('click', () => {
+    $id('routeBtn')?.addEventListener('click', async () => {
         routeEnabled = !routeEnabled;
         $id('routeBtn').classList.toggle('active', routeEnabled);
 
         if (routeEnabled && activeDay !== 'all') {
             const i = +activeDay;
-            drawRoute(daysArray[i], getDayColor(i + 1));
+            const ordered = optimizedOrders[i] || await getOptimizedOrder(i);
+            drawRouteWithOrder(ordered);
             showToast('مسیر نمایش داده شد');
         } else {
             clearRoute();
@@ -748,8 +980,19 @@ export function initMap() {
             rb.classList.add('active');
         }
 
-        renderTripList();
-        drawMap();
+        // 🚀 پیش‌محاسبه‌ی ترتیب بهینه برای همه‌ی روزها (موازی)
+        Promise.all(daysArray.map((_, i) => getOptimizedOrder(i)))
+            .then(() => {
+                console.log('✅ ترتیب بهینه همه‌ی روزها آماده شد');
+                renderTripList();
+                drawMap();
+            })
+            .catch(err => {
+                console.error('❌ خطا در پیش‌محاسبه:', err);
+                renderTripList();
+                drawMap();
+            });
+
         buildMapDayChips();
         buildLegend();
     } else {

@@ -81,6 +81,17 @@
 
     <div class="map-viewport">
         <div id="tourismMap"></div>
+        <div id="routeLoading" style="display:none; position:absolute; top:50%; left:50%; 
+     transform:translate(-50%,-50%); background:rgba(255,255,255,0.96); 
+     padding:14px 22px; border-radius:14px; box-shadow:0 8px 28px rgba(0,0,0,0.18); 
+     z-index:1200; align-items:center; gap:12px; direction:rtl;">
+    <div style="width:18px; height:18px; border:2.5px solid #e8e8e8; 
+         border-top-color:#000; border-radius:50%; 
+         animation:routeSpin 0.8s linear infinite;"></div>
+    <span style="font-size:13px; font-weight:700; color:#4a3a2a; font-family:'Vazirmatn',sans-serif;">
+        در حال محاسبه‌ی کوتاه‌ترین مسیر...
+    </span>
+</div>
         <div class="map-day-chips" id="mapDayChips"></div>
 
         <div class="map-controls">
