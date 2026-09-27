@@ -1579,9 +1579,6 @@ body.page-map {
     font-weight: 800;
     color: #4a3a2a;
 }
-/* ═══════════════════════════════════════════════════════════
-   🆕 چیپ مسیر تاریخی در نوار پایین نقشه
-   ═══════════════════════════════════════════════════════════ */
 #mapDayChips .map-chip.map-chip-historical {
     background: linear-gradient(135deg, #fff5f5, #ffe8e8);
     border: 1.5px solid #e74c3c;

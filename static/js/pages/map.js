@@ -58,6 +58,7 @@ export function initMap() {
     let activeDay = 'all';
     let daysArray = [];
     let tripPlaces = [];
+    let historicalRouteActive = false;
 
     // ═══ کش ترتیب بهینه برای هر روز ═══
     const optimizedOrders = {};
@@ -135,14 +136,13 @@ export function initMap() {
     const markers = new Map();
 
     // ═══════════════════════════════════════════════════════════
-    // 🆕 مسیر تاریخی — مسیریابی پیاده‌روی واقعی (OSRM foot)
+    // 🆕 مسیر تاریخی
     // ═══════════════════════════════════════════════════════════
     let historicalRouteLayer = null;
     let historicalStopMarkers = [];
     let activeHistoricalRoute = null;
     let activeHistoricalLine = null;
 
-    // 🎨 استایل خط قرمز نقطه‌چین
     const HIST_ROUTE_STYLE = {
         color: '#e74c3c',
         weight: 5,
@@ -152,22 +152,61 @@ export function initMap() {
         lineJoin: 'round'
     };
 
+    // ═══ 🆕 مخفی کردن همه‌ی محتوای سفر ═══
+    function hideAllTripContent() {
+        markers.forEach(m => clusterGroup.removeLayer(m));
+        markers.clear();
+        clusterGroup.clearLayers();
+        clearRoute();
+
+        map.eachLayer(layer => {
+            if (layer instanceof L.Polyline &&
+                layer.options &&
+                (layer.options.className === 'leaflet-routing-line' ||
+                 layer.options.className === 'leaflet-routing-line-shadow')) {
+                try { map.removeLayer(layer); } catch (_) {}
+            }
+        });
+
+        const tabs = $id('plannerTabs');
+        if (tabs) tabs.style.display = 'none';
+        const qf = $id('quickFiltersSection');
+        if (qf) qf.style.display = 'none';
+        const et = $id('extraTogglesSection');
+        if (et) et.style.display = 'none';
+        const sb = $id('searchBox');
+        if (sb) sb.style.display = 'none';
+    }
+
+    // ═══ 🆕 برگرداندن محتوای سفر ═══
+    async function restoreTripContent() {
+        if (TRIP_MODE && TRIP_DATA) {
+            renderTripList();
+            await drawMap();
+            const tabs = $id('plannerTabs');
+            if (tabs) tabs.style.display = 'flex';
+        } else {
+            applyFilters();
+        }
+    }
+
     function drawHistoricalRoute() {
         if (!HISTORICAL_ROUTE || !HISTORICAL_ROUTE.stops || HISTORICAL_ROUTE.stops.length < 2) return;
 
         clearHistoricalRoute();
+        hideAllTripContent();
+
+        historicalRouteActive = true;
 
         historicalRouteLayer = L.layerGroup().addTo(map);
         historicalStopMarkers = [];
 
-        // ═══ نقاط ایستگاه‌ها ═══
         const stopPoints = HISTORICAL_ROUTE.stops
             .filter(s => s.lat && s.lng)
             .map(s => L.latLng(s.lat, s.lng));
 
         if (stopPoints.length < 2) return;
 
-        // ═══ مارکر ایستگاه‌ها ═══
         HISTORICAL_ROUTE.stops.forEach((stop, idx) => {
             if (!stop.lat || !stop.lng) return;
 
@@ -193,7 +232,6 @@ export function initMap() {
             historicalStopMarkers.push(marker);
         });
 
-        // ═══ 🚶 مسیریابی پیاده با OSRM foot ═══
         showHistRouteLoading(true);
 
         activeHistoricalRoute = L.Routing.control({
@@ -226,7 +264,6 @@ export function initMap() {
                         try { map.removeLayer(activeHistoricalLine); } catch (_) {}
                     }
 
-                    // هاله‌ی سفید
                     L.polyline(route.coordinates, {
                         color: '#ffffff',
                         weight: 10,
@@ -235,7 +272,6 @@ export function initMap() {
                         interactive: false
                     }).addTo(historicalRouteLayer).bringToBack();
 
-                    // خط قرمز نقطه‌چین
                     activeHistoricalLine = L.polyline(route.coordinates, {
                         ...HIST_ROUTE_STYLE,
                         interactive: false
@@ -272,7 +308,6 @@ export function initMap() {
             }, 200);
         });
 
-        // ═══ هدر سایدبار ═══
         const titleEl = $id('sidebarTitle');
         const subtitleEl = $id('sidebarSubtitle');
         if (titleEl) titleEl.textContent = HISTORICAL_ROUTE.name;
@@ -303,6 +338,8 @@ export function initMap() {
     }
 
     function clearHistoricalRoute() {
+        historicalRouteActive = false;
+
         if (activeHistoricalRoute) {
             try { map.removeControl(activeHistoricalRoute); } catch (_) {}
             activeHistoricalRoute = null;
@@ -329,6 +366,11 @@ export function initMap() {
 
         historicalStopMarkers = [];
         showHistRouteLoading(false);
+    }
+
+    function removeHistBanner() {
+        const banner = $id('histRouteBanner');
+        if (banner) banner.remove();
     }
 
     function showHistoricalRouteBanner(route) {
@@ -410,15 +452,10 @@ export function initMap() {
 
     window.clearHistRoute = function () {
         clearHistoricalRoute();
-        const banner = $id('histRouteBanner');
-        if (banner) banner.remove();
+        removeHistBanner();
 
-        if (TRIP_MODE && TRIP_DATA) {
-            renderTripList();
-            drawMap();
-        } else {
-            applyFilters();
-        }
+        restoreTripContent();
+        buildMapDayChips();
 
         const url = new URL(window.location.href);
         url.searchParams.delete('route');
@@ -455,7 +492,7 @@ export function initMap() {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // 🧭 موتور مسیریابی — Brute Force (بهینه‌ی قطعی)
+    // 🧭 موتور مسیریابی — Brute Force
     // ═══════════════════════════════════════════════════════════
 
     function haversine(lat1, lng1, lat2, lng2) {
@@ -610,7 +647,7 @@ export function initMap() {
     }
 
     // ═══════════════════════════════════════════════════════════
-    // 🎨 رسم مسیر سفر — نقطه‌چین مشکی باریک (driving)
+    // 🎨 رسم مسیر سفر
     // ═══════════════════════════════════════════════════════════
 
     let activeRoute = null;
@@ -896,14 +933,14 @@ export function initMap() {
             allPoints.push([p.lat, p.lng]);
         });
 
-        if (TRIP_MODE && TRIP_DATA && activeDay !== 'all') {
+        if (TRIP_MODE && TRIP_DATA && activeDay !== 'all' && !historicalRouteActive) {
             const i = +activeDay;
             const ordered = optimizedOrders[i] || await getOptimizedOrder(i);
             renderTripList();
             drawRouteWithOrder(ordered);
         }
 
-        if (allPoints.length) {
+        if (allPoints.length && !historicalRouteActive) {
             map.fitBounds(L.latLngBounds(allPoints), { padding: [80, 80], maxZoom: 14 });
         }
     }
@@ -976,46 +1013,80 @@ export function initMap() {
         drawMap();
     }
 
-    // ═══ Map Day Chips ═══
+    // ═══ Map Day Chips (با چیپ مسیر تاریخی) ═══
     function buildMapDayChips() {
         const container = $id('mapDayChips');
         if (!container) return;
 
-        if (!TRIP_MODE || !TRIP_DATA || daysArray.length === 0) {
-            container.classList.remove('show');
-            container.style.display = 'none';
-            return;
-        }
-
         container.innerHTML = '';
 
-        const allBtn = document.createElement('button');
-        allBtn.className = 'map-chip' + (activeDay === 'all' ? ' active' : '');
-        allBtn.textContent = 'همه';
-        allBtn.addEventListener('click', async () => {
-            activeDay = 'all';
-            renderTripList();
-            await drawMap();
-            buildMapDayChips();
-        });
-        container.appendChild(allBtn);
+        let hasChips = false;
 
-        daysArray.forEach((d, i) => {
-            const dayBtn = document.createElement('button');
-            dayBtn.className = 'map-chip' + (activeDay !== 'all' && +activeDay === i ? ' active' : '');
-            dayBtn.textContent = `روز ${faNum(i + 1)}`;
-            dayBtn.addEventListener('click', async () => {
-                activeDay = i;
-                await getOptimizedOrder(i);
-                renderTripList();
-                await drawMap();
+        // ═══ چیپ‌های روزها ═══
+        if (TRIP_MODE && TRIP_DATA && daysArray.length > 0) {
+            hasChips = true;
+
+            const allBtn = document.createElement('button');
+            allBtn.className = 'map-chip' + (activeDay === 'all' && !historicalRouteActive ? ' active' : '');
+            allBtn.textContent = 'همه';
+            allBtn.addEventListener('click', async () => {
+                if (historicalRouteActive) {
+                    clearHistoricalRoute();
+                    removeHistBanner();
+                }
+                historicalRouteActive = false;
+                activeDay = 'all';
+                await restoreTripContent();
                 buildMapDayChips();
             });
-            container.appendChild(dayBtn);
-        });
+            container.appendChild(allBtn);
 
-        container.style.display = 'flex';
-        container.classList.add('show');
+            daysArray.forEach((d, i) => {
+                const dayBtn = document.createElement('button');
+                dayBtn.className = 'map-chip' + (activeDay !== 'all' && +activeDay === i && !historicalRouteActive ? ' active' : '');
+                dayBtn.textContent = `روز ${faNum(i + 1)}`;
+                dayBtn.addEventListener('click', async () => {
+                    if (historicalRouteActive) {
+                        clearHistoricalRoute();
+                        removeHistBanner();
+                    }
+                    historicalRouteActive = false;
+                    activeDay = i;
+                    await getOptimizedOrder(i);
+                    await restoreTripContent();
+                    buildMapDayChips();
+                });
+                container.appendChild(dayBtn);
+            });
+        }
+
+        // ═══ چیپ مسیر تاریخی ═══
+        if (HISTORICAL_ROUTE) {
+            hasChips = true;
+
+            const histBtn = document.createElement('button');
+            histBtn.className = 'map-chip map-chip-historical' + (historicalRouteActive ? ' active' : '');
+            histBtn.innerHTML = `<i class="fas fa-walking"></i> مسیر تاریخی`;
+            histBtn.addEventListener('click', async () => {
+                if (historicalRouteActive) {
+                    clearHistoricalRoute();
+                    removeHistBanner();
+                    await restoreTripContent();
+                } else {
+                    drawHistoricalRoute();
+                }
+                buildMapDayChips();
+            });
+            container.appendChild(histBtn);
+        }
+
+        if (hasChips) {
+            container.style.display = 'flex';
+            container.classList.add('show');
+        } else {
+            container.style.display = 'none';
+            container.classList.remove('show');
+        }
     }
 
     // ═══ Legend ═══
@@ -1047,6 +1118,7 @@ export function initMap() {
     document.addEventListener('click', async e => {
         const t = e.target.closest('[data-tab]');
         if (t && t.closest('#plannerTabs')) {
+            historicalRouteActive = false;
             activeDay = t.dataset.tab === 'all' ? 'all' : parseInt(t.dataset.tab, 10);
             if (activeDay !== 'all') {
                 await getOptimizedOrder(+activeDay);
@@ -1135,7 +1207,7 @@ export function initMap() {
         routeEnabled = !routeEnabled;
         $id('routeBtn').classList.toggle('active', routeEnabled);
 
-        if (routeEnabled && activeDay !== 'all') {
+        if (routeEnabled && activeDay !== 'all' && !historicalRouteActive) {
             const i = +activeDay;
             const ordered = optimizedOrders[i] || await getOptimizedOrder(i);
             drawRouteWithOrder(ordered);
@@ -1185,6 +1257,16 @@ export function initMap() {
 
     // ═══ Event: Fit bounds ═══
     $id('fitBtn')?.addEventListener('click', () => {
+        if (historicalRouteActive && HISTORICAL_ROUTE) {
+            const coords = HISTORICAL_ROUTE.stops
+                .filter(s => s.lat && s.lng)
+                .map(s => [s.lat, s.lng]);
+            if (coords.length) {
+                map.fitBounds(L.latLngBounds(coords), { padding: [60, 60], maxZoom: 15 });
+            }
+            return;
+        }
+
         const allPoints = (TRIP_MODE ? tripPlaces : MAP_PLACES).map(p => [p.lat, p.lng]);
         if (allPoints.length) {
             map.fitBounds(L.latLngBounds(allPoints), { padding: [80, 80], maxZoom: 14 });
@@ -1252,9 +1334,8 @@ export function initMap() {
         buildLegend();
     }
 
-    // 🆕 رسم مسیر تاریخی اگه توی URL بود
     if (HISTORICAL_ROUTE) {
-        setTimeout(() => drawHistoricalRoute(), 500);
+        setTimeout(() => buildMapDayChips(), 500);
     }
 
     setTimeout(() => map.invalidateSize(), 300);
