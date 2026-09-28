@@ -406,11 +406,14 @@ summary.filter-group-title::-webkit-details-marker {
         max-height: none !important;
         overflow-y: visible !important;
         order: 1 !important;
+
     }
 
     .attractions-grid-section {
         order: 2 !important;
         width: 100% !important;
+        /*  */
+
     }
 
     .attractions-grid {
