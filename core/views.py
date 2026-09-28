@@ -267,7 +267,8 @@ def map_page(request):
             'lat': float(place.latitude) if place.latitude else 32.38,
             'lng': float(place.longitude) if place.longitude else 48.42,
             'image': get_place_image(place),
-            'desc': place.description or place.short_description or '',
+            'sub': place.short_description or '',
+            'desc': place.short_description or (place.description[:200] if place.description else ''),
         })
 
     trip_json = None

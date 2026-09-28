@@ -376,6 +376,8 @@ summary.filter-group-title::-webkit-details-marker {
 /* ═══════════════════════════════════════════════════════════
    ریسپانسیو
    ═══════════════════════════════════════════════════════════ */
+
+/* ─── تبلت بزرگ ─── */
 @media (max-width: 1200px) {
     .attractions-grid {
         grid-template-columns: repeat(3, 1fr);
@@ -386,17 +388,29 @@ summary.filter-group-title::-webkit-details-marker {
     }
 }
 
+/* ─── تبلت و موبایل ─── */
 @media (max-width: 992px) {
     .attractions-layout {
-        flex-direction: column-reverse;
+        display: flex;
+        flex-direction: column !important;
+        gap: 20px;
     }
 
     .filter-sidebar {
-        flex: 0 0 auto;
-        width: 100%;
-        position: relative;
-        top: 0;
-        margin-bottom: 20px;
+        flex: 0 0 auto !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        position: relative !important;
+        top: auto !important;
+        margin-bottom: 0 !important;
+        max-height: none !important;
+        overflow-y: visible !important;
+        order: 1 !important;
+    }
+
+    .attractions-grid-section {
+        order: 2 !important;
+        width: 100% !important;
     }
 
     .attractions-grid {
@@ -404,14 +418,20 @@ summary.filter-group-title::-webkit-details-marker {
     }
 }
 
+/* ─── موبایل متوسط (۲ ستونه) ─── */
 @media (max-width: 768px) {
     .attractions-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }
 
-@media (max-width: 480px) {
+/* ─── موبایل کوچیک (۱ ستونه — مثل مقالات) ─── */
+@media (max-width: 576px) {
     .attractions-grid {
         grid-template-columns: 1fr;
+    }
+
+    .attractions-grid-header h2 {
+        font-size: 1.2rem;
     }
 }

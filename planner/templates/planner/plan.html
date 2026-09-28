@@ -11,20 +11,6 @@
 
 {% block content %}
 
-<!-- پنل دیباگ -->
-<button id="debugToggle" title="نمایش دیباگ">🐛</button>
-
-<div id="debugPanel">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(74, 222, 128, 0.3);">
-        <span style="color: #fff; font-weight: 900; font-size: 13px;">🐛 DEBUG LOG</span>
-        <div>
-            <button onclick="window.clearDbg && window.clearDbg()" style="background: #f59e0b; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px; margin-right: 5px;">Clear</button>
-            <button onclick="document.getElementById('debugPanel').style.display='none'" style="background: #ef4444; color: #fff; border: none; padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 11px;">✕</button>
-        </div>
-    </div>
-    <div id="debugContent" style="overflow-y: auto; max-height: calc(60vh - 60px); white-space: pre-wrap; line-height: 1.5;"></div>
-</div>
-
 <script>
     window.REAL_PLACES = {{ places_json|safe }};
     window.CATEGORIES = {{ categories_json|safe }};
@@ -276,75 +262,6 @@
 
 {% endblock %}
 
-{% block legacy_js %}{% endblock %}
-
 {% block extra_js %}
-<script>
-    (function () {
-        const STORAGE_KEY = 'dezful_debug_logs';
-        let logs = [];
-        try { logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch (e) { logs = []; }
-
-        window.dbg = function (...args) {
-            const content = document.getElementById('debugContent');
-            if (!content) return;
-            const time = new Date().toLocaleTimeString('en-US', { hour12: false });
-            const text = args.map(a => {
-                if (a === null) return 'null';
-                if (a === undefined) return 'undefined';
-                if (typeof a === 'object') { try { return JSON.stringify(a); } catch (e) { return String(a); } }
-                return String(a);
-            }).join(' ');
-            const line = `[${time}] ${text}`;
-            logs.push(line);
-            if (logs.length > 100) logs = logs.slice(-100);
-            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(logs)); } catch (e) { }
-            const div = document.createElement('div');
-            div.textContent = line;
-            div.style.padding = '2px 0';
-            if (line.includes('❌')) div.style.color = '#ef4444';
-            else if (line.includes('⚠️') || line.includes('🔒')) div.style.color = '#f59e0b';
-            else if (line.includes('✅')) div.style.color = '#4ade80';
-            content.appendChild(div);
-            content.scrollTop = content.scrollHeight;
-            console.log(...args);
-        };
-
-        window.clearDbg = function () {
-            logs = [];
-            localStorage.removeItem(STORAGE_KEY);
-            document.getElementById('debugContent').innerHTML = '';
-        };
-
-        function restoreLogs() {
-            const content = document.getElementById('debugContent');
-            if (!content) return;
-            content.innerHTML = '';
-            logs.forEach(line => {
-                const div = document.createElement('div');
-                div.textContent = line;
-                div.style.padding = '2px 0';
-                if (line.includes('❌')) div.style.color = '#ef4444';
-                else if (line.includes('⚠️') || line.includes('🔒')) div.style.color = '#f59e0b';
-                else if (line.includes('✅')) div.style.color = '#4ade80';
-                content.appendChild(div);
-            });
-            content.scrollTop = content.scrollHeight;
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const toggleBtn = document.getElementById('debugToggle');
-            const panel = document.getElementById('debugPanel');
-            if (toggleBtn && panel) {
-                toggleBtn.addEventListener('click', () => {
-                    panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-                    if (panel.style.display === 'block') restoreLogs();
-                });
-            }
-            restoreLogs();
-        });
-    })();
-</script>
-
 <script type="module" src="{% static 'js/main.js' %}"></script>
 {% endblock %}

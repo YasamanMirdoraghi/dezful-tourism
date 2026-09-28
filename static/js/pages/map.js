@@ -163,8 +163,8 @@ export function initMap() {
             if (layer instanceof L.Polyline &&
                 layer.options &&
                 (layer.options.className === 'leaflet-routing-line' ||
-                 layer.options.className === 'leaflet-routing-line-shadow')) {
-                try { map.removeLayer(layer); } catch (_) {}
+                    layer.options.className === 'leaflet-routing-line-shadow')) {
+                try { map.removeLayer(layer); } catch (_) { }
             }
         });
 
@@ -218,8 +218,8 @@ export function initMap() {
                     iconAnchor: [12, 12],
                 })
             })
-            .addTo(historicalRouteLayer)
-            .bindPopup(`
+                .addTo(historicalRouteLayer)
+                .bindPopup(`
                 <div style="direction: rtl; font-family: Vazirmatn, sans-serif; padding: 6px; min-width: 180px;">
                     <div style="color: #e74c3c; font-weight: 800; margin-bottom: 6px; font-size: 13px;">
                         <i class="fas fa-map-pin"></i> ایستگاه ${faNum(idx + 1)}
@@ -261,7 +261,7 @@ export function initMap() {
             e.routes.forEach(route => {
                 if (route.coordinates) {
                     if (activeHistoricalLine) {
-                        try { map.removeLayer(activeHistoricalLine); } catch (_) {}
+                        try { map.removeLayer(activeHistoricalLine); } catch (_) { }
                     }
 
                     L.polyline(route.coordinates, {
@@ -341,12 +341,12 @@ export function initMap() {
         historicalRouteActive = false;
 
         if (activeHistoricalRoute) {
-            try { map.removeControl(activeHistoricalRoute); } catch (_) {}
+            try { map.removeControl(activeHistoricalRoute); } catch (_) { }
             activeHistoricalRoute = null;
         }
 
         if (activeHistoricalLine) {
-            try { map.removeLayer(activeHistoricalLine); } catch (_) {}
+            try { map.removeLayer(activeHistoricalLine); } catch (_) { }
             activeHistoricalLine = null;
         }
 
@@ -354,13 +354,13 @@ export function initMap() {
             if (layer instanceof L.Polyline &&
                 layer.options &&
                 (layer.options.className === 'leaflet-routing-line' ||
-                 layer.options.className === 'leaflet-routing-line-shadow')) {
+                    layer.options.className === 'leaflet-routing-line-shadow')) {
                 map.removeLayer(layer);
             }
         });
 
         if (historicalRouteLayer) {
-            try { map.removeLayer(historicalRouteLayer); } catch (_) {}
+            try { map.removeLayer(historicalRouteLayer); } catch (_) { }
             historicalRouteLayer = null;
         }
 
@@ -476,19 +476,29 @@ export function initMap() {
     }
 
     // ═══ Popup ═══
+    // ═══ Popup — با متن کوتاه ═══
     function popupHtml(p, badgeText, badgeColor) {
         const badgeStyle = badgeColor ? `background:${badgeColor}; color:#fff;` : '';
+
+        // 🆕 کوتاه کردن متن: اول short_description، بعد desc
+        let shortText = p.sub || p.short_description || p.desc || '';
+
+        // اگه بیشتر از ۱۸۰ کاراکتر بود، کوتاه کن
+        if (shortText.length > 180) {
+            shortText = shortText.substring(0, 180).trim() + '…';
+        }
+
         return `<div class="map-pop">
-            <div class="map-pop-img">
-                <img src="${p.image}" alt="${p.name}" onerror="this.parentNode.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-                ${badgeText ? `<span class="map-pop-badge" style="${badgeStyle}">${badgeText}</span>` : ''}
-            </div>
-            <div class="map-pop-body">
-                <h4>${p.name}</h4>
-                <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول</div>
-                <p>${p.desc || p.short_description || ''}</p>
-            </div>
-        </div>`;
+        <div class="map-pop-img">
+            <img src="${p.image}" alt="${p.name}" onerror="this.parentNode.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+            ${badgeText ? `<span class="map-pop-badge" style="${badgeStyle}">${badgeText}</span>` : ''}
+        </div>
+        <div class="map-pop-body">
+            <h4>${p.name}</h4>
+            <div class="map-pop-loc"><i class="fas fa-map-marker-alt"></i> دزفول</div>
+            <p>${shortText}</p>
+        </div>
+    </div>`;
     }
 
     // ═══════════════════════════════════════════════════════════
@@ -500,8 +510,8 @@ export function initMap() {
         const dLat = (lat2 - lat1) * Math.PI / 180;
         const dLng = (lng2 - lng1) * Math.PI / 180;
         const a = Math.sin(dLat / 2) ** 2 +
-                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-                  Math.sin(dLng / 2) ** 2;
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+            Math.sin(dLng / 2) ** 2;
         return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     }
 
@@ -696,7 +706,7 @@ export function initMap() {
                 e.routes.forEach(route => {
                     if (route.coordinates) {
                         if (activeRouteLine) {
-                            try { map.removeLayer(activeRouteLine); } catch (_) {}
+                            try { map.removeLayer(activeRouteLine); } catch (_) { }
                         }
                         activeRouteLine = L.polyline(route.coordinates, {
                             ...ROUTE_STYLE,
@@ -732,11 +742,11 @@ export function initMap() {
 
     function clearRoute() {
         if (activeRoute) {
-            try { map.removeControl(activeRoute); } catch (_) {}
+            try { map.removeControl(activeRoute); } catch (_) { }
             activeRoute = null;
         }
         if (activeRouteLine) {
-            try { map.removeLayer(activeRouteLine); } catch (_) {}
+            try { map.removeLayer(activeRouteLine); } catch (_) { }
             activeRouteLine = null;
         }
         map.eachLayer(layer => {
@@ -755,19 +765,18 @@ export function initMap() {
 
     function cardHtml(p, idx, dayIdx) {
         return `<div class="place-row">
-            <span class="place-num">${faNum(idx + 1)}</span>
-            <div class="place-card" data-id="${p.id}">
-                <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-                <div class="pc-info">
-                    <h4>${p.name}</h4>
-                    <div class="pc-time">🕒 ${faTime(9 * 60 + idx * 60)} تا ${faTime(10 * 60 + idx * 60)}</div>
-                    <div class="pc-meta">
-                        <span>🏷️ ${p.cat || p.category || ''}</span>
-                        <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
-                    </div>
+        <span class="place-num">${faNum(idx + 1)}</span>
+        <div class="place-card" data-id="${p.id}">
+            <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
+            <div class="pc-info">
+                <h4>${p.name}</h4>
+                <div class="pc-meta">
+                    <span>🏷️ ${p.cat || p.category || ''}</span>
+                    <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
                 </div>
             </div>
-        </div>`;
+        </div>
+    </div>`;
     }
 
     // ═══ Render Trip List ═══
@@ -856,14 +865,13 @@ export function initMap() {
                 <span class="place-num">${faNum(idx + 1)}</span>
                 <div class="place-card" data-id="${p.id}">
                     <img class="pc-img" src="${p.image}" alt="${p.name}" onerror="this.style.background='linear-gradient(135deg,#dff0ea,#cfe6dd)'">
-                    <div class="pc-info">
-                        <h4>${p.name}</h4>
-                        <div class="pc-time">🕒 ${faNum(9)}:۰۰ تا ${faNum(10)}:۳۰</div>
-                        <div class="pc-meta">
-                            <span><i class="fas fa-tag" style="color:${p.color || '#118b71'};"></i> ${p.cat || p.category || ''}</span>
-                            <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
-                        </div>
-                    </div>
+                  <div class="pc-info">
+    <h4>${p.name}</h4>
+    <div class="pc-meta">
+        <span><i class="fas fa-tag" style="color:${p.color || '#118b71'};"></i> ${p.cat || p.category || ''}</span>
+        <span>💰 ${p.cost === 0 ? 'رایگان' : faNum(p.cost.toLocaleString()) + ' تومان'}</span>
+    </div>
+</div>
                 </div>
             </div>`).join('');
 

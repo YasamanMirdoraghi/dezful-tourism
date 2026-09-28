@@ -2,6 +2,10 @@
    navbar.css — نوبار + منوی موبایل + همبرگر
    ═══════════════════════════════════════════════════════════ */
 
+/* ═══════════════════════════════════════════════════════════
+   دسکتاپ — استایل اصلی
+   ═══════════════════════════════════════════════════════════ */
+
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -26,6 +30,7 @@
     gap: 8px;
     animation: logoFloat 3s ease-in-out infinite;
     cursor: default;
+    text-decoration: none;
 }
 
 .logo i {
@@ -102,7 +107,7 @@
     width: 100%;
 }
 
-/* دکمه‌های ثبت‌نام و ورود */
+/* ═══ دکمه‌های ثبت‌نام و ورود (دسکتاپ) ═══ */
 .auth-buttons {
     display: flex;
     gap: 12px;
@@ -176,7 +181,7 @@
     font-size: 16px;
 }
 
-/* دکمه همبرگری */
+/* ═══ دکمه همبرگری (مخفی در دسکتاپ) ═══ */
 .hamburger {
     display: none;
     font-size: 26px;
@@ -193,27 +198,46 @@
     transform: scale(1.1);
 }
 
-/* المان‌های موبایل (در حالت پیش‌فرض مخفی) */
+/* ═══ المان‌های موبایل (پیش‌فرض مخفی) ═══ */
 .auth-mobile,
 .close-menu-btn {
     display: none;
 }
 
 /* ═══════════════════════════════════════════════════════════
-   ریسپانسیو — موبایل
+   ریسپانسیو — موبایل (بهبودیافته)
    ═══════════════════════════════════════════════════════════ */
 @media (max-width: 768px) {
 
-    .hamburger {
-        display: block;
+    /* ═══ هدر جمع‌وجورتر ═══ */
+    .navbar {
+        padding: 10px 14px;
+        min-height: 56px;
     }
 
+    .logo {
+        font-size: 17px;
+        gap: 6px;
+    }
+
+    .logo i {
+        font-size: 16px;
+    }
+
+    .hamburger {
+        display: block;
+        font-size: 22px;
+        padding: 4px 6px;
+    }
+
+    /* ═══ دکمه‌های auth مخفی در هدر ═══ */
     .auth-buttons .btn-outline,
     .auth-buttons .btn-primary,
     .auth-buttons .nav-user {
         display: none;
     }
 
+    /* ═══ منوی کشویی — پهنای کمتر، فونت کوچیک‌تر ═══ */
     .nav-links {
         display: flex;
         flex-direction: column;
@@ -225,10 +249,10 @@
         position: fixed;
         top: 0;
         right: 0;
-        width: 75%;
-        max-width: 340px;
+        width: 240px;
+        max-width: 240px;
         height: 100vh;
-        padding: 80px 24px 30px;
+        padding: 64px 18px 24px;
         box-shadow: 0 0 40px rgba(0, 0, 0, 0.12);
         transform: translateX(100%);
         transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
@@ -241,42 +265,52 @@
         transform: translateX(0);
     }
 
+    /* ═══ دکمه بستن منو ═══ */
     .nav-links .close-menu-btn {
         display: flex;
         position: absolute;
-        top: 16px;
-        left: 20px;
+        top: 14px;
+        left: 14px;
+        width: 34px;
+        height: 34px;
         background: none;
         border: none;
-        font-size: 28px;
+        font-size: 20px;
         color: var(--brown-text);
         cursor: pointer;
-        padding: 4px;
-        transition: 0.2s;
-        z-index: 10;
         align-items: center;
         justify-content: center;
-        width: 40px;
-        height: 40px;
         border-radius: 50%;
+        transition: 0.2s;
+        z-index: 10;
+        padding: 0;
     }
 
     .nav-links .close-menu-btn:hover {
         transform: rotate(90deg);
+        background: rgba(17, 139, 113, 0.08);
     }
 
+    /* ═══ لینک‌های منو ═══ */
     .nav-links a {
-        padding: 14px 0;
-        font-size: 18px;
-        font-weight: 500;
+        padding: 11px 0;
+        font-size: 14px;
+        font-weight: 600;
         color: var(--brown-text);
         border-bottom: 1px solid rgba(0, 0, 0, 0.04);
         animation: none;
         opacity: 1;
+        gap: 8px;
     }
 
     .nav-links a::after {
         display: none;
+    }
+
+    .nav-links a i {
+        font-size: 14px;
+        width: 18px;
+        text-align: center;
     }
 
     .nav-links a:hover {
@@ -290,15 +324,16 @@
     .nav-links a.active {
         color: var(--primary-green);
         font-weight: 700;
-        border-right: 3px solid var(--primary-green);
-        padding-right: 10px;
+        border-right: 2.5px solid var(--primary-green);
+        padding-right: 8px;
     }
 
+    /* ═══ دکمه‌های ورود/ثبت‌نام داخل منو ═══ */
     .nav-links .auth-mobile {
         display: flex;
         flex-direction: column;
         gap: 6px;
-        margin-top: 16px;
+        margin-top: 14px;
         padding-top: 12px;
         border-top: 2px solid rgba(17, 139, 113, 0.08);
     }
@@ -309,8 +344,8 @@
         justify-content: center;
         gap: 6px;
         width: 100%;
-        padding: 8px 0;
-        font-size: 14px;
+        padding: 9px 0;
+        font-size: 13px;
         font-weight: 700;
         border-radius: 40px;
         text-decoration: none;
@@ -319,7 +354,7 @@
     }
 
     .nav-links .auth-mobile .btn-outline-mobile {
-        border: 2px solid var(--primary-green);
+        border: 1.5px solid var(--primary-green);
         color: var(--primary-green);
         background: transparent;
     }
@@ -332,7 +367,7 @@
     .nav-links .auth-mobile .btn-primary-mobile {
         background: var(--primary-green);
         color: #fff;
-        border: 2px solid var(--primary-green);
+        border: 1.5px solid var(--primary-green);
     }
 
     .nav-links .auth-mobile .btn-primary-mobile:hover {
@@ -340,6 +375,7 @@
         border-color: var(--primary-green-light);
     }
 
+    /* ═══ overlay ═══ */
     .overlay {
         position: fixed;
         top: 0;
@@ -357,5 +393,42 @@
     .overlay.active {
         opacity: 1;
         visibility: visible;
+    }
+}
+
+/* ─── موبایل خیلی کوچیک ─── */
+@media (max-width: 400px) {
+
+    .navbar {
+        padding: 9px 12px;
+        min-height: 52px;
+    }
+
+    .logo {
+        font-size: 15px;
+    }
+
+    .logo i {
+        font-size: 14px;
+    }
+
+    .hamburger {
+        font-size: 20px;
+    }
+
+    .nav-links {
+        width: 220px;
+        max-width: 220px;
+        padding: 60px 16px 20px;
+    }
+
+    .nav-links a {
+        font-size: 13px;
+        padding: 10px 0;
+    }
+
+    .nav-links .auth-mobile a {
+        font-size: 12px;
+        padding: 8px 0;
     }
 }

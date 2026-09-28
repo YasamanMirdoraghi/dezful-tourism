@@ -12,162 +12,37 @@
     --cream-bg: #f5efe6;
 }
 
-.register-page * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+/* ═══════════════════════════════════════════════════════════
+   تنظیمات کلی
+   ═══════════════════════════════════════════════════════════ */
+
+html,
+body.register-page {
+    height: 100%;
+    min-height: 100%;
 }
 
-.register-page {
+body.register-page {
+    position: relative;
     font-family: 'Vazirmatn', sans-serif;
     min-height: 100vh;
-    overflow-x: hidden;
-    background: #f5efe6;
     color: #2d2418;
-}
-
-/* ═══════════════════════════════════════════════════
-   Navbar شفاف
-   ═══════════════════════════════════════════════════ */
-.register-page .navbar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 100;
+    background: #0f1e23;
+    overflow-x: hidden;
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 16px 40px;
-    background: rgba(15, 30, 35, 0.4) !important;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: none;
+    flex-direction: column;
 }
 
-.register-page .navbar .logo {
-    font-size: 1.4rem;
-    font-weight: 900;
-    color: #fff;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-    animation: none;
-}
-
-.register-page .navbar .logo i {
-    color: #4ade80;
-    animation: none;
-}
-
-.register-page .navbar .logo span {
-    color: #4ade80;
-}
-
-.register-page .navbar .nav-links {
-    display: flex;
-    gap: 28px;
-    align-items: center;
-    list-style: none;
-    position: static;
-    background: none;
-    width: auto;
-    height: auto;
-    padding: 0;
-    box-shadow: none;
-    transform: none;
-    border: none;
-    flex-direction: row;
-}
-
-.register-page .navbar .nav-links a {
-    color: rgba(255, 255, 255, 0.9);
-    text-decoration: none;
-    font-size: 0.92rem;
-    font-weight: 600;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    padding: 6px 0;
+body.register-page > main {
+    flex: 1 0 auto;
     position: relative;
-    transition: color 0.3s;
-    animation: none;
-    opacity: 1;
-    border-bottom: none;
+    z-index: 1;
 }
 
-.register-page .navbar .nav-links a:hover {
-    color: #4ade80;
-}
-
-.register-page .navbar .nav-links a::after {
-    display: none;
-}
-
-.register-page .navbar .nav-links a i {
-    font-size: 0.85rem;
-}
-
-.register-page .navbar .auth-buttons {
-    display: flex;
-    gap: 12px;
-    align-items: center;
-}
-
-.register-page .navbar .btn-outline,
-.register-page .navbar .btn-primary {
-    text-decoration: none;
-    font-size: 0.85rem;
-    font-weight: 700;
-    padding: 8px 20px;
-    border-radius: 40px;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    transition: all 0.3s;
-}
-
-.register-page .navbar .btn-outline {
-    background: transparent;
-    color: #fff;
-    border: 2px solid rgba(255, 255, 255, 0.5);
-}
-
-.register-page .navbar .btn-outline:hover {
-    background: rgba(255, 255, 255, 0.15);
-    border-color: #fff;
-}
-
-.register-page .navbar .btn-primary {
-    background: linear-gradient(135deg, #118b71, #2a9d8f);
-    color: #fff;
-    border: 2px solid transparent;
-    box-shadow: 0 6px 20px rgba(17, 139, 113, 0.4);
-}
-
-.register-page .navbar .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 10px 28px rgba(17, 139, 113, 0.55);
-}
-
-.register-page .navbar .hamburger {
-    display: none;
-    background: transparent;
-    border: none;
-    color: #fff;
-    font-size: 1.5rem;
-    cursor: pointer;
-}
-
-/* پس‌زمینه */
+/* ═══ پس‌زمینه — پشت همه‌چیز ═══ */
 .register-page .register-bg {
     position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
+    inset: 0;
     z-index: -1;
     background-image: url('/static/img/register-bg6.jpg');
     background-size: cover;
@@ -178,29 +53,31 @@
 .register-page .register-bg::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg,
-            rgba(15, 30, 35, 0.7) 0%,
-            rgba(15, 30, 35, 0.5) 40%,
-            rgba(15, 30, 35, 0.8) 100%);
+    inset: 0;
+    background: linear-gradient(
+        135deg,
+        rgba(15, 30, 35, 0.75) 0%,
+        rgba(15, 30, 35, 0.55) 40%,
+        rgba(15, 30, 35, 0.85) 100%
+    );
 }
 
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    لایوت اصلی
-   ═══════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
+
 .register-page .register-main {
-    min-height: 100vh;
+    position: relative;
+    z-index: 1;
     width: 100%;
-    padding: 120px 20px 40px;
+    padding: 60px 20px;
 }
 
 .register-page .register-main-inner {
     width: 100%;
-    max-width: 1200px;
+    max-width: 1400px;
     margin: 0 auto;
+    padding: 0 40px;
 }
 
 .register-page .register-container {
@@ -208,17 +85,109 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 80px;
 }
 
-/* ═══════════════════════════════════════════════════
-   باکس فرم
-   ═══════════════════════════════════════════════════ */
-.register-page .register-card {
-    width: 45%;
+/* ═══════════════════════════════════════════════════════════
+   باکس اطلاعات
+   ═══════════════════════════════════════════════════════════ */
+
+.register-page .register-info {
+    width: 52%;
+    max-width: 600px;
+    color: #fff;
+    text-align: right;
+}
+
+.register-page .register-headline {
+    font-size: 2.3rem;
+    font-weight: 900;
+    line-height: 1.4;
+    margin-bottom: 30px;
+    letter-spacing: -0.5px;
+    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+    color: #fff;
+}
+
+.register-page .register-headline span {
+    color: #4ade80;
+    display: inline-block;
+}
+
+.register-page .register-desc {
     font-size: 1rem;
+    line-height: 2;
+    opacity: 0.95;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
+    font-weight: 500;
+    color: #fff;
+    margin-bottom: 60px;
+}
+
+/* ═══ آیکون‌های ویژگی ═══ */
+.register-page .register-features {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+}
+
+.register-page .register-feature {
+    background: rgba(188, 243, 231, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 12px;
+    padding: 14px 8px;
+    text-align: center;
+    transition: all 0.3s ease;
+}
+
+.register-page .register-feature:hover {
+    background: rgba(188, 243, 231, 0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 32px rgba(17, 139, 113, 0.35);
+}
+
+.register-page .register-feature-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+    transition: all 0.3s ease;
+}
+
+.register-page .register-feature-icon i {
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.register-page .register-feature:hover .register-feature-icon {
+    background: rgba(17, 139, 113, 0.8);
+    border-color: rgba(74, 222, 128, 0.8);
+    transform: scale(1.05);
+}
+
+.register-page .register-feature span {
+    font-size: 0.72rem;
+    line-height: 1.5;
+    color: #fff;
+    font-weight: 700;
+    display: block;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+}
+
+/* ═══════════════════════════════════════════════════════════
+   باکس فرم
+   ═══════════════════════════════════════════════════════════ */
+
+.register-page .register-card {
+    width: 42%;
+    max-width: 520px;
     background: #fff;
     border-radius: 28px;
-    padding: 36px 40px;
+    padding: 32px 36px;
     box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
     position: relative;
     overflow: hidden;
@@ -231,7 +200,7 @@
     right: -20px;
     width: 180px;
     height: 180px;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23118b71' stroke-width='1.2' opacity='0.1'%3E%3Cpath d='M200 200 Q160 160 120 180 Q80 200 60 160 Q40 120 80 100 Q120 80 140 120 Q160 160 200 200 Z'/%3E%3Cpath d='M200 200 L100 140'/%3E%3Cpath d='M180 180 L140 160 M160 160 L120 140 M140 140 L100 120'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200' fill='none' stroke='%23118b71' stroke-width='1.2' opacity='0.1'%3E%3Cpath d='M200 200 Q160 160 120 180 Q80 200 60 160 Q40 120 80 100 Q120 80 140 120 Q160 160 200 200 Z'/%3E%3C/svg%3E");
     background-size: contain;
     background-repeat: no-repeat;
     pointer-events: none;
@@ -239,32 +208,31 @@
 
 .register-page .register-card-header {
     text-align: center;
-    margin-bottom: 24px;
+    margin-bottom: 20px;
     position: relative;
     z-index: 1;
 }
 
 .register-page .register-icon-top {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 14px;
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 12px;
     background: linear-gradient(135deg, #118b71, #2a9d8f);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: #fff;
-    font-size: 1.4rem;
     box-shadow: 0 10px 30px rgba(17, 139, 113, 0.4);
 }
 
 .register-page .register-icon-top i {
     color: #fff;
-    font-size: 1.4rem;
+    font-size: 1.35rem;
 }
 
 .register-page .register-title {
-    font-size: 1.4rem;
+    font-size: 1.35rem;
     font-weight: 900;
     color: #2d2418;
     margin-bottom: 6px;
@@ -272,68 +240,40 @@
 }
 
 .register-page .register-subtitle {
-    font-size: 0.8rem;
+    font-size: 0.78rem;
     color: #8b7355;
     line-height: 1.7;
     text-align: center;
 }
 
-.register-page .register-success-msg {
-    background: rgba(17, 139, 113, 0.08);
-    border: 1px solid rgba(17, 139, 113, 0.18);
-    border-radius: 12px;
-    padding: 10px 14px;
-    margin-bottom: 18px;
-    font-size: 0.78rem;
-    color: #0d6b56;
-    font-weight: 600;
-    position: relative;
-    z-index: 1;
-}
-
-.register-page .register-success-msg i {
-    color: #118b71;
-    font-size: 0.95rem;
-    margin-left: 8px;
-}
-
-/* فرم */
+/* ═══ فرم ═══ */
 .register-page .register-form {
     position: relative;
     z-index: 1;
 }
 
 .register-page .register-form-row {
-    font-size: 0;
-    margin-bottom: 14px;
-}
-
-.register-page .register-form-row > .register-field {
-    display: inline-block;
-    vertical-align: top;
-    width: 48%;
-    font-size: 0.85rem;
-}
-
-.register-page .register-form-row > .register-field:first-child {
-    margin-left: 4%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
 .register-page .register-field {
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 
 .register-page .register-field label {
     display: block;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 700;
     color: #2d2418;
-    margin-bottom: 6px;
+    margin-bottom: 5px;
 }
 
 .register-page .register-field label i {
     color: #8b7355;
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     margin-left: 4px;
 }
 
@@ -347,11 +287,11 @@
 
 .register-page .register-input-wrap input {
     width: 100%;
-    padding: 11px 14px;
+    padding: 10px 12px;
     border: 2px solid rgba(17, 139, 113, 0.12);
-    border-radius: 12px;
+    border-radius: 11px;
     font-family: 'Vazirmatn', sans-serif;
-    font-size: 0.85rem;
+    font-size: 0.82rem;
     color: #2d2418;
     background: #fafaf8;
     outline: none;
@@ -367,19 +307,19 @@
 
 .register-page .register-input-wrap input::placeholder {
     color: rgba(139, 115, 85, 0.55);
-    font-size: 0.78rem;
+    font-size: 0.75rem;
 }
 
 .register-page .password-toggle {
     position: absolute;
-    left: 12px;
+    left: 10px;
     top: 50%;
     transform: translateY(-50%);
     background: transparent;
     border: none;
     color: #8b7355;
     cursor: pointer;
-    font-size: 0.85rem;
+    font-size: 0.8rem;
     padding: 4px;
 }
 
@@ -387,26 +327,25 @@
     color: #118b71;
 }
 
-/* دکمه‌ها */
+/* ═══ دکمه ═══ */
 .register-page .register-submit {
     width: 100%;
-    padding: 13px;
+    padding: 12px;
     border: none;
     border-radius: 12px;
     background: linear-gradient(135deg, #118b71, #2a9d8f);
     color: #fff;
     font-family: 'Vazirmatn', sans-serif;
-    font-size: 0.95rem;
+    font-size: 0.92rem;
     font-weight: 800;
     cursor: pointer;
-    text-align: center;
-    transition: all 0.3s ease;
-    box-shadow: 0 8px 24px rgba(17, 139, 113, 0.3);
-    margin-top: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 6px;
+    transition: all 0.3s ease;
+    box-shadow: 0 8px 24px rgba(17, 139, 113, 0.3);
+    margin-top: 4px;
 }
 
 .register-page .register-submit:hover {
@@ -414,15 +353,11 @@
     box-shadow: 0 12px 32px rgba(17, 139, 113, 0.45);
 }
 
-.register-page .register-submit i {
-    color: #fff;
-}
-
 .register-page .register-divider {
     text-align: center;
-    margin: 14px 0 12px;
+    margin: 12px 0 10px;
     color: #8b7355;
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     font-weight: 600;
     position: relative;
 }
@@ -437,18 +372,13 @@
     background: rgba(17, 139, 113, 0.15);
 }
 
-.register-page .register-divider::before {
-    right: 0;
-}
-
-.register-page .register-divider::after {
-    left: 0;
-}
+.register-page .register-divider::before { right: 0; }
+.register-page .register-divider::after { left: 0; }
 
 .register-page .register-switch {
     text-align: center;
-    margin-top: 16px;
-    font-size: 0.8rem;
+    margin-top: 14px;
+    font-size: 0.78rem;
     color: #8b7355;
 }
 
@@ -464,11 +394,12 @@
     border-bottom-color: #118b71;
 }
 
+/* ═══ پیام‌ها ═══ */
 .register-page .site-message {
     padding: 10px 14px;
     border-radius: 12px;
     margin-bottom: 10px;
-    font-size: 0.82rem;
+    font-size: 0.8rem;
     font-weight: 600;
     display: flex;
     align-items: center;
@@ -487,218 +418,181 @@
     border: 1px solid rgba(17, 139, 113, 0.18);
 }
 
-/* ═══════════════════════════════════════════════════
-   باکس اطلاعات
-   ═══════════════════════════════════════════════════ */
-.register-page .register-info {
-    width: 50%;
-    font-size: 1rem;
-    color: #fff;
-    text-align: right;
-    padding-top: 40px;
-    padding-bottom: 40px;
-    height: auto;
-}
-
-.register-page .register-headline {
-    font-size: 2.5rem;
-    font-weight: 900;
-    line-height: 1.4;
-    margin-bottom: 50px;
-    letter-spacing: -0.5px;
-    text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
-    color: #fff;
-    text-align: right;
-}
-
-.register-page .register-headline span {
-    color: #4ade80;
-    display: inline-block;
-}
-
-.register-page .register-desc {
-    font-size: 1rem;
-    line-height: 2;
-    opacity: 0.95;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6);
-    font-weight: 500;
-    color: #fff;
-    text-align: right;
-    margin-bottom: 350px;
-}
-
-/* آیکون‌های ویژگی */
-.register-page .register-features {
-    font-size: 0;
-    text-align: right;
-    gap: 2px;
-}
-
-.register-page .register-feature {
-    display: inline-block;
-    vertical-align: top;
-    width: 20%;
-    background: rgba(188, 243, 231, 0.158);
-    margin-right: 10px !important;
-    font-size: 0.78rem;
-    border: 1px solid rgba(255, 255, 255, 0.322);
-    border-radius: 5px;
-    padding: 8px;
-    text-align: center;
-    box-shadow:
-        0 4px 20px rgba(17, 139, 113, 0.4),
-        inset 0 1px 1px rgba(255, 255, 255, 0.25);
-}
-
-.register-page .register-feature-icon {
-    width: 58px;
-    height: 58px;
-    border-radius: 50%;
-    border: 1.5px solid rgba(255, 255, 255, 0.4);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.25rem;
-    color: #fff;
-    margin: 0 auto 10px;
-    transition: all 0.3s ease;
-}
-
-.register-page .register-feature-icon i {
-    color: #fff;
-    font-size: 1.25rem;
-}
-
-.register-page .register-feature:hover .register-feature-icon {
-    transform: translateY(-3px);
-    background: rgba(17, 139, 113, 0.8);
-    border-color: rgba(74, 222, 128, 0.8);
-    box-shadow:
-        0 8px 28px rgba(17, 139, 113, 0.6),
-        inset 0 1px 1px rgba(255, 255, 255, 0.35);
-}
-
-.register-page .register-feature span {
-    font-size: 0.78rem;
-    line-height: 1.6;
-    color: #fff;
-    font-weight: 700;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
-    display: block;
-}
-
-.register-page .register-deco-logo {
-    position: fixed;
-    bottom: 30px;
-    left: 30px;
-    color: #fff;
-    font-size: 0.75rem;
-    opacity: 0.75;
-    z-index: 2;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-}
-
-.register-page .register-deco-logo i {
-    margin-left: 6px;
-}
-
-/* ═══════════════════════════════════════════════════
+/* ═══════════════════════════════════════════════════════════
    ریسپانسیو
-   ═══════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════ */
+
+/* ─── تبلت ─── */
 @media (max-width: 1100px) {
-
-    .register-page .register-card,
-    .register-page .register-info {
-        width: 47%;
-    }
-
-    .register-page .register-headline {
-        font-size: 1.8rem;
-    }
-}
-
-@media (max-width: 900px) {
-
-    .register-page .navbar .nav-links,
-    .register-page .navbar .auth-buttons {
-        display: none;
-    }
-
-    .register-page .navbar .hamburger {
-        display: block;
+    .register-page .register-main-inner {
+        padding: 0 20px;
     }
 
     .register-page .register-container {
-        flex-direction: column;
+        gap: 40px;
+    }
+
+    .register-page .register-headline {
+        font-size: 1.9rem;
+    }
+
+    .register-page .register-desc {
+        font-size: 0.92rem;
+        margin-bottom: 40px;
+    }
+
+    .register-page .register-features {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* ─── موبایل بزرگ ─── */
+@media (max-width: 900px) {
+    .register-page .register-main {
+        padding: 30px 16px 40px;
+    }
+
+    .register-page .register-main-inner {
+        padding: 0;
+    }
+
+    .register-page .register-container {
+        flex-direction: column-reverse;
+        gap: 30px;
     }
 
     .register-page .register-card,
     .register-page .register-info {
         width: 100%;
-        margin-bottom: 40px;
+        max-width: 100%;
     }
 
     .register-page .register-info {
         text-align: center;
-        padding-top: 0;
-        padding-bottom: 0;
-    }
-
-    .register-page .register-headline,
-    .register-page .register-desc {
-        text-align: center;
-    }
-
-    .register-page .register-features {
-        text-align: center;
-    }
-
-    .register-page .register-deco-logo {
-        display: none;
-    }
-}
-
-@media (max-width: 550px) {
-
-    .register-page .register-main {
-        padding: 100px 12px 30px;
-    }
-
-    .register-page .register-card {
-        padding: 22px 18px;
-        border-radius: 22px;
-    }
-
-    .register-page .register-form-row > .register-field {
-        display: block;
-        width: 100%;
-        margin-left: 0 !important;
-    }
-
-    .register-page .register-title {
-        font-size: 1.15rem;
+        order: 2;
     }
 
     .register-page .register-headline {
-        font-size: 1.4rem;
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 14px;
     }
 
     .register-page .register-desc {
-        font-size: 0.85rem;
+        font-size: 0.82rem;
+        text-align: center;
+        margin-bottom: 22px;
+        line-height: 1.9;
+    }
+
+    .register-page .register-features {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 8px;
     }
 
     .register-page .register-feature {
-        width: 50%;
-        margin-bottom: 15px;
+        padding: 10px 4px;
     }
 
     .register-page .register-feature-icon {
-        width: 50px;
-        height: 50px;
-        font-size: 1.05rem;
+        width: 38px;
+        height: 38px;
     }
 
     .register-page .register-feature-icon i {
-        font-size: 1.05rem;
+        font-size: 0.9rem;
     }
+
+    .register-page .register-feature span {
+        font-size: 0.6rem;
+        line-height: 1.4;
+    }
+
+    .register-page .register-card {
+        order: 1;
+    }
+}
+
+/* ─── موبایل کوچیک ─── */
+@media (max-width: 550px) {
+    .register-page .register-main {
+        padding: 20px 12px 30px;
+    }
+
+    .register-page .register-card {
+        padding: 20px 16px;
+        border-radius: 20px;
+    }
+
+    .register-page .register-icon-top {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 10px;
+    }
+
+    .register-page .register-icon-top i {
+        font-size: 1.1rem;
+    }
+
+    .register-page .register-title {
+        font-size: 1.1rem;
+    }
+
+    .register-page .register-subtitle {
+        font-size: 0.72rem;
+    }
+
+    .register-page .register-headline {
+        font-size: 1.3rem;
+        margin-bottom: 12px;
+    }
+
+    .register-page .register-desc {
+        font-size: 0.76rem;
+        margin-bottom: 18px;
+    }
+
+    .register-page .register-features {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 8px;
+    }
+
+    .register-page .register-feature span {
+        font-size: 0.66rem;
+    }
+
+    /* ─── فرم یک‌ستونی ─── */
+    .register-page .register-form-row {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+
+    .register-page .register-field label {
+        font-size: 0.7rem;
+    }
+
+    .register-page .register-input-wrap input {
+        font-size: 0.78rem;
+        padding: 9px 11px;
+    }
+
+    .register-page .register-submit {
+        font-size: 0.82rem;
+        padding: 11px;
+    }
+}
+/* ═══════════════════════════════════════════════════════════
+   مخفی کردن المان‌های اضافی
+   ═══════════════════════════════════════════════════════════ */
+
+.register-page .overlay {
+    display: none !important;
+}
+
+.register-page .scroll-top {
+    display: none !important;
+}
+
+.register-page .footer {
+    display: none !important;
 }

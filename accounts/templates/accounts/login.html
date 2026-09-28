@@ -5,8 +5,7 @@
 
 {% block body_class %}login-page{% endblock %}
 
-{% block navbar %}{% endblock %}
-{% block footer %}{% endblock %}
+{% block footer %}{% endblock %}       <!-- 🆕 اضافه شد -->
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/pages/login.css' %}">
@@ -16,36 +15,7 @@
 
 <div class="login-bg"></div>
 
-<header class="navbar" id="navbar">
-    <div class="logo">
-        <i class="fas fa-map-signs"></i> سفر به <span>دزفول</span>
-    </div>
-
-    <ul class="nav-links" id="navLinks">
-        <a href="{% url 'core:home' %}"><i class="fas fa-home"></i> خانه</a>
-        <a href="{% url 'planner:plan' %}"><i class="fas fa-calendar-check"></i> برنامه‌ریز</a>
-        <a href="{% url 'places:attraction' %}"><i class="fas fa-landmark"></i> جاذبه‌ها</a>
-        <a href="{% url 'core:map' %}"><i class="fas fa-map"></i> نقشه گردشگری</a>
-        <a href="{% url 'articles:articles' %}"><i class="fas fa-newspaper"></i> مقالات</a>
-        <a href="{% url 'core:contact' %}"><i class="fas fa-headset"></i> تماس با ما</a>
-    </ul>
-
-    <div class="auth-buttons">
-        {% if user.is_authenticated %}
-        <span class="nav-user"><i class="fas fa-user-circle"></i> {{ user.first_name|default:user.username }}</span>
-        <a href="{% url 'accounts:logout' %}" class="btn-outline"><i class="fas fa-sign-out-alt"></i> خروج</a>
-        {% else %}
-        <a href="{% url 'accounts:register' %}" class="btn-primary"><i class="fas fa-user-plus"></i> ثبت‌نام</a>
-        <a href="{% url 'accounts:login' %}" class="btn-outline"><i class="fas fa-sign-in-alt"></i> ورود</a>
-        {% endif %}
-    </div>
-
-    <button class="hamburger" id="hamburgerBtn" aria-label="منو">
-        <i class="fas fa-bars"></i>
-    </button>
-</header>
-
-<main class="login-main">
+<div class="login-main">
     <div class="login-main-inner">
         <div class="login-container">
             <div class="login-info">
@@ -101,11 +71,6 @@
                 </div>
                 {% endif %}
 
-                <div class="login-success-msg">
-                    <i class="fas fa-check-circle"></i>
-                    <span>خوشحالیم که دوباره می‌بینیمت!</span>
-                </div>
-
                 <form method="post" class="login-form">
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ next }}">
@@ -147,19 +112,11 @@
                 </p>
 
             </div>
-
         </div>
     </div>
-</main>
-
-<div class="login-deco-logo">
-    <i class="fas fa-heart"></i>
-    <span>دزفول، شهر دزفول</span>
 </div>
 
 {% endblock %}
-
-{% block legacy_js %}{% endblock %}
 
 {% block extra_js %}
 <script type="module" src="{% static 'js/main.js' %}"></script>

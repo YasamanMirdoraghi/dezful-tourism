@@ -619,10 +619,16 @@ body.page-map {
 
 .pc-meta {
     display: flex;
-    gap: 10px;
-    flex-wrap: wrap;
+    flex-direction: column;
+    gap: 4px;
     font-size: 11px;
     color: #8b7355;
+}
+
+.pc-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 /* ═══ گروه‌بندی روزانه ═══ */
@@ -1090,8 +1096,17 @@ body.page-map {
     color: #8b7355;
     line-height: 1.8;
     margin: 0;
-}
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+        /* 🆕 راست‌چین */
+    direction: rtl;
+    text-align: right;
 
+}
 /* ═══ Toast ═══ */
 .toast {
     position: fixed;
